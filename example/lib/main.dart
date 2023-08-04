@@ -3,7 +3,9 @@ import 'package:riverpie/riverpie.dart';
 
 final numberProvider = Provider<int>(() => throw 'Not initialized');
 
-final counterProvider = NotifierProvider<Counter, int>(() => Counter());
+final counterProviderA = NotifierProvider<Counter, int>(() => Counter());
+
+final counterProviderB = NotifierProvider<Counter, int>(() => Counter());
 
 class Counter extends Notifier<int> {
   @override
@@ -46,7 +48,7 @@ class _HomePageState extends State<HomePage> with Riverpie {
   @override
   Widget build(BuildContext context) {
     final myNumber = ref.watch(numberProvider);
-    final myCounter = ref.watch(counterProvider);
+    final myCounter = ref.watch(counterProviderA);
     return Scaffold(
       body: Column(
         children: [
@@ -54,7 +56,7 @@ class _HomePageState extends State<HomePage> with Riverpie {
           Text('The counter is $myCounter'),
           ElevatedButton(
             onPressed: () {
-              ref.notify(counterProvider).increment();
+              ref.notify(counterProviderA).increment();
             },
             child: const Text('+ 1'),
           ),
@@ -77,21 +79,55 @@ class MySecondPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, child) {
-      final myNumber = ref.watch(numberProvider);
-      final myCounter = ref.watch(counterProvider);
       return Scaffold(
         appBar: AppBar(
           title: const Text('Second page'),
         ),
-        body: Column(
+        body: Row(
           children: [
-            Text('The number is $myNumber'),
-            Text('The counter is $myCounter'),
-            ElevatedButton(
-              onPressed: () {
-                ref.notify(counterProvider).increment();
-              },
-              child: const Text('+ 1'),
+            Expanded(
+              child: Consumer(
+                builder: (context, ref, child) {
+                  final myCounter = ref.listen(counterProviderA, (prev, next) {
+                    print('(A) Number changed $prev to $next');
+                  });
+                  print('Rebuild A');
+                  return Column(
+                    children: [
+                      Text('Counter A $myCounter'),
+                      ElevatedButton(
+                        onPressed: () {
+                          ref.notify(counterProviderA).increment();
+                        },
+                        child: const Text('+ 1'),
+                      ),
+                    ],
+                  );
+                }
+              ),
+            ),
+            Expanded(
+              child: Consumer(
+                  builder: (context, ref, child) {
+                    final anotherCounter = ref.listen(counterProviderB, (prev, next) {
+                      print('(B) Another number changed $prev to $next');
+                    });
+                    print('Rebuild B');
+                    return Column(
+                      children: [
+                        Text('Counter B $anotherCounter'),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Calling twice should be ok, rebuilds only once
+                            ref.notify(counterProviderB).increment();
+                            ref.notify(counterProviderB).increment();
+                          },
+                          child: const Text('+ 1'),
+                        ),
+                      ],
+                    );
+                  }
+              ),
             ),
           ],
         ),

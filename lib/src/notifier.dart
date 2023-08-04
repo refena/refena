@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/listener.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// A notifier holds a state and notifies its listeners when the state changes.
@@ -13,8 +14,7 @@ abstract class Notifier<T> {
   late Ref _ref;
   late T _state;
 
-  final _listeners = <State>{};
-  int _listenerAddCount = 0;
+  final _listeners = NotifierListeners<T>();
 
   /// Initializes the state of the notifier.
   /// This method is called only once and
@@ -33,23 +33,13 @@ abstract class Notifier<T> {
     _state = value;
 
     if (_initialized && updateShouldNotify(oldState, _state)) {
-      notifyListeners();
+      _listeners.notify(oldState, _state);
     }
   }
 
   @protected
   bool updateShouldNotify(T prev, T next) {
     return !identical(prev, next);
-  }
-
-  @protected
-  void notifyListeners() {
-    _removeUnusedListeners();
-
-    for (final listener in _listeners) {
-      // ignore: invalid_use_of_protected_member
-      listener.setState(() {});
-    }
   }
 
   @internal
@@ -60,20 +50,7 @@ abstract class Notifier<T> {
   }
 
   @internal
-  void addListener(State state) {
-    _listenerAddCount++;
-    if (_listenerAddCount == 10) {
-      // We already clear listeners on each notify.
-      // This handling is for scenarios when the state never changes.
-      _listenerAddCount = 0;
-      _removeUnusedListeners();
-    }
-
-    _listeners.add(state);
-  }
-
-  void _removeUnusedListeners() {
-    // remove any listener that has been disposed
-    _listeners.removeWhere((state) => !state.mounted);
+  void addListener(State state, ListenerCallback<T>? callback) {
+    _listeners.addListener(state, ListenerConfig<T>(callback: callback));
   }
 }

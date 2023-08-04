@@ -218,6 +218,61 @@ ElevatedButton(
 )
 ```
 
+## Using ref
+
+With `ref`, you can access the providers and notifiers.
+
+### ref.read
+
+Read the value of a provider.
+
+```dart
+int a = ref.read(myProvider);
+```
+
+### ref.watch
+
+Read the value of a provider and rebuild the widget when the value changes.
+
+```dart
+build(BuildContext context) {
+  final currentValue = ref.watch(myProvider);
+  
+  // ...
+}
+```
+
+## ref.listen
+
+Similar to `ref.watch`, but also provides a callback.
+
+Do **not** use `ref.watch` and `ref.listen` at the same time.
+
+```dart
+build(BuildContext context) {
+  final currentValue = ref.listen(myProvider, (prev, next) {
+    print('The value changed from $prev to $next');
+  });
+  
+  // The following is invalid, adding this before `ref.listen` disables the callback
+  final currentValueWithoutCallback = ref.watch(myProvider);
+  
+  // ...
+}
+```
+
+### ref.notify
+
+Read the notifier of a provider.
+
+```dart
+Counter counter = ref.notify(counterProvider);
+
+// or
+
+ref.notify(counterProvider).increment();
+```
+
 ## License
 
 MIT License
