@@ -1,5 +1,8 @@
 # Riverpie
 
+[![pub package](https://img.shields.io/pub/v/riverpie.svg)](https://pub.dev/packages/riverpie)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A tiny state management library for Flutter. Inspired by [Riverpod](https://pub.dev/packages/riverpod).
 
 ## Motivation
@@ -136,7 +139,7 @@ class MyPage extends StatelessWidget {
 
 ## Providers
 
-### Provider
+**Provider**
 
 Use this provider for immutable values.
 
@@ -172,7 +175,7 @@ int a = ref.read(myProvider);
 int a = ref.watch(myProvider);
 ```
 
-### NotifierProvider
+**NotifierProvider**
 
 Use this provider for mutable values.
 
@@ -222,7 +225,7 @@ ElevatedButton(
 
 With `ref`, you can access the providers and notifiers.
 
-### ref.read
+**ref.read**
 
 Read the value of a provider.
 
@@ -230,7 +233,7 @@ Read the value of a provider.
 int a = ref.read(myProvider);
 ```
 
-### ref.watch
+**ref.watch**
 
 Read the value of a provider and rebuild the widget when the value changes.
 
@@ -242,7 +245,7 @@ build(BuildContext context) {
 }
 ```
 
-## ref.listen
+**ref.listen**
 
 Similar to `ref.watch`, but also provides a callback.
 
@@ -261,7 +264,7 @@ build(BuildContext context) {
 }
 ```
 
-### ref.notify
+**ref.notify**
 
 Read the notifier of a provider.
 
