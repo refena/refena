@@ -16,14 +16,14 @@ I want to have a simple state management library that:
 - still uses `StatelessWidget` and `StatefulWidget` as the main building blocks
 - still has type safety as in Riverpod
 - has no hierarchy of providers (just access another provider with `ref.read`)
-- exposes a simple API: `ref.watch(provider)` to read, and `ref.notify(provider)` to write
+- exposes a simple API: `ref.watch(provider)` to read, and `ref.notifier(provider)` to write
 
 ## Features
 
 Define a provider:
 
 ```dart
-final counterProvider = NotifierProvider<Counter, int>(() => Counter());
+final counterProvider = NotifierProvider<Counter, int>((ref) => Counter());
 
 class Counter extends Notifier<int> {
   @override
@@ -33,7 +33,7 @@ class Counter extends Notifier<int> {
 }
 ```
 
-Use the provider:
+Add `with Riverpie` and access the provider:
 
 ```dart
 class CounterPage extends StatefulWidget {
@@ -51,7 +51,7 @@ class _CounterState extends State<CounterPage> with Riverpie {
           Text('The counter is $myCounter'),
           ElevatedButton(
             onPressed: () {
-              ref.notify(counterProvider).increment();
+              ref.notifier(counterProvider).increment();
               // in riverpod it would be:
               // ref.read(counterProvider.notifier).increment();
             },
@@ -89,7 +89,7 @@ void main() {
 **Step 3: Define a provider**
 
 ```dart
-final myProvider = Provider(() => 42);
+final myProvider = Provider((_) => 42);
 ```
 
 **Step 4: Use the provider**
@@ -115,9 +115,11 @@ class _MyPageState extends State<MyPage> with Riverpie {
 
 ## Stateful vs Stateless widgets
 
-The easiest way to use Riverpie is to use `StatefulWidget` and add `with Riverpie` to the state class.
+The easiest way to use Riverpie is to use a `StatefulWidget` and add `with Riverpie` to the `State` class.
 
-However, you can also use `StatelessWidget` and `Consumer` to access the state.
+A `StatelessWidget` alone cannot be used in combination with `Riverpie`.
+
+However, you can use `Consumer` to access the state.
 
 ```dart
 class MyPage extends StatelessWidget {
@@ -144,13 +146,13 @@ class MyPage extends StatelessWidget {
 Use this provider for immutable values.
 
 ```dart
-final myProvider = Provider(() => 42);
+final myProvider = Provider((ref) => 42);
 ```
 
 You may initialize this during app start:
 
 ```dart
-final myProvider = Provider<PersistenceService>(() => throw 'Not initialized');
+final myProvider = Provider<PersistenceService>((_) => throw 'Not initialized');
 
 void main() async {
   final persistenceService = PersistenceService(await SharedPreferences.getInstance());
@@ -184,7 +186,7 @@ This provider can be used in an MVC-like pattern.
 The notifiers are **never** disposed. You may have custom logic to delete values within a state.
 
 ```dart
-final counterProvider = NotifierProvider<Counter, int>(() => Counter());
+final counterProvider = NotifierProvider<Counter, int>((ref) => Counter());
 
 class Counter extends Notifier<int> {
   @override
@@ -207,7 +209,7 @@ int a = ref.watch(counterProvider);
 To access the notifier:
 
 ```dart
-Counter counter = ref.notify(counterProvider);
+Counter counter = ref.notifier(counterProvider);
 ```
 
 Or within a click handler:
@@ -215,10 +217,61 @@ Or within a click handler:
 ```dart
 ElevatedButton(
   onPressed: () {
-    ref.notify(counterProvider).increment();
+    ref.notifier(counterProvider).increment();
   },
   child: const Text('+ 1'),
 )
+```
+
+## Notifiers
+
+A `NotifierProvider` can be provided with different kinds of notifiers.
+
+**Notifier**
+
+A `Notifier` is the fastest and easiest way to implement a notifier.
+
+It has access to `ref`, so you can use any provider at any time.
+
+```dart
+class Counter extends Notifier<int> {
+  @override
+  int init() => 10;
+
+  void increment() {
+    final anotherValue = ref.read(anotherProvider);
+    state++;
+  }
+}
+```
+
+**PureNotifier**
+
+A `PureNotifier` is the stricter option.
+
+It has no access to `ref` making this notifier self-contained.
+
+This is often used in combination with dependency injection, where you provide the dependencies via constructor.
+
+```dart
+final counterProvider = NotifierProvider<PureCounter, int>((ref) {
+  final persistenceService = ref.read(persistenceProvider);
+  return PureCounter(persistenceService);
+});
+
+class PureCounter extends PureNotifier<int> {
+  final PersistenceService _persistenceService;
+
+  PureCounter(this._persistenceService);
+  
+  @override
+  int init() => 10;
+
+  void increment() {
+    counter++;
+    _persistenceService.persist();
+  }
+}
 ```
 
 ## Using ref
@@ -237,6 +290,8 @@ int a = ref.read(myProvider);
 
 Read the value of a provider and rebuild the widget when the value changes.
 
+This should be used within a `build` method.
+
 ```dart
 build(BuildContext context) {
   final currentValue = ref.watch(myProvider);
@@ -249,31 +304,31 @@ build(BuildContext context) {
 
 Similar to `ref.watch`, but also provides a callback.
 
-Do **not** use `ref.watch` and `ref.listen` at the same time.
+Do **NOT** use `ref.watch` and `ref.listen` at the same time.
 
 ```dart
 build(BuildContext context) {
   final currentValue = ref.listen(myProvider, (prev, next) {
     print('The value changed from $prev to $next');
   });
-  
-  // The following is invalid, adding this before `ref.listen` disables the callback
+
+  // The following is invalid, calling this before `ref.listen` even disables the callback
   final currentValueWithoutCallback = ref.watch(myProvider);
-  
+
   // ...
 }
 ```
 
-**ref.notify**
+**ref.notifier**
 
-Read the notifier of a provider.
+Get the notifier of a provider.
 
 ```dart
-Counter counter = ref.notify(counterProvider);
+Counter counter = ref.notifier(counterProvider);
 
 // or
 
-ref.notify(counterProvider).increment();
+ref.notifier(counterProvider).increment();
 ```
 
 ## License

@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:riverpie/src/listener.dart';
 import 'package:riverpie/src/provider/provider.dart';
-import 'package:riverpie/src/provider/state.dart';
 import 'package:riverpie/src/widget/scope.dart';
 import 'package:riverpie/src/notifier.dart';
 import 'package:riverpie/src/ref.dart';
@@ -14,7 +13,7 @@ mixin Riverpie<W extends StatefulWidget> on State<W> {
     watch: _watch,
     listen: _listen,
     read: _read,
-    notify: _notify,
+    notifier: _notifier,
   );
 
   T _watch<T>(BaseProvider<T> provider) {
@@ -29,13 +28,13 @@ mixin Riverpie<W extends StatefulWidget> on State<W> {
     required BaseProvider<T> provider,
     required ListenerCallback<T>? listener,
   }) {
-    final state = _getScope(context).getState(provider);
-    if (state is ProviderState<T>) {
+    final ref = _getScope(context);
+    if (provider is Provider<T>) {
       // A normal provider is immutable, so we can return the value directly.
-      return state.getValue();
-    } else if (state is NotifierProviderState<Notifier<T>, T>) {
+      return ref.read(provider);
+    } else if (provider is NotifierProvider<BaseNotifier<T>, T>) {
       // A notifier provider is mutable, so we also need to add a listener.
-      final notifier = state.getNotifier();
+      final notifier = ref.notifier(provider);
       notifier.addListener(this, listener);
       return notifier.state;
     }
@@ -45,14 +44,15 @@ mixin Riverpie<W extends StatefulWidget> on State<W> {
   }
 
   T _read<T>(BaseProvider<T> provider) {
-    return _getScope(context).getValue(provider);
+    return _getScope(context).read(provider);
   }
 
-  N _notify<N extends Notifier<T>, T>(NotifierProvider<N, T> provider) {
-    return _getScope(context).getNotifier(provider);
+  N _notifier<N extends BaseNotifier<T>, T>(NotifierProvider<N, T> provider) {
+    return _getScope(context).notifier(provider);
   }
 }
 
+/// Returns the nearest [RiverpieScope].
 RiverpieScope _getScope(BuildContext context) {
   final scope = context.dependOnInheritedWidgetOfExactType<RiverpieScope>();
   if (scope == null) {

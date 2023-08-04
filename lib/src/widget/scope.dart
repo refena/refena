@@ -6,11 +6,16 @@ import 'package:riverpie/src/provider/state.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// The [RiverpieScope] holds the state of all providers.
-/// Every provider is initialized lazily and only once.
+/// Every provider state is initialized lazily and only once.
+///
+/// The [RiverpieScope] is used as [ref]
+/// - within provider build callbacks and
+/// - within notifiers.
 ///
 /// You can override a provider by passing [overrides] to the constructor.
 /// In this case, the state of the provider is initialized right away.
 class RiverpieScope extends InheritedWidget implements Ref {
+  /// Holds all provider states
   final _state = <BaseProvider, BaseProviderState>{};
 
   RiverpieScope({
@@ -22,14 +27,17 @@ class RiverpieScope extends InheritedWidget implements Ref {
       final state = override.state;
       if (state is NotifierProviderState) {
         // ignore: invalid_use_of_protected_member
-        state.getNotifier().setRefAndInit(this);
+        state.getNotifier().preInit(this);
       }
       _state[override.provider] = state;
     }
   }
 
-  @internal
-  BaseProviderState getState(BaseProvider provider) {
+  /// Returns the state of the provider.
+  ///
+  /// If the provider is accessed the first time,
+  /// it will be initialized.
+  BaseProviderState _getState(BaseProvider provider) {
     BaseProviderState? state = _state[provider];
     if (state == null) {
       state = provider.createState(this);
@@ -39,32 +47,22 @@ class RiverpieScope extends InheritedWidget implements Ref {
   }
 
   /// Returns the actual value of a [Provider].
-  @internal
-  T getValue<T>(BaseProvider<T> provider) {
-    final state = getState(provider) as BaseProviderState<T>;
+  @override
+  T read<T>(BaseProvider<T> provider) {
+    final state = _getState(provider) as BaseProviderState<T>;
     return state.getValue();
   }
 
   /// Returns the notifier of a [NotifierProvider].
-  @internal
-  N getNotifier<N extends Notifier<T>, T>(NotifierProvider<N, T> provider) {
-    final state = getState(provider) as NotifierProviderState<N, T>;
+  @override
+  N notifier<N extends BaseNotifier<T>, T>(NotifierProvider<N, T> provider) {
+    final state = _getState(provider) as NotifierProviderState<N, T>;
     return state.getNotifier();
   }
 
+  @internal
   @override
   bool updateShouldNotify(RiverpieScope oldWidget) {
     return false;
-  }
-
-  @override
-  N Function<N extends Notifier<T>, T>(NotifierProvider<N, T> provider)
-      get notify {
-    return getNotifier;
-  }
-
-  @override
-  T Function<T>(BaseProvider<T> provider) get read {
-    return getValue;
   }
 }

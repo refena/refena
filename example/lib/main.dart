@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:riverpie/riverpie.dart';
 
-final numberProvider = Provider<int>(() => throw 'Not initialized');
+final numberProvider = Provider<int>((ref) => throw 'Not initialized');
 
-final counterProviderA = NotifierProvider<Counter, int>(() => Counter());
+final counterProviderA = NotifierProvider<Counter, int>((ref) => Counter());
 
-final counterProviderB = NotifierProvider<Counter, int>(() => Counter());
+final counterProviderB = NotifierProvider<Counter, int>((ref) => Counter());
 
 class Counter extends Notifier<int> {
   @override
   int init() => 10;
 
-  void increment() => state++;
+  void increment() {
+    int a = ref.read(numberProvider);
+    print('Reading another provider: $a');
+    state++;
+  }
 }
 
 void main() {
@@ -56,7 +60,7 @@ class _HomePageState extends State<HomePage> with Riverpie {
           Text('The counter is $myCounter'),
           ElevatedButton(
             onPressed: () {
-              ref.notify(counterProviderA).increment();
+              ref.notifier(counterProviderA).increment();
             },
             child: const Text('+ 1'),
           ),
@@ -97,7 +101,7 @@ class MySecondPage extends StatelessWidget {
                       Text('Counter A $myCounter'),
                       ElevatedButton(
                         onPressed: () {
-                          ref.notify(counterProviderA).increment();
+                          ref.notifier(counterProviderA).increment();
                         },
                         child: const Text('+ 1'),
                       ),
@@ -119,8 +123,8 @@ class MySecondPage extends StatelessWidget {
                         ElevatedButton(
                           onPressed: () {
                             // Calling twice should be ok, rebuilds only once
-                            ref.notify(counterProviderB).increment();
-                            ref.notify(counterProviderB).increment();
+                            ref.notifier(counterProviderB).increment();
+                            ref.notifier(counterProviderB).increment();
                           },
                           child: const Text('+ 1'),
                         ),

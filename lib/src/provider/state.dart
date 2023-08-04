@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier.dart';
 
-/// A [BaseProviderState] holds the value of a provider.
+/// A "provider state" holds the value of a provider.
 /// The state may hold the value directly or indirectly via notifier.
 /// But in any case, the state should expose the current value [T].
 @internal
@@ -20,7 +20,7 @@ class ProviderState<T> extends BaseProviderState<T> {
 }
 
 @internal
-class NotifierProviderState<N extends Notifier<T>, T>
+class NotifierProviderState<N extends BaseNotifier<T>, T>
     extends BaseProviderState<T> {
   final N _notifier;
 

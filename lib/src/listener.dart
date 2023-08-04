@@ -14,7 +14,7 @@ class NotifierListeners<T> {
   final _listeners = <State, ListenerConfig<T>>{};
   int _listenerAddCount = 0;
 
-  void notify(T prev, T next) {
+  void notifyAll(T prev, T next) {
     _removeUnusedListeners();
 
     _listeners.forEach((state, config) {
