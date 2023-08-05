@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/listener.dart';
 import 'package:riverpie/src/notifier.dart';
 import 'package:riverpie/src/provider/provider.dart';
 import 'package:riverpie/src/provider/state.dart';
@@ -15,6 +18,14 @@ import 'package:riverpie/src/ref.dart';
 /// You can override a provider by passing [overrides] to the constructor.
 /// In this case, the state of the provider is initialized right away.
 class RiverpieScope extends InheritedWidget implements Ref {
+  /// If you are unable to access the [ref] for whatever reason,
+  /// there is a pragmatic solution for that.
+  /// This is considered bad practice and should only be used as a last resort.
+  ///
+  /// Usage:
+  /// RiverpieScope.defaultRef.read(myProvider);
+  static late Ref defaultRef;
+
   /// Holds all provider states
   final _state = <BaseProvider, BaseProviderState>{};
 
@@ -23,6 +34,8 @@ class RiverpieScope extends InheritedWidget implements Ref {
     List<ProviderOverride> overrides = const [],
     required super.child,
   }) {
+    defaultRef = this;
+
     for (final override in overrides) {
       final state = override.state;
       if (state is NotifierProviderState) {
@@ -58,6 +71,14 @@ class RiverpieScope extends InheritedWidget implements Ref {
   N notifier<N extends BaseNotifier<T>, T>(NotifierProvider<N, T> provider) {
     final state = _getState(provider) as NotifierProviderState<N, T>;
     return state.getNotifier();
+  }
+
+  @override
+  Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
+    NotifierProvider<N, T> provider,
+  ) {
+    final state = _getState(provider) as NotifierProviderState<N, T>;
+    return state.getNotifier().getStream();
   }
 
   @internal

@@ -332,23 +332,30 @@ build(BuildContext context) {
 }
 ```
 
-**ref.listen**
-
-Similar to `ref.watch`, but also provides a callback.
-
-Do **NOT** use `ref.watch` and `ref.listen` at the same time.
+You may add an optional `listener` callback:
 
 ```dart
 build(BuildContext context) {
-  final currentValue = ref.listen(myProvider, (prev, next) {
+  final currentValue = ref.watch(myProvider, listener: (prev, next) {
     print('The value changed from $prev to $next');
   });
 
-  // The following is invalid, calling this before `ref.listen` even disables the callback
-  final currentValueWithoutCallback = ref.watch(myProvider);
-
   // ...
 }
+```
+
+**ref.stream**
+
+Similar to `ref.watch` with `listener`, but you need to manage the subscription manually.
+
+The subscription will not be disposed automatically.
+
+Use this outside of a `build` method.
+
+```dart
+final subscription = ref.stream(myProvider).listen((value) {
+  print('The value changed from ${value.prev} to ${value.next}');
+});
 ```
 
 **ref.notifier**
@@ -361,6 +368,68 @@ Counter counter = ref.notifier(counterProvider);
 // or
 
 ref.notifier(counterProvider).increment();
+```
+
+## Performance Optimization
+
+**ref.watch**
+
+You may restrict the rebuilds to only a subset of the state.
+
+```dart
+build(BuildContext context) {
+  final currentValue = ref.watch(
+    myProvider,
+    rebuildWhen: (prev, next) => prev.attribute != next.attribute,
+  );
+  
+  // ...
+}
+```
+
+## ensureRef
+
+In a `StatefulWidget`, you can use `ensureRef` to access the providers and notifiers within `initState`.
+
+You may also use `ref` inside `dispose` because `ref` is guaranteed to be initialized.
+
+```dart
+@override
+void initState() {
+  super.initState();
+  ensureRef(() {
+    ref.read(myProvider);
+  });
+  
+  // or
+  ensureRef();
+}
+
+@override
+void dispose() {
+  ensureRef(() {
+    // This is safe now because we called `ensureRef` in `initState`
+    ref.read(myProvider);
+    ref.notifier(myNotifierProvider).doSomething();
+  });
+  super.dispose();
+}
+```
+
+## defaultRef
+
+If you are unable to access `ref`, there is a pragmatic solution for that.
+
+You can use `RiverpieScope.defaultRef` to access the providers and notifiers.
+
+Remember that this is only for edge cases and you should always use `ref` if possible.
+
+```dart
+void someFunction() {
+  final ref = RiverpieScope.defaultRef;
+  ref.read(myProvider);
+  ref.notifier(myNotifierProvider).doSomething();
+}
 ```
 
 ## License

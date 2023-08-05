@@ -91,9 +91,13 @@ class MySecondPage extends StatelessWidget {
           Expanded(
             child: Consumer(
               builder: (context, ref) {
-                final myCounter = ref.listen(counterProviderA, (prev, next) {
-                  print('(A) Number changed $prev to $next');
-                });
+                final myCounter = ref.watch(
+                  counterProviderA,
+                  listener: (prev, next) {
+                    print('Listener event of Counter A: $prev -> $next');
+                  },
+                  rebuildWhen: (prev, next) => next % 2 == 0,
+                );
                 print('Rebuild A');
                 return Column(
                   children: [
@@ -112,10 +116,12 @@ class MySecondPage extends StatelessWidget {
           Expanded(
             child: Consumer(
               builder: (context, ref) {
-                final anotherCounter =
-                    ref.listen(counterProviderB, (prev, next) {
-                  print('(B) Another number changed $prev to $next');
-                });
+                final anotherCounter = ref.watch(
+                  counterProviderB,
+                  listener: (prev, next) {
+                    print('Listener event of Counter B: $prev -> $next');
+                  },
+                );
                 print('Rebuild B');
                 return Column(
                   children: [

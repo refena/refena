@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/listener.dart';
@@ -50,8 +52,13 @@ abstract class BaseNotifier<T> {
   void preInit(Ref ref);
 
   @internal
-  void addListener(State state, ListenerCallback<T>? callback) {
-    _listeners.addListener(state, ListenerConfig<T>(callback: callback));
+  void addListener(State state, ListenerConfig<T> config) {
+    _listeners.addListener(state, config);
+  }
+
+  @internal
+  Stream<NotifierEvent<T>> getStream() {
+    return _listeners.getStream();
   }
 }
 

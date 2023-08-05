@@ -1,3 +1,11 @@
+## 0.5.0
+
+- feat: `RiverpieScope.default` for global access to `ref`
+- feat: `ref.stream` for manual stream access
+- feat: `ref.watch(myProvider, rebuildWhen: (prev, next) => ...)` for more control over when to rebuild
+- feat: use `ensureRef` within `initState` for `ref` access within initialization logic
+- **BREAKING**: removed `ref.listen`, use `ref.watch(myProvider, listener: (prev, next) => ...)` instead
+
 ## 0.4.0
 
 - **BREAKING**: `Consumer` does not have a `child` anymore, use `ExpensiveConsumer` instead
