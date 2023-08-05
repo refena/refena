@@ -1,3 +1,7 @@
+## 0.5.1
+
+- fix: lint fixes
+
 ## 0.5.0
 
 - feat: `RiverpieScope.default` for global access to `ref`

@@ -18,7 +18,7 @@ mixin Riverpie<W extends StatefulWidget> on State<W> {
   /// guaranteed to be initialized.
   void ensureRef([void Function()? callback]) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref;
+      ref; // ignore: unnecessary_statements
       callback?.call();
     });
   }
