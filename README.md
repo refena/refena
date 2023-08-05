@@ -126,7 +126,7 @@ class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer(
-      builder: (context, ref, child) {
+      builder: (context, ref) {
         final myValue = ref.watch(myProvider);
         return Scaffold(
           body: Center(

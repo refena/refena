@@ -1,3 +1,7 @@
+## 0.4.0
+
+- **BREAKING**: `Consumer` does not have a `child` anymore, use `ExpensiveConsumer` instead
+
 ## 0.3.0
 
 - feat: add `FutureProvider`

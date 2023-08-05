@@ -82,60 +82,59 @@ class MySecondPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer(builder: (context, ref, child) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Second page'),
-        ),
-        body: Row(
-          children: [
-            Expanded(
-              child: Consumer(
-                builder: (context, ref, child) {
-                  final myCounter = ref.listen(counterProviderA, (prev, next) {
-                    print('(A) Number changed $prev to $next');
-                  });
-                  print('Rebuild A');
-                  return Column(
-                    children: [
-                      Text('Counter A $myCounter'),
-                      ElevatedButton(
-                        onPressed: () {
-                          ref.notifier(counterProviderA).increment();
-                        },
-                        child: const Text('+ 1'),
-                      ),
-                    ],
-                  );
-                }
-              ),
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Second page'),
+      ),
+      body: Row(
+        children: [
+          Expanded(
+            child: Consumer(
+              builder: (context, ref) {
+                final myCounter = ref.listen(counterProviderA, (prev, next) {
+                  print('(A) Number changed $prev to $next');
+                });
+                print('Rebuild A');
+                return Column(
+                  children: [
+                    Text('Counter A $myCounter'),
+                    ElevatedButton(
+                      onPressed: () {
+                        ref.notifier(counterProviderA).increment();
+                      },
+                      child: const Text('+ 1'),
+                    ),
+                  ],
+                );
+              },
             ),
-            Expanded(
-              child: Consumer(
-                  builder: (context, ref, child) {
-                    final anotherCounter = ref.listen(counterProviderB, (prev, next) {
-                      print('(B) Another number changed $prev to $next');
-                    });
-                    print('Rebuild B');
-                    return Column(
-                      children: [
-                        Text('Counter B $anotherCounter'),
-                        ElevatedButton(
-                          onPressed: () {
-                            // Calling twice should be ok, rebuilds only once
-                            ref.notifier(counterProviderB).increment();
-                            ref.notifier(counterProviderB).increment();
-                          },
-                          child: const Text('+ 1'),
-                        ),
-                      ],
-                    );
-                  }
-              ),
+          ),
+          Expanded(
+            child: Consumer(
+              builder: (context, ref) {
+                final anotherCounter =
+                    ref.listen(counterProviderB, (prev, next) {
+                  print('(B) Another number changed $prev to $next');
+                });
+                print('Rebuild B');
+                return Column(
+                  children: [
+                    Text('Counter B $anotherCounter'),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Calling twice should be ok, rebuilds only once
+                        ref.notifier(counterProviderB).increment();
+                        ref.notifier(counterProviderB).increment();
+                      },
+                      child: const Text('+ 1'),
+                    ),
+                  ],
+                );
+              },
             ),
-          ],
-        ),
-      );
-    });
+          ),
+        ],
+      ),
+    );
   }
 }
