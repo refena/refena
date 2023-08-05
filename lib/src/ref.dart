@@ -28,25 +28,25 @@ abstract class Ref {
 class WatchableRef extends Ref {
   @override
   T read<T>(BaseProvider<T> provider) {
-    return _read(provider);
+    return _read<T>(provider);
   }
 
   @override
   N notifier<N extends BaseNotifier<T>, T>(NotifierProvider<N, T> provider) {
-    return _notifier(provider);
+    return _notifier<N, T>(provider);
   }
 
   /// Get the current value of a provider and listen to changes.
   /// The listener will be disposed automatically when the widget is disposed.
   T watch<T>(BaseProvider<T> provider) {
-    return _watch(provider);
+    return _watch<T>(provider);
   }
 
   /// Get the current value of a provider and listen to changes.
   /// In addition, a callback can be provided to be notified of changes.
   /// The listener will be disposed automatically when the widget is disposed.
   T listen<T>(BaseProvider<T> provider, ListenerCallback<T> listener) {
-    return _listen(provider, listener);
+    return _listen<T>(provider, listener);
   }
 
   final RefRead _read;

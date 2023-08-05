@@ -23,6 +23,15 @@ abstract class BaseNotifier<T> {
   /// Sets the state and notify listeners
   @protected
   set state(T value) {
+    if (!_initialized) {
+      // We allow initializing the state before the initialization
+      // by Riverpie is done.
+      // The only drawback is that ref is not available during this phase.
+      // Special providers like [FutureProvider] use this.
+      _state = value;
+      return;
+    }
+
     final oldState = _state;
     _state = value;
 

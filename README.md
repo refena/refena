@@ -223,6 +223,38 @@ ElevatedButton(
 )
 ```
 
+**FutureProvider**
+
+Use this provider for asynchronous values that never change.
+
+Example use cases:
+ - fetch static data from an API (that does not change)
+ - fetch device information (that does not change)
+
+The advantage over `FutureBuilder` is that the value is cached and the future is only called once.
+
+```dart
+import 'package:package_info_plus/package_info_plus.dart';
+
+final versionProvider = FutureProvider((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return '${info.version} (${info.buildNumber})';
+});
+```
+
+Access:
+
+```dart
+build(BuildContext context) {
+  AsyncSnapshot<String> versionAsync = ref.watch(versionProvider);
+  return versionAsync.when(
+    data: (version) => Text('Version: $version'),
+    loading: () => const CircularProgressIndicator(),
+    error: (error, stackTrace) => Text('Error: $error'),
+  );
+}
+```
+
 ## Notifiers
 
 A `NotifierProvider` can be provided with different kinds of notifiers.

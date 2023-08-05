@@ -1,3 +1,7 @@
+## 0.3.0
+
+- feat: add `FutureProvider`
+
 ## 0.2.0
 
 - feat: introduction of `PureNotifier`, a `Notifier` without access to `ref`
