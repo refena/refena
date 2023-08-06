@@ -261,7 +261,7 @@ A `NotifierProvider` can be provided with different kinds of notifiers.
 
 **Notifier**
 
-A `Notifier` is the fastest and easiest way to implement a notifier.
+The `Notifier` is the fastest and easiest way to implement a notifier.
 
 It has access to `ref`, so you can use any provider at any time.
 
@@ -279,7 +279,7 @@ class Counter extends Notifier<int> {
 
 **PureNotifier**
 
-A `PureNotifier` is the stricter option.
+The `PureNotifier` is the stricter option.
 
 It has no access to `ref` making this notifier self-contained.
 
@@ -304,6 +304,27 @@ class PureCounter extends PureNotifier<int> {
     _persistenceService.persist();
   }
 }
+```
+
+**StateNotifier**
+
+The `StateNotifier` is intended for simple use cases (or for lazy developers).
+
+Just use the default implementation and you are fine.
+
+To update the state, use the included `setState` of the notifier.
+
+```dart
+// Declaration
+final counterProvider = NotifierProvider<StateNotifier<int>, int>((ref) {
+  return StateNotifier(42);
+});
+
+// Access
+int a = ref.watch(counterProvider);
+
+// Write
+ref.notifier(counterProvider).setState(456);
 ```
 
 ## Using ref

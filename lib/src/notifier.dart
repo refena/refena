@@ -97,3 +97,35 @@ abstract class PureNotifier<T> extends BaseNotifier<T> {
     _initialized = true;
   }
 }
+
+/// A pre-implemented notifier for simple use cases.
+/// You may add a [listener] to retrieve every [setState] event.
+///
+/// Usage:
+/// final counterProvider = NotifierProvider<StateNotifier<int>, int>((ref) {
+///   return StateNotifier(42);
+/// });
+///
+/// ref.notifier(counterProvider).setState(456);
+class StateNotifier<T> extends PureNotifier<T> {
+  final ListenerCallback<T>? _listener;
+
+  StateNotifier(T initial, {ListenerCallback<T>? listener}) : _listener = listener {
+    state = initial;
+  }
+
+  @override
+  T init() => state;
+
+  /// Use this to change the state of the notifier.
+  ///
+  /// Usage:
+  /// ref.notifier(myProvider).setState('new value');
+  void setState(T newState) {
+    final oldState = state;
+    state = newState;
+    if (_listener != null) {
+      _listener!.call(oldState, newState);
+    }
+  }
+}
