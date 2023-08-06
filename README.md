@@ -397,7 +397,7 @@ You may also use `ref` inside `dispose` because `ref` is guaranteed to be initia
 @override
 void initState() {
   super.initState();
-  ensureRef(() {
+  ensureRef((ref) {
     ref.read(myProvider);
   });
   
@@ -407,7 +407,7 @@ void initState() {
 
 @override
 void dispose() {
-  ensureRef(() {
+  ensureRef((ref) {
     // This is safe now because we called `ensureRef` in `initState`
     ref.read(myProvider);
     ref.notifier(myNotifierProvider).doSomething();
