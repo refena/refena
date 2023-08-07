@@ -141,7 +141,19 @@ class MyPage extends StatelessWidget {
 
 ## Providers
 
-**Provider**
+There are many types of providers. Each one has its own purpose.
+
+However, you will probably use `Provider` and `NotifierProvider` most of the time
+as they offer high flexibility.
+
+| Provider           | Usage                      | Notifier API       |
+|--------------------|----------------------------|--------------------|
+| `Provider`         | For immutable values       | -                  |
+| `FutureProvider`   | For immutable async values | -                  |
+| `NotifierProvider` | For mutable values         | Define it yourself |
+| `StateProvider`    | For simple mutable values  | `setState`         |
+
+### ➤ Provider
 
 Use this provider for immutable values.
 
@@ -177,7 +189,7 @@ int a = ref.read(myProvider);
 int a = ref.watch(myProvider);
 ```
 
-**NotifierProvider**
+### ➤ NotifierProvider
 
 Use this provider for mutable values.
 
@@ -223,7 +235,7 @@ ElevatedButton(
 )
 ```
 
-**FutureProvider**
+### ➤ FutureProvider
 
 Use this provider for asynchronous values that never change.
 
@@ -255,11 +267,34 @@ build(BuildContext context) {
 }
 ```
 
+### ➤ StateProvider
+
+The `StateProvider` is handy for simple use cases where you only need a `setState` method.
+
+```dart
+final myProvider = StateProvider((ref) => 10);
+```
+
+Update the state:
+
+```dart
+ref.notifier(myProvider).setState(11);
+```
+
 ## Notifiers
 
-A `NotifierProvider` can be provided with different kinds of notifiers.
+Every provider exposes some kind of notifier (except `Provider`).
 
-**Notifier**
+A notifier holds the actual state and triggers rebuilds on widgets listening to them.
+
+There are multiple kinds of notifiers. The `NotifierProvider` understands all of them.
+
+| Provider           | Usage                      | Exposes `ref` |
+|--------------------|----------------------------|---------------|
+| `Notifier`         | For any use case           | Yes           |
+| `PureNotifier`     | For clean architectures    | No            |
+
+### ➤ Notifier
 
 The `Notifier` is the fastest and easiest way to implement a notifier.
 
@@ -277,7 +312,7 @@ class Counter extends Notifier<int> {
 }
 ```
 
-**PureNotifier**
+### ➤ PureNotifier
 
 The `PureNotifier` is the stricter option.
 
@@ -304,27 +339,6 @@ class PureCounter extends PureNotifier<int> {
     _persistenceService.persist();
   }
 }
-```
-
-**StateNotifier**
-
-The `StateNotifier` is intended for simple use cases (or for lazy developers).
-
-Just use the default implementation and you are fine.
-
-To update the state, use the included `setState` of the notifier.
-
-```dart
-// Declaration
-final counterProvider = NotifierProvider<StateNotifier<int>, int>((ref) {
-  return StateNotifier(42);
-});
-
-// Access
-int a = ref.watch(counterProvider);
-
-// Write
-ref.notifier(counterProvider).setState(456);
 ```
 
 ## Using ref

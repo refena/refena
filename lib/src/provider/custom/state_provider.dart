@@ -1,0 +1,55 @@
+import 'package:riverpie/src/listener.dart';
+import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/provider/provider.dart';
+import 'package:riverpie/src/provider/state.dart';
+import 'package:riverpie/src/ref.dart';
+
+/// A [StateProvider] is a custom implementation of a [NotifierProvider]
+/// that implements a default notifier with a [setState] method.
+///
+/// This is handy for simple use cases where you don't need any
+/// business logic.
+///
+/// Usage:
+/// final myProvider = StateProvider((ref) => 10); // define
+/// ref.watch(myProvider); // read
+/// ref.notifier(myProvider).setState(11); // write
+class StateProvider<T> extends NotifierProvider<StateNotifier<T>, T> {
+  StateProvider(T Function(Ref ref) create)
+      : super((ref) => StateNotifier<T>(create(ref)));
+
+  ProviderOverride overrideWithInitialState(T state) {
+    return ProviderOverride<T>(
+      this,
+      NotifierProviderState<StateNotifier<T>, T>(
+        StateNotifier<T>(state),
+      ),
+    );
+  }
+}
+
+/// A pre-implemented notifier for simple use cases.
+/// You may add a [listener] to retrieve every [setState] event.
+class StateNotifier<T> extends PureNotifier<T> {
+  final ListenerCallback<T>? _listener;
+
+  StateNotifier(T initial, {ListenerCallback<T>? listener})
+      : _listener = listener {
+    state = initial;
+  }
+
+  @override
+  T init() => state;
+
+  /// Use this to change the state of the notifier.
+  ///
+  /// Usage:
+  /// ref.notifier(myProvider).setState('new value');
+  void setState(T newState) {
+    final oldState = state;
+    state = newState;
+    if (_listener != null) {
+      _listener!.call(oldState, newState);
+    }
+  }
+}

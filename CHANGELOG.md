@@ -1,6 +1,6 @@
 ## 0.6.0
 
-- feat: add `StateNotifier` for simple use cases
+- feat: add `StateProvider` for simple use cases
 - **BREAKING**: add `ref` parameter for `ensureRef` callback
 
 ## 0.5.1

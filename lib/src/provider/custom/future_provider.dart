@@ -10,6 +10,11 @@ import 'package:riverpie/src/ref.dart';
 /// The advantage over using a [FutureBuilder] is that the
 /// value is cached and only the first call to the [Future] is executed.
 ///
+/// Usage:
+/// final myProvider = FutureProvider((ref) async {
+///   return await fetchApi();
+/// }
+///
 /// Example use cases:
 /// - fetch static data from an API (that does not change)
 /// - fetch device information (that does not change)
