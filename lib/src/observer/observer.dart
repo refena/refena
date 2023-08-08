@@ -13,6 +13,8 @@ abstract class RiverpieObserver {
 /// A plug-and-play [RiverpieObserver] that prints every action into
 /// the console for easier debugging.
 class RiverpieDebugObserver extends RiverpieObserver {
+  static const _s = '########################################';
+
   /// You can integrate this observer into the logging library
   /// used by your project.
   ///
@@ -29,37 +31,41 @@ class RiverpieDebugObserver extends RiverpieObserver {
   void handleEvent(RiverpieEvent event) {
     switch (event) {
       case NotifyEvent event:
-        onLine?.call('########################################');
-        _line('Notify by ${event.notifier.runtimeType}');
+        onLine?.call(_s);
+        _line('Notify by <${event.notifier.runtimeType}>');
         _line(
-          'Prev state: ${event.prev.toString().toSingleLine()}',
+          ' - Prev: ${event.prev.toString().toSingleLine()}',
           followUp: true,
         );
         _line(
-          'Next state: ${event.next.toString().toSingleLine()}',
+          ' - Next: ${event.next.toString().toSingleLine()}',
           followUp: true,
         );
         final states = event.flagRebuild;
         _line(
-          'Flag for rebuild: ${states.isEmpty ? '<none>' : states.map((s) => s.widget.getDebugLabel()).join(', ')}',
+          ' - Rebuild (${states.length}): ${states.isEmpty ? '<none>' : states.map((s) => '<${s.widget.getDebugLabel()}>').join(', ')}',
           followUp: true,
         );
-        onLine?.call('########################################');
+        onLine?.call(_s);
         break;
       case ProviderInitEvent event:
+        onLine?.call(_s);
         final label =
             (event.provider.debugLabel ?? event.notifier?.runtimeType) ??
                 event.provider.runtimeType;
-        _line(
-            'Provider initialized (${event.cause.description}): $label = ${event.value.toString().toSingleLine()}');
+        _line('Provider initialized: <$label>');
+        _line(' - Reason: ${event.cause.description}', followUp: true);
+        _line(' - Value: ${event.value.toString().toSingleLine()}',
+            followUp: true);
+        onLine?.call(_s);
         break;
       case ListenerAddedEvent event:
         _line(
-            'Listener added: ${event.state.widget.getDebugLabel()} on ${event.notifier.runtimeType}');
+            'Listener added: <${event.state.widget.getDebugLabel()}> on <${event.notifier.runtimeType}>');
         break;
       case ListenerRemovedEvent event:
         _line(
-            'Listener removed: ${event.state.widget.getDebugLabel()} on ${event.notifier.runtimeType}');
+            'Listener removed: <${event.state.widget.getDebugLabel()}> on <${event.notifier.runtimeType}>');
         break;
     }
   }
