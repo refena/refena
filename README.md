@@ -487,10 +487,11 @@ void main() {
 Now you will see useful information printed into the console:
 
 ```text
-[Riverpie] Provider initialized (cause: initial access): Counter = 10
+[Riverpie] Provider initialized (INITIAL ACCESS): Counter = 10
 [Riverpie] Listener added: SecondPage on Counter
 [Riverpie] Notify by Counter
-           State: 10 -> 11
+           Prev state: 11
+           Next state: 12
            Flag for rebuild: HomePage, SecondPage
 ```
 

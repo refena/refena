@@ -15,6 +15,12 @@ abstract class RiverpieObserver {
 class RiverpieDebugObserver extends RiverpieObserver {
   /// You can integrate this observer into the logging library
   /// used by your project.
+  ///
+  /// Usage:
+  /// final _riverpieLogger = Logger('Riverpie');
+  /// RiverpieDebugObserver(
+  //    onLine: (s) => _riverpieLogger.info(s),
+  //  )
   final void Function(String s)? onLine;
 
   const RiverpieDebugObserver({this.onLine});
