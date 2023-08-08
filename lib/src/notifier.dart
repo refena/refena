@@ -3,15 +3,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/listener.dart';
+import 'package:riverpie/src/observer/event.dart';
+import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
 
 abstract class BaseNotifier<T> {
   bool _initialized = false;
+  RiverpieObserver? _observer;
 
   late T _state;
 
   /// A collection of listeners
-  final _listeners = NotifierListeners<T>();
+  late final NotifierListeners<T> _listeners;
 
   /// Initializes the state of the notifier.
   /// This method is called only once and
@@ -38,7 +41,15 @@ abstract class BaseNotifier<T> {
     _state = value;
 
     if (_initialized && updateShouldNotify(oldState, _state)) {
-      _listeners.notifyAll(oldState, _state);
+      final notified = _listeners.notifyAll(oldState, _state);
+      _observer?.handleEvent(
+        NotifyEvent<T>(
+          notifier: this,
+          prev: oldState,
+          next: value,
+          flagRebuild: notified!,
+        ),
+      );
     }
   }
 
@@ -49,7 +60,7 @@ abstract class BaseNotifier<T> {
   }
 
   @internal
-  void preInit(Ref ref);
+  void preInit(Ref ref, RiverpieObserver? observer);
 
   @internal
   void addListener(State state, ListenerConfig<T> config) {
@@ -78,8 +89,10 @@ abstract class Notifier<T> extends BaseNotifier<T> {
 
   @internal
   @override
-  void preInit(Ref ref) {
+  void preInit(Ref ref, RiverpieObserver? observer) {
     _ref = ref;
+    _observer = observer;
+    _listeners = NotifierListeners(this, observer);
     _state = init();
     _initialized = true;
   }
@@ -92,7 +105,9 @@ abstract class Notifier<T> extends BaseNotifier<T> {
 abstract class PureNotifier<T> extends BaseNotifier<T> {
   @internal
   @override
-  void preInit(Ref ref) {
+  void preInit(Ref ref, RiverpieObserver? observer) {
+    _observer = observer;
+    _listeners = NotifierListeners<T>(this, observer);
     _state = init();
     _initialized = true;
   }

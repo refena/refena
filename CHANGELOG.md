@@ -1,5 +1,6 @@
 ## 0.6.0
 
+- feat: add `RiverpieObserver` and `RiverpieDebugObserver`
 - feat: add `StateProvider` for simple use cases
 - **BREAKING**: add `ref` parameter for `ensureRef` callback
 

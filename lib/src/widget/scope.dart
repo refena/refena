@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/listener.dart';
 import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/observer/event.dart';
+import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/provider.dart';
 import 'package:riverpie/src/provider/state.dart';
 import 'package:riverpie/src/ref.dart';
@@ -29,9 +31,13 @@ class RiverpieScope extends InheritedWidget implements Ref {
   /// Holds all provider states
   final _state = <BaseProvider, BaseProviderState>{};
 
+  /// The provided observer (e.g. for logging)
+  final RiverpieObserver? observer;
+
   RiverpieScope({
     super.key,
     List<ProviderOverride> overrides = const [],
+    this.observer,
     required super.child,
   }) {
     defaultRef = this;
@@ -40,9 +46,18 @@ class RiverpieScope extends InheritedWidget implements Ref {
       final state = override.state;
       if (state is NotifierProviderState) {
         // ignore: invalid_use_of_protected_member
-        state.getNotifier().preInit(this);
+        state.getNotifier().preInit(this, observer);
       }
       _state[override.provider] = state;
+
+      observer?.handleEvent(
+        ProviderInitEvent(
+          provider: override.provider,
+          notifier: state is NotifierProviderState ? state.getNotifier() : null,
+          value: state.getValue(),
+          cause: ProviderInitCause.override,
+        ),
+      );
     }
   }
 
@@ -53,8 +68,17 @@ class RiverpieScope extends InheritedWidget implements Ref {
   BaseProviderState _getState(BaseProvider provider) {
     BaseProviderState? state = _state[provider];
     if (state == null) {
-      state = provider.createState(this);
+      state = provider.createState(this, observer);
       _state[provider] = state;
+
+      observer?.handleEvent(
+        ProviderInitEvent(
+          provider: provider,
+          notifier: state is NotifierProviderState ? state.getNotifier() : null,
+          value: state.getValue(),
+          cause: ProviderInitCause.access,
+        ),
+      );
     }
     return state;
   }

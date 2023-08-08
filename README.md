@@ -467,6 +467,33 @@ void someFunction() {
 }
 ```
 
+## Observer
+
+The `RiverpieScope` accepts an optional parameter `observer`.
+
+You can implement one yourself or just use the included `RiverpieDebugObserver`.
+
+```dart
+void main() {
+  runApp(
+    RiverpieScope(
+      observer: kDebugMode ? const RiverpieDebugObserver() : null,
+      child: const MyApp(),
+    ),
+  );
+}
+```
+
+Now you will see useful information printed into the console:
+
+```text
+[Riverpie] Provider initialized (cause: initial access): Counter = 10
+[Riverpie] Listener added: SecondPage on Counter
+[Riverpie] Notify by Counter
+           State: 10 -> 11
+           Flag for rebuild: HomePage, SecondPage
+```
+
 ## License
 
 MIT License

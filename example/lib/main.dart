@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpie/riverpie.dart';
 
@@ -24,6 +25,7 @@ void main() {
       overrides: [
         numberProvider.overrideWithValue(999),
       ],
+      observer: kDebugMode ? const RiverpieDebugObserver() : null,
       child: const MyApp(),
     ),
   );
@@ -90,6 +92,7 @@ class MySecondPage extends StatelessWidget {
         children: [
           Expanded(
             child: Consumer(
+              debugLabel: 'Consumer A',
               builder: (context, ref) {
                 final myCounter = ref.watch(
                   counterProviderA,
@@ -115,6 +118,7 @@ class MySecondPage extends StatelessWidget {
           ),
           Expanded(
             child: Consumer(
+              debugLabel: 'Consumer B',
               builder: (context, ref) {
                 final anotherCounter = ref.watch(
                   counterProviderB,

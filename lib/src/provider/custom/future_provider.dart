@@ -20,7 +20,7 @@ import 'package:riverpie/src/ref.dart';
 /// - fetch device information (that does not change)
 class FutureProvider<T>
     extends NotifierProvider<_FutureNotifier<T>, AsyncSnapshot<T>> {
-  FutureProvider(Future<T> Function(Ref ref) create)
+  FutureProvider(Future<T> Function(Ref ref) create, {super.debugLabel})
       : super((ref) => _FutureNotifier<T>(create(ref)));
 
   ProviderOverride overrideWithFuture(Future<T> value) {

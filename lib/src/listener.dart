@@ -1,6 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/observer/event.dart';
+import 'package:riverpie/src/observer/observer.dart';
 
 typedef ListenerCallback<T> = void Function(T prev, T next);
 
@@ -32,13 +35,23 @@ class NotifierEvent<T> {
 }
 
 class NotifierListeners<T> {
+  final RiverpieObserver? _observer;
+  final BaseNotifier<T> _notifier;
   final _listeners = <State, ListenerConfig<T>>{};
   int _listenerAddCount = 0;
 
   final _stream = StreamController<NotifierEvent<T>>.broadcast();
 
-  void notifyAll(T prev, T next) {
+  NotifierListeners(this._notifier, this._observer);
+
+  List<State>? notifyAll(T prev, T next) {
     _removeUnusedListeners();
+
+    List<State>? notifiedStates;
+
+    if (_observer != null) {
+      notifiedStates = <State>[];
+    }
 
     _listeners.forEach((state, config) {
       if (config.selector != null && !config.selector!(prev, next)) {
@@ -51,9 +64,13 @@ class NotifierListeners<T> {
 
       // ignore: invalid_use_of_protected_member
       state.setState(() {});
+
+      notifiedStates?.add(state);
     });
 
     _stream.add(NotifierEvent(prev, next));
+
+    return notifiedStates;
   }
 
   /// Adds a listener to the notifier.
@@ -69,6 +86,10 @@ class NotifierListeners<T> {
       }
 
       _listeners[state] = config;
+
+      _observer?.handleEvent(
+        ListenerAddedEvent(notifier: _notifier, state: state),
+      );
     }
   }
 
@@ -79,6 +100,23 @@ class NotifierListeners<T> {
 
   void _removeUnusedListeners() {
     // remove any listener that has been disposed
-    _listeners.removeWhere((state, config) => !state.mounted);
+    final observer = _observer;
+    if (observer != null) {
+      final states = <State>[];
+      _listeners.removeWhere((state, config) {
+        final remove = !state.mounted;
+        if (remove) {
+          states.add(state);
+        }
+        return remove;
+      });
+      for (final state in states) {
+        observer.handleEvent(
+          ListenerRemovedEvent(notifier: _notifier, state: state),
+        );
+      }
+    } else {
+      _listeners.removeWhere((state, config) => !state.mounted);
+    }
   }
 }

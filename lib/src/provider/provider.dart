@@ -1,13 +1,23 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/state.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// A "provider" instructs Riverpie how to create a state.
 /// A "provider" is stateless.
+///
+/// You may add a [debugLabel] for better logging.
 abstract class BaseProvider<T> {
+  final String? debugLabel;
+
+  BaseProvider({this.debugLabel});
+
   @internal
-  BaseProviderState<T> createState(Ref ref);
+  BaseProviderState<T> createState(
+    Ref ref,
+    RiverpieObserver? observer,
+  );
 }
 
 /// Instructs Riverpie to set a predefined state for a provider.
@@ -28,11 +38,11 @@ class Provider<T> extends BaseProvider<T> {
   @internal
   final T Function(Ref ref) create;
 
-  Provider(this.create);
+  Provider(this.create, {super.debugLabel});
 
   @internal
   @override
-  ProviderState<T> createState(Ref ref) {
+  ProviderState<T> createState(Ref ref, RiverpieObserver? observer) {
     return ProviderState(create(ref));
   }
 
@@ -48,15 +58,18 @@ class NotifierProvider<N extends BaseNotifier<T>, T> extends BaseProvider<T> {
   @internal
   final N Function(Ref ref) create;
 
-  NotifierProvider(this.create);
+  NotifierProvider(this.create, {super.debugLabel});
 
   @internal
   @override
-  NotifierProviderState<N, T> createState(Ref ref) {
+  NotifierProviderState<N, T> createState(
+    Ref ref,
+    RiverpieObserver? observer,
+  ) {
     final state = NotifierProviderState<N, T>(create(ref));
 
     // ignore: invalid_use_of_protected_member
-    state.getNotifier().preInit(ref);
+    state.getNotifier().preInit(ref, observer);
 
     return state;
   }
