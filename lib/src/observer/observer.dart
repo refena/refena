@@ -26,20 +26,26 @@ class RiverpieDebugObserver extends RiverpieObserver {
         onLine?.call('########################################');
         _line('Notify by ${event.notifier.runtimeType}');
         _line(
-          'State: ${event.prev.toString().toSingleLine()} -> ${event.next.toString().toSingleLine()}',
+          'Prev state: ${event.prev.toString().toSingleLine()}',
           followUp: true,
         );
         _line(
-          'Flag for rebuild: ${event.flagRebuild.map((s) => s.widget.getDebugLabel()).join(', ')}',
+          'Next state: ${event.next.toString().toSingleLine()}',
           followUp: true,
         );
+        final states = event.flagRebuild;
+        _line(
+          'Flag for rebuild: ${states.isEmpty ? '<none>' : states.map((s) => s.widget.getDebugLabel()).join(', ')}',
+          followUp: true,
+        );
+        onLine?.call('########################################');
         break;
       case ProviderInitEvent event:
         final label =
             (event.provider.debugLabel ?? event.notifier?.runtimeType) ??
                 event.provider.runtimeType;
         _line(
-            'Provider initialized (cause: ${event.cause.description}): $label = ${event.value.toString().toSingleLine()}');
+            'Provider initialized (${event.cause.description}): $label = ${event.value.toString().toSingleLine()}');
         break;
       case ListenerAddedEvent event:
         _line(
@@ -71,8 +77,8 @@ class RiverpieDebugObserver extends RiverpieObserver {
 extension on ProviderInitCause {
   String get description {
     return switch (this) {
-      ProviderInitCause.override => 'scope override',
-      ProviderInitCause.access => 'initial access',
+      ProviderInitCause.override => 'SCOPE OVERRIDE',
+      ProviderInitCause.access => 'INITIAL ACCESS',
     };
   }
 }
