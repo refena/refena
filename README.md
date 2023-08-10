@@ -287,7 +287,7 @@ Every provider exposes some kind of notifier (except `Provider`).
 
 A notifier holds the actual state and triggers rebuilds on widgets listening to them.
 
-There are multiple kinds of notifiers. The `NotifierProvider` understands all of them.
+There are multiple kinds of notifiers. Use notifiers in combination with `NotifierProvider`.
 
 | Provider           | Usage                      | Exposes `ref` |
 |--------------------|----------------------------|---------------|
