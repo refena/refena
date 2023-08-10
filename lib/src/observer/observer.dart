@@ -21,14 +21,25 @@ class RiverpieDebugObserver extends RiverpieObserver {
   /// Usage:
   /// final _riverpieLogger = Logger('Riverpie');
   /// RiverpieDebugObserver(
-  //    onLine: (s) => _riverpieLogger.info(s),
-  //  )
+  ///   onLine: (s) => _riverpieLogger.info(s),
+  /// )
   final void Function(String s)? onLine;
 
-  const RiverpieDebugObserver({this.onLine});
+  /// If the given function returns `true`, then the event
+  /// won't be logged.
+  final bool Function(RiverpieEvent event)? exclude;
+
+  const RiverpieDebugObserver({
+    this.onLine,
+    this.exclude,
+  });
 
   @override
   void handleEvent(RiverpieEvent event) {
+    if (exclude != null && exclude!(event)) {
+      return;
+    }
+
     switch (event) {
       case NotifyEvent event:
         onLine?.call(_s);

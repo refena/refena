@@ -469,7 +469,7 @@ void someFunction() {
 
 ## Observer
 
-The `RiverpieScope` accepts an optional parameter `observer`.
+The `RiverpieScope` accepts an optional `observer`.
 
 You can implement one yourself or just use the included `RiverpieDebugObserver`.
 

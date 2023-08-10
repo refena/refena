@@ -1,3 +1,7 @@
+## 0.7.0
+
+- feat: add `exclude` parameter for `RiverpieDebugObserver`
+
 ## 0.6.0
 
 - feat: add `RiverpieObserver` and `RiverpieDebugObserver`
@@ -10,7 +14,7 @@
 
 ## 0.5.0
 
-- feat: `RiverpieScope.default` for global access to `ref`
+- feat: `RiverpieScope.defaultRef` for global access to `ref`
 - feat: `ref.stream` for manual stream access
 - feat: `ref.watch(myProvider, rebuildWhen: (prev, next) => ...)` for more control over when to rebuild
 - feat: use `ensureRef` within `initState` for `ref` access within initialization logic
