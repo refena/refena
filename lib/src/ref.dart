@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:riverpie/src/listener.dart';
-import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/notifier/view_provider_notifier.dart';
 import 'package:riverpie/src/provider/provider.dart';
 

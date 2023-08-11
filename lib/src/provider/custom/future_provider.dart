@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/provider/provider.dart';
 import 'package:riverpie/src/provider/state.dart';
 import 'package:riverpie/src/ref.dart';
@@ -20,8 +20,8 @@ import 'package:riverpie/src/ref.dart';
 /// - fetch device information (that does not change)
 class FutureProvider<T>
     extends NotifierProvider<_FutureNotifier<T>, AsyncSnapshot<T>> {
-  FutureProvider(Future<T> Function(Ref ref) create, {super.debugLabel})
-      : super((ref) => _FutureNotifier<T>(create(ref)));
+  FutureProvider(Future<T> Function(Ref ref) builder, {super.debugLabel})
+      : super((ref) => _FutureNotifier<T>(builder(ref)));
 
   ProviderOverride overrideWithFuture(Future<T> value) {
     return ProviderOverride<AsyncSnapshot<T>>(
@@ -36,7 +36,8 @@ class FutureProvider<T>
 class _FutureNotifier<T> extends PureNotifier<AsyncSnapshot<T>> {
   final Future<T> _future;
 
-  _FutureNotifier(this._future) {
+  _FutureNotifier(this._future, {String? debugLabel})
+      : super(debugLabel: debugLabel) {
     state = const AsyncSnapshot.waiting();
     _future.then((value) {
       state = AsyncSnapshot.withData(ConnectionState.done, value);

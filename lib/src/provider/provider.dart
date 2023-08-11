@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/notifier/view_provider_notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/state.dart';
@@ -72,9 +72,9 @@ abstract class BaseNotifierProvider<N extends BaseNotifier<T>, T>
 class NotifierProvider<N extends BaseNotifier<T>, T>
     extends BaseNotifierProvider<N, T> {
   @internal
-  final N Function(Ref ref) create;
+  final N Function(Ref ref) builder;
 
-  NotifierProvider(this.create, {super.debugLabel});
+  NotifierProvider(this.builder, {super.debugLabel});
 
   @internal
   @override
@@ -82,7 +82,7 @@ class NotifierProvider<N extends BaseNotifier<T>, T>
     Ref ref,
     RiverpieObserver? observer,
   ) {
-    final notifier = create(ref);
+    final notifier = builder(ref);
     final state = NotifierProviderState<N, T>(notifier);
 
     // ignore: invalid_use_of_protected_member
@@ -100,18 +100,22 @@ class NotifierProvider<N extends BaseNotifier<T>, T>
 /// Its builder is similar to a normal [Provider].
 /// A common use case is to define a view model that depends on many providers.
 /// Don't worry about the [ref], you can use it freely inside any function.
+/// The [ref] will never become invalid.
 class ViewProvider<T> extends BaseNotifierProvider<ViewProviderNotifier<T>, T> {
   @internal
-  final T Function(WatchableRef ref) create;
+  final T Function(WatchableRef ref) builder;
 
-  ViewProvider(this.create, {super.debugLabel});
+  ViewProvider(this.builder, {super.debugLabel});
 
   @override
   NotifierProviderState<ViewProviderNotifier<T>, T> createState(
     Ref ref,
     RiverpieObserver? observer,
   ) {
-    final notifier = ViewProviderNotifier<T>(create);
+    final notifier = ViewProviderNotifier<T>(
+      builder,
+      debugLabel: debugLabel ?? runtimeType.toString(),
+    );
     final state = NotifierProviderState<ViewProviderNotifier<T>, T>(notifier);
 
     notifier.preInit(ref, observer);
@@ -122,7 +126,12 @@ class ViewProvider<T> extends BaseNotifierProvider<ViewProviderNotifier<T>, T> {
   ProviderOverride<T> overrideWithBuilder(T Function(WatchableRef) builder) {
     return ProviderOverride(
       this,
-      NotifierProviderState(ViewProviderNotifier(builder)),
+      NotifierProviderState(
+        ViewProviderNotifier(
+          builder,
+          debugLabel: debugLabel ?? runtimeType.toString(),
+        ),
+      ),
     );
   }
 }

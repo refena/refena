@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
+import 'package:riverpie/src/provider/provider.dart';
 import 'package:riverpie/src/widget/consumer.dart';
 
 /// The observer receives every [RiverpieEvent].
@@ -43,7 +45,8 @@ class RiverpieDebugObserver extends RiverpieObserver {
     switch (event) {
       case NotifyEvent event:
         onLine?.call(_s);
-        _line('Notify by <${event.notifier.runtimeType}>');
+        final label = _getProviderDebugLabel(null, event.notifier);
+        _line('Notify by <$label>');
         _line(
           ' - Prev: ${event.prev.toString().toSingleLine()}',
           followUp: true,
@@ -61,9 +64,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
         break;
       case ProviderInitEvent event:
         onLine?.call(_s);
-        final label =
-            (event.provider.debugLabel ?? event.notifier?.runtimeType) ??
-                event.provider.runtimeType;
+        final label = _getProviderDebugLabel(event.provider, event.notifier);
         _line('Provider initialized: <$label>');
         _line(' - Reason: ${event.cause.description}', followUp: true);
         _line(' - Value: ${event.value.toString().toSingleLine()}',
@@ -71,12 +72,14 @@ class RiverpieDebugObserver extends RiverpieObserver {
         onLine?.call(_s);
         break;
       case ListenerAddedEvent event:
+        final label = _getProviderDebugLabel(null, event.notifier);
         _line(
-            'Listener added: <${event.state.widget.getDebugLabel()}> on <${event.notifier.runtimeType}>');
+            'Listener added: <${event.state.widget.getDebugLabel()}> on <$label>');
         break;
       case ListenerRemovedEvent event:
+        final label = _getProviderDebugLabel(null, event.notifier);
         _line(
-            'Listener removed: <${event.state.widget.getDebugLabel()}> on <${event.notifier.runtimeType}>');
+            'Listener removed: <${event.state.widget.getDebugLabel()}> on <$label>');
         break;
     }
   }
@@ -120,4 +123,11 @@ extension on Widget {
     }
     return runtimeType.toString();
   }
+}
+
+String _getProviderDebugLabel(BaseProvider? provider, BaseNotifier? notifier) {
+  return notifier?.debugLabel ??
+      provider?.debugLabel ??
+      notifier?.runtimeType.toString() ??
+      provider!.runtimeType.toString();
 }

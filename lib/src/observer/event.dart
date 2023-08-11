@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/provider/provider.dart';
 
 /// The base event.
@@ -43,9 +43,16 @@ enum ProviderInitCause {
 /// This happens either immediately during provider override or
 /// lazily when the provider is accessed the first time.
 class ProviderInitEvent<T> extends RiverpieEvent {
+  /// The provider that has been initialized.
   final BaseProvider<T> provider;
+
+  /// The notifier that is associated with the provider.
   final BaseNotifier<T>? notifier;
+
+  /// The cause of the initialization.
   final ProviderInitCause cause;
+
+  /// The initial value of the provider.
   final T value;
 
   ProviderInitEvent({

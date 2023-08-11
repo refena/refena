@@ -1,5 +1,5 @@
 import 'package:riverpie/src/listener.dart';
-import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/provider/provider.dart';
 import 'package:riverpie/src/provider/state.dart';
 import 'package:riverpie/src/ref.dart';
@@ -15,8 +15,8 @@ import 'package:riverpie/src/ref.dart';
 /// ref.watch(myProvider); // read
 /// ref.notifier(myProvider).setState(11); // write
 class StateProvider<T> extends NotifierProvider<StateNotifier<T>, T> {
-  StateProvider(T Function(Ref ref) create, {super.debugLabel})
-      : super((ref) => StateNotifier<T>(create(ref)));
+  StateProvider(T Function(Ref ref) builder, {super.debugLabel})
+      : super((ref) => StateNotifier<T>(builder(ref)));
 
   ProviderOverride overrideWithInitialState(T state) {
     return ProviderOverride<T>(
@@ -33,8 +33,9 @@ class StateProvider<T> extends NotifierProvider<StateNotifier<T>, T> {
 class StateNotifier<T> extends PureNotifier<T> {
   final ListenerCallback<T>? _listener;
 
-  StateNotifier(T initial, {ListenerCallback<T>? listener})
-      : _listener = listener {
+  StateNotifier(T initial, {ListenerCallback<T>? listener, String? debugLabel})
+      : _listener = listener,
+        super(debugLabel: debugLabel) {
     state = initial;
   }
 

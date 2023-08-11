@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/notifier/notifier.dart';
 
 /// A "provider state" holds the value of a provider.
 /// The state may hold the value directly or indirectly via notifier.

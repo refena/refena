@@ -1,5 +1,5 @@
 export 'package:riverpie/src/mixin.dart';
-export 'package:riverpie/src/notifier.dart';
+export 'package:riverpie/src/notifier/notifier.dart';
 export 'package:riverpie/src/observer/event.dart';
 export 'package:riverpie/src/observer/observer.dart';
 export 'package:riverpie/src/provider/provider.dart';

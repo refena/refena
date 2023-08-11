@@ -11,10 +11,16 @@ abstract class BaseNotifier<T> {
   bool _initialized = false;
   RiverpieObserver? _observer;
 
+  final String? debugLabel;
+
+  /// The current state of the notifier.
+  /// It will be initialized by [init].
   late T _state;
 
   /// A collection of listeners
   late final NotifierListeners<T> _listeners;
+
+  BaseNotifier({required this.debugLabel});
 
   /// Initializes the state of the notifier.
   /// This method is called only once and
@@ -87,6 +93,8 @@ abstract class Notifier<T> extends BaseNotifier<T> {
   @protected
   Ref get ref => _ref;
 
+  Notifier({String? debugLabel}) : super(debugLabel: debugLabel);
+
   @internal
   @override
   void preInit(Ref ref, RiverpieObserver? observer) {
@@ -103,6 +111,8 @@ abstract class Notifier<T> extends BaseNotifier<T> {
 /// Can be used in combination with dependency injection,
 /// where you provide the dependencies via constructor.
 abstract class PureNotifier<T> extends BaseNotifier<T> {
+  PureNotifier({String? debugLabel}) : super(debugLabel: debugLabel);
+
   @internal
   @override
   void preInit(Ref ref, RiverpieObserver? observer) {

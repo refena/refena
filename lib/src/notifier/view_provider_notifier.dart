@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/listener.dart';
-import 'package:riverpie/src/notifier.dart';
+import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
 
@@ -14,7 +14,8 @@ class ViewProviderNotifier<T> extends PureNotifier<T> {
   final _rebuildController = StreamController<void>();
   final _subscriptions = <BaseNotifier, StreamSubscription>{};
 
-  ViewProviderNotifier(this.builder);
+  ViewProviderNotifier(this.builder, {String? debugLabel})
+      : super(debugLabel: debugLabel);
 
   @override
   T init() {

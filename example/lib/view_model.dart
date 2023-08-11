@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpie/riverpie.dart';
 
-final counterProviderA = NotifierProvider<Counter, int>((ref) => Counter());
+final counterProviderA = NotifierProvider<Counter, int>((ref) => Counter(debugLabel: 'Counter A'));
 
 final counterProviderB = NotifierProvider<Counter, int>((ref) => Counter());
 
@@ -39,6 +39,8 @@ final viewProvider = ViewProvider((ref) {
 }, debugLabel: 'CounterViewProvider');
 
 class Counter extends Notifier<int> {
+  Counter({super.debugLabel});
+
   @override
   int init() => 10;
 
