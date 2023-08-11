@@ -4,8 +4,8 @@ import 'package:riverpie/src/ref.dart';
 
 mixin Riverpie<W extends StatefulWidget> on State<W> {
   /// Access this ref inside your [State].
-  late final ref = WatchableRef(
-    root: _getScope(context),
+  late final ref = StateWatchableRef(
+    ref: _getScope(context),
     state: this,
   );
 

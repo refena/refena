@@ -92,14 +92,16 @@ class RiverpieScope extends InheritedWidget implements Ref {
 
   /// Returns the notifier of a [NotifierProvider].
   @override
-  N notifier<N extends BaseNotifier<T>, T>(NotifierProvider<N, T> provider) {
+  N notifier<N extends BaseNotifier<T>, T>(
+    BaseNotifierProvider<N, T> provider,
+  ) {
     final state = _getState(provider) as NotifierProviderState<N, T>;
     return state.getNotifier();
   }
 
   @override
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    NotifierProvider<N, T> provider,
+    BaseNotifierProvider<N, T> provider,
   ) {
     final state = _getState(provider) as NotifierProviderState<N, T>;
     return state.getNotifier().getStream();
