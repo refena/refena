@@ -16,13 +16,19 @@ import 'package:riverpie/src/ref.dart';
 /// ref.notifier(myProvider).setState(11); // write
 class StateProvider<T> extends NotifierProvider<StateNotifier<T>, T> {
   StateProvider(T Function(Ref ref) builder, {super.debugLabel})
-      : super((ref) => StateNotifier<T>(builder(ref)));
+      : super((ref) => StateNotifier<T>(
+              builder(ref),
+              debugLabel: debugLabel ?? 'StateProvider<$T>',
+            ));
 
   ProviderOverride overrideWithInitialState(T state) {
     return ProviderOverride<T>(
       this,
       NotifierProviderState<StateNotifier<T>, T>(
-        StateNotifier<T>(state),
+        StateNotifier<T>(
+          state,
+          debugLabel: debugLabel ?? runtimeType.toString(),
+        ),
       ),
     );
   }

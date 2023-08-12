@@ -21,13 +21,19 @@ import 'package:riverpie/src/ref.dart';
 class FutureProvider<T>
     extends NotifierProvider<_FutureNotifier<T>, AsyncSnapshot<T>> {
   FutureProvider(Future<T> Function(Ref ref) builder, {super.debugLabel})
-      : super((ref) => _FutureNotifier<T>(builder(ref)));
+      : super((ref) => _FutureNotifier<T>(
+              builder(ref),
+              debugLabel: debugLabel ?? 'FutureProvider<$T>',
+            ));
 
   ProviderOverride overrideWithFuture(Future<T> value) {
     return ProviderOverride<AsyncSnapshot<T>>(
       this,
       NotifierProviderState<_FutureNotifier<T>, AsyncSnapshot<T>>(
-        _FutureNotifier<T>(value),
+        _FutureNotifier<T>(
+          value,
+          debugLabel: debugLabel ?? runtimeType.toString(),
+        ),
       ),
     );
   }
