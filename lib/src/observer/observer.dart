@@ -46,7 +46,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
       case NotifyEvent event:
         onLine?.call(_s);
         final label = _getProviderDebugLabel(null, event.notifier);
-        _line('Notify by <$label>');
+        _line('Change by <$label>');
         _line(
           ' - Prev: ${event.prev.toString().toSingleLine()}',
           followUp: true,

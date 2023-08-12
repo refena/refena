@@ -61,9 +61,9 @@ Providers cannot `watch` other providers. Instead, you can access other provider
 
 The only provider that can do this is the `ViewProvider` that is intended to be used as a "view model".
 
-Don't worry that you unintentionally use `watch` inside providers because each `ref` has a different type.
+Don't worry that you unintentionally use `watch` inside providers because each `ref` is typed accordingly.
 
-Notifiers are never disposed or rebuilt, do not worry that the `ref` becomes invalid.
+Notifiers are never disposed or rebuilt, don't worry that the `ref` becomes invalid.
 
 ### ➤ Similarities
 
@@ -71,7 +71,7 @@ The state is still bound to the `RiverpieScope` widget. This means that you can 
 
 You still have type safety and can use `ref.watch` to rebuild your widget.
 
-You don't need to register any provider. Just use it.
+You don't need to register any provider. Just use access them.
 
 ## Getting started
 
@@ -152,15 +152,15 @@ class MyPage extends StatelessWidget {
 
 There are many types of providers. Each one has its own purpose.
 
-However, you will probably use `Provider` and `NotifierProvider` most of the time
-as they offer high flexibility.
+The most important ones are `Provider` and `NotifierProvider` because they are the most flexible.
 
-| Provider           | Usage                      | Notifier API       |
-|--------------------|----------------------------|--------------------|
-| `Provider`         | For immutable values       | -                  |
-| `FutureProvider`   | For immutable async values | -                  |
-| `NotifierProvider` | For mutable values         | Define it yourself |
-| `StateProvider`    | For simple mutable values  | `setState`         |
+| Provider           | Usage                      | Notifier API       | Can `watch` |
+|--------------------|----------------------------|--------------------|-------------|
+| `Provider`         | For immutable values       | -                  | No          |
+| `FutureProvider`   | For immutable async values | -                  | No          |
+| `NotifierProvider` | For mutable values         | Define it yourself | No          |
+| `StateProvider`    | For simple mutable values  | `setState`         | No          |
+| `ViewProvider`     | For view models            | -                  | Yes         |
 
 ### ➤ Provider
 
@@ -196,6 +196,38 @@ int a = ref.read(myProvider);
 
 // Inside a build method
 int a = ref.watch(myProvider);
+```
+
+### ➤ FutureProvider
+
+Use this provider for asynchronous values that never change.
+
+Example use cases:
+- fetch static data from an API (that does not change)
+- fetch device information (that does not change)
+
+The advantage over `FutureBuilder` is that the value is cached and the future is only called once.
+
+```dart
+import 'package:package_info_plus/package_info_plus.dart';
+
+final versionProvider = FutureProvider((ref) async {
+  final info = await PackageInfo.fromPlatform();
+  return '${info.version} (${info.buildNumber})';
+});
+```
+
+Access:
+
+```dart
+build(BuildContext context) {
+  AsyncSnapshot<String> versionAsync = ref.watch(versionProvider);
+  return versionAsync.when(
+    data: (version) => Text('Version: $version'),
+    loading: () => const CircularProgressIndicator(),
+    error: (error, stackTrace) => Text('Error: $error'),
+  );
+}
 ```
 
 ### ➤ NotifierProvider
@@ -244,38 +276,6 @@ ElevatedButton(
 )
 ```
 
-### ➤ FutureProvider
-
-Use this provider for asynchronous values that never change.
-
-Example use cases:
- - fetch static data from an API (that does not change)
- - fetch device information (that does not change)
-
-The advantage over `FutureBuilder` is that the value is cached and the future is only called once.
-
-```dart
-import 'package:package_info_plus/package_info_plus.dart';
-
-final versionProvider = FutureProvider((ref) async {
-  final info = await PackageInfo.fromPlatform();
-  return '${info.version} (${info.buildNumber})';
-});
-```
-
-Access:
-
-```dart
-build(BuildContext context) {
-  AsyncSnapshot<String> versionAsync = ref.watch(versionProvider);
-  return versionAsync.when(
-    data: (version) => Text('Version: $version'),
-    loading: () => const CircularProgressIndicator(),
-    error: (error, stackTrace) => Text('Error: $error'),
-  );
-}
-```
-
 ### ➤ StateProvider
 
 The `StateProvider` is handy for simple use cases where you only need a `setState` method.
@@ -288,6 +288,62 @@ Update the state:
 
 ```dart
 ref.notifier(myProvider).setState(11);
+```
+
+### ➤ ViewProvider
+
+The `ViewProvider` is the only provider that can `watch` other providers.
+
+It is useful for view models that uses multiple providers.
+
+```dart
+class SettingsVm {
+  final String firstName;
+  final String lastName;
+  final ThemeMode themeMode;
+  final void Function() logout;  
+}
+
+final settingsVmProvider = ViewProvider((ref) {
+  final auth = ref.watch(authProvider);
+  final themeMode = ref.watch(themeModeProvider);
+  return SettingsVm(
+    firstName: auth.firstName,
+    lastName: auth.lastName,
+    themeMode: themeMode,
+    logout: () => ref.notifier(authProvider).logout(),
+  );
+});
+```
+
+The widget:
+
+```dart
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref) {
+        final vm = ref.watch(settingsVmProvider);
+        return Scaffold(
+          body: Center(
+            child: Column(
+              children: [
+                Text('First name: ${vm.firstName}'),
+                Text('Last name: ${vm.lastName}'),
+                Text('Theme mode: ${vm.themeMode}'),
+                ElevatedButton(
+                  onPressed: vm.logout,
+                  child: const Text('Logout'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
 ```
 
 ## Notifiers
@@ -310,6 +366,10 @@ The `Notifier` is the fastest and easiest way to implement a notifier.
 It has access to `ref`, so you can use any provider at any time.
 
 ```dart
+// You need to specify the generics (<..>) to have the correct type inference
+// Waiting for https://github.com/dart-lang/language/issues/524
+final counterProvider = NotifierProvider<Counter, int>((ref) => Counter());
+
 class Counter extends Notifier<int> {
   @override
   int init() => 10;
@@ -500,7 +560,7 @@ Now you will see useful information printed into the console:
             - Reason: INITIAL ACCESS
             - Value: 10
 [Riverpie] Listener added: <SecondPage> on <Counter>
-[Riverpie] Notify by <Counter>
+[Riverpie] Change by <Counter>
             - Prev: 10
             - Next: 11
             - Rebuild (2): <HomePage>, <SecondPage>
