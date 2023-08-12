@@ -1,17 +1,16 @@
-import 'dart:async';
-
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
+import 'package:riverpie/src/util/batched_stream_controller.dart';
 
 @internal
 class ViewProviderNotifier<T> extends PureNotifier<T> implements Rebuildable {
   late final WatchableRef watchableRef;
   final T Function(WatchableRef) builder;
 
-  final _rebuildController = StreamController<void>();
+  final _rebuildController = BatchedStreamController();
 
   ViewProviderNotifier(this.builder, {String? debugLabel})
       : super(debugLabel: debugLabel);
@@ -37,7 +36,7 @@ class ViewProviderNotifier<T> extends PureNotifier<T> implements Rebuildable {
 
   @override
   void rebuild() {
-    _rebuildController.add(null);
+    _rebuildController.schedule();
   }
 
   @override
