@@ -5,20 +5,7 @@
 
 A tiny state management library for Flutter. Inspired by [Riverpod](https://pub.dev/packages/riverpod).
 
-## Motivation
-
-After developing several production-grade apps with Riverpod, I found that it's a bit "too much" for my taste.
-
-The code should be Flutter-like as possible, `ConsumerWidget` and `ConsumerStatefulWidget` disrupts the developer experience (e.g. refactoring doesn't work).
-
-I want to have a simple state management library that:
-
-- still uses `StatelessWidget` and `StatefulWidget` as the main building blocks
-- still has type safety as in Riverpod
-- has no hierarchy of providers (just access another provider with `ref.read`)
-- exposes a simple API: `ref.watch(provider)` to read, and `ref.notifier(provider)` to write
-
-## Features
+## Preview
 
 Define a provider:
 
@@ -63,6 +50,28 @@ class _CounterState extends State<CounterPage> with Riverpie {
   }
 }
 ```
+
+## Riverpie vs Riverpod
+
+Besides the syntactic sugar `with Riverpie`, Riverpie is aimed to be more lightweight and more opinionated than Riverpod.
+
+### ➤ Key differences
+
+Providers cannot `watch` other providers. Instead, you can access other providers with `ref.read` or `ref.notify`.
+
+The only provider that can do this is the `ViewProvider` that is intended to be used as a "view model".
+
+Don't worry that you unintentionally use `watch` inside providers because each `ref` has a different type.
+
+Notifiers are never disposed or rebuilt, do not worry that the `ref` becomes invalid.
+
+### ➤ Similarities
+
+The state is still bound to the `RiverpieScope` widget. This means that you can override every provider in your tests.
+
+You still have type safety and can use `ref.watch` to rebuild your widget.
+
+You don't need to register any provider. Just use it.
 
 ## Getting started
 
