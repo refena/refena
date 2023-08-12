@@ -556,14 +556,14 @@ void main() {
 Now you will see useful information printed into the console:
 
 ```text
-[Riverpie] Provider initialized: <Counter>
+[Riverpie] Provider initialized: [Counter]
             - Reason: INITIAL ACCESS
             - Value: 10
-[Riverpie] Listener added: <SecondPage> on <Counter>
-[Riverpie] Change by <Counter>
+[Riverpie] Listener added: [SecondPage] on [Counter]
+[Riverpie] Change by [Counter]
             - Prev: 10
             - Next: 11
-            - Rebuild (2): <HomePage>, <SecondPage>
+            - Rebuild (2): [HomePage], [SecondPage]
 ```
 
 ## License

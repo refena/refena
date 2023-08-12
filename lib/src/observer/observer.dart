@@ -46,7 +46,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
       case ChangeEvent event:
         onLine?.call(_s);
         final label = _getProviderDebugLabel(null, event.notifier);
-        _line('Change by <$label>');
+        _line('Change by [$label]');
         _line(
           ' - Prev: ${event.prev.toString().toSingleLine()}',
           followUp: true,
@@ -57,7 +57,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
         );
         final rebuildable = event.flagRebuild;
         _line(
-          ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '<none>' : rebuildable.map((r) => '<${r.debugLabel}>').join(', ')}',
+          ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '<none>' : rebuildable.map((r) => '[${r.debugLabel}]').join(', ')}',
           followUp: true,
         );
         onLine?.call(_s);
@@ -65,7 +65,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
       case ProviderInitEvent event:
         onLine?.call(_s);
         final label = _getProviderDebugLabel(event.provider, event.notifier);
-        _line('Provider initialized: <$label>');
+        _line('Provider initialized: [$label]');
         _line(' - Reason: ${event.cause.description}', followUp: true);
         _line(' - Value: ${event.value.toString().toSingleLine()}',
             followUp: true);
@@ -73,12 +73,12 @@ class RiverpieDebugObserver extends RiverpieObserver {
         break;
       case ListenerAddedEvent event:
         final label = _getProviderDebugLabel(null, event.notifier);
-        _line('Listener added: <${event.rebuildable.debugLabel}> on <$label>');
+        _line('Listener added: [${event.rebuildable.debugLabel}] on [$label]');
         break;
       case ListenerRemovedEvent event:
         final label = _getProviderDebugLabel(null, event.notifier);
         _line(
-            'Listener removed: <${event.state.widget.getDebugLabel()}> on <$label>');
+            'Listener removed: [${event.state.widget.getDebugLabel()}] on [$label]');
         break;
     }
   }
@@ -103,8 +103,8 @@ extension on ProviderInitCause {
   String get description {
     return switch (this) {
       ProviderInitCause.override => 'SCOPE OVERRIDE',
-      ProviderInitCause.initial => 'INITIAL (DURING APP STARTUP)',
-      ProviderInitCause.access => 'INITIAL ACCESS (LAZY)',
+      ProviderInitCause.initial => 'INITIAL DURING STARTUP',
+      ProviderInitCause.access => 'INITIAL ACCESS',
     };
   }
 }
@@ -126,6 +126,8 @@ extension on Widget {
 }
 
 String _getProviderDebugLabel(BaseProvider? provider, BaseNotifier? notifier) {
+  assert(provider != null || notifier != null);
+
   return notifier?.debugLabel ??
       provider?.debugLabel ??
       notifier?.runtimeType.toString() ??
