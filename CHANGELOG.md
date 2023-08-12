@@ -1,6 +1,7 @@
 ## 0.7.0
 
 - feat: add `ViewProvider`, the only provider that can watch other providers
+- feat: add `initialProviders` parameter for `RiverpieScope`
 - feat: add `exclude` parameter for `RiverpieDebugObserver`
 
 ## 0.6.0

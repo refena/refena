@@ -34,9 +34,16 @@ class RiverpieScope extends InheritedWidget implements Ref {
   /// The provided observer (e.g. for logging)
   final RiverpieObserver? observer;
 
+  /// Creates a [RiverpieScope].
+  /// The [overrides] are used to override providers with a different value.
+  /// The [initialProviders] are used to initialize providers right away.
+  /// Otherwise, the providers are initialized lazily when they are accessed.
+  /// The [observer] is used to observe events.
+  /// The [child] is the widget tree that is wrapped by the [RiverpieScope].
   RiverpieScope({
     super.key,
     List<ProviderOverride> overrides = const [],
+    List<BaseProvider> initialProviders = const [],
     this.observer,
     required super.child,
   }) {
@@ -59,13 +66,21 @@ class RiverpieScope extends InheritedWidget implements Ref {
         ),
       );
     }
+
+    // initialize all specified providers right away
+    for (final provider in initialProviders) {
+      _getState(provider, ProviderInitCause.initial);
+    }
   }
 
   /// Returns the state of the provider.
   ///
   /// If the provider is accessed the first time,
   /// it will be initialized.
-  BaseProviderState _getState(BaseProvider provider) {
+  BaseProviderState _getState(
+    BaseProvider provider, [
+    ProviderInitCause cause = ProviderInitCause.access,
+  ]) {
     BaseProviderState? state = _state[provider];
     if (state == null) {
       state = provider.createState(this, observer);
@@ -76,7 +91,7 @@ class RiverpieScope extends InheritedWidget implements Ref {
           provider: provider,
           notifier: state is NotifierProviderState ? state.getNotifier() : null,
           value: state.getValue(),
-          cause: ProviderInitCause.access,
+          cause: cause,
         ),
       );
     }

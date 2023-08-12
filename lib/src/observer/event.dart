@@ -9,7 +9,7 @@ sealed class RiverpieEvent {}
 /// The most frequent event.
 /// A notifier changed its state and notifies all listeners
 /// that they should rebuild.
-class NotifyEvent<T> extends RiverpieEvent {
+class ChangeEvent<T> extends RiverpieEvent {
   /// The notifier that fired the change event.
   final BaseNotifier<T> notifier;
 
@@ -22,7 +22,7 @@ class NotifyEvent<T> extends RiverpieEvent {
   /// A list of rebuildable objects that should be rebuilt.
   final List<Rebuildable> flagRebuild;
 
-  NotifyEvent({
+  ChangeEvent({
     required this.notifier,
     required this.prev,
     required this.next,
@@ -34,6 +34,10 @@ enum ProviderInitCause {
   /// The provider has been overridden.
   /// It will be initialized during the initialization of [RiverpieScope].
   override,
+
+  /// The provider is specified to initialize right away.
+  /// It will be initialized during the initialization of [RiverpieScope].
+  initial,
 
   /// The provider is accessed the first time.
   /// This can happen by any [ref] operator.

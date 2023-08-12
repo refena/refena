@@ -43,7 +43,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
     }
 
     switch (event) {
-      case NotifyEvent event:
+      case ChangeEvent event:
         onLine?.call(_s);
         final label = _getProviderDebugLabel(null, event.notifier);
         _line('Change by <$label>');
@@ -103,7 +103,8 @@ extension on ProviderInitCause {
   String get description {
     return switch (this) {
       ProviderInitCause.override => 'SCOPE OVERRIDE',
-      ProviderInitCause.access => 'INITIAL ACCESS',
+      ProviderInitCause.initial => 'INITIAL (DURING APP STARTUP)',
+      ProviderInitCause.access => 'INITIAL ACCESS (LAZY)',
     };
   }
 }

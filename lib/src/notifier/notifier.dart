@@ -49,7 +49,7 @@ abstract class BaseNotifier<T> {
     if (_initialized && updateShouldNotify(oldState, _state)) {
       final notified = _listeners.notifyAll(oldState, _state);
       _observer?.handleEvent(
-        NotifyEvent<T>(
+        ChangeEvent<T>(
           notifier: this,
           prev: oldState,
           next: value,
