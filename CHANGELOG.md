@@ -3,6 +3,7 @@
 - feat: add `ViewProvider`, the only provider that can watch other providers
 - feat: add `initialProviders` parameter for `RiverpieScope`
 - feat: add `exclude` parameter for `RiverpieDebugObserver`
+- **BREAKING**: `setState` of `StateProvider` accepts a builder instead of a value
 
 ## 0.6.0
 

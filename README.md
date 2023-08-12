@@ -287,7 +287,7 @@ final myProvider = StateProvider((ref) => 10);
 Update the state:
 
 ```dart
-ref.notifier(myProvider).setState(11);
+ref.notifier(myProvider).setState((old) => old + 1);
 ```
 
 ### ➤ ViewProvider

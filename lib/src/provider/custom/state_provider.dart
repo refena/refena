@@ -13,7 +13,7 @@ import 'package:riverpie/src/ref.dart';
 /// Usage:
 /// final myProvider = StateProvider((ref) => 10); // define
 /// ref.watch(myProvider); // read
-/// ref.notifier(myProvider).setState(11); // write
+/// ref.notifier(myProvider).setState((old) => old + 1); // write
 class StateProvider<T> extends NotifierProvider<StateNotifier<T>, T> {
   StateProvider(T Function(Ref ref) builder, {super.debugLabel})
       : super((ref) => StateNotifier<T>(
@@ -51,9 +51,10 @@ class StateNotifier<T> extends PureNotifier<T> {
   /// Use this to change the state of the notifier.
   ///
   /// Usage:
-  /// ref.notifier(myProvider).setState('new value');
-  void setState(T newState) {
+  /// ref.notifier(myProvider).setState((_) => 'new value');
+  void setState(T Function(T old) newStateBuilder) {
     final oldState = state;
+    final newState = newStateBuilder(oldState);
     state = newState;
     if (_listener != null) {
       _listener!.call(oldState, newState);
