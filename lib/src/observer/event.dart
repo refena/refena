@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:riverpie/src/notifier/notifier.dart';
+import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/provider/provider.dart';
 
 /// The base event.
@@ -18,8 +19,8 @@ class NotifyEvent<T> extends RiverpieEvent {
   /// The state after the change.
   final T next;
 
-  /// A list of states that are flagged to rebuild in the next frame.
-  final List<State> flagRebuild;
+  /// A list of rebuildable objects that should be rebuilt.
+  final List<Rebuildable> flagRebuild;
 
   NotifyEvent({
     required this.notifier,
@@ -67,11 +68,11 @@ class ProviderInitEvent<T> extends RiverpieEvent {
 /// This happens on ref.watch the first time the call happens within a state.
 class ListenerAddedEvent<N extends BaseNotifier<T>, T> extends RiverpieEvent {
   final N notifier;
-  final State state;
+  final Rebuildable rebuildable;
 
   ListenerAddedEvent({
     required this.notifier,
-    required this.state,
+    required this.rebuildable,
   });
 }
 

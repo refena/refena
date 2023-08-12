@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:riverpie/src/notifier/notifier.dart';
+import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 
@@ -37,23 +38,23 @@ class NotifierEvent<T> {
 class NotifierListeners<T> {
   final RiverpieObserver? _observer;
   final BaseNotifier<T> _notifier;
-  final _listeners = <State, ListenerConfig<T>>{};
+  final _listeners = <Rebuildable, ListenerConfig<T>>{};
   int _listenerAddCount = 0;
 
   final _stream = StreamController<NotifierEvent<T>>.broadcast();
 
   NotifierListeners(this._notifier, this._observer);
 
-  List<State>? notifyAll(T prev, T next) {
+  List<Rebuildable>? notifyAll(T prev, T next) {
     _removeUnusedListeners();
 
-    List<State>? notifiedStates;
+    List<Rebuildable>? notified;
 
     if (_observer != null) {
-      notifiedStates = <State>[];
+      notified = <Rebuildable>[];
     }
 
-    _listeners.forEach((state, config) {
+    _listeners.forEach((rebuildable, config) {
       if (config.selector != null && !config.selector!(prev, next)) {
         return;
       }
@@ -62,21 +63,20 @@ class NotifierListeners<T> {
         config.callback!.call(prev, next);
       }
 
-      // ignore: invalid_use_of_protected_member
-      state.setState(() {});
+      rebuildable.rebuild();
 
-      notifiedStates?.add(state);
+      notified?.add(rebuildable);
     });
 
     _stream.add(NotifierEvent(prev, next));
 
-    return notifiedStates;
+    return notified;
   }
 
   /// Adds a listener to the notifier.
   /// The listener is automatically removed when the state is disposed.
-  void addListener(State state, ListenerConfig<T> config) {
-    if (!_listeners.containsKey(state)) {
+  void addListener(Rebuildable rebuildable, ListenerConfig<T> config) {
+    if (!_listeners.containsKey(rebuildable)) {
       _listenerAddCount++;
       if (_listenerAddCount == 10) {
         // We already clear listeners on each notify.
@@ -85,10 +85,10 @@ class NotifierListeners<T> {
         _removeUnusedListeners();
       }
 
-      _listeners[state] = config;
+      _listeners[rebuildable] = config;
 
       _observer?.handleEvent(
-        ListenerAddedEvent(notifier: _notifier, state: state),
+        ListenerAddedEvent(notifier: _notifier, rebuildable: rebuildable),
       );
     }
   }
@@ -103,12 +103,14 @@ class NotifierListeners<T> {
     final observer = _observer;
     if (observer != null) {
       final states = <State>[];
-      _listeners.removeWhere((state, config) {
-        final remove = !state.mounted;
-        if (remove) {
-          states.add(state);
+      _listeners.removeWhere((rebuildable, config) {
+        if (rebuildable.disposed) {
+          if (rebuildable is StateRebuildable) {
+            states.add(rebuildable.state);
+          }
+          return true;
         }
-        return remove;
+        return false;
       });
       for (final state in states) {
         observer.handleEvent(
@@ -116,7 +118,7 @@ class NotifierListeners<T> {
         );
       }
     } else {
-      _listeners.removeWhere((state, config) => !state.mounted);
+      _listeners.removeWhere((rebuildable, config) => rebuildable.disposed);
     }
   }
 }

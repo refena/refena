@@ -1,18 +1,17 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
-import 'package:riverpie/src/listener.dart';
 import 'package:riverpie/src/notifier/notifier.dart';
+import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
 
 @internal
-class ViewProviderNotifier<T> extends PureNotifier<T> {
+class ViewProviderNotifier<T> extends PureNotifier<T> implements Rebuildable {
   late final WatchableRef watchableRef;
   final T Function(WatchableRef) builder;
 
   final _rebuildController = StreamController<void>();
-  final _subscriptions = <BaseNotifier, StreamSubscription>{};
 
   ViewProviderNotifier(this.builder, {String? debugLabel})
       : super(debugLabel: debugLabel);
@@ -20,12 +19,6 @@ class ViewProviderNotifier<T> extends PureNotifier<T> {
   @override
   T init() {
     _rebuildController.stream.listen((_) {
-      // cancel all subscriptions
-      _subscriptions.forEach((_, subscription) {
-        subscription.cancel();
-      });
-      _subscriptions.clear();
-
       // rebuild notifier state
       state = builder(watchableRef);
     });
@@ -35,33 +28,21 @@ class ViewProviderNotifier<T> extends PureNotifier<T> {
   @internal
   @override
   void preInit(Ref ref, RiverpieObserver? observer) {
-    watchableRef = ProviderWatchableRef(
+    watchableRef = WatchableRef.fromRebuildable(
       ref: ref,
-      notifier: this,
+      rebuildable: this,
     );
     super.preInit(ref, observer);
   }
 
-  void rebuildOnNotifierChange<N extends BaseNotifier<T2>, T2>(
-    N notifier,
-    ListenerConfig<T2> config,
-  ) {
-    if (_subscriptions.containsKey(notifier)) {
-      return;
-    }
-
-    _subscriptions[notifier] = notifier.getStream().listen((event) {
-      if (config.selector != null &&
-          !config.selector!(event.prev, event.next)) {
-        return;
-      }
-
-      if (config.callback != null) {
-        config.callback!(event.prev, event.next);
-      }
-
-      // rebuild notifier state
-      _rebuildController.add(null);
-    });
+  @override
+  void rebuild() {
+    _rebuildController.add(null);
   }
+
+  @override
+  bool get disposed => false;
+
+  @override
+  String get debugLabel => super.debugLabel ?? runtimeType.toString();
 }

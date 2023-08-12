@@ -1,8 +1,8 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
-import 'package:riverpie/src/listener.dart';
+import 'package:riverpie/src/notifier/listener.dart';
+import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
@@ -69,8 +69,8 @@ abstract class BaseNotifier<T> {
   void preInit(Ref ref, RiverpieObserver? observer);
 
   @internal
-  void addListener(State state, ListenerConfig<T> config) {
-    _listeners.addListener(state, config);
+  void addListener(Rebuildable rebuildable, ListenerConfig<T> config) {
+    _listeners.addListener(rebuildable, config);
   }
 
   @internal

@@ -1,4 +1,4 @@
-import 'package:riverpie/src/listener.dart';
+import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/provider/provider.dart';
 import 'package:riverpie/src/provider/state.dart';

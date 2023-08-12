@@ -55,9 +55,9 @@ class RiverpieDebugObserver extends RiverpieObserver {
           ' - Next: ${event.next.toString().toSingleLine()}',
           followUp: true,
         );
-        final states = event.flagRebuild;
+        final rebuildable = event.flagRebuild;
         _line(
-          ' - Rebuild (${states.length}): ${states.isEmpty ? '<none>' : states.map((s) => '<${s.widget.getDebugLabel()}>').join(', ')}',
+          ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '<none>' : rebuildable.map((r) => '<${r.debugLabel}>').join(', ')}',
           followUp: true,
         );
         onLine?.call(_s);
@@ -73,8 +73,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
         break;
       case ListenerAddedEvent event:
         final label = _getProviderDebugLabel(null, event.notifier);
-        _line(
-            'Listener added: <${event.state.widget.getDebugLabel()}> on <$label>');
+        _line('Listener added: <${event.rebuildable.debugLabel}> on <$label>');
         break;
       case ListenerRemovedEvent event:
         final label = _getProviderDebugLabel(null, event.notifier);

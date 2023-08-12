@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:riverpie/src/listener.dart';
+import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier.dart';
-import 'package:riverpie/src/notifier/view_provider_notifier.dart';
+import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/provider/provider.dart';
 
 /// The base ref to read and notify providers.
@@ -28,20 +28,10 @@ abstract class Ref {
   );
 }
 
-/// The ref to watch providers (in addition to read, notify and stream).
-abstract class WatchableRef extends Ref {
-  /// Get the current value of a provider and listen to changes.
-  T watch<T>(
-    BaseProvider<T> provider, {
-    ListenerCallback<T>? listener,
-    bool Function(T prev, T next)? rebuildWhen,
-  });
-}
-
-/// The ref available in a [State] with the mixin.
-class StateWatchableRef extends WatchableRef {
+/// The ref available in a [State] with the mixin or in a [ViewProvider].
+class WatchableRef extends Ref {
   final Ref _ref;
-  final State _state;
+  final Rebuildable _rebuildable;
 
   @override
   T read<T>(BaseProvider<T> provider) {
@@ -64,7 +54,6 @@ class StateWatchableRef extends WatchableRef {
   /// Get the current value of a provider and listen to changes.
   /// The listener will be disposed automatically when the widget is disposed.
   /// Only call [watch] during build.
-  @override
   T watch<T>(
     BaseProvider<T> provider, {
     ListenerCallback<T>? listener,
@@ -77,7 +66,7 @@ class StateWatchableRef extends WatchableRef {
       // A notifier provider is mutable, so we also need to add a listener.
       final notifier = _ref.notifier(provider);
       notifier.addListener(
-        _state,
+        _rebuildable,
         ListenerConfig(
           callback: listener,
           selector: rebuildWhen,
@@ -92,66 +81,27 @@ class StateWatchableRef extends WatchableRef {
         'Only [Provider] and [NotifierProvider] are supported, got: ${provider.runtimeType}');
   }
 
-  StateWatchableRef({
+  WatchableRef._(this._ref, this._rebuildable);
+
+  /// Create a [WatchableRef] from a [State].
+  factory WatchableRef.fromState({
     required Ref ref,
     required State state,
-  })  : _ref = ref,
-        _state = state;
-}
-
-/// The ref available within a [ViewProvider] builder.
-class ProviderWatchableRef extends WatchableRef {
-  final Ref _ref;
-  final ViewProviderNotifier _notifier;
-
-  @override
-  T read<T>(BaseProvider<T> provider) {
-    return _ref.read(provider);
-  }
-
-  @override
-  N notifier<N extends BaseNotifier<T>, T>(
-      BaseNotifierProvider<N, T> provider) {
-    return _ref.notifier(provider);
-  }
-
-  @override
-  Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-      BaseNotifierProvider<N, T> provider) {
-    return _ref.stream(provider);
-  }
-
-  @override
-  T watch<T>(
-    BaseProvider<T> provider, {
-    ListenerCallback<T>? listener,
-    bool Function(T prev, T next)? rebuildWhen,
   }) {
-    if (provider is Provider<T>) {
-      // A normal provider is immutable, so we can return the value directly.
-      return _ref.read(provider);
-    } else if (provider is BaseNotifierProvider<BaseNotifier<T>, T>) {
-      // A notifier provider is mutable, so we also need to add a listener.
-      final notifier = _ref.notifier(provider);
-      _notifier.rebuildOnNotifierChange(
-        notifier,
-        ListenerConfig(
-          callback: listener,
-          selector: rebuildWhen,
-        ),
-      );
-
-      // ignore: invalid_use_of_protected_member
-      return notifier.state;
-    }
-
-    throw Exception(
-        'Only [Provider] and [NotifierProvider] are supported, got: ${provider.runtimeType}');
+    return WatchableRef._(
+      ref,
+      StateRebuildable(state),
+    );
   }
 
-  ProviderWatchableRef({
+  /// Create a [WatchableRef] from a [Rebuildable].
+  factory WatchableRef.fromRebuildable({
     required Ref ref,
-    required ViewProviderNotifier notifier,
-  })  : _ref = ref,
-        _notifier = notifier;
+    required Rebuildable rebuildable,
+  }) {
+    return WatchableRef._(
+      ref,
+      rebuildable,
+    );
+  }
 }
