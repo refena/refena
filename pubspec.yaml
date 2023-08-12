@@ -1,7 +1,12 @@
 name: riverpie
 description: A tiny state management library for Flutter. Inspired by Riverpod.
-version: 0.6.0
-homepage: https://github.com/Tienisto/riverpie
+version: 0.7.0
+repository: https://github.com/Tienisto/riverpie
+topics:
+  - state
+  - provider
+  - riverpod
+  - framework
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
