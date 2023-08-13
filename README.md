@@ -53,25 +53,35 @@ class _CounterState extends State<CounterPage> with Riverpie {
 
 ## Riverpie vs Riverpod
 
-Besides the syntactic sugar `with Riverpie`, Riverpie is aimed to be more lightweight and more opinionated than Riverpod.
+Besides the syntactic sugar `with Riverpie`, Riverpie is aimed to be more lightweight, more pragmatic and more opinionated than Riverpod.
 
 ### ➤ Key differences
 
-Providers cannot `watch` other providers. Instead, you can access other providers with `ref.read` or `ref.notify`.
-
-The only provider that can do this is the `ViewProvider` that is intended to be used as a "view model".
-
+**ref.watch**:
+Providers cannot `watch` other providers. Instead, you can only access other providers with `ref.read` or `ref.notifier`.
+The only provider that can `watch` is the `ViewProvider`. This provider is intended to be used as a "view model".
 Don't worry that you unintentionally use `watch` inside providers because each `ref` is typed accordingly.
 
-Notifiers are never disposed or rebuilt, don't worry that the `ref` becomes invalid.
+**Common super class**:
+`WatchableRef` extends `Ref`. You can use `Ref` as parameter to implement util functions that need access to `ref`.
+
+**Use ref anywhere, anytime**:
+Don't worry that the `ref` within providers or notifiers becomes invalid.
+Even the `ref` within widgets can be accessed all the time by using `ensureRef`.
+
+**No provider modifiers**:
+There is no `.family` or `.autodispose`. This makes the provider landscape simple and straightforward.
 
 ### ➤ Similarities
 
+**Testable**:
 The state is still bound to the `RiverpieScope` widget. This means that you can override every provider in your tests.
 
-You still have type safety and can use `ref.watch` to rebuild your widget.
+**Type-safe**:
+Every provider is correctly typed. Enjoy type-safe auto completions when you read them.
 
-You don't need to register any provider. Just use access them.
+**Auto register**:
+You don't need to register any provider. They will be initialized lazily when you access them.
 
 ## Getting started
 
@@ -154,17 +164,17 @@ There are many types of providers. Each one has its own purpose.
 
 The most important ones are `Provider` and `NotifierProvider` because they are the most flexible.
 
-| Provider           | Usage                      | Notifier API       | Can `watch` |
-|--------------------|----------------------------|--------------------|-------------|
-| `Provider`         | For immutable values       | -                  | No          |
-| `FutureProvider`   | For immutable async values | -                  | No          |
-| `NotifierProvider` | For mutable values         | Define it yourself | No          |
-| `StateProvider`    | For simple mutable values  | `setState`         | No          |
-| `ViewProvider`     | For view models            | -                  | Yes         |
+| Provider           | Usage                               | Notifier API       | Can `watch` |
+|--------------------|-------------------------------------|--------------------|-------------|
+| `Provider`         | For constants or stateless services | -                  | No          |
+| `FutureProvider`   | For immutable async values          | -                  | No          |
+| `NotifierProvider` | For regular services                | Define it yourself | No          |
+| `StateProvider`    | For simple states                   | `setState`         | No          |
+| `ViewProvider`     | For view models                     | -                  | Yes         |
 
 ### ➤ Provider
 
-Use this provider for immutable values.
+Use this provider for immutable values (constants or stateless services).
 
 ```dart
 final myProvider = Provider((ref) => 42);
@@ -294,7 +304,9 @@ ref.notifier(myProvider).setState((old) => old + 1);
 
 The `ViewProvider` is the only provider that can `watch` other providers.
 
-It is useful for view models that uses multiple providers.
+It is useful for view models that depend on multiple providers.
+
+This requires more code but makes your app more testable.
 
 ```dart
 class SettingsVm {
@@ -564,6 +576,24 @@ Now you will see useful information printed into the console:
             - Prev: 10
             - Next: 11
             - Rebuild (2): [HomePage], [SecondPage]
+```
+
+In case you want to use multiple observers at once, there is a `RiverpieMultiObserver` for that.
+
+```dart
+void main() {
+  runApp(
+    RiverpieScope(
+      observer: RiverpieMultiObserver(
+        observers: [
+          RiverpieDebugObserver(),
+          MyCustomObserver(),
+        ],
+      ),
+      child: const MyApp(),
+    ),
+  );
+}
 ```
 
 ## License
