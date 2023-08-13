@@ -12,6 +12,20 @@ abstract class RiverpieObserver {
   void handleEvent(RiverpieEvent event);
 }
 
+/// The observer to use multiple observers at once.
+class RiverpieMultiObserver extends RiverpieObserver {
+  final List<RiverpieObserver> observers;
+
+  const RiverpieMultiObserver({required this.observers});
+
+  @override
+  void handleEvent(RiverpieEvent event) {
+    for (final observer in observers) {
+      observer.handleEvent(event);
+    }
+  }
+}
+
 /// A plug-and-play [RiverpieObserver] that prints every action into
 /// the console for easier debugging.
 class RiverpieDebugObserver extends RiverpieObserver {

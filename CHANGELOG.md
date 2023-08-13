@@ -1,3 +1,7 @@
+## 0.8.0
+
+- feat: add `RiverpieMultiObserver` to use multiple observers at once
+
 ## 0.7.0
 
 - feat: add `ViewProvider`, the only provider that can watch other providers

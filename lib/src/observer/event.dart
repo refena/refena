@@ -70,7 +70,7 @@ class ProviderInitEvent<T> extends RiverpieEvent {
 
 /// A listener is added to a notifier.
 /// This happens on ref.watch the first time the call happens within a state.
-class ListenerAddedEvent<N extends BaseNotifier<T>, T> extends RiverpieEvent {
+class ListenerAddedEvent<N extends BaseNotifier> extends RiverpieEvent {
   final N notifier;
   final Rebuildable rebuildable;
 
@@ -83,7 +83,7 @@ class ListenerAddedEvent<N extends BaseNotifier<T>, T> extends RiverpieEvent {
 /// Listener is removed from a notifier.
 /// This usually happens when a notifier tries to notify or
 /// periodically when new listeners are added.
-class ListenerRemovedEvent<N extends BaseNotifier<T>, T> extends RiverpieEvent {
+class ListenerRemovedEvent<N extends BaseNotifier> extends RiverpieEvent {
   final N notifier;
   final State state;
 
