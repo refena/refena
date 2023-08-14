@@ -3,12 +3,11 @@ import 'package:riverpie/src/ref.dart';
 import 'package:riverpie/src/util/get_scope.dart';
 
 extension ContextRefExt on BuildContext {
+  static final _refCollection = Expando<WatchableRef>();
+
   /// Access the [Ref] using this [BuildContext].
-  /// If you access multiple providers, you should store the [Ref] into
-  /// a local variable inside the build method for better performance.
-  /// ... or use the [Riverpie] mixin inside your StatefulWidgets.
   WatchableRef get ref {
-    return WatchableRef.fromElement(
+    return _refCollection[this] ??= WatchableRef.fromElement(
       ref: getScope(this),
       element: this as Element,
     );

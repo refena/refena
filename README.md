@@ -160,7 +160,6 @@ class MyPage extends StatelessWidget {
 ```
 
 In a `StatefulWidget`, you can use `with Riverpie` to access the `ref` directly.
-It is also recommended because the `ref` is initialized only once and not on every rebuild.
 
 ```dart
 class MyPage extends StatefulWidget {

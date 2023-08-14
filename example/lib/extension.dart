@@ -30,12 +30,42 @@ class MyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ref = context.ref; // store it for better performance
-    final count = ref.watch(counter);
+    final count = context.ref.watch(counter);
     return Scaffold(
       body: Column(
         children: [
           Text('The counter is: $count'),
+          ElevatedButton(
+            onPressed: () {
+              context.ref.notifier(counter).setState((old) => old + 1);
+            },
+            child: const Text('+ 1'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const SecondPage()));
+            },
+            child: const Text('Open second page'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SecondPage extends StatelessWidget {
+  const SecondPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Second page'),
+      ),
+      body: Column(
+        children: [
+          Text('The counter is: ${context.ref.watch(counter)}'),
           ElevatedButton(
             onPressed: () {
               context.ref.notifier(counter).setState((old) => old + 1);

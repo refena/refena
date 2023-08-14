@@ -102,19 +102,17 @@ class NotifierListeners<T> {
     // remove any listener that has been disposed
     final observer = _observer;
     if (observer != null) {
-      final widgets = <Widget>[];
+      final removed = <Rebuildable>[];
       _listeners.removeWhere((rebuildable, config) {
         if (rebuildable.disposed) {
-          if (rebuildable is ElementRebuildable) {
-            widgets.add(rebuildable.element.widget);
-          }
+          removed.add(rebuildable);
           return true;
         }
         return false;
       });
-      for (final widget in widgets) {
+      for (final r in removed) {
         observer.handleEvent(
-          ListenerRemovedEvent(notifier: _notifier, widget: widget),
+          ListenerRemovedEvent(notifier: _notifier, rebuildable: r),
         );
       }
     } else {

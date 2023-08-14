@@ -5,7 +5,7 @@ import 'package:riverpie/src/widget/consumer.dart';
 /// Something that can be rebuilt.
 @internal
 abstract class Rebuildable {
-  /// Trigger a rebuild (in the next frame).
+  /// Schedule a rebuild (in the next frame).
   void rebuild();
 
   /// Whether this [Rebuildable] is disposed and should be removed.
@@ -18,26 +18,27 @@ abstract class Rebuildable {
 /// A [Rebuildable] that rebuilds an [Element].
 @internal
 class ElementRebuildable extends Rebuildable {
-  final Element element;
+  /// The element to rebuild.
+  /// We don't want to increase the time to garbage collect the element.
+  final WeakReference<Element> element;
 
-  ElementRebuildable(this.element);
+  /// We need to store the debug label because the element might be disposed
+  @override
+  final String debugLabel;
+
+  ElementRebuildable(Element element)
+      : element = WeakReference(element),
+        debugLabel = _getDebugLabel(element.widget);
 
   @override
   void rebuild() {
-    element.markNeedsBuild();
+    element.target?.markNeedsBuild();
   }
 
+  /// Whether this [Rebuildable] is disposed and should be removed.
+  /// Either this [Element] is garbage collected or the widget is disposed.
   @override
-  bool get disposed => !element.mounted;
-
-  @override
-  String get debugLabel {
-    final widget = element.widget;
-    if (widget is ExpensiveConsumer) {
-      return widget.debugLabel;
-    }
-    return widget.runtimeType.toString();
-  }
+  bool get disposed => (element.target?.mounted ?? false) == false;
 
   @override
   bool operator ==(Object other) =>
@@ -46,4 +47,11 @@ class ElementRebuildable extends Rebuildable {
 
   @override
   int get hashCode => element.hashCode;
+}
+
+String _getDebugLabel(Widget? widget) {
+  if (widget is ExpensiveConsumer) {
+    return widget.debugLabel;
+  }
+  return widget.runtimeType.toString();
 }

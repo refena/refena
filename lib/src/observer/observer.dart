@@ -1,8 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/provider/provider.dart';
-import 'package:riverpie/src/widget/consumer.dart';
 
 /// The observer receives every [RiverpieEvent].
 /// It is up to the implementation of how to use it.
@@ -92,7 +90,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
       case ListenerRemovedEvent event:
         final label = _getProviderDebugLabel(null, event.notifier);
         _line(
-            'Listener removed: [${event.widget.getDebugLabel()}] on [$label]');
+            'Listener removed: [${event.rebuildable.debugLabel}] on [$label]');
         break;
     }
   }
@@ -126,16 +124,6 @@ extension on ProviderInitCause {
 extension on String {
   String toSingleLine() {
     return replaceAll('\n', '\\n');
-  }
-}
-
-extension on Widget {
-  String getDebugLabel() {
-    final widget = this;
-    if (widget is ExpensiveConsumer) {
-      return widget.debugLabel;
-    }
-    return runtimeType.toString();
   }
 }
 

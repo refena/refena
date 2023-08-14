@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/provider/provider.dart';
@@ -85,10 +84,10 @@ class ListenerAddedEvent<N extends BaseNotifier> extends RiverpieEvent {
 /// periodically when new listeners are added.
 class ListenerRemovedEvent<N extends BaseNotifier> extends RiverpieEvent {
   final N notifier;
-  final Widget widget;
+  final Rebuildable rebuildable;
 
   ListenerRemovedEvent({
     required this.notifier,
-    required this.widget,
+    required this.rebuildable,
   });
 }
