@@ -57,34 +57,34 @@ Riverpie is aimed to be more lightweight, more pragmatic and more opinionated th
 
 ### ➤ Key differences
 
-**Flutter native**:
-No `ConsumerWidget` or `ConsumerStatefulWidget`. You still use `StatefulWidget` and `StatelessWidget` as usual.
+**Flutter native**:\
+No `ConsumerWidget` or `ConsumerStatefulWidget`. You still use `StatefulWidget` or `StatelessWidget` as usual.
 To access `ref`, you can either use `with Riverpie` (only in `StatefulWidget`) or `context.ref`.
 
-**ref.watch**:
+**ref.watch**:\
 Providers cannot `watch` other providers. Instead, you can only access other providers with `ref.read` or `ref.notifier`.
 The only provider that can `watch` is the `ViewProvider`. This provider is intended to be used as a "view model".
 Don't worry that you unintentionally use `watch` inside providers because each `ref` is typed accordingly.
 
-**Common super class**:
+**Common super class**:\
 `WatchableRef` extends `Ref`. You can use `Ref` as parameter to implement util functions that need access to `ref`.
 
-**Use ref anywhere, anytime**:
+**Use ref anywhere, anytime**:\
 Don't worry that the `ref` within providers or notifiers becomes invalid.
 Even the `ref` within widgets can be accessed all the time by using `ensureRef`.
 
-**No provider modifiers**:
+**No provider modifiers**:\
 There is no `.family` or `.autodispose`. This makes the provider landscape simple and straightforward.
 
 ### ➤ Similarities
 
-**Testable**:
+**Testable**:\
 The state is still bound to the `RiverpieScope` widget. This means that you can override every provider in your tests.
 
-**Type-safe**:
+**Type-safe**:\
 Every provider is correctly typed. Enjoy type-safe auto completions when you read them.
 
-**Auto register**:
+**Auto register**:\
 You don't need to register any provider. They will be initialized lazily when you access them.
 
 ## Getting started
@@ -118,15 +118,10 @@ final myProvider = Provider((_) => 42);
 **Step 4: Use the provider**
 
 ```dart
-class MyPage extends StatefulWidget {
-  @override
-  State<MyPage> createState() => _CounterState();
-}
-
-class _MyPageState extends State<MyPage> with Riverpie {
+class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final myValue = ref.watch(myProvider);
+    final myValue = context.ref.watch(myProvider);
     return Scaffold(
       body: Center(
         child: Text('The value is $myValue'),
@@ -580,7 +575,7 @@ If you are unable to access `ref`, there is a pragmatic solution for that.
 
 You can use `RiverpieScope.defaultRef` to access the providers and notifiers.
 
-Remember that this is only for edge cases and you should always use `ref` if possible.
+Remember that this is only for edge cases, and you should always use the accessible `ref` if possible.
 
 ```dart
 void someFunction() {
