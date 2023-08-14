@@ -15,25 +15,24 @@ abstract class Rebuildable {
   String get debugLabel;
 }
 
-/// A [Rebuildable] that rebuilds a [State].
+/// A [Rebuildable] that rebuilds an [Element].
 @internal
-class StateRebuildable extends Rebuildable {
-  final State state;
+class ElementRebuildable extends Rebuildable {
+  final Element element;
 
-  StateRebuildable(this.state);
+  ElementRebuildable(this.element);
 
   @override
   void rebuild() {
-    // ignore: invalid_use_of_protected_member
-    state.setState(() {});
+    element.markNeedsBuild();
   }
 
   @override
-  bool get disposed => !state.mounted;
+  bool get disposed => !element.mounted;
 
   @override
   String get debugLabel {
-    final widget = state.widget;
+    final widget = element.widget;
     if (widget is ExpensiveConsumer) {
       return widget.debugLabel;
     }
@@ -43,8 +42,8 @@ class StateRebuildable extends Rebuildable {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is StateRebuildable && identical(state, other.state);
+      other is ElementRebuildable && identical(element, other.element);
 
   @override
-  int get hashCode => state.hashCode;
+  int get hashCode => element.hashCode;
 }

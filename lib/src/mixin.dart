@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:riverpie/src/widget/scope.dart';
+import 'package:riverpie/src/util/get_scope.dart';
 import 'package:riverpie/src/ref.dart';
 
 mixin Riverpie<W extends StatefulWidget> on State<W> {
   /// Access this ref inside your [State].
-  late final ref = WatchableRef.fromState(
-    ref: _getScope(context),
-    state: this,
+  late final ref = WatchableRef.fromElement(
+    ref: getScope(context),
+    element: context as Element,
   );
 
   /// Call this method inside [initState] to have some
@@ -22,13 +22,4 @@ mixin Riverpie<W extends StatefulWidget> on State<W> {
       callback?.call(ref);
     });
   }
-}
-
-/// Returns the nearest [RiverpieScope].
-RiverpieScope _getScope(BuildContext context) {
-  final scope = context.dependOnInheritedWidgetOfExactType<RiverpieScope>();
-  if (scope == null) {
-    throw Exception('Wrap your app with RiverpieScope');
-  }
-  return scope;
 }

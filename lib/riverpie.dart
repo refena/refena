@@ -1,3 +1,4 @@
+export 'package:riverpie/src/extension.dart';
 export 'package:riverpie/src/mixin.dart';
 export 'package:riverpie/src/notifier/notifier.dart';
 export 'package:riverpie/src/observer/event.dart';

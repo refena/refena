@@ -83,14 +83,14 @@ class WatchableRef extends Ref {
 
   WatchableRef._(this._ref, this._rebuildable);
 
-  /// Create a [WatchableRef] from a [State].
-  factory WatchableRef.fromState({
+  /// Create a [WatchableRef] from an [Element].
+  factory WatchableRef.fromElement({
     required Ref ref,
-    required State state,
+    required Element element,
   }) {
     return WatchableRef._(
       ref,
-      StateRebuildable(state),
+      ElementRebuildable(element),
     );
   }
 

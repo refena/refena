@@ -85,10 +85,10 @@ class ListenerAddedEvent<N extends BaseNotifier> extends RiverpieEvent {
 /// periodically when new listeners are added.
 class ListenerRemovedEvent<N extends BaseNotifier> extends RiverpieEvent {
   final N notifier;
-  final State state;
+  final Widget widget;
 
   ListenerRemovedEvent({
     required this.notifier,
-    required this.state,
+    required this.widget,
   });
 }

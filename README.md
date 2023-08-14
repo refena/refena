@@ -53,9 +53,13 @@ class _CounterState extends State<CounterPage> with Riverpie {
 
 ## Riverpie vs Riverpod
 
-Besides the syntactic sugar `with Riverpie`, Riverpie is aimed to be more lightweight, more pragmatic and more opinionated than Riverpod.
+Riverpie is aimed to be more lightweight, more pragmatic and more opinionated than Riverpod.
 
 ### ➤ Key differences
+
+**Flutter native**:
+No `ConsumerWidget` or `ConsumerStatefulWidget`. You still use `StatefulWidget` and `StatelessWidget` as usual.
+To access `ref`, you can either use `with Riverpie` (only in `StatefulWidget`) or `context.ref`.
 
 **ref.watch**:
 Providers cannot `watch` other providers. Instead, you can only access other providers with `ref.read` or `ref.notifier`.
@@ -134,11 +138,50 @@ class _MyPageState extends State<MyPage> with Riverpie {
 
 ## Stateful vs Stateless widgets
 
-The easiest way to use Riverpie is to use a `StatefulWidget` and add `with Riverpie` to the `State` class.
+You can access the `ref` right from the `context`:
 
-A `StatelessWidget` alone cannot be used in combination with `Riverpie`.
+```dart
+class MyPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ref = context.ref;
+    final myValue = ref.watch(myProvider);
+    final mySecondValue = ref.watch(mySecondProvider);
+    return Scaffold(
+      body: Column(
+        children: [
+          Text('The value is $myValue'),
+          Text('The second value is $mySecondValue'),
+        ],
+      ),
+    );
+  }
+}
+```
 
-However, you can use `Consumer` to access the state.
+In a `StatefulWidget`, you can use `with Riverpie` to access the `ref` directly.
+It is also recommended because the `ref` is initialized only once and not on every rebuild.
+
+```dart
+class MyPage extends StatefulWidget {
+  @override
+  State<MyPage> createState() => _CounterState();
+}
+
+class _MyPageState extends State<MyPage> with Riverpie {
+  @override
+  Widget build(BuildContext context) {
+    final myValue = ref.watch(myProvider);
+    return Scaffold(
+      body: Center(
+        child: Text('The value is $myValue'),
+      ),
+    );
+  }
+}
+```
+
+You can also use `Consumer` to access the state. This is useful to rebuild only a part of the widget tree:
 
 ```dart
 class MyPage extends StatelessWidget {

@@ -1,5 +1,6 @@
 ## 0.8.0
 
+- feat: add `context.ref` to also access `ref` inside `StatelessWidget`
 - feat: add `RiverpieMultiObserver` to use multiple observers at once
 
 ## 0.7.0

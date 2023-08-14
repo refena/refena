@@ -92,7 +92,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
       case ListenerRemovedEvent event:
         final label = _getProviderDebugLabel(null, event.notifier);
         _line(
-            'Listener removed: [${event.state.widget.getDebugLabel()}] on [$label]');
+            'Listener removed: [${event.widget.getDebugLabel()}] on [$label]');
         break;
     }
   }
