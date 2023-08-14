@@ -371,25 +371,21 @@ The widget:
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref) {
-        final vm = ref.watch(settingsVmProvider);
-        return Scaffold(
-          body: Center(
-            child: Column(
-              children: [
-                Text('First name: ${vm.firstName}'),
-                Text('Last name: ${vm.lastName}'),
-                Text('Theme mode: ${vm.themeMode}'),
-                ElevatedButton(
-                  onPressed: vm.logout,
-                  child: const Text('Logout'),
-                ),
-              ],
+    final vm = context.ref.watch(settingsVmProvider);
+    return Scaffold(
+      body: Center(
+        child: Column(
+          children: [
+            Text('First name: ${vm.firstName}'),
+            Text('Last name: ${vm.lastName}'),
+            Text('Theme mode: ${vm.themeMode}'),
+            ElevatedButton(
+              onPressed: vm.logout,
+              child: const Text('Logout'),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 }
