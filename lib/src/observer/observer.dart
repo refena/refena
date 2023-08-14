@@ -27,7 +27,8 @@ class RiverpieMultiObserver extends RiverpieObserver {
 /// A plug-and-play [RiverpieObserver] that prints every action into
 /// the console for easier debugging.
 class RiverpieDebugObserver extends RiverpieObserver {
-  static const _s = '########################################';
+  static const _t = '┌────────────────────────────────────────────────────────';
+  static const _b = '└────────────────────────────────────────────────────────';
 
   /// You can integrate this observer into the logging library
   /// used by your project.
@@ -56,9 +57,9 @@ class RiverpieDebugObserver extends RiverpieObserver {
 
     switch (event) {
       case ChangeEvent event:
-        onLine?.call(_s);
+        onLine?.call(_t);
         final label = _getProviderDebugLabel(null, event.notifier);
-        _line('Change by [$label]');
+        _line('Change by [$label]', intentWhenLogger: true);
         _line(
           ' - Prev: ${event.prev.toString().toSingleLine()}',
           followUp: true,
@@ -72,16 +73,18 @@ class RiverpieDebugObserver extends RiverpieObserver {
           ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '<none>' : rebuildable.map((r) => '[${r.debugLabel}]').join(', ')}',
           followUp: true,
         );
-        onLine?.call(_s);
+        onLine?.call(_b);
         break;
       case ProviderInitEvent event:
-        onLine?.call(_s);
+        onLine?.call(_t);
         final label = _getProviderDebugLabel(event.provider, event.notifier);
-        _line('Provider initialized: [$label]');
+        _line('Provider initialized: [$label]', intentWhenLogger: true);
         _line(' - Reason: ${event.cause.description}', followUp: true);
-        _line(' - Value: ${event.value.toString().toSingleLine()}',
-            followUp: true);
-        onLine?.call(_s);
+        _line(
+          ' - Value: ${event.value.toString().toSingleLine()}',
+          followUp: true,
+        );
+        onLine?.call(_b);
         break;
       case ListenerAddedEvent event:
         final label = _getProviderDebugLabel(null, event.notifier);
@@ -95,10 +98,18 @@ class RiverpieDebugObserver extends RiverpieObserver {
     }
   }
 
-  void _line(String line, {bool followUp = false}) {
+  void _line(
+    String line, {
+    bool followUp = false,
+    bool intentWhenLogger = false,
+  }) {
     if (onLine != null) {
       // use given callback
-      onLine!.call(line);
+      if (intentWhenLogger) {
+        onLine!.call('  $line');
+      } else {
+        onLine!.call(line);
+      }
       return;
     }
 
