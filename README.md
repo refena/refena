@@ -1,6 +1,7 @@
 # Riverpie
 
 [![pub package](https://img.shields.io/pub/v/riverpie.svg)](https://pub.dev/packages/riverpie)
+![ci](https://github.com/Tienisto/riverpie/actions/workflows/ci.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A tiny state management library for Flutter. Inspired by [Riverpod](https://pub.dev/packages/riverpod).
@@ -20,31 +21,17 @@ class Counter extends Notifier<int> {
 }
 ```
 
-Add `with Riverpie` and access the provider:
+Use `context.ref` to access the provider:
 
 ```dart
-class CounterPage extends StatefulWidget {
-  @override
-  State<CounterPage> createState() => _CounterState();
-}
-
-class _CounterState extends State<CounterPage> with Riverpie {
+class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final myCounter = ref.watch(counterProvider);
+    final ref = context.ref;
+    final myValue = ref.watch(counterProvider);
     return Scaffold(
-      body: Column(
-        children: [
-          Text('The counter is $myCounter'),
-          ElevatedButton(
-            onPressed: () {
-              ref.notifier(counterProvider).increment();
-              // in riverpod it would be:
-              // ref.read(counterProvider.notifier).increment();
-            },
-            child: const Text('+ 1'),
-          ),
-        ],
+      body: Center(
+        child: Text('The value is $myValue'),
       ),
     );
   }
@@ -131,9 +118,11 @@ class MyPage extends StatelessWidget {
 }
 ```
 
-## Stateful vs Stateless widgets
+## Access the state
 
-You can access the `ref` right from the `context`:
+The state should be accessed via `ref`.
+
+You can get the `ref` right from the `context`:
 
 ```dart
 class MyPage extends StatelessWidget {
@@ -201,13 +190,14 @@ There are many types of providers. Each one has its own purpose.
 
 The most important ones are `Provider` and `NotifierProvider` because they are the most flexible.
 
-| Provider           | Usage                               | Notifier API       | Can `watch` |
-|--------------------|-------------------------------------|--------------------|-------------|
-| `Provider`         | For constants or stateless services | -                  | No          |
-| `FutureProvider`   | For immutable async values          | -                  | No          |
-| `NotifierProvider` | For regular services                | Define it yourself | No          |
-| `StateProvider`    | For simple states                   | `setState`         | No          |
-| `ViewProvider`     | For view models                     | -                  | Yes         |
+| Provider                | Usage                               | Notifier API       | Can `watch` |
+|-------------------------|-------------------------------------|--------------------|-------------|
+| `Provider`              | For constants or stateless services | -                  | No          |
+| `FutureProvider`        | For immutable async values          | -                  | No          |
+| `NotifierProvider`      | For regular services                | Define it yourself | No          |
+| `AsyncNotifierProvider` | For services that need futures      | Define it yourself | No          |
+| `StateProvider`         | For simple states                   | `setState`         | No          |
+| `ViewProvider`          | For view models                     | -                  | Yes         |
 
 ### ➤ Provider
 
@@ -323,6 +313,46 @@ ElevatedButton(
 )
 ```
 
+### ➤ AsyncNotifierProvider
+
+Use this provider for mutable async values.
+
+```dart
+final counterProvider = AsyncNotifierProvider<Counter, int>((ref) => Counter());
+
+class Counter extends AsyncNotifier<int> {
+  @override
+  Future<int> init() async {
+    await Future.delayed(const Duration(seconds: 1));
+    return 0;
+  }
+
+  void increment() async {
+    // We can use `future` to update the state.
+    // This has an advantage over `state` because of
+    // automatic AsyncSnapshot handling
+    final old = state.data ?? 0;
+    future = Future.delayed(const Duration(seconds: 1)).then((_) => old + 1);
+
+    // We can also use `state` to update the state.
+    // This is useful if we want more control.
+    state = AsyncSnapshot.waiting();
+    await Future.delayed(const Duration(seconds: 1));
+    state = AsyncSnapshot.withData(ConnectionState.done, old + 1);
+  }
+}
+```
+
+Often, you want to implement some kind of refresh logic that shows the previous value while loading.
+
+There is `ref.watchWithPrev` for that.
+
+```dart
+final counterState = ref.watchWithPrev(counterProvider);
+AsyncSnapshot<int>? prev = counterState.prev; // show the previous value while loading
+AsyncSnapshot<int> curr = counterState.curr; // might be AsyncSnapshot.waiting()
+```
+
 ### ➤ StateProvider
 
 The `StateProvider` is handy for simple use cases where you only need a `setState` method.
@@ -393,16 +423,17 @@ class SettingsPage extends StatelessWidget {
 
 ## Notifiers
 
-Every provider exposes some kind of notifier (except `Provider`).
+Every provider exposes some kind of notifier.
 
 A notifier holds the actual state and triggers rebuilds on widgets listening to them.
 
-There are multiple kinds of notifiers. Use notifiers in combination with `NotifierProvider`.
+Use notifiers in combination with `NotifierProvider` or `AsyncNotifierProvider`.
 
-| Provider           | Usage                      | Exposes `ref` |
-|--------------------|----------------------------|---------------|
-| `Notifier`         | For any use case           | Yes           |
-| `PureNotifier`     | For clean architectures    | No            |
+| Provider        | Usage                   | Provider                | Exposes `ref` |
+|-----------------|-------------------------|-------------------------|---------------|
+| `Notifier`      | For any use case        | `NotifierProvider`      | Yes           |
+| `PureNotifier`  | For clean architectures | `NotifierProvider`      | No            |
+| `AsyncNotifier` | For async values        | `AsyncNotifierProvider` | Yes           |
 
 ### ➤ Notifier
 
@@ -454,6 +485,10 @@ class PureCounter extends PureNotifier<int> {
   }
 }
 ```
+
+### ➤ AsyncNotifier
+
+See [AsyncNotifierProvider](#-asyncnotifierprovider).
 
 ## Using ref
 
@@ -507,6 +542,14 @@ final subscription = ref.stream(myProvider).listen((value) {
 });
 ```
 
+**ref.future**
+
+Get the `Future` of a `FutureProvider` or an `AsyncNotifierProvider`.
+
+```dart
+Future<String> version = ref.future(versionProvider);
+```
+
 **ref.notifier**
 
 Get the notifier of a provider.
@@ -523,7 +566,7 @@ ref.notifier(counterProvider).increment();
 
 **ref.watch**
 
-You may restrict the rebuilds to only a subset of the state.
+You may restrict the rebuilds to only a subset of the state with `rebuidWhen`.
 
 ```dart
 build(BuildContext context) {
