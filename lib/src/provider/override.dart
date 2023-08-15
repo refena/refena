@@ -1,13 +1,16 @@
+import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
-import 'package:riverpie/src/provider/state.dart';
 
 /// Instructs Riverpie to set a predefined state for a provider.
-class ProviderOverride<T> {
+class ProviderOverride<N extends BaseNotifier<T>, T> {
   /// The reference to the provider.
-  final BaseProvider<T> provider;
+  final BaseProvider<N, T> provider;
 
   /// The state of the provider.
-  final BaseProviderState<T> state;
+  final N state;
 
-  ProviderOverride(this.provider, this.state);
+  ProviderOverride({
+    required this.provider,
+    required this.state,
+  });
 }

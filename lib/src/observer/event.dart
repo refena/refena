@@ -46,18 +46,18 @@ enum ProviderInitCause {
 /// A provider is initialized (happens only once per runtime).
 /// This happens either immediately during provider override or
 /// lazily when the provider is accessed the first time.
-class ProviderInitEvent<T> extends RiverpieEvent {
+class ProviderInitEvent extends RiverpieEvent {
   /// The provider that has been initialized.
-  final BaseProvider<T> provider;
+  final BaseProvider provider;
 
   /// The notifier that is associated with the provider.
-  final BaseNotifier<T>? notifier;
+  final BaseNotifier notifier;
 
   /// The cause of the initialization.
   final ProviderInitCause cause;
 
   /// The initial value of the provider.
-  final T value;
+  final Object? value;
 
   ProviderInitEvent({
     required this.provider,

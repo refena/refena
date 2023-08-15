@@ -3,14 +3,14 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
-import 'package:riverpie/src/provider/state.dart';
 import 'package:riverpie/src/ref.dart';
+import 'package:riverpie/src/widget/scope.dart';
 
 /// Use a [NotifierProvider] to implement a stateful provider.
 /// Changes to the state are propagated to all consumers that
 /// called [watch] on the provider.
-class NotifierProvider<N extends BaseNotifier<T>, T>
-    extends BaseNotifierProvider<N, T> {
+class NotifierProvider<N extends BaseSyncNotifier<T>, T>
+    extends BaseProvider<N, T> implements NotifyableProvider<N, T> {
   @internal
   final N Function(Ref ref) builder;
 
@@ -18,20 +18,22 @@ class NotifierProvider<N extends BaseNotifier<T>, T>
 
   @internal
   @override
-  NotifierProviderState<N, T> createState(
-    Ref ref,
+  N createState(
+    RiverpieScope scope,
     RiverpieObserver? observer,
   ) {
-    final notifier = builder(ref);
-    final state = NotifierProviderState<N, T>(notifier);
+    final notifier = builder(scope);
 
     // ignore: invalid_use_of_protected_member
-    notifier.preInit(ref, observer);
+    notifier.setup(scope, observer);
 
-    return state;
+    return notifier;
   }
 
-  ProviderOverride<T> overrideWithNotifier(N Function() notifier) {
-    return ProviderOverride(this, NotifierProviderState(notifier()));
+  ProviderOverride<N, T> overrideWithNotifier(N Function() notifier) {
+    return ProviderOverride(
+      provider: this,
+      state: notifier(),
+    );
   }
 }

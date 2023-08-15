@@ -4,6 +4,7 @@ import 'package:riverpie/src/notifier/types/pure_notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
 import 'package:riverpie/src/util/batched_stream_controller.dart';
+import 'package:riverpie/src/widget/scope.dart';
 
 @internal
 class ViewProviderNotifier<T> extends PureNotifier<T> implements Rebuildable {
@@ -26,12 +27,12 @@ class ViewProviderNotifier<T> extends PureNotifier<T> implements Rebuildable {
 
   @internal
   @override
-  void preInit(Ref ref, RiverpieObserver? observer) {
+  void setup(RiverpieScope scope, RiverpieObserver? observer) {
     watchableRef = WatchableRef.fromRebuildable(
-      ref: ref,
+      ref: scope,
       rebuildable: this,
     );
-    super.preInit(ref, observer);
+    super.setup(scope, observer);
   }
 
   @override

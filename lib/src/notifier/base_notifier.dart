@@ -4,7 +4,7 @@ import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
-import 'package:riverpie/src/ref.dart';
+import 'package:riverpie/src/widget/scope.dart';
 
 @internal
 abstract class BaseNotifier<T> {
@@ -63,7 +63,7 @@ abstract class BaseNotifier<T> {
   /// Handles the actual initialization of the notifier.
   /// Calls [init] internally.
   @internal
-  void preInit(Ref ref, RiverpieObserver? observer);
+  void setup(RiverpieScope scope, RiverpieObserver? observer);
 
   @internal
   void addListener(Rebuildable rebuildable, ListenerConfig<T> config) {
@@ -88,7 +88,7 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
   @override
   @internal
   @mustCallSuper
-  void preInit(Ref ref, RiverpieObserver? observer) {
+  void setup(RiverpieScope scope, RiverpieObserver? observer) {
     _listeners = NotifierListeners<T>(this, observer);
     _observer = observer;
     _state = init();
@@ -147,7 +147,7 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncSnapshot<T>> {
   @override
   @internal
   @mustCallSuper
-  void preInit(Ref ref, RiverpieObserver? observer) {
+  void setup(RiverpieScope scope, RiverpieObserver? observer) {
     _listeners = NotifierListeners<AsyncSnapshot<T>>(this, observer);
     _observer = observer;
 

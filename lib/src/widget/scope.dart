@@ -4,11 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/listener.dart';
+import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
-import 'package:riverpie/src/provider/state.dart';
+import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// The [RiverpieScope] holds the state of all providers.
@@ -30,7 +31,7 @@ class RiverpieScope extends InheritedWidget implements Ref {
   static late Ref defaultRef;
 
   /// Holds all provider states
-  final _state = <BaseProvider, BaseProviderState>{};
+  final _state = <BaseProvider, BaseNotifier>{};
 
   /// The provided observer (e.g. for logging)
   final RiverpieObserver? observer;
@@ -52,17 +53,14 @@ class RiverpieScope extends InheritedWidget implements Ref {
 
     for (final override in overrides) {
       final state = override.state;
-      if (state is NotifierProviderState) {
-        // ignore: invalid_use_of_protected_member
-        state.getNotifier().preInit(this, observer);
-      }
+      state.setup(this, observer);
       _state[override.provider] = state;
 
       observer?.handleEvent(
         ProviderInitEvent(
           provider: override.provider,
-          notifier: state is NotifierProviderState ? state.getNotifier() : null,
-          value: state.getValue(),
+          notifier: state,
+          value: state.state, // ignore: invalid_use_of_protected_member
           cause: ProviderInitCause.override,
         ),
       );
@@ -78,11 +76,11 @@ class RiverpieScope extends InheritedWidget implements Ref {
   ///
   /// If the provider is accessed the first time,
   /// it will be initialized.
-  BaseProviderState _getState(
-    BaseProvider provider, [
+  N _getState<N extends BaseNotifier<T>, T>(
+    BaseProvider<N, T> provider, [
     ProviderInitCause cause = ProviderInitCause.access,
   ]) {
-    BaseProviderState? state = _state[provider];
+    N? state = _state[provider] as N?;
     if (state == null) {
       state = provider.createState(this, observer);
       _state[provider] = state;
@@ -90,8 +88,8 @@ class RiverpieScope extends InheritedWidget implements Ref {
       observer?.handleEvent(
         ProviderInitEvent(
           provider: provider,
-          notifier: state is NotifierProviderState ? state.getNotifier() : null,
-          value: state.getValue(),
+          notifier: state,
+          value: state.state, // ignore: invalid_use_of_protected_member
           cause: cause,
         ),
       );
@@ -101,36 +99,38 @@ class RiverpieScope extends InheritedWidget implements Ref {
 
   /// Returns the actual value of a [Provider].
   @override
-  T read<T>(BaseProvider<T> provider) {
-    final state = _getState(provider) as BaseProviderState<T>;
-    return state.getValue();
+  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+    // ignore: invalid_use_of_protected_member
+    return _getState(provider).state;
   }
 
   /// Returns the notifier of a [NotifierProvider].
   @override
-  N notifier<N extends BaseNotifier<T>, T>(
-    BaseNotifierProvider<N, T> provider,
-  ) {
-    final state = _getState(provider) as NotifierProviderState<N, T>;
-    return state.getNotifier();
+  N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {
+    return _getState(provider as BaseProvider<N, T>);
+  }
+
+  /// Returns the notifier of a [NotifierProvider].
+  /// This method is used internally without
+  /// any [NotifyableProvider] constraints.
+  @internal
+  N anyNotifier<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+    return _getState(provider);
   }
 
   @override
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    BaseNotifierProvider<N, T> provider,
+    BaseProvider<N, T> provider,
   ) {
-    final state = _getState(provider) as NotifierProviderState<N, T>;
-    return state.getNotifier().getStream();
+    return _getState(provider).getStream();
   }
 
   @override
-  Future<T> future<T>(AwaitableProvider<T> provider) {
-    final state =
-        _getState(provider as BaseNotifierProvider) as NotifierProviderState;
-    final notifier = state.getNotifier() as BaseAsyncNotifier<T>;
-
+  Future<T> future<N extends AsyncNotifier<T>, T>(
+    AsyncNotifierProvider<N, T> provider,
+  ) {
     // ignore: invalid_use_of_protected_member
-    return notifier.future;
+    return _getState(provider).future;
   }
 
   @internal

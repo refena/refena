@@ -4,15 +4,15 @@ import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
-import 'package:riverpie/src/provider/state.dart';
 import 'package:riverpie/src/ref.dart';
+import 'package:riverpie/src/widget/scope.dart';
 
 /// Use an [AsyncNotifierProvider] to implement a stateful provider.
 /// Changes to the state are propagated to all consumers that
 /// called [watch] on the provider.
 class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
-    extends BaseNotifierProvider<N, AsyncSnapshot<T>>
-    implements AwaitableProvider<T> {
+    extends BaseProvider<N, AsyncSnapshot<T>>
+    implements NotifyableProvider<N, AsyncSnapshot<T>> {
   @internal
   final N Function(Ref ref) builder;
 
@@ -20,22 +20,24 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
 
   @internal
   @override
-  NotifierProviderState<N, AsyncSnapshot<T>> createState(
-    Ref ref,
+  N createState(
+    RiverpieScope scope,
     RiverpieObserver? observer,
   ) {
-    final notifier = builder(ref);
-    final state = NotifierProviderState<N, AsyncSnapshot<T>>(notifier);
+    final notifier = builder(scope);
 
     // ignore: invalid_use_of_protected_member
-    notifier.preInit(ref, observer);
+    notifier.setup(scope, observer);
 
-    return state;
+    return notifier;
   }
 
-  ProviderOverride<AsyncSnapshot<T>> overrideWithNotifier(
+  ProviderOverride<N, AsyncSnapshot<T>> overrideWithNotifier(
     N Function() notifier,
   ) {
-    return ProviderOverride(this, NotifierProviderState(notifier()));
+    return ProviderOverride(
+      provider: this,
+      state: notifier(),
+    );
   }
 }
