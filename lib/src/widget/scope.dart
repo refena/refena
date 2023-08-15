@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/listener.dart';
-import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
-import 'package:riverpie/src/provider/provider.dart';
+import 'package:riverpie/src/provider/base_provider.dart';
+import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/state.dart';
 import 'package:riverpie/src/ref.dart';
 
@@ -120,6 +121,16 @@ class RiverpieScope extends InheritedWidget implements Ref {
   ) {
     final state = _getState(provider) as NotifierProviderState<N, T>;
     return state.getNotifier().getStream();
+  }
+
+  @override
+  Future<T> future<T>(AwaitableProvider<T> provider) {
+    final state =
+        _getState(provider as BaseNotifierProvider) as NotifierProviderState;
+    final notifier = state.getNotifier() as BaseAsyncNotifier<T>;
+
+    // ignore: invalid_use_of_protected_member
+    return notifier.future;
   }
 
   @internal

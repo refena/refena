@@ -1,6 +1,6 @@
-import 'package:riverpie/src/notifier/notifier.dart';
+import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
-import 'package:riverpie/src/provider/provider.dart';
+import 'package:riverpie/src/provider/base_provider.dart';
 
 /// The base event.
 sealed class RiverpieEvent {}

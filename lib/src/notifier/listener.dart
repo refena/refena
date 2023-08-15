@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:riverpie/src/notifier/notifier.dart';
+import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';

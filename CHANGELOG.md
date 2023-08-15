@@ -1,3 +1,9 @@
+## 0.9.0
+
+- feat: add `AsyncNotifierProvider` and the corresponding `AsyncNotifier`
+- feat: add `ref.future` to access the `Future` of an `AsyncNotifierProvider` or a `FutureProvider`
+- feat: add `ref.watchWithPrev` to access the previous value of an `AsyncNotifierProvider`
+
 ## 0.8.0
 
 - feat: add `context.ref` to also access `ref` inside `StatelessWidget`

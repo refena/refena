@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
-import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
+import 'package:riverpie/src/notifier/types/pure_notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
 import 'package:riverpie/src/util/batched_stream_controller.dart';

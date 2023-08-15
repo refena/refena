@@ -1,6 +1,6 @@
-import 'package:riverpie/src/notifier/notifier.dart';
+import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
-import 'package:riverpie/src/provider/provider.dart';
+import 'package:riverpie/src/provider/base_provider.dart';
 
 /// The observer receives every [RiverpieEvent].
 /// It is up to the implementation of how to use it.

@@ -1,7 +1,8 @@
 import 'package:riverpie/src/notifier/listener.dart';
-import 'package:riverpie/src/notifier/notifier.dart';
-import 'package:riverpie/src/provider/provider.dart';
+import 'package:riverpie/src/notifier/types/pure_notifier.dart';
+import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/state.dart';
+import 'package:riverpie/src/provider/types/notifier_provider.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// A [StateProvider] is a custom implementation of a [NotifierProvider]

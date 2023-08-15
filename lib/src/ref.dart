@@ -1,10 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:riverpie/riverpie.dart';
+import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/listener.dart';
-import 'package:riverpie/src/notifier/notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
-import 'package:riverpie/src/provider/provider.dart';
+import 'package:riverpie/src/provider/base_provider.dart';
 
 /// The base ref to read and notify providers.
 /// These methods can be called anywhere.
@@ -26,6 +27,9 @@ abstract class Ref {
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
     BaseNotifierProvider<N, T> provider,
   );
+
+  /// Get the [Future] of an [AwaitableProvider].
+  Future<T> future<T>(AwaitableProvider<T> provider);
 }
 
 /// The ref available in a [State] with the mixin or in a [ViewProvider].
@@ -49,6 +53,11 @@ class WatchableRef extends Ref {
     BaseNotifierProvider<N, T> provider,
   ) {
     return _ref.stream<N, T>(provider);
+  }
+
+  @override
+  Future<T> future<T>(AwaitableProvider<T> provider) {
+    return _ref.future<T>(provider);
   }
 
   /// Get the current value of a provider and listen to changes.
@@ -81,6 +90,26 @@ class WatchableRef extends Ref {
         'Only [Provider] and [NotifierProvider] are supported, got: ${provider.runtimeType}');
   }
 
+  /// Similar to [watch] but also returns the previous value.
+  /// Only works with [AsyncNotifierProvider].
+  ChronicleSnapshot<T> watchWithPrev<N extends AsyncNotifier<T>, T>(
+    AsyncNotifierProvider<N, T> provider, {
+    ListenerCallback<AsyncSnapshot<T>>? listener,
+    bool Function(AsyncSnapshot<T> prev, AsyncSnapshot<T> next)? rebuildWhen,
+  }) {
+    final notifier = _ref.notifier(provider);
+    notifier.addListener(
+      _rebuildable,
+      ListenerConfig(
+        callback: listener,
+        selector: rebuildWhen,
+      ),
+    );
+
+    // ignore: invalid_use_of_protected_member
+    return ChronicleSnapshot(notifier.prev, notifier.state);
+  }
+
   WatchableRef._(this._ref, this._rebuildable);
 
   /// Create a [WatchableRef] from an [Element].
@@ -104,4 +133,16 @@ class WatchableRef extends Ref {
       rebuildable,
     );
   }
+}
+
+class ChronicleSnapshot<T> {
+  /// The state of the notifier before the latest [future] was set.
+  /// This is null if [AsyncNotifier.savePrev] is false
+  /// or the future has never changed.
+  final AsyncSnapshot<T>? prev;
+
+  /// The current state of the notifier.
+  final AsyncSnapshot<T> curr;
+
+  ChronicleSnapshot(this.prev, this.curr);
 }

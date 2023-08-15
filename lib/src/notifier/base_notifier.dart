@@ -1,5 +1,4 @@
-import 'dart:async';
-
+import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
@@ -7,6 +6,7 @@ import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
 
+@internal
 abstract class BaseNotifier<T> {
   bool _initialized = false;
   RiverpieObserver? _observer;
@@ -21,11 +21,6 @@ abstract class BaseNotifier<T> {
   late final NotifierListeners<T> _listeners;
 
   BaseNotifier({required this.debugLabel});
-
-  /// Initializes the state of the notifier.
-  /// This method is called only once and
-  /// as soon as the notifier is accessed the first time.
-  T init();
 
   /// Gets the current state.
   @protected
@@ -65,6 +60,8 @@ abstract class BaseNotifier<T> {
     return !identical(prev, next);
   }
 
+  /// Handles the actual initialization of the notifier.
+  /// Calls [init] internally.
   @internal
   void preInit(Ref ref, RiverpieObserver? observer);
 
@@ -79,46 +76,84 @@ abstract class BaseNotifier<T> {
   }
 }
 
-/// A notifier holds a state and notifies its listeners when the state changes.
-/// The listeners are added automatically when calling [ref.watch].
-///
-/// Be aware that notifiers are never disposed.
-/// If you hold a lot of data in the state,
-/// you should consider implement a "reset" logic.
-///
-/// This [Notifier] has access to [ref] for fast development.
-abstract class Notifier<T> extends BaseNotifier<T> {
-  late Ref _ref;
+@internal
+abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
+  BaseSyncNotifier({super.debugLabel});
 
-  @protected
-  Ref get ref => _ref;
+  /// Initializes the state of the notifier.
+  /// This method is called only once and
+  /// as soon as the notifier is accessed the first time.
+  T init();
 
-  Notifier({String? debugLabel}) : super(debugLabel: debugLabel);
-
-  @internal
   @override
+  @internal
+  @mustCallSuper
   void preInit(Ref ref, RiverpieObserver? observer) {
-    _ref = ref;
+    _listeners = NotifierListeners<T>(this, observer);
     _observer = observer;
-    _listeners = NotifierListeners(this, observer);
     _state = init();
     _initialized = true;
   }
 }
 
-/// A [Notifier] but without [ref] making this notifier self-contained.
-///
-/// Can be used in combination with dependency injection,
-/// where you provide the dependencies via constructor.
-abstract class PureNotifier<T> extends BaseNotifier<T> {
-  PureNotifier({String? debugLabel}) : super(debugLabel: debugLabel);
+@internal
+abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncSnapshot<T>> {
+  late Future<T> _future;
+  int _futureCount = 0;
 
-  @internal
+  BaseAsyncNotifier({super.debugLabel});
+
+  @protected
+  Future<T> get future => _future;
+
+  @protected
+  set future(Future<T> value) {
+    _setFutureAndListen(value);
+  }
+
+  void _setFutureAndListen(Future<T> value) async {
+    _future = value;
+    _futureCount++;
+    state = AsyncSnapshot<T>.waiting();
+    final currentCount = _futureCount; // after the setter, as it may change
+    try {
+      final value = await _future;
+      if (currentCount != _futureCount) {
+        // The future has been changed in the meantime.
+        return;
+      }
+      state = AsyncSnapshot.withData(ConnectionState.done, value);
+    } catch (error) {
+      if (currentCount != _futureCount) {
+        // The future has been changed in the meantime.
+        return;
+      }
+      state = AsyncSnapshot.withError(ConnectionState.done, error);
+    }
+  }
+
   @override
+  @protected
+  set state(AsyncSnapshot<T> value) {
+    _futureCount++; // invalidate previous future callbacks
+    super.state = value;
+  }
+
+  /// Initializes the state of the notifier.
+  /// This method is called only once and
+  /// as soon as the notifier is accessed the first time.
+  Future<T> init();
+
+  @override
+  @internal
+  @mustCallSuper
   void preInit(Ref ref, RiverpieObserver? observer) {
+    _listeners = NotifierListeners<AsyncSnapshot<T>>(this, observer);
     _observer = observer;
-    _listeners = NotifierListeners<T>(this, observer);
-    _state = init();
+
+    // do not set future directly, as the setter may be overridden
+    _setFutureAndListen(init());
+
     _initialized = true;
   }
 }
