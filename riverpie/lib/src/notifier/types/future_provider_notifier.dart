@@ -17,9 +17,4 @@ final class FutureProviderNotifier<T> extends AsyncNotifier<T> {
   set future(Future<T> value) {
     throw UnsupportedError('Cannot set future on FutureProviderNotifier');
   }
-
-  @override
-  String toString() {
-    return debugLabel ?? 'FutureProviderNotifier<$T>';
-  }
 }
