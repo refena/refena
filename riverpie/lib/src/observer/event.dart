@@ -3,7 +3,7 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 
-final _eq = IterableEquality();
+const _eq = IterableEquality();
 
 /// The base event.
 sealed class RiverpieEvent {}
@@ -11,7 +11,7 @@ sealed class RiverpieEvent {}
 /// The most frequent event.
 /// A notifier changed its state and notifies all listeners
 /// that they should rebuild.
-class ChangeEvent<T> extends RiverpieEvent {
+final class ChangeEvent<T> extends RiverpieEvent {
   /// The notifier that fired the change event.
   final BaseNotifier<T> notifier;
 
@@ -69,7 +69,7 @@ enum ProviderInitCause {
 /// A provider is initialized (happens only once per runtime).
 /// This happens either immediately during provider override or
 /// lazily when the provider is accessed the first time.
-class ProviderInitEvent extends RiverpieEvent {
+final class ProviderInitEvent extends RiverpieEvent {
   /// The provider that has been initialized.
   final BaseProvider provider;
 
@@ -111,7 +111,7 @@ class ProviderInitEvent extends RiverpieEvent {
 
 /// A listener is added to a notifier.
 /// This happens on ref.watch the first time the call happens within a state.
-class ListenerAddedEvent extends RiverpieEvent {
+final class ListenerAddedEvent extends RiverpieEvent {
   final BaseNotifier notifier;
   final Rebuildable rebuildable;
 
@@ -140,7 +140,7 @@ class ListenerAddedEvent extends RiverpieEvent {
 /// Listener is removed from a notifier.
 /// This usually happens when a notifier tries to notify or
 /// periodically when new listeners are added.
-class ListenerRemovedEvent extends RiverpieEvent {
+final class ListenerRemovedEvent extends RiverpieEvent {
   final BaseNotifier notifier;
   final Rebuildable rebuildable;
 
