@@ -2,8 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
 
 /// The corresponding notifier for a [FutureProvider].
-@internal
-class FutureProviderNotifier<T> extends AsyncNotifier<T> {
+final class FutureProviderNotifier<T> extends AsyncNotifier<T> {
   final Future<T> _future;
 
   FutureProviderNotifier(this._future, {super.debugLabel});

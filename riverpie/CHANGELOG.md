@@ -1,3 +1,8 @@
+## 0.10.0
+
+- **BREAKING**: use `riverpie_flutter` for Flutter projects
+- **BREAKING**: change `AsyncSnapshot` to `AsyncValue` to decouple from Flutter
+
 ## 0.9.0
 
 - feat: add `AsyncNotifierProvider` and the corresponding `AsyncNotifier`

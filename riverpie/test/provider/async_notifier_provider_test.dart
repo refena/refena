@@ -1,5 +1,4 @@
 import 'package:riverpie/riverpie.dart';
-import 'package:riverpie/src/async_value.dart';
 import 'package:test/test.dart';
 
 import '../util/skip_microtasks.dart';
@@ -149,7 +148,7 @@ class _AsyncCounter extends AsyncNotifier<int> {
   }
 
   void increment() async {
-    setState((snapshot) async {
+    await setState((snapshot) async {
       await Future.delayed(const Duration(milliseconds: 50));
       final curr = await snapshot.currFuture;
       return curr + 1;
@@ -157,7 +156,7 @@ class _AsyncCounter extends AsyncNotifier<int> {
   }
 
   void setDelayed(int newValue, Duration delay) async {
-    setState((_) async {
+    await setState((_) async {
       await Future.delayed(delay);
       return newValue;
     });

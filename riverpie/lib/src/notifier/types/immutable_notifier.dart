@@ -3,8 +3,7 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 
 /// A notifier that is immutable.
 /// The state of the notifier is provided in the constructor.
-@internal
-class ImmutableNotifier<T> extends BaseSyncNotifier<T> {
+final class ImmutableNotifier<T> extends BaseSyncNotifier<T> {
   final T _value;
 
   ImmutableNotifier(

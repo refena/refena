@@ -1,5 +1,4 @@
 import 'package:riverpie/riverpie.dart';
-import 'package:riverpie/src/notifier/types/view_provider_notifier.dart';
 import 'package:test/test.dart';
 
 import '../util/skip_microtasks.dart';

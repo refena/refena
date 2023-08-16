@@ -6,8 +6,8 @@ import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
 import 'package:riverpie/src/util/batched_stream_controller.dart';
 
-@internal
-class ViewProviderNotifier<T> extends PureNotifier<T> implements Rebuildable {
+final class ViewProviderNotifier<T> extends PureNotifier<T>
+    implements Rebuildable {
   late final WatchableRef watchableRef;
   final T Function(WatchableRef) builder;
 

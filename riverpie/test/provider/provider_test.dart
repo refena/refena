@@ -1,5 +1,4 @@
 import 'package:riverpie/riverpie.dart';
-import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
 import 'package:test/test.dart';
 
 void main() {

@@ -1,5 +1,4 @@
 import 'package:riverpie/riverpie.dart';
-import 'package:riverpie/src/async_value.dart';
 import 'package:test/test.dart';
 
 void main() {

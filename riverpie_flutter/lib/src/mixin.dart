@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:riverpie/riverpie.dart';
 import 'package:riverpie_flutter/src/element_rebuildable.dart';
 import 'package:riverpie_flutter/src/get_scope.dart';
-import 'package:riverpie/riverpie.dart';
 
 mixin Riverpie<W extends StatefulWidget> on State<W> {
   /// Access this ref inside your [State].
