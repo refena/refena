@@ -4,7 +4,7 @@
 ![ci](https://github.com/Tienisto/riverpie/actions/workflows/ci.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A tiny state management library for Flutter. Inspired by [Riverpod](https://pub.dev/packages/riverpod).
+A state management library for Flutter. Inspired by [Riverpod](https://pub.dev/packages/riverpod).
 
 ## Preview
 
@@ -328,14 +328,13 @@ class Counter extends AsyncNotifier<int> {
   }
 
   void increment() async {
-    // We can use `future` to update the state.
-    // This has an advantage over `state` because of
-    // automatic AsyncSnapshot handling
-    final old = state.data ?? 0;
-    future = Future.delayed(const Duration(seconds: 1)).then((_) => old + 1);
+    // Set `future` to update the state.
+    future = ref.notifier(apiProvider).fetchAsyncNumber();
+    
+    // Use `setState` to also access the old value.
+    setState((snapshot) async => (snapshot.curr ?? 0) + 1);
 
-    // We can also use `state` to update the state.
-    // This is useful if we want more control.
+    // Set `state` directly if you want more control.
     state = AsyncSnapshot.waiting();
     await Future.delayed(const Duration(seconds: 1));
     state = AsyncSnapshot.withData(ConnectionState.done, old + 1);

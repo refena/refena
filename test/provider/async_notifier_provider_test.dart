@@ -151,14 +151,17 @@ class _AsyncCounter extends AsyncNotifier<int> {
   }
 
   void increment() async {
-    final prev = await future;
-    future = Future.delayed(
-      Duration(milliseconds: 50),
-      () => prev + 1,
-    );
+    setState((snapshot) async {
+      await Future.delayed(const Duration(milliseconds: 50));
+      final curr = await snapshot.currFuture;
+      return curr + 1;
+    });
   }
 
   void setDelayed(int newValue, Duration delay) async {
-    future = Future.delayed(delay, () => newValue);
+    setState((_) async {
+      await Future.delayed(delay);
+      return newValue;
+    });
   }
 }

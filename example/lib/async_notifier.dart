@@ -18,9 +18,10 @@ class DelayedCounter extends AsyncNotifier<int> {
   }
 
   void increment() async {
-    final curr = state.data;
-    future = Future.delayed(const Duration(seconds: 2), () {
-      return (curr ?? 0) + 1;
+    setState((snapshot) async {
+      await Future.delayed(const Duration(seconds: 2));
+      final curr = await snapshot.currFuture;
+      return curr + 1;
     });
   }
 }
