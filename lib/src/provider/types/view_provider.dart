@@ -22,12 +22,10 @@ class ViewProvider<T> extends BaseProvider<ViewProviderNotifier<T>, T> {
     RiverpieScope scope,
     RiverpieObserver? observer,
   ) {
-    final notifier = ViewProviderNotifier<T>(
+    return ViewProviderNotifier<T>(
       builder,
       debugLabel: debugLabel ?? runtimeType.toString(),
     );
-    notifier.setup(scope, observer);
-    return notifier;
   }
 
   ProviderOverride<ViewProviderNotifier<T>, T> overrideWithBuilder(

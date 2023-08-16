@@ -24,12 +24,7 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
     RiverpieScope scope,
     RiverpieObserver? observer,
   ) {
-    final notifier = builder(scope);
-
-    // ignore: invalid_use_of_protected_member
-    notifier.setup(scope, observer);
-
-    return notifier;
+    return builder(scope);
   }
 
   ProviderOverride<N, AsyncSnapshot<T>> overrideWithNotifier(

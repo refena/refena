@@ -10,6 +10,31 @@ abstract class RiverpieObserver {
   void handleEvent(RiverpieEvent event);
 }
 
+/// An observer where you can specify the behavior right in the constructor.
+/// This is useful for testing to avoid boilerplate code.
+class RiverpieCallbackObserver {
+  final void Function(RiverpieEvent event) onEvent;
+
+  const RiverpieCallbackObserver({
+    required this.onEvent,
+  });
+
+  void handleEvent(RiverpieEvent event) {
+    onEvent(event);
+  }
+}
+
+/// An observer that stores every event in a list.
+/// This is useful for testing to keep track of the events.
+class RiverpieHistoryObserver extends RiverpieObserver {
+  final List<RiverpieEvent> history = [];
+
+  @override
+  void handleEvent(RiverpieEvent event) {
+    history.add(event);
+  }
+}
+
 /// The observer to use multiple observers at once.
 class RiverpieMultiObserver extends RiverpieObserver {
   final List<RiverpieObserver> observers;

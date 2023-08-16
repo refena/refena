@@ -52,15 +52,15 @@ class RiverpieScope extends InheritedWidget implements Ref {
     defaultRef = this;
 
     for (final override in overrides) {
-      final state = override.state;
-      state.setup(this, observer);
-      _state[override.provider] = state;
+      final notifier = override.state;
+      notifier.setup(this, observer);
+      _state[override.provider] = notifier;
 
       observer?.handleEvent(
         ProviderInitEvent(
           provider: override.provider,
-          notifier: state,
-          value: state.state, // ignore: invalid_use_of_protected_member
+          notifier: notifier,
+          value: notifier.state, // ignore: invalid_use_of_protected_member
           cause: ProviderInitCause.override,
         ),
       );
@@ -80,21 +80,22 @@ class RiverpieScope extends InheritedWidget implements Ref {
     BaseProvider<N, T> provider, [
     ProviderInitCause cause = ProviderInitCause.access,
   ]) {
-    N? state = _state[provider] as N?;
-    if (state == null) {
-      state = provider.createState(this, observer);
-      _state[provider] = state;
+    N? notifier = _state[provider] as N?;
+    if (notifier == null) {
+      notifier = provider.createState(this, observer);
+      notifier.setup(this, observer);
+      _state[provider] = notifier;
 
       observer?.handleEvent(
         ProviderInitEvent(
           provider: provider,
-          notifier: state,
-          value: state.state, // ignore: invalid_use_of_protected_member
+          notifier: notifier,
+          value: notifier.state, // ignore: invalid_use_of_protected_member
           cause: cause,
         ),
       );
     }
-    return state;
+    return notifier;
   }
 
   /// Returns the actual value of a [Provider].

@@ -42,6 +42,7 @@ void main() {
       );
 
       expect(scope.read(provider), 456);
+      expect(scope.notifier(provider).s, 'b');
     });
   });
 
@@ -64,6 +65,7 @@ void main() {
           456,
         ),
       );
+      expect(scope.notifier(provider).s, 'b');
     });
   });
 
@@ -99,19 +101,29 @@ void main() {
 class _Notifier extends Notifier<int> {
   @override
   int init() => 123;
+
+  String get s => 'a';
 }
 
 class _OverrideNotifier extends _Notifier {
   @override
   int init() => 456;
+
+  @override
+  String get s => 'b';
 }
 
 class _AsyncNotifier extends AsyncNotifier<int> {
   @override
   Future<int> init() => Future.value(123);
+
+  String get s => 'a';
 }
 
 class _OverrideAsyncNotifier extends _AsyncNotifier {
   @override
   Future<int> init() => Future.value(456);
+
+  @override
+  String get s => 'b';
 }
