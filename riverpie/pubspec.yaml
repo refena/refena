@@ -1,5 +1,5 @@
 name: riverpie
-description: A tiny state management library for Dart and Flutter. Inspired by Riverpod.
+description: A state management library for Dart and Flutter. Inspired by Riverpod.
 version: 0.10.0
 repository: https://github.com/Tienisto/riverpie
 topics:
