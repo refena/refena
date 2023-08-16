@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/notifier/widget_rebuildable.dart';
 import 'package:riverpie/src/widget/consumer.dart';
 
 /// Something that can be rebuilt.
@@ -43,12 +44,9 @@ class ElementRebuildable extends Rebuildable {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ElementRebuildable && identical(element, other.element) ||
-      other is WidgetRebuildable &&
-          identical(
-            element.target?.widget,
-            other.widget,
-          );
+      (other is ElementRebuildable && identical(element, other.element)) ||
+      (other is WidgetRebuildable &&
+          element.target?.widget.runtimeType == other.widgetType);
 
   @override
   int get hashCode => element.hashCode;
@@ -59,15 +57,4 @@ String _getDebugLabel(Widget? widget) {
     return widget.debugLabel;
   }
   return widget.runtimeType.toString();
-}
-
-/// A helper class for unit tests.
-/// Use this in combination with [RiverpieHistoryObserver].
-///
-/// This allows for equality of [ElementRebuildable] == [WidgetRebuildable]
-/// because it is hard to access the [BuildContext] of a [Widget].
-class WidgetRebuildable {
-  final Widget widget;
-
-  WidgetRebuildable(this.widget);
 }

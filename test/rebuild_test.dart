@@ -15,6 +15,14 @@ class _Vm {
     required this.setA,
     required this.setB,
   });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _Vm && runtimeType == other.runtimeType && value == other.value;
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 final _viewProvider = ViewProvider((ref) {
@@ -109,11 +117,14 @@ void main() {
 
   testWidgets('Should rebuild with ViewProvider', (tester) async {
     final widget = _ViewModelWidget();
-    await tester.pumpWidget(RiverpieScope(
+    final observer = RiverpieHistoryObserver();
+    final scope = RiverpieScope(
+      observer: observer,
       child: MaterialApp(
         home: widget,
       ),
-    ));
+    );
+    await tester.pumpWidget(scope);
 
     expect(find.text('111 - 999'), findsOneWidget);
     expect(widget._rebuildCount, 1);
@@ -131,6 +142,87 @@ void main() {
 
     expect(find.text('222 - 888'), findsOneWidget);
     expect(widget._rebuildCount, 3);
+
+    // check events
+    final notifier = scope.anyNotifier(_viewProvider);
+    final notifierA = scope.notifier(_stateAProvider);
+    final notifierB = scope.notifier(_stateBProvider);
+    expect(observer.history, [
+      ProviderInitEvent(
+        provider: _stateAProvider,
+        notifier: notifierA,
+        cause: ProviderInitCause.access,
+        value: 111,
+      ),
+      ListenerAddedEvent(
+        notifier: notifierA,
+        rebuildable: notifier,
+      ),
+      ProviderInitEvent(
+        provider: _stateBProvider,
+        notifier: notifierB,
+        cause: ProviderInitCause.access,
+        value: 999,
+      ),
+      ListenerAddedEvent(
+        notifier: notifierB,
+        rebuildable: notifier,
+      ),
+      ProviderInitEvent(
+        provider: _viewProvider,
+        notifier: notifier,
+        cause: ProviderInitCause.access,
+        value: _Vm(
+          value: '111 - 999',
+          setA: (_) {},
+          setB: (_) {},
+        ),
+      ),
+      ListenerAddedEvent(
+        notifier: notifier,
+        rebuildable: WidgetRebuildable<_ViewModelWidget>(),
+      ),
+      ChangeEvent(
+        notifier: notifierA,
+        prev: 111,
+        next: 222,
+        flagRebuild: [notifier],
+      ),
+      ChangeEvent(
+        notifier: notifier,
+        prev: _Vm(
+          value: '111 - 999',
+          setA: (_) {},
+          setB: (_) {},
+        ),
+        next: _Vm(
+          value: '222 - 999',
+          setA: (_) {},
+          setB: (_) {},
+        ),
+        flagRebuild: [WidgetRebuildable<_ViewModelWidget>()],
+      ),
+      ChangeEvent(
+        notifier: notifierB,
+        prev: 999,
+        next: 888,
+        flagRebuild: [notifier],
+      ),
+      ChangeEvent(
+        notifier: notifier,
+        prev: _Vm(
+          value: '222 - 999',
+          setA: (_) {},
+          setB: (_) {},
+        ),
+        next: _Vm(
+          value: '222 - 888',
+          setA: (_) {},
+          setB: (_) {},
+        ),
+        flagRebuild: [WidgetRebuildable<_ViewModelWidget>()],
+      ),
+    ]);
   });
 
   testWidgets('Should rebuild widget conditionally', (tester) async {

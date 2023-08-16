@@ -671,6 +671,86 @@ void main() {
 }
 ```
 
+## Testing
+
+### ➤ Override providers
+
+You can override any provider in your tests.
+
+```dart
+void main() {
+  testWidgets('My test', (tester) async {
+    await tester.pumpWidget(
+      RiverpieScope(
+        overrides: [
+          myProvider.overrideWithValue(42),
+        ],
+        child: const MyApp(),
+      ),
+    );
+  });
+}
+```
+
+### ➤ Access the state
+
+A `RiverpieScope` is a `Ref`, so you can access the state directly.
+
+```dart
+void main() {
+  testWidgets('My test', (tester) async {
+    final ref = RiverpieScope(
+      child: const MyApp(),
+    );
+    await tester.pumpWidget(ref);
+
+    // ...
+    ref.notifier(myNotifier).increment();
+    expect(ref.read(myNotifier), 2);
+  });
+}
+```
+
+### ➤ State events
+
+Use `RiverpieHistoryObserver` to keep track of every state change.
+
+```dart
+void main() {
+  testWidgets('My test', (tester) async {
+    final observer = RiverpieHistoryObserver();
+    await tester.pumpWidget(
+      RiverpieScope(
+        observer: observer,
+        child: const MyApp(),
+      ),
+    );
+
+    // ...
+    expect(observer.history, [
+      ProviderInitEvent(
+        provider: myProvider,
+        notifier: myNotifier,
+        cause: ProviderInitCause.access,
+        value: 1,
+      ),
+      ChangeEvent(
+        notifier: myNotifier,
+        prev: 1,
+        next: 2,
+        flagRebuild: [WidgetRebuildable<MyLoginPage>()],
+      ),
+    ]);
+  });
+}
+```
+
+### ➤ Example test
+
+There is an example test that shows how to test a counter app.
+
+[See the example test](documentation/testing.md).
+
 ## License
 
 MIT License
