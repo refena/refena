@@ -102,6 +102,11 @@ final class AsyncData<T> extends AsyncValue<T> {
   final T data;
 
   const AsyncData._(this.data);
+
+  @override
+  String toString() {
+    return 'AsyncData<$T>($data)';
+  }
 }
 
 /// The error of an [AsyncValue].
@@ -113,9 +118,19 @@ final class AsyncError<T> extends AsyncValue<T> {
   final StackTrace stackTrace;
 
   const AsyncError._(this.error, this.stackTrace);
+
+  @override
+  String toString() {
+    return 'AsyncError<$T>($error)';
+  }
 }
 
 /// The loading state of an [AsyncValue].
 final class AsyncLoading<T> extends AsyncValue<T> {
   const AsyncLoading._();
+
+  @override
+  String toString() {
+    return 'AsyncLoading<$T>';
+  }
 }

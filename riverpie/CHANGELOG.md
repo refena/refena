@@ -1,3 +1,7 @@
+## 0.11.0
+
+- feat: add `toString` implementations to `AsyncValue`
+
 ## 0.10.0
 
 - **BREAKING**: use `riverpie_flutter` for Flutter projects
