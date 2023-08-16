@@ -3,95 +3,93 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpie/riverpie.dart';
 
 void main() {
-  group(NotifierProvider, () {
-    test('Single provider test', () {
-      final notifier = _Counter(123);
-      final provider = NotifierProvider<_Counter, int>((ref) => notifier);
-      final observer = RiverpieHistoryObserver();
-      final scope = RiverpieScope(
-        observer: observer,
-        child: Container(),
+  test('Single provider test', () {
+    final notifier = _Counter(123);
+    final provider = NotifierProvider<_Counter, int>((ref) => notifier);
+    final observer = RiverpieHistoryObserver();
+    final scope = RiverpieScope(
+      observer: observer,
+      child: Container(),
+    );
+
+    expect(scope.read(provider), 123);
+
+    scope.notifier(provider).increment();
+
+    expect(scope.read(provider), 124);
+
+    // Check events
+    expect(observer.history, [
+      ProviderInitEvent(
+        provider: provider,
+        notifier: notifier,
+        cause: ProviderInitCause.access,
+        value: 123,
+      ),
+      ChangeEvent(
+        notifier: notifier,
+        prev: 123,
+        next: 124,
+        flagRebuild: [],
+      ),
+    ]);
+  });
+
+  test('Multiple provider test', () {
+    final notifierA = _Counter(1);
+    final notifierB = _Counter(2);
+    final providerA = NotifierProvider<_Counter, int>((ref) => notifierA);
+    final providerB = NotifierProvider<_Counter, int>((ref) => notifierB);
+    final providerC = NotifierProvider<_Sum, int>((ref) {
+      return _Sum(
+        initialValue: 3,
+        providerA: ref.notifier(providerA),
+        providerB: ref.notifier(providerB),
       );
-
-      expect(scope.read(provider), 123);
-
-      scope.notifier(provider).increment();
-
-      expect(scope.read(provider), 124);
-
-      // Check events
-      expect(observer.history, [
-        ProviderInitEvent(
-          provider: provider,
-          notifier: notifier,
-          cause: ProviderInitCause.access,
-          value: 123,
-        ),
-        ChangeEvent(
-          notifier: notifier,
-          prev: 123,
-          next: 124,
-          flagRebuild: [],
-        ),
-      ]);
     });
+    final observer = RiverpieHistoryObserver();
+    final scope = RiverpieScope(
+      observer: observer,
+      child: Container(),
+    );
 
-    test('Multiple provider test', () {
-      final notifierA = _Counter(1);
-      final notifierB = _Counter(2);
-      final providerA = NotifierProvider<_Counter, int>((ref) => notifierA);
-      final providerB = NotifierProvider<_Counter, int>((ref) => notifierB);
-      final providerC = NotifierProvider<_Sum, int>((ref) {
-        return _Sum(
-          initialValue: 3,
-          providerA: ref.notifier(providerA),
-          providerB: ref.notifier(providerB),
-        );
-      });
-      final observer = RiverpieHistoryObserver();
-      final scope = RiverpieScope(
-        observer: observer,
-        child: Container(),
-      );
+    expect(scope.read(providerC), 3);
+    expect(scope.notifier(providerC).getSum(), 6);
 
-      expect(scope.read(providerC), 3);
-      expect(scope.notifier(providerC).getSum(), 6);
+    scope.notifier(providerA).increment();
 
-      scope.notifier(providerA).increment();
+    expect(scope.read(providerA), 2);
+    expect(scope.read(providerC), 3);
+    expect(scope.notifier(providerC).getSum(), 7);
 
-      expect(scope.read(providerA), 2);
-      expect(scope.read(providerC), 3);
-      expect(scope.notifier(providerC).getSum(), 7);
-
-      // Check events
-      final notifierC = scope.notifier(providerC);
-      expect(observer.history, [
-        ProviderInitEvent(
-          provider: providerA,
-          notifier: notifierA,
-          cause: ProviderInitCause.access,
-          value: 1,
-        ),
-        ProviderInitEvent(
-          provider: providerB,
-          notifier: notifierB,
-          cause: ProviderInitCause.access,
-          value: 2,
-        ),
-        ProviderInitEvent(
-          provider: providerC,
-          notifier: notifierC,
-          cause: ProviderInitCause.access,
-          value: 3,
-        ),
-        ChangeEvent(
-          notifier: notifierA,
-          prev: 1,
-          next: 2,
-          flagRebuild: [],
-        ),
-      ]);
-    });
+    // Check events
+    final notifierC = scope.notifier(providerC);
+    expect(observer.history, [
+      ProviderInitEvent(
+        provider: providerA,
+        notifier: notifierA,
+        cause: ProviderInitCause.access,
+        value: 1,
+      ),
+      ProviderInitEvent(
+        provider: providerB,
+        notifier: notifierB,
+        cause: ProviderInitCause.access,
+        value: 2,
+      ),
+      ProviderInitEvent(
+        provider: providerC,
+        notifier: notifierC,
+        cause: ProviderInitCause.access,
+        value: 3,
+      ),
+      ChangeEvent(
+        notifier: notifierA,
+        prev: 1,
+        next: 2,
+        flagRebuild: [],
+      ),
+    ]);
   });
 }
 
