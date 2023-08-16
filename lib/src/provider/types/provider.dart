@@ -1,10 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
-import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/ref.dart';
-import 'package:riverpie/src/widget/scope.dart';
 
 /// Use a [Provider] to implement a stateless provider.
 /// Useful for dependency injection.
@@ -17,10 +15,9 @@ class Provider<T> extends BaseProvider<ImmutableNotifier<T>, T> {
 
   @internal
   @override
-  ImmutableNotifier<T> createState(
-      RiverpieScope scope, RiverpieObserver? observer) {
+  ImmutableNotifier<T> createState(Ref ref) {
     return ImmutableNotifier(
-      create(scope),
+      create(ref),
       debugLabel: debugLabel ?? runtimeType.toString(),
     );
   }

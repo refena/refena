@@ -1,10 +1,8 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/types/view_provider_notifier.dart';
-import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/ref.dart';
-import 'package:riverpie/src/widget/scope.dart';
 
 /// The [ViewProvider] is the only provider that can watch other providers.
 /// Its builder is similar to a normal [Provider].
@@ -18,10 +16,7 @@ class ViewProvider<T> extends BaseProvider<ViewProviderNotifier<T>, T> {
   ViewProvider(this.builder, {super.debugLabel});
 
   @override
-  ViewProviderNotifier<T> createState(
-    RiverpieScope scope,
-    RiverpieObserver? observer,
-  ) {
+  ViewProviderNotifier<T> createState(Ref ref) {
     return ViewProviderNotifier<T>(
       builder,
       debugLabel: debugLabel ?? runtimeType.toString(),

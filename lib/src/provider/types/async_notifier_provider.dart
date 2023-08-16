@@ -1,11 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
-import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/ref.dart';
-import 'package:riverpie/src/widget/scope.dart';
 
 /// Use an [AsyncNotifierProvider] to implement a stateful provider.
 /// Changes to the state are propagated to all consumers that
@@ -20,11 +18,8 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
 
   @internal
   @override
-  N createState(
-    RiverpieScope scope,
-    RiverpieObserver? observer,
-  ) {
-    return builder(scope);
+  N createState(Ref ref) {
+    return builder(ref);
   }
 
   ProviderOverride<N, AsyncSnapshot<T>> overrideWithNotifier(

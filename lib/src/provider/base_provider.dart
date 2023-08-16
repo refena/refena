@@ -1,8 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
-import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
-import 'package:riverpie/src/widget/scope.dart';
 
 /// A "provider" instructs Riverpie how to create a state.
 /// A "provider" is stateless.
@@ -14,10 +12,7 @@ abstract class BaseProvider<N extends BaseNotifier<T>, T> {
   BaseProvider({this.debugLabel});
 
   @internal
-  N createState(
-    RiverpieScope scope,
-    RiverpieObserver? observer,
-  );
+  N createState(Ref ref);
 }
 
 /// A flag to indicate that the notifier is accessible from [Ref].

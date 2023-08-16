@@ -82,7 +82,7 @@ class RiverpieScope extends InheritedWidget implements Ref {
   ]) {
     N? notifier = _state[provider] as N?;
     if (notifier == null) {
-      notifier = provider.createState(this, observer);
+      notifier = provider.createState(this);
       notifier.setup(this, observer);
       _state[provider] = notifier;
 
