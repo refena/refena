@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/ref.dart';
-import 'package:riverpie/src/widget/scope.dart';
 
 /// A notifier holds a state and notifies its listeners when the state changes.
 /// The listeners are added automatically when calling [ref.watch].
@@ -22,8 +22,8 @@ abstract class Notifier<T> extends BaseSyncNotifier<T> {
 
   @internal
   @override
-  void setup(RiverpieScope scope, RiverpieObserver? observer) {
-    _ref = scope;
-    super.setup(scope, observer);
+  void setup(RiverpieContainer container, RiverpieObserver? observer) {
+    _ref = container;
+    super.setup(container, observer);
   }
 }

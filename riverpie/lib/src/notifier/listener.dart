@@ -1,7 +1,7 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
+import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
@@ -20,19 +20,6 @@ class ListenerConfig<T> {
     required this.callback,
     required this.selector,
   });
-}
-
-/// The object that gets fired by the stream.
-class NotifierEvent<T> {
-  final T prev;
-  final T next;
-
-  NotifierEvent(this.prev, this.next);
-
-  @override
-  String toString() {
-    return 'NotifierEvent($prev -> $next)';
-  }
 }
 
 class NotifierListeners<T> {

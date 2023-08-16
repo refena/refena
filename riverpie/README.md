@@ -4,7 +4,7 @@
 ![ci](https://github.com/Tienisto/riverpie/actions/workflows/ci.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A state management library for Flutter. Inspired by [Riverpod](https://pub.dev/packages/riverpod).
+A state management library for Dart and Flutter. Inspired by [Riverpod](https://pub.dev/packages/riverpod).
 
 ## Preview
 
@@ -81,7 +81,7 @@ You don't need to register any provider. They will be initialized lazily when yo
 ```yaml
 # pubspec.yaml
 dependencies:
-  riverpie: <version>
+  riverpie_flutter: <version>
 ```
 
 **Step 2: Add RiverpieScope**
@@ -749,7 +749,28 @@ void main() {
 
 There is an example test that shows how to test a counter app.
 
-[See the example test](documentation/testing.md).
+[See the example test](https://github.com/Tienisto/riverpie/blob/main/documentation/testing.md).
+
+## Dart only
+
+You can use Riverpie without Flutter.
+
+```yaml
+# pubspec.yaml
+dependencies:
+  riverpie: <version>
+```
+
+```dart
+void main() {
+  final ref = RiverpieContainer();
+  ref.read(myProvider);
+  ref.notifier(myNotifier).doSomething();
+  ref.stream(myProvider).listen((value) {
+    print('The value changed from ${value.prev} to ${value.next}');
+  });
+}
+```
 
 ## License
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:riverpie/src/mixin.dart';
-import 'package:riverpie/src/ref.dart';
+import 'package:riverpie/riverpie.dart';
+import 'package:riverpie_flutter/src/mixin.dart';
 
 /// A [Consumer] can be used anywhere in the widget tree.
 /// This is useful if you want to use a provider within a [StatelessWidget].

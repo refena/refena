@@ -9,8 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  riverpie:
-    path: ..
+  riverpie_flutter: ^0.10.0
 
 dev_dependencies:
   flutter_test:

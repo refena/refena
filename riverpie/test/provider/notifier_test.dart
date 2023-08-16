@@ -1,22 +1,20 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpie/riverpie.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('Single provider test', () {
     final notifier = _Counter(123);
     final provider = NotifierProvider<_Counter, int>((ref) => notifier);
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(provider), 123);
+    expect(ref.read(provider), 123);
 
-    scope.notifier(provider).increment();
+    ref.notifier(provider).increment();
 
-    expect(scope.read(provider), 124);
+    expect(ref.read(provider), 124);
 
     // Check events
     expect(observer.history, [
@@ -48,22 +46,21 @@ void main() {
       );
     });
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(providerC), 3);
-    expect(scope.notifier(providerC).getSum(), 6);
+    expect(ref.read(providerC), 3);
+    expect(ref.notifier(providerC).getSum(), 6);
 
-    scope.notifier(providerA).increment();
+    ref.notifier(providerA).increment();
 
-    expect(scope.read(providerA), 2);
-    expect(scope.read(providerC), 3);
-    expect(scope.notifier(providerC).getSum(), 7);
+    expect(ref.read(providerA), 2);
+    expect(ref.read(providerC), 3);
+    expect(ref.notifier(providerC).getSum(), 7);
 
     // Check events
-    final notifierC = scope.notifier(providerC);
+    final notifierC = ref.notifier(providerC);
     expect(observer.history, [
       ProviderInitEvent(
         provider: providerA,

@@ -16,11 +16,29 @@ jobs:
         with:
           flutter-version: '3.10.6'
           channel: 'stable'
-      - name: Dependencies
-        run: flutter pub get
-      - name: Check format
-        run: dart format --set-exit-if-changed lib test
-      - name: Analyze
+
+      - name: Dependencies (core)
+        run: dart pub get
+        working-directory: riverpie
+      - name: Check format (core)
+        run: dart format --set-exit-if-changed lib bin test
+        working-directory: riverpie
+      - name: Analyze (core)
         run: flutter analyze
-      - name: Test
+        working-directory: riverpie
+      - name: Test (core)
+        run: dart test
+        working-directory: riverpie
+
+      - name: Dependencies (flutter)
+        run: flutter pub get
+        working-directory: riverpie_flutter
+      - name: Check format (flutter)
+        run: dart format --set-exit-if-changed lib bin test
+        working-directory: riverpie_flutter
+      - name: Analyze (flutter)
+        run: flutter analyze
+        working-directory: riverpie_flutter
+      - name: Test (flutter)
         run: flutter test
+        working-directory: riverpie_flutter

@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:riverpie/riverpie.dart';
+import 'package:riverpie_flutter/riverpie_flutter.dart';
 
 final myFutureNotifier = FutureProvider((ref) async {
   await Future.delayed(const Duration(seconds: 2));

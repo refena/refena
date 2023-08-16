@@ -1,24 +1,22 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpie/riverpie.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('Single provider test', () {
     final provider = StateProvider((ref) => 123);
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(provider), 123);
+    expect(ref.read(provider), 123);
 
-    scope.notifier(provider).setState((old) => old + 1);
+    ref.notifier(provider).setState((old) => old + 1);
 
-    expect(scope.read(provider), 124);
+    expect(ref.read(provider), 124);
 
     // Check events
-    final notifier = scope.notifier(provider);
+    final notifier = ref.notifier(provider);
     expect(observer.history, [
       ProviderInitEvent(
         provider: provider,

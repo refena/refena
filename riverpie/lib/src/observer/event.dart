@@ -1,7 +1,9 @@
-import 'package:flutter/foundation.dart';
+import 'package:collection/collection.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
+
+final _eq = IterableEquality();
 
 /// The base event.
 sealed class RiverpieEvent {}
@@ -37,7 +39,7 @@ class ChangeEvent<T> extends RiverpieEvent {
             notifier == other.notifier &&
             prev == other.prev &&
             next == other.next &&
-            listEquals(flagRebuild, other.flagRebuild);
+            _eq.equals(flagRebuild, other.flagRebuild);
   }
 
   @override

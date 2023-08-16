@@ -1,99 +1,87 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpie/riverpie.dart';
+import 'package:riverpie/src/async_value.dart';
+import 'package:test/test.dart';
 
 void main() {
   group(Provider, () {
     test('Should override', () {
       final provider = Provider((ref) => 123);
-      final scope = RiverpieScope(
+      final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithValue(456),
         ],
-        child: Container(),
       );
 
-      expect(scope.read(provider), 456);
+      expect(ref.read(provider), 456);
     });
   });
 
   group(FutureProvider, () {
     test('Should override', () async {
       final provider = FutureProvider((ref) => Future.value(123));
-      final scope = RiverpieScope(
+      final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithFuture(Future.value(456)),
         ],
-        child: Container(),
       );
 
-      expect(await scope.future(provider), 456);
+      expect(await ref.future(provider), 456);
     });
   });
 
   group(NotifierProvider, () {
     test('Should override', () {
       final provider = NotifierProvider((ref) => _Notifier());
-      final scope = RiverpieScope(
+      final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithNotifier(() => _OverrideNotifier()),
         ],
-        child: Container(),
       );
 
-      expect(scope.read(provider), 456);
-      expect(scope.notifier(provider).s, 'b');
+      expect(ref.read(provider), 456);
+      expect(ref.notifier(provider).s, 'b');
     });
   });
 
   group(AsyncNotifierProvider, () {
     test('Should override', () async {
       final provider = AsyncNotifierProvider((ref) => _AsyncNotifier());
-      final scope = RiverpieScope(
+      final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithNotifier(() => _OverrideAsyncNotifier()),
         ],
-        child: Container(),
       );
 
-      expect(scope.read(provider), AsyncSnapshot<int>.waiting());
-      expect(await scope.future(provider), 456);
-      expect(
-        scope.read(provider),
-        AsyncSnapshot.withData(
-          ConnectionState.done,
-          456,
-        ),
-      );
-      expect(scope.notifier(provider).s, 'b');
+      expect(ref.read(provider), AsyncValue<int>.loading());
+      expect(await ref.future(provider), 456);
+      expect(ref.read(provider), AsyncValue.withData(456));
+      expect(ref.notifier(provider).s, 'b');
     });
   });
 
   group(StateProvider, () {
     test('Should override', () {
       final provider = StateProvider((ref) => 123);
-      final scope = RiverpieScope(
+      final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithInitialState(456),
         ],
-        child: Container(),
       );
 
-      expect(scope.read(provider), 456);
+      expect(ref.read(provider), 456);
     });
   });
 
   group(ViewProvider, () {
     test('Should override', () {
       final provider = ViewProvider((ref) => 123);
-      final scope = RiverpieScope(
+      final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithBuilder((ref) => 456),
         ],
-        child: Container(),
       );
 
-      expect(scope.read(provider), 456);
+      expect(ref.read(provider), 456);
     });
   });
 }

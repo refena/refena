@@ -1,10 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/async_value.dart';
+import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/listener.dart';
+import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
-import 'package:riverpie/src/widget/scope.dart';
 
 @internal
 abstract class BaseNotifier<T> {
@@ -63,7 +64,7 @@ abstract class BaseNotifier<T> {
   /// Handles the actual initialization of the notifier.
   /// Calls [init] internally.
   @internal
-  void setup(RiverpieScope scope, RiverpieObserver? observer);
+  void setup(RiverpieContainer container, RiverpieObserver? observer);
 
   @internal
   void addListener(Rebuildable rebuildable, ListenerConfig<T> config) {
@@ -88,7 +89,7 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
   @override
   @internal
   @mustCallSuper
-  void setup(RiverpieScope scope, RiverpieObserver? observer) {
+  void setup(RiverpieContainer container, RiverpieObserver? observer) {
     _listeners = NotifierListeners<T>(this, observer);
     _observer = observer;
     _state = init();
@@ -97,7 +98,7 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
 }
 
 @internal
-abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncSnapshot<T>> {
+abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   late Future<T> _future;
   int _futureCount = 0;
 
@@ -114,7 +115,7 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncSnapshot<T>> {
   void _setFutureAndListen(Future<T> value) async {
     _future = value;
     _futureCount++;
-    state = AsyncSnapshot<T>.waiting();
+    state = AsyncValue<T>.loading();
     final currentCount = _futureCount; // after the setter, as it may change
     try {
       final value = await _future;
@@ -122,19 +123,19 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncSnapshot<T>> {
         // The future has been changed in the meantime.
         return;
       }
-      state = AsyncSnapshot.withData(ConnectionState.done, value);
-    } catch (error) {
+      state = AsyncValue.withData(value);
+    } catch (error, stackTrace) {
       if (currentCount != _futureCount) {
         // The future has been changed in the meantime.
         return;
       }
-      state = AsyncSnapshot.withError(ConnectionState.done, error);
+      state = AsyncValue<T>.withError(error, stackTrace);
     }
   }
 
   @override
   @protected
-  set state(AsyncSnapshot<T> value) {
+  set state(AsyncValue<T> value) {
     _futureCount++; // invalidate previous future callbacks
     super.state = value;
   }
@@ -147,8 +148,8 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncSnapshot<T>> {
   @override
   @internal
   @mustCallSuper
-  void setup(RiverpieScope scope, RiverpieObserver? observer) {
-    _listeners = NotifierListeners<AsyncSnapshot<T>>(this, observer);
+  void setup(RiverpieContainer container, RiverpieObserver? observer) {
+    _listeners = NotifierListeners<AsyncValue<T>>(this, observer);
     _observer = observer;
 
     // do not set future directly, as the setter may be overridden

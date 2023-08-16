@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpie/riverpie.dart';
+import 'package:riverpie/src/async_value.dart';
+import 'package:test/test.dart';
 
 import '../util/skip_microtasks.dart';
 
@@ -10,29 +10,28 @@ void main() {
     final provider =
         AsyncNotifierProvider<_AsyncCounter, int>((ref) => notifier);
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(provider), AsyncSnapshot<int>.waiting());
-    expect(await scope.future(provider), 123);
+    expect(ref.read(provider), AsyncValue<int>.loading());
+    expect(await ref.future(provider), 123);
     expect(
-      scope.read(provider),
-      AsyncSnapshot.withData(ConnectionState.done, 123),
+      ref.read(provider),
+      AsyncValue.withData(123),
     );
 
-    scope.notifier(provider).increment();
+    ref.notifier(provider).increment();
 
     // wait for the microtasks to be executed
     await skipAllMicrotasks();
 
-    expect(scope.read(provider), AsyncSnapshot<int>.waiting());
+    expect(ref.read(provider), AsyncValue<int>.loading());
     expect(
-      scope.notifier(provider).prev,
-      AsyncSnapshot.withData(ConnectionState.done, 123),
+      ref.notifier(provider).prev,
+      AsyncValue.withData(123),
     );
-    expect(await scope.future(provider), 124);
+    expect(await ref.future(provider), 124);
 
     // Check events
     expect(observer.history, [
@@ -40,24 +39,24 @@ void main() {
         provider: provider,
         notifier: notifier,
         cause: ProviderInitCause.access,
-        value: AsyncSnapshot<int>.waiting(),
+        value: AsyncValue<int>.loading(),
       ),
       ChangeEvent(
         notifier: notifier,
-        prev: AsyncSnapshot<int>.waiting(),
-        next: AsyncSnapshot.withData(ConnectionState.done, 123),
+        prev: AsyncValue<int>.loading(),
+        next: AsyncValue.withData(123),
         flagRebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
-        prev: AsyncSnapshot.withData(ConnectionState.done, 123),
-        next: AsyncSnapshot<int>.waiting(),
+        prev: AsyncValue.withData(123),
+        next: AsyncValue<int>.loading(),
         flagRebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
-        prev: AsyncSnapshot<int>.waiting(),
-        next: AsyncSnapshot.withData(ConnectionState.done, 124),
+        prev: AsyncValue<int>.loading(),
+        next: AsyncValue.withData(124),
         flagRebuild: [],
       ),
     ]);
@@ -68,40 +67,39 @@ void main() {
     final provider =
         AsyncNotifierProvider<_AsyncCounter, int>((ref) => notifier);
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(provider), AsyncSnapshot<int>.waiting());
-    expect(await scope.future(provider), 123);
+    expect(ref.read(provider), AsyncValue<int>.loading());
+    expect(await ref.future(provider), 123);
     expect(
-      scope.read(provider),
-      AsyncSnapshot.withData(ConnectionState.done, 123),
+      ref.read(provider),
+      AsyncValue.withData(123),
     );
 
-    scope.notifier(provider).setDelayed(11, const Duration(milliseconds: 50));
+    ref.notifier(provider).setDelayed(11, const Duration(milliseconds: 50));
 
     await skipAllMicrotasks();
 
-    expect(scope.read(provider), AsyncSnapshot<int>.waiting());
+    expect(ref.read(provider), AsyncValue<int>.loading());
     expect(
-      scope.notifier(provider).prev,
-      AsyncSnapshot.withData(ConnectionState.done, 123),
+      ref.notifier(provider).prev,
+      AsyncValue.withData(123),
     );
 
     // Set it again, it should cancel the previous future
-    scope.notifier(provider).setDelayed(12, const Duration(milliseconds: 50));
+    ref.notifier(provider).setDelayed(12, const Duration(milliseconds: 50));
 
     await skipAllMicrotasks();
 
-    expect(scope.read(provider), AsyncSnapshot<int>.waiting());
+    expect(ref.read(provider), AsyncValue<int>.loading());
     expect(
-      scope.notifier(provider).prev,
-      AsyncSnapshot<int>.waiting(),
+      ref.notifier(provider).prev,
+      AsyncValue<int>.loading(),
     );
 
-    expect(await scope.future(provider), 12);
+    expect(await ref.future(provider), 12);
 
     // Check events
     expect(observer.history, [
@@ -109,30 +107,30 @@ void main() {
         provider: provider,
         notifier: notifier,
         cause: ProviderInitCause.access,
-        value: AsyncSnapshot<int>.waiting(),
+        value: AsyncValue<int>.loading(),
       ),
       ChangeEvent(
         notifier: notifier,
-        prev: AsyncSnapshot<int>.waiting(),
-        next: AsyncSnapshot.withData(ConnectionState.done, 123),
+        prev: AsyncValue<int>.loading(),
+        next: AsyncValue.withData(123),
         flagRebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
-        prev: AsyncSnapshot.withData(ConnectionState.done, 123),
-        next: AsyncSnapshot<int>.waiting(),
+        prev: AsyncValue.withData(123),
+        next: AsyncValue<int>.loading(),
         flagRebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
-        prev: AsyncSnapshot<int>.waiting(),
-        next: AsyncSnapshot<int>.waiting(),
+        prev: AsyncValue<int>.loading(),
+        next: AsyncValue<int>.loading(),
         flagRebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
-        prev: AsyncSnapshot<int>.waiting(),
-        next: AsyncSnapshot.withData(ConnectionState.done, 12),
+        prev: AsyncValue<int>.loading(),
+        next: AsyncValue.withData(12),
         flagRebuild: [],
       ),
     ]);

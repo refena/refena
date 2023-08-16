@@ -1,0 +1,3 @@
+dependency_overrides:
+  riverpie:
+    path: ../riverpie

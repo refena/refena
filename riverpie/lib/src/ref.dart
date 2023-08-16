@@ -1,12 +1,15 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
-import 'package:riverpie/riverpie.dart';
+import 'package:riverpie/src/async_value.dart';
+import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/listener.dart';
+import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
+import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
+import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 
 /// The base ref to read and notify providers.
 /// These methods can be called anywhere.
@@ -37,7 +40,7 @@ abstract class Ref {
 
 /// The ref available in a [State] with the mixin or in a [ViewProvider].
 class WatchableRef extends Ref {
-  final RiverpieScope _ref;
+  final RiverpieContainer _ref;
   final Rebuildable _rebuildable;
 
   @override
@@ -91,8 +94,8 @@ class WatchableRef extends Ref {
   /// Only works with [AsyncNotifierProvider].
   ChronicleSnapshot<T> watchWithPrev<N extends AsyncNotifier<T>, T>(
     AsyncNotifierProvider<N, T> provider, {
-    ListenerCallback<AsyncSnapshot<T>>? listener,
-    bool Function(AsyncSnapshot<T> prev, AsyncSnapshot<T> next)? rebuildWhen,
+    ListenerCallback<AsyncValue<T>>? listener,
+    bool Function(AsyncValue<T> prev, AsyncValue<T> next)? rebuildWhen,
   }) {
     final notifier = _ref.anyNotifier(provider);
     notifier.addListener(
@@ -107,39 +110,21 @@ class WatchableRef extends Ref {
     return ChronicleSnapshot(notifier.prev, notifier.state);
   }
 
-  WatchableRef._(this._ref, this._rebuildable);
-
-  /// Create a [WatchableRef] from an [Element].
-  factory WatchableRef.fromElement({
-    required RiverpieScope ref,
-    required Element element,
-  }) {
-    return WatchableRef._(
-      ref,
-      ElementRebuildable(element),
-    );
-  }
-
-  /// Create a [WatchableRef] from a [Rebuildable].
-  factory WatchableRef.fromRebuildable({
-    required RiverpieScope ref,
+  WatchableRef({
+    required RiverpieContainer ref,
     required Rebuildable rebuildable,
-  }) {
-    return WatchableRef._(
-      ref,
-      rebuildable,
-    );
-  }
+  })  : _ref = ref,
+        _rebuildable = rebuildable;
 }
 
 class ChronicleSnapshot<T> {
   /// The state of the notifier before the latest [future] was set.
   /// This is null if [AsyncNotifier.savePrev] is false
   /// or the future has never changed.
-  final AsyncSnapshot<T>? prev;
+  final AsyncValue<T>? prev;
 
   /// The current state of the notifier.
-  final AsyncSnapshot<T> curr;
+  final AsyncValue<T> curr;
 
   ChronicleSnapshot(this.prev, this.curr);
 }

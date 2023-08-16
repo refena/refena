@@ -1,27 +1,26 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpie/riverpie.dart';
+import 'package:riverpie/src/async_value.dart';
 import 'package:riverpie/src/notifier/types/future_provider_notifier.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('Should read the value', () async {
     final provider = FutureProvider((ref) => Future.value(123));
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(provider), AsyncSnapshot<int>.waiting());
-    expect(await scope.future(provider), 123);
+    expect(ref.read(provider), AsyncValue<int>.loading());
+    expect(await ref.future(provider), 123);
     expect(
-      scope.read(provider),
-      AsyncSnapshot.withData(ConnectionState.done, 123),
+      ref.read(provider),
+      AsyncValue.withData(123),
     );
 
     // Check events
     final notifier =
-        scope.anyNotifier<FutureProviderNotifier<int>, AsyncSnapshot<int>>(
+        ref.anyNotifier<FutureProviderNotifier<int>, AsyncValue<int>>(
       provider,
     );
     expect(observer.history, [
@@ -29,12 +28,12 @@ void main() {
         provider: provider,
         notifier: notifier,
         cause: ProviderInitCause.access,
-        value: AsyncSnapshot<int>.waiting(),
+        value: AsyncValue<int>.loading(),
       ),
       ChangeEvent(
         notifier: notifier,
-        prev: AsyncSnapshot<int>.waiting(),
-        next: AsyncSnapshot.withData(ConnectionState.done, 123),
+        prev: AsyncValue<int>.loading(),
+        next: AsyncValue.withData(123),
         flagRebuild: [],
       ),
     ]);
@@ -61,29 +60,28 @@ void main() {
       return '$a $b CCC';
     }, debugLabel: 'providerC');
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(providerC), AsyncSnapshot<String>.waiting());
-    expect(await scope.future(providerC), 'AAA BBB CCC');
+    expect(ref.read(providerC), AsyncValue<String>.loading());
+    expect(await ref.future(providerC), 'AAA BBB CCC');
     expect(
-      scope.read(providerC),
-      AsyncSnapshot.withData(ConnectionState.done, 'AAA BBB CCC'),
+      ref.read(providerC),
+      AsyncValue.withData('AAA BBB CCC'),
     );
 
     // Check events
-    final notifierA = scope
-        .anyNotifier<FutureProviderNotifier<String>, AsyncSnapshot<String>>(
+    final notifierA =
+        ref.anyNotifier<FutureProviderNotifier<String>, AsyncValue<String>>(
       providerA,
     );
-    final notifierB = scope
-        .anyNotifier<FutureProviderNotifier<String>, AsyncSnapshot<String>>(
+    final notifierB =
+        ref.anyNotifier<FutureProviderNotifier<String>, AsyncValue<String>>(
       providerB,
     );
-    final notifierC = scope
-        .anyNotifier<FutureProviderNotifier<String>, AsyncSnapshot<String>>(
+    final notifierC =
+        ref.anyNotifier<FutureProviderNotifier<String>, AsyncValue<String>>(
       providerC,
     );
 
@@ -94,36 +92,36 @@ void main() {
         provider: providerA,
         notifier: notifierA,
         cause: ProviderInitCause.access,
-        value: AsyncSnapshot<String>.waiting(),
+        value: AsyncValue<String>.loading(),
       ),
       ProviderInitEvent(
         provider: providerC,
         notifier: notifierC,
         cause: ProviderInitCause.access,
-        value: AsyncSnapshot<String>.waiting(),
+        value: AsyncValue<String>.loading(),
       ),
       ChangeEvent(
         notifier: notifierA,
-        prev: AsyncSnapshot<String>.waiting(),
-        next: AsyncSnapshot.withData(ConnectionState.done, 'AAA'),
+        prev: AsyncValue<String>.loading(),
+        next: AsyncValue.withData('AAA'),
         flagRebuild: [],
       ),
       ProviderInitEvent(
         provider: providerB,
         notifier: notifierB,
         cause: ProviderInitCause.access,
-        value: AsyncSnapshot<String>.waiting(),
+        value: AsyncValue<String>.loading(),
       ),
       ChangeEvent(
         notifier: notifierB,
-        prev: AsyncSnapshot<String>.waiting(),
-        next: AsyncSnapshot.withData(ConnectionState.done, 'BBB'),
+        prev: AsyncValue<String>.loading(),
+        next: AsyncValue.withData('BBB'),
         flagRebuild: [],
       ),
       ChangeEvent(
         notifier: notifierC,
-        prev: AsyncSnapshot<String>.waiting(),
-        next: AsyncSnapshot.withData(ConnectionState.done, 'AAA BBB CCC'),
+        prev: AsyncValue<String>.loading(),
+        next: AsyncValue.withData('AAA BBB CCC'),
         flagRebuild: [],
       ),
     ]);

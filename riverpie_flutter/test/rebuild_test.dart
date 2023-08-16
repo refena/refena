@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:riverpie/riverpie.dart';
+import 'package:riverpie_flutter/riverpie_flutter.dart';
 
 final _stateAProvider = StateProvider((ref) => 111);
 final _stateBProvider = StateProvider((ref) => 999);

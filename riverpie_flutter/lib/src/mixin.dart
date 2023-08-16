@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:riverpie/src/util/get_scope.dart';
-import 'package:riverpie/src/ref.dart';
+import 'package:riverpie_flutter/src/element_rebuildable.dart';
+import 'package:riverpie_flutter/src/get_scope.dart';
+import 'package:riverpie/riverpie.dart';
 
 mixin Riverpie<W extends StatefulWidget> on State<W> {
   /// Access this ref inside your [State].
-  late final ref = WatchableRef.fromElement(
+  late final ref = WatchableRef(
     ref: getScope(context),
-    element: context as Element,
+    rebuildable: ElementRebuildable(context as Element),
   );
 
   /// Call this method inside [initState] to have some

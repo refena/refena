@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:riverpie/src/async_value.dart';
 import 'package:riverpie/src/notifier/types/future_provider_notifier.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
@@ -26,9 +26,10 @@ class FutureProvider<T>
               debugLabel: debugLabel ?? 'FutureProvider<$T>',
             ));
 
-  ProviderOverride<FutureProviderNotifier<T>, AsyncSnapshot<T>>
-      overrideWithFuture(Future<T> value) {
-    return ProviderOverride<FutureProviderNotifier<T>, AsyncSnapshot<T>>(
+  ProviderOverride<FutureProviderNotifier<T>, AsyncValue<T>> overrideWithFuture(
+    Future<T> value,
+  ) {
+    return ProviderOverride<FutureProviderNotifier<T>, AsyncValue<T>>(
       provider: this,
       state: FutureProviderNotifier<T>(
         value,

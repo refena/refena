@@ -1,9 +1,5 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
-import 'package:riverpie/src/notifier/listener.dart';
+import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
@@ -12,45 +8,32 @@ import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 import 'package:riverpie/src/ref.dart';
 
-/// The [RiverpieScope] holds the state of all providers.
+/// The [RiverpieContainer] holds the state of all providers.
 /// Every provider state is initialized lazily and only once.
 ///
-/// The [RiverpieScope] is used as [ref]
-/// - within provider build callbacks and
+/// The [RiverpieContainer] is used as [ref]
+/// - within provider builders and
 /// - within notifiers.
 ///
 /// You can override a provider by passing [overrides] to the constructor.
 /// In this case, the state of the provider is initialized right away.
-class RiverpieScope extends InheritedWidget implements Ref {
-  /// If you are unable to access the [ref] for whatever reason,
-  /// there is a pragmatic solution for that.
-  /// This is considered bad practice and should only be used as a last resort.
-  ///
-  /// Usage:
-  /// RiverpieScope.defaultRef.read(myProvider);
-  static late Ref defaultRef;
-
+class RiverpieContainer extends Ref {
   /// Holds all provider states
   final _state = <BaseProvider, BaseNotifier>{};
 
   /// The provided observer (e.g. for logging)
   final RiverpieObserver? observer;
 
-  /// Creates a [RiverpieScope].
+  /// Creates a [RiverpieContainer].
   /// The [overrides] are used to override providers with a different value.
   /// The [initialProviders] are used to initialize providers right away.
   /// Otherwise, the providers are initialized lazily when they are accessed.
   /// The [observer] is used to observe events.
-  /// The [child] is the widget tree that is wrapped by the [RiverpieScope].
-  RiverpieScope({
-    super.key,
+  RiverpieContainer({
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     this.observer,
-    required super.child,
   }) {
-    defaultRef = this;
-
     for (final override in overrides) {
       final notifier = override.state;
       notifier.setup(this, observer);
@@ -112,9 +95,8 @@ class RiverpieScope extends InheritedWidget implements Ref {
   }
 
   /// Returns the notifier of a [NotifierProvider].
-  /// This method is used internally without
-  /// any [NotifyableProvider] constraints.
-  @internal
+  /// This method can be used to avoid the constraint of [NotifyableProvider].
+  /// Useful for testing.
   N anyNotifier<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
     return _getState(provider);
   }
@@ -132,11 +114,5 @@ class RiverpieScope extends InheritedWidget implements Ref {
   ) {
     // ignore: invalid_use_of_protected_member
     return _getState(provider).future;
-  }
-
-  @internal
-  @override
-  bool updateShouldNotify(RiverpieScope oldWidget) {
-    return false;
   }
 }

@@ -1,21 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpie/riverpie.dart';
 import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
+import 'package:test/test.dart';
 
 void main() {
   test('Should read the value', () {
     final provider = Provider((ref) => 123);
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(provider), 123);
+    expect(ref.read(provider), 123);
 
     // Check events
-    final notifier = scope.anyNotifier<ImmutableNotifier<int>, int>(provider);
+    final notifier = ref.anyNotifier<ImmutableNotifier<int>, int>(provider);
     expect(observer.history, [
       ProviderInitEvent(
         provider: provider,
@@ -35,21 +33,20 @@ void main() {
       return '$a $b CCC';
     });
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(providerC), 'AAA BBB CCC');
+    expect(ref.read(providerC), 'AAA BBB CCC');
 
     // Check events
-    final notifierA = scope.anyNotifier<ImmutableNotifier<String>, String>(
+    final notifierA = ref.anyNotifier<ImmutableNotifier<String>, String>(
       providerA,
     );
-    final notifierB = scope.anyNotifier<ImmutableNotifier<String>, String>(
+    final notifierB = ref.anyNotifier<ImmutableNotifier<String>, String>(
       providerB,
     );
-    final notifierC = scope.anyNotifier<ImmutableNotifier<String>, String>(
+    final notifierC = ref.anyNotifier<ImmutableNotifier<String>, String>(
       providerC,
     );
 

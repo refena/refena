@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:riverpie/riverpie.dart';
+import 'package:riverpie_flutter/riverpie_flutter.dart';
 
 /// The test that is shown in the README.md
 

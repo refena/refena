@@ -1,0 +1,5 @@
+dependency_overrides:
+  riverpie:
+    path: ..
+  riverpie_flutter:
+    path: ../../riverpie_flutter

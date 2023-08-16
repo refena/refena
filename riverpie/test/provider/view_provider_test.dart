@@ -1,7 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:riverpie/riverpie.dart';
 import 'package:riverpie/src/notifier/types/view_provider_notifier.dart';
+import 'package:test/test.dart';
 
 import '../util/skip_microtasks.dart';
 
@@ -9,16 +8,14 @@ void main() {
   test('Single provider test', () {
     final provider = ViewProvider((ref) => 123);
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(provider), 123);
+    expect(ref.read(provider), 123);
 
     // Check events
-    final notifier =
-        scope.anyNotifier<ViewProviderNotifier<int>, int>(provider);
+    final notifier = ref.anyNotifier<ViewProviderNotifier<int>, int>(provider);
     expect(observer.history, [
       ProviderInitEvent(
         provider: provider,
@@ -36,25 +33,24 @@ void main() {
       return state + 100;
     });
     final observer = RiverpieHistoryObserver();
-    final scope = RiverpieScope(
+    final ref = RiverpieContainer(
       observer: observer,
-      child: Container(),
     );
 
-    expect(scope.read(stateProvider), 0);
-    expect(scope.read(viewProvider), 100);
+    expect(ref.read(stateProvider), 0);
+    expect(ref.read(viewProvider), 100);
 
-    scope.notifier(stateProvider).setState((old) => old + 1);
+    ref.notifier(stateProvider).setState((old) => old + 1);
 
     await skipAllMicrotasks();
 
-    expect(scope.read(stateProvider), 1);
-    expect(scope.read(viewProvider), 101);
+    expect(ref.read(stateProvider), 1);
+    expect(ref.read(viewProvider), 101);
 
     // Check events
-    final stateNotifier = scope.notifier(stateProvider);
+    final stateNotifier = ref.notifier(stateProvider);
     final viewNotifier =
-        scope.anyNotifier<ViewProviderNotifier<int>, int>(viewProvider);
+        ref.anyNotifier<ViewProviderNotifier<int>, int>(viewProvider);
 
     expect(observer.history, [
       ProviderInitEvent(
