@@ -1,3 +1,4 @@
+import 'package:example/main.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpie_flutter/riverpie_flutter.dart';
 
@@ -11,14 +12,20 @@ final class SubtractEvent extends CountEvent {
   SubtractEvent(this.subtractedAmount);
 }
 
-final counterProvider = NotifierProvider<Counter, int>((ref) => Counter());
+final counterProvider = NotifierProvider<ReduxCounter, int>((ref) {
+  return ReduxCounter(ref.notifier(counterProviderA));
+});
 
-class Counter extends ReduxNotifier<int, CountEvent> {
+class ReduxCounter extends ReduxNotifier<int, CountEvent> {
+  final Counter counter;
+  ReduxCounter(this.counter);
+
   @override
   int init() => 0;
 
   @override
   int reduce(CountEvent event) {
+    counter.state; // access another state
     return switch (event) {
       AddEvent() => state + event.addedAmount,
       SubtractEvent() => _handleSubtractEvent(event),

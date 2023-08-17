@@ -27,7 +27,7 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
   ) {
     return ProviderOverride(
       provider: this,
-      state: notifier(),
+      createState: (_) => notifier(),
     );
   }
 }

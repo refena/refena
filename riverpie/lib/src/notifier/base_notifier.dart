@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/async_value.dart';
 import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
+import 'package:riverpie/src/notifier/types/redux_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 
@@ -184,6 +186,9 @@ abstract class BaseReduxNotifier<T, E extends Object>
     extends BaseSyncNotifier<T> {
   BaseReduxNotifier({String? debugLabel}) : super(debugLabel: debugLabel);
 
+  /// A map of overrides for the reducers.
+  Map<Object, Reducer<T, E>?>? _overrides;
+
   /// Emits an event to update the state.
   void emit(E event) {
     emitAsync(event);
@@ -193,6 +198,23 @@ abstract class BaseReduxNotifier<T, E extends Object>
   /// This method is async and can be used to await the new state.
   Future<void> emitAsync(E event) async {
     _observer?.handleEvent(EventEmittedEvent(notifier: this, event: event));
+
+    if (_overrides != null) {
+      // Handle overrides
+      final key = event is Enum ? event : event.runtimeType;
+      final override = _overrides![event is Enum ? event : event.runtimeType];
+      if (override != null) {
+        // Use the override reducer
+        final newState = override(state, event);
+        _setState(newState, event);
+        return;
+      } else if (_overrides!.containsKey(key)) {
+        // If the override is null (but the key exist),
+        // we do not update the state.
+        return;
+      }
+    }
+
     final newState = reduce(event);
     if (newState is Future<T>) {
       // If the reducer returns a Future, wait for it to complete
@@ -210,6 +232,16 @@ abstract class BaseReduxNotifier<T, E extends Object>
   /// Returns the new state after applying the event.
   @protected
   FutureOr<T> reduce(E event);
+
+  /// Overrides the reducer for the given event type.
+  @internal
+  void setOverrides(Map<Object, Reducer<T, E>?> overrides) {
+    assert(
+      overrides.keys.every((k) => k is Type || (k is Enum && k is E)),
+      'The keys of the overrides map must be either a Type or a valid Enum. Invalid: ${overrides.keys.whereNot((k) => k is Type || (k is Enum && k is E)).toList()}',
+    );
+    _overrides = overrides;
+  }
 
   @override
   @internal

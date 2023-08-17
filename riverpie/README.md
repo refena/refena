@@ -70,6 +70,7 @@ class MyPage extends StatelessWidget {
 - [Observer](#observer)
 - [Testing](#testing)
     - [Override providers](#-override-providers)
+    - [Override ReduxNotifier](#-override-reduxnotifier)
     - [Access the state within tests](#-access-the-state-within-tests)
     - [State events](#-state-events)
     - [Example test](#-example-test)
@@ -870,6 +871,45 @@ void main() {
 }
 ```
 
+### ➤ Override ReduxNotifier
+
+There is a special override for `ReduxNotifier` that allows you to override the reducers.
+
+Assuming the following provider:
+
+```dart
+final counterProvider = NotifierProvider<MyCounter, int>((ref) => MyCounter());
+```
+
+This is how you override the reducer:
+
+```dart
+void main() {
+  test('Override test', () {
+    final ref = RiverpieContainer(
+      overrides: [
+        counterProvider.overrideWithReducer(
+          overrides: {
+            AddEvent: (state, event) => state + 20,
+            SubtractEvent: null, // do nothing
+          },
+        ),
+      ],
+    );
+
+    expect(ref.read(counterProvider), 0);
+
+    // Should use the overridden reducer
+    ref.notifier(counterProvider).emit(AddEvent());
+    expect(ref.read(counterProvider), 20);
+
+    // Should not change the state
+    ref.notifier(counterProvider).emit(SubtractEvent());
+    expect(ref.read(counterProvider), 20);
+  });
+}
+```
+
 ### ➤ Access the state within tests
 
 A `RiverpieScope` is a `Ref`, so you can access the state directly.
@@ -914,6 +954,7 @@ void main() {
       ),
       ChangeEvent(
         notifier: myNotifier,
+        event: null,
         prev: 1,
         next: 2,
         rebuild: [WidgetRebuildable<MyLoginPage>()],

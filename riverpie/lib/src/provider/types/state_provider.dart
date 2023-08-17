@@ -25,7 +25,7 @@ class StateProvider<T> extends NotifierProvider<StateNotifier<T>, T>
   ProviderOverride overrideWithInitialState(T state) {
     return ProviderOverride<StateNotifier<T>, T>(
       provider: this,
-      state: StateNotifier<T>(
+      createState: (_) => StateNotifier<T>(
         state,
         debugLabel: debugLabel ?? runtimeType.toString(),
       ),

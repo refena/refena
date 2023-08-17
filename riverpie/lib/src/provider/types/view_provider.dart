@@ -27,7 +27,7 @@ class ViewProvider<T> extends BaseProvider<ViewProviderNotifier<T>, T> {
       T Function(WatchableRef) builder) {
     return ProviderOverride(
       provider: this,
-      state: ViewProviderNotifier(
+      createState: (_) => ViewProviderNotifier(
         builder,
         debugLabel: debugLabel ?? runtimeType.toString(),
       ),

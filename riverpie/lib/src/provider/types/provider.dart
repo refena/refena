@@ -25,7 +25,7 @@ class Provider<T> extends BaseProvider<ImmutableNotifier<T>, T> {
   ProviderOverride<ImmutableNotifier<T>, T> overrideWithValue(T value) {
     return ProviderOverride(
       provider: this,
-      state: ImmutableNotifier(
+      createState: (_) => ImmutableNotifier(
         value,
         debugLabel: debugLabel ?? runtimeType.toString(),
       ),

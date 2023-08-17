@@ -35,7 +35,7 @@ class RiverpieContainer extends Ref {
     this.observer,
   }) {
     for (final override in overrides) {
-      final notifier = override.state;
+      final notifier = override.createState(this);
       notifier.setup(this, observer);
       _state[override.provider] = notifier;
 
