@@ -38,9 +38,46 @@ class MyPage extends StatelessWidget {
 }
 ```
 
+## Table of Contents
+
+- [Riverpie vs Riverpod](#riverpie-vs-riverpod)
+    - [Key differences](#-key-differences)
+    - [Similarities](#-similarities)
+- [Getting Started](#getting-started)
+- [Access the state](#access-the-state)
+- [Providers](#providers)
+    - [Provider](#-provider)
+    - [FutureProvider](#-futureprovider)
+    - [NotifierProvider](#-notifierprovider)
+    - [AsyncNotifierProvider](#-asyncnotifierprovider)
+    - [StateProvider](#-stateprovider)
+    - [ViewProvider](#-viewprovider)
+- [Notifiers](#notifiers)
+    - [Notifier](#-notifier)
+    - [AsyncNotifier](#-asyncnotifier)
+    - [PureNotifier](#-purenotifier)
+    - [EventNotifier](#-eventnotifier)
+- [Using ref](#using-ref)
+    - [ref.read](#-refread)
+    - [ref.watch](#-refwatch)
+    - [ref.stream](#-refstream)
+    - [ref.future](#-reffuture)
+    - [ref.notifier](#-refnotifier)
+- [What to choose?](#what-to-choose)
+- [Performance Optimization](#performance-optimization)
+- [ensureRef](#ensureref)
+- [defaultRef](#defaultref)
+- [Observer](#observer)
+- [Testing](#testing)
+    - [Override providers](#-override-providers)
+    - [Access the state within tests](#-access-the-state-within-tests)
+    - [State events](#-state-events)
+    - [Example test](#-example-test)
+- [Dart only](#dart-only)
+
 ## Riverpie vs Riverpod
 
-Riverpie is aimed to be more lightweight, more pragmatic and more opinionated than Riverpod.
+Riverpie is aimed to be more pragmatic and more opinionated than Riverpod.
 
 ### ➤ Key differences
 
@@ -578,7 +615,9 @@ class MyPage extends StatelessWidget {
 }
 ```
 
-The logs could look like this:
+Don't worry about asynchronous business logic. The reduce method is defined as `FutureOr<T> reduce(E event)`.
+
+Here is how the console output could look like:
 
 ```text
 [Riverpie] Change by [Counter] triggered by [SubtractEvent]
@@ -658,6 +697,24 @@ Counter counter = ref.notifier(counterProvider);
 
 ref.notifier(counterProvider).increment();
 ```
+
+## What to choose?
+
+There are lots of providers and notifiers. Which one should you choose?
+
+For most use cases, `Provider` and `Notifier` are more than enough.
+
+If you work in an environment where clean architecture is important,
+you may want to use `EventNotifier` and `ViewProvider`.
+
+Be aware that you will need to write more boilerplate code.
+
+| Providers & Notifiers                       | Boilerplate                    | Testability, Extensibility |
+|---------------------------------------------|--------------------------------|----------------------------|
+| `Provider`, `StateProvider`                 |                                | Low                        |
+| `Provider`, `Notifier`, `PureNotifier`      | notifiers                      | Medium                     |
+| `Provider`, `ViewProvider`, `Notifier`      | notifiers, view models         | High                       |
+| `Provider`, `ViewProvider`, `EventNotifier` | notifiers, view models, events | Very high                  |
 
 ## Performance Optimization
 
@@ -807,7 +864,7 @@ void main() {
 }
 ```
 
-### ➤ Access the state
+### ➤ Access the state within tests
 
 A `RiverpieScope` is a `Ref`, so you can access the state directly.
 
