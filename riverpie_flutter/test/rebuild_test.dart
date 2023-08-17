@@ -35,6 +35,41 @@ final _viewProvider = ViewProvider((ref) {
   );
 });
 
+class _ComplexState {
+  final int a;
+  final String b;
+
+  _ComplexState({
+    required this.a,
+    required this.b,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is _ComplexState &&
+          runtimeType == other.runtimeType &&
+          a == other.a &&
+          b == other.b;
+
+  @override
+  int get hashCode => a.hashCode ^ b.hashCode;
+
+  _ComplexState copyWith({
+    int? a,
+    String? b,
+  }) {
+    return _ComplexState(
+      a: a ?? this.a,
+      b: b ?? this.b,
+    );
+  }
+}
+
+final _complexStateProvider = StateProvider((ref) {
+  return _ComplexState(a: 111, b: 'B');
+});
+
 void main() {
   testWidgets('Should rebuild widget with context.ref', (tester) async {
     final widget = _ContextRefWidget();
@@ -266,6 +301,49 @@ void main() {
     expect(find.text('444'), findsOneWidget);
     expect(widget._rebuildCount, 3);
   });
+
+  testWidgets('Should rebuild widget with select', (tester) async {
+    final widget = _RebuildWhenSelect();
+    final scope = RiverpieScope(
+      child: MaterialApp(
+        home: widget,
+      ),
+    );
+
+    await tester.pumpWidget(scope);
+
+    expect(find.text('111'), findsOneWidget);
+    expect(scope.read(_complexStateProvider).a, 111);
+    expect(scope.read(_complexStateProvider).b, 'B');
+    expect(widget._rebuildCount, 1);
+
+    // update the state
+    await tester.tap(find.text('A'));
+    await tester.pump();
+
+    expect(find.text('112'), findsOneWidget);
+    expect(scope.read(_complexStateProvider).a, 112);
+    expect(scope.read(_complexStateProvider).b, 'B');
+    expect(widget._rebuildCount, 2);
+
+    // update the state
+    await tester.tap(find.text('B'));
+    await tester.pump();
+
+    expect(find.text('112'), findsOneWidget);
+    expect(scope.read(_complexStateProvider).a, 112);
+    expect(scope.read(_complexStateProvider).b, 'BB');
+    expect(widget._rebuildCount, 2);
+
+    // update the state
+    await tester.tap(find.text('A'));
+    await tester.pump();
+
+    expect(find.text('113'), findsOneWidget);
+    expect(scope.read(_complexStateProvider).a, 113);
+    expect(scope.read(_complexStateProvider).b, 'BB');
+    expect(widget._rebuildCount, 3);
+  });
 }
 
 // ignore: must_be_immutable
@@ -381,6 +459,44 @@ class _RebuildWhenWidget extends StatelessWidget {
 
     return Scaffold(
       body: Text(value.toString()),
+    );
+  }
+}
+
+// ignore: must_be_immutable
+class _RebuildWhenSelect extends StatelessWidget {
+  int _rebuildCount = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    _rebuildCount++;
+
+    final state = context.ref.watch(
+      _complexStateProvider.select((state) => state.a),
+    );
+
+    return Scaffold(
+      body: Column(
+        children: [
+          Text(state.toString()),
+          ElevatedButton(
+            onPressed: () {
+              context.ref.notifier(_complexStateProvider).setState(
+                    (state) => state.copyWith(a: state.a + 1),
+                  );
+            },
+            child: Text('A'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.ref.notifier(_complexStateProvider).setState(
+                    (state) => state.copyWith(b: '${state.b}B'),
+                  );
+            },
+            child: Text('B'),
+          ),
+        ],
+      ),
     );
   }
 }

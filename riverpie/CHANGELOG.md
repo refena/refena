@@ -1,7 +1,8 @@
 ## 0.11.0
 
-- feat: add `toString` implementations to `AsyncValue`
-- feat: add `toString` implementations to providers
+- feat: add `ref.watch(provider.select(...))` to only rebuild when a specific value changes
+- feat: add `toString` implementation to `AsyncValue`
+- feat: add `toString` implementation to providers
 - feat: add more options for `RiverpieHistoryObserver`
 
 ## 0.10.0

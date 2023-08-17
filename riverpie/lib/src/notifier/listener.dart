@@ -14,11 +14,11 @@ class ListenerConfig<T> {
   final ListenerCallback<T>? callback;
 
   /// Should only update if this returns true.
-  final bool Function(T prev, T next)? selector;
+  final bool Function(T prev, T next)? rebuildWhen;
 
   ListenerConfig({
     required this.callback,
-    required this.selector,
+    required this.rebuildWhen,
   });
 }
 
@@ -42,7 +42,7 @@ class NotifierListeners<T> {
     }
 
     _listeners.forEach((rebuildable, config) {
-      if (config.selector != null && !config.selector!(prev, next)) {
+      if (config.rebuildWhen != null && !config.rebuildWhen!(prev, next)) {
         return;
       }
 

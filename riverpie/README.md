@@ -493,7 +493,7 @@ See [AsyncNotifierProvider](#-asyncnotifierprovider).
 
 With `ref`, you can access the providers and notifiers.
 
-**ref.read**
+### ➤ ref.read
 
 Read the value of a provider.
 
@@ -501,7 +501,7 @@ Read the value of a provider.
 int a = ref.read(myProvider);
 ```
 
-**ref.watch**
+### ➤ ref.watch
 
 Read the value of a provider and rebuild the widget when the value changes.
 
@@ -527,7 +527,7 @@ build(BuildContext context) {
 }
 ```
 
-**ref.stream**
+### ➤ ref.stream
 
 Similar to `ref.watch` with `listener`, but you need to manage the subscription manually.
 
@@ -541,7 +541,7 @@ final subscription = ref.stream(myProvider).listen((value) {
 });
 ```
 
-**ref.future**
+### ➤ ref.future
 
 Get the `Future` of a `FutureProvider` or an `AsyncNotifierProvider`.
 
@@ -549,7 +549,7 @@ Get the `Future` of a `FutureProvider` or an `AsyncNotifierProvider`.
 Future<String> version = ref.future(versionProvider);
 ```
 
-**ref.notifier**
+### ➤ ref.notifier
 
 Get the notifier of a provider.
 
@@ -563,9 +563,23 @@ ref.notifier(counterProvider).increment();
 
 ## Performance Optimization
 
-**ref.watch**
+### ➤ ref.watch
 
-You may restrict the rebuilds to only a subset of the state with `rebuidWhen`.
+You may restrict the rebuilds to only a subset of the state with `provider.select`.
+
+Here, the `==` operator is used to compare the previous and next value.
+
+```dart
+build(BuildContext context) {
+  final themeMode = ref.watch(
+    settingsProvider.select((settings) => settings.themeMode),
+  );
+  
+  // ...
+}
+```
+
+For more complex logic, you can use `rebuidWhen`.
 
 ```dart
 build(BuildContext context) {
@@ -577,6 +591,9 @@ build(BuildContext context) {
   // ...
 }
 ```
+
+You can use both `select` and `rebuildWhen` at the same time.
+The `select` will be applied, when `rebuildWhen` returns `true`.
 
 ## ensureRef
 

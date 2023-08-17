@@ -10,6 +10,7 @@ import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
+import 'package:riverpie/src/provider/watchable.dart';
 
 /// The base ref to read and notify providers.
 /// These methods can be called anywhere.
@@ -69,25 +70,51 @@ class WatchableRef extends Ref {
 
   /// Get the current value of a provider and listen to changes.
   /// The listener will be disposed automatically when the widget is disposed.
+  ///
+  /// Optionally, you can pass a [rebuildWhen] function to control when the
+  /// widget should rebuild.
+  ///
+  /// Instead of `ref.watch(provider)`, you can also
+  /// use `ref.watch(provider.select((state) => state.attribute))` to
+  /// select a part of the state and only rebuild when this part changes.
+  ///
   /// Only call [watch] during build.
-  T watch<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider, {
+  R watch<N extends BaseNotifier<T>, T, R>(
+    Watchable<N, T, R> watchable, {
     ListenerCallback<T>? listener,
     bool Function(T prev, T next)? rebuildWhen,
   }) {
-    final notifier = _ref.anyNotifier(provider);
+    final notifier = _ref.anyNotifier(watchable.provider);
     if (notifier is! ImmutableNotifier) {
-      notifier.addListener(
-        _rebuildable,
-        ListenerConfig(
-          callback: listener,
-          selector: rebuildWhen,
-        ),
-      );
+      // We need to add a listener to the notifier
+      // to rebuild the widget when the state changes.
+      if (watchable is SelectedWatchable) {
+        notifier.addListener(
+          _rebuildable,
+          ListenerConfig(
+            callback: listener,
+            rebuildWhen: (prev, next) {
+              if (rebuildWhen?.call(prev, next) == false) {
+                return false;
+              }
+              return watchable.getSelectedState(prev) !=
+                  watchable.getSelectedState(next);
+            },
+          ),
+        );
+      } else {
+        notifier.addListener(
+          _rebuildable,
+          ListenerConfig(
+            callback: listener,
+            rebuildWhen: rebuildWhen,
+          ),
+        );
+      }
     }
 
     // ignore: invalid_use_of_protected_member
-    return notifier.state;
+    return watchable.getSelectedState(notifier.state);
   }
 
   /// Similar to [watch] but also returns the previous value.
@@ -102,7 +129,7 @@ class WatchableRef extends Ref {
       _rebuildable,
       ListenerConfig(
         callback: listener,
-        selector: rebuildWhen,
+        rebuildWhen: rebuildWhen,
       ),
     );
 
