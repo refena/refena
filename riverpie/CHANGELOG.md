@@ -1,5 +1,6 @@
 ## 0.11.0
 
+- feat: add `EventNotifier`
 - feat: add `ref.watch(provider.select(...))` to only rebuild when a specific value changes
 - feat: add `toString` implementation to `AsyncValue`
 - feat: add `toString` implementation to providers

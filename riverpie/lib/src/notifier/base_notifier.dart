@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/async_value.dart';
 import 'package:riverpie/src/container.dart';
@@ -30,6 +32,12 @@ abstract class BaseNotifier<T> {
   /// Sets the state and notify listeners
   @protected
   set state(T value) {
+    _setState(value, null);
+  }
+
+  /// Sets the state and notify listeners (the actual implementation).
+  // We need to extract this method to make [EventNotifier] work.
+  void _setState(T value, Object? event) {
     if (!_initialized) {
       // We allow initializing the state before the initialization
       // by Riverpie is done.
@@ -47,6 +55,7 @@ abstract class BaseNotifier<T> {
       _observer?.handleEvent(
         ChangeEvent<T>(
           notifier: this,
+          event: event,
           prev: oldState,
           next: value,
           rebuild: notified!,
@@ -161,5 +170,48 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
     _setFutureAndListen(init());
 
     _initialized = true;
+  }
+}
+
+/// A notifier where the state can be updated by emitting events.
+/// Events are emitted by calling [emit].
+/// They are handled by the notifier with [reduce].
+///
+/// You do not have access to [ref] in this notifier, so you need to pass
+/// the required dependencies via constructor.
+@internal
+abstract class BaseEventNotifier<T, E> extends BaseSyncNotifier<T> {
+  BaseEventNotifier({String? debugLabel}) : super(debugLabel: debugLabel);
+
+  /// Emits an event to update the state.
+  void emit(E event) {
+    emitAsync(event);
+  }
+
+  /// Emits an event to update the state.
+  /// This method is async and can be used to await the new state.
+  Future<void> emitAsync(E event) async {
+    final newState = reduce(event);
+    if (newState is Future<T>) {
+      // If the reducer returns a Future, wait for it to complete
+      try {
+        _setState(await newState, event);
+      } catch (e) {
+        rethrow;
+      }
+    } else {
+      // If the reducer returns a plain value, update the state directly
+      _setState(newState, event);
+    }
+  }
+
+  /// Returns the new state after applying the event.
+  @protected
+  FutureOr<T> reduce(E event);
+
+  @override
+  @internal
+  set state(T value) {
+    throw UnsupportedError('Not allowed to set state directly');
   }
 }

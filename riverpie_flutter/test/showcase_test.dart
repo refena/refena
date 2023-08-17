@@ -94,12 +94,14 @@ void main() {
       ),
       ChangeEvent(
         notifier: counterNotifier,
+        event: null,
         prev: 0,
         next: 2,
         rebuild: [WidgetRebuildable<MyPage>()],
       ),
       ChangeEvent(
         notifier: counterNotifier,
+        event: null,
         prev: 2,
         next: 4,
         rebuild: [WidgetRebuildable<MyPage>()],

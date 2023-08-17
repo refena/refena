@@ -2,6 +2,7 @@ export 'package:riverpie/src/async_value.dart';
 export 'package:riverpie/src/container.dart';
 export 'package:riverpie/src/notifier/notifier_event.dart';
 export 'package:riverpie/src/notifier/types/async_notifier.dart';
+export 'package:riverpie/src/notifier/types/event_notifier.dart';
 export 'package:riverpie/src/notifier/types/future_provider_notifier.dart';
 export 'package:riverpie/src/notifier/types/immutable_notifier.dart';
 export 'package:riverpie/src/notifier/types/notifier.dart';

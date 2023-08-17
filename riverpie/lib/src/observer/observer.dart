@@ -73,7 +73,10 @@ class RiverpieDebugObserver extends RiverpieObserver {
       case ChangeEvent event:
         onLine?.call(_t);
         final label = _getProviderDebugLabel(null, event.notifier);
-        _line('Change by [$label]', intentWhenLogger: true);
+        final eventStr = event.event == null
+            ? ''
+            : ' triggered by [${event.event is Enum ? event.event : event.event.runtimeType}]';
+        _line('Change by [$label]$eventStr', intentWhenLogger: true);
         _line(
           ' - Prev: ${event.prev.toString().toSingleLine()}',
           followUp: true,

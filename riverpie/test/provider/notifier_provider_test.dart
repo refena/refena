@@ -26,6 +26,7 @@ void main() {
       ),
       ChangeEvent(
         notifier: notifier,
+        event: null,
         prev: 123,
         next: 124,
         rebuild: [],
@@ -82,6 +83,7 @@ void main() {
       ),
       ChangeEvent(
         notifier: notifierA,
+        event: null,
         prev: 1,
         next: 2,
         rebuild: [],

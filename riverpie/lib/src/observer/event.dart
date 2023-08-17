@@ -15,6 +15,9 @@ final class ChangeEvent<T> extends RiverpieEvent {
   /// The notifier that fired the change event.
   final BaseNotifier<T> notifier;
 
+  /// The [event] if the change was triggered by an [EventNotifier].
+  final Object? event;
+
   /// The previous state before the event.
   final T prev;
 
@@ -26,6 +29,7 @@ final class ChangeEvent<T> extends RiverpieEvent {
 
   ChangeEvent({
     required this.notifier,
+    required this.event,
     required this.prev,
     required this.next,
     required this.rebuild,
@@ -37,6 +41,7 @@ final class ChangeEvent<T> extends RiverpieEvent {
         other is ChangeEvent &&
             runtimeType == other.runtimeType &&
             notifier == other.notifier &&
+            event == other.event &&
             prev == other.prev &&
             next == other.next &&
             _eq.equals(rebuild, other.rebuild);
@@ -44,11 +49,15 @@ final class ChangeEvent<T> extends RiverpieEvent {
 
   @override
   int get hashCode =>
-      notifier.hashCode ^ prev.hashCode ^ next.hashCode ^ rebuild.hashCode;
+      notifier.hashCode ^
+      event.hashCode ^
+      prev.hashCode ^
+      next.hashCode ^
+      rebuild.hashCode;
 
   @override
   String toString() {
-    return 'ChangeEvent{notifier: $notifier, prev: $prev, next: $next, rebuild: $rebuild}';
+    return 'ChangeEvent{notifier: $notifier, event: $event, prev: $prev, next: $next, rebuild: $rebuild}';
   }
 }
 

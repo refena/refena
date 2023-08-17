@@ -428,17 +428,18 @@ A notifier holds the actual state and triggers rebuilds on widgets listening to 
 
 Use notifiers in combination with `NotifierProvider` or `AsyncNotifierProvider`.
 
-| Provider        | Usage                   | Provider                | Exposes `ref` |
-|-----------------|-------------------------|-------------------------|---------------|
-| `Notifier`      | For any use case        | `NotifierProvider`      | Yes           |
-| `PureNotifier`  | For clean architectures | `NotifierProvider`      | No            |
-| `AsyncNotifier` | For async values        | `AsyncNotifierProvider` | Yes           |
+| Provider        | Usage                        | Provider                | Exposes `ref` |
+|-----------------|------------------------------|-------------------------|---------------|
+| `Notifier`      | For any use case             | `NotifierProvider`      | Yes           |
+| `AsyncNotifier` | For async values             | `AsyncNotifierProvider` | Yes           |
+| `PureNotifier`  | For clean architectures      | `NotifierProvider`      | No            |
+| `EventNotifier` | For very clean architectures | `NotifierProvider`      | No            |
 
 ### ➤ Notifier
 
 The `Notifier` is the fastest and easiest way to implement a notifier.
 
-It has access to `ref`, so you can use any provider at any time.
+It has access to `ref`, so you can access any provider at any time.
 
 ```dart
 // You need to specify the generics (<..>) to have the correct type inference
@@ -455,6 +456,10 @@ class Counter extends Notifier<int> {
   }
 }
 ```
+
+### ➤ AsyncNotifier
+
+See [AsyncNotifierProvider](#-asyncnotifierprovider).
 
 ### ➤ PureNotifier
 
@@ -485,9 +490,102 @@ class PureCounter extends PureNotifier<int> {
 }
 ```
 
-### ➤ AsyncNotifier
+### ➤ EventNotifier
 
-See [AsyncNotifierProvider](#-asyncnotifierprovider).
+The `EventNotifier` is the strictest option. The `state` is solely altered by events.
+
+This has two main benefits:
+
+- **Logging:** With `RiverpieDebugObserver`, you can see every event in the console.
+- **Testing:** You can easily test the state transitions.
+
+It works best with enums or `sealed` classes as an event type:
+
+```dart
+sealed class CountEvent {}
+class AddEvent extends CountEvent {
+  final int addedAmount;
+  AddEvent(this.addedAmount);
+}
+class SubtractEvent extends CountEvent {
+  final int subtractedAmount;
+  SubtractEvent(this.subtractedAmount);
+}
+```
+
+In the notifier, the event is handled by `reduce`:
+
+```dart
+final counterProvider = NotifierProvider<Counter, int>((ref) {
+  return Counter(ref.notifier(providerA), ref.notifier(providerB));
+});
+
+class Counter extends EventNotifier<int, CountEvent> {
+  final NotifierA serviceA;
+  final NotifierB serviceB;
+  
+  Counter(this.serviceA, this.serviceB);
+  
+  @override
+  int init() => 0;
+
+  @override
+  int reduce(CountEvent event) {
+    return switch (event) {
+      AddEvent() => state + event.addedAmount,
+      SubtractEvent() => _handleSubtractEvent(event),
+    };
+  }
+
+  // complex logic can be extracted into private methods
+  int _handleSubtract(CountEvent event) {
+    serviceA.emit(SomeEvent());
+    serviceB.emit(SomeEvent());
+    if (state == 3) {
+      // ...
+    }
+    return state - event.subtractedAmount;
+  }
+}
+```
+
+The widget can trigger events with `emit`:
+
+```dart
+class MyPage extends StatelessWidget {
+  const MyPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = context.ref;
+    final state = ref.watch(counterProvider);
+    return Scaffold(
+      body: Column(
+        children: [
+          Text(state.toString()),
+          ElevatedButton(
+            onPressed: () => ref.notifier(counterProvider).emit(AddEvent(2)),
+            child: const Text('Increment'),
+          ),
+          ElevatedButton(
+            onPressed: () => ref.notifier(counterProvider).emit(SubtractEvent(3)),
+            child: const Text('Decrement'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+The logs could look like this:
+
+```text
+[Riverpie] Change by [Counter] triggered by [SubtractEvent]
+            - Prev: 5
+            - Next: 4
+            - Rebuild (1): [MyPage]
+```
 
 ## Using ref
 
