@@ -5,6 +5,7 @@
 - feat: add `toString` implementation to `AsyncValue`
 - feat: add `toString` implementation to providers
 - feat: add more options for `RiverpieHistoryObserver`
+- fix: missing `ref` in `AsyncNotifier`
 - **BREAKING**: rename `ChangeEvent.flagRebuild` to `ChangeEvent.rebuild`
 
 ## 0.10.0

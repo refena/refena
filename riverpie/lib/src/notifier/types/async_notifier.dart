@@ -1,13 +1,21 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/async_value.dart';
+import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
+import 'package:riverpie/src/observer/observer.dart';
+import 'package:riverpie/src/ref.dart';
 
 /// An [AsyncNotifier] is a notifier that holds the state of an [AsyncSnapshot].
 /// It is used for business logic that depends on asynchronous operations.
 abstract class AsyncNotifier<T> extends BaseAsyncNotifier<T> {
-  AsyncValue<T>? _prev;
-
   AsyncNotifier({super.debugLabel});
+
+  late Ref _ref;
+
+  @protected
+  Ref get ref => _ref;
+
+  AsyncValue<T>? _prev;
 
   /// The state of this notifier before the latest [future] was set.
   AsyncValue<T>? get prev => _prev;
@@ -43,6 +51,13 @@ abstract class AsyncNotifier<T> extends BaseAsyncNotifier<T> {
   ) async {
     future = fn(NotifierSnapshot(state.data, state, future));
     return await future;
+  }
+
+  @internal
+  @override
+  void setup(RiverpieContainer container, RiverpieObserver? observer) {
+    _ref = container;
+    super.setup(container, observer);
   }
 }
 
