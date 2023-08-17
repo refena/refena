@@ -1,6 +1,7 @@
 ## 0.11.0
 
 - feat: add `toString` implementations to `AsyncValue`
+- feat: add more options for `RiverpieHistoryObserver`
 
 ## 0.10.0
 

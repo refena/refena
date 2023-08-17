@@ -117,7 +117,7 @@ void main() {
 
   testWidgets('Should rebuild with ViewProvider', (tester) async {
     final widget = _ViewModelWidget();
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final scope = RiverpieScope(
       observer: observer,
       child: MaterialApp(

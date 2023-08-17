@@ -6,7 +6,7 @@ import '../util/skip_microtasks.dart';
 void main() {
   test('Single provider test', () {
     final provider = ViewProvider((ref) => 123);
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -31,7 +31,7 @@ void main() {
       final state = ref.watch(stateProvider);
       return state + 100;
     });
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
     );

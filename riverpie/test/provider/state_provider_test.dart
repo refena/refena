@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   test('Single provider test', () {
     final provider = StateProvider((ref) => 123);
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
     );

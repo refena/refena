@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   test('Should read the value', () {
     final provider = Provider((ref) => 123);
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -31,7 +31,7 @@ void main() {
       final b = ref.read(providerB);
       return '$a $b CCC';
     });
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
     );

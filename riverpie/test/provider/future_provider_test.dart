@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 void main() {
   test('Should read the value', () async {
     final provider = FutureProvider((ref) => Future.value(123));
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -57,7 +57,7 @@ void main() {
       final b = await ref.future(providerB);
       return '$a $b CCC';
     }, debugLabel: 'providerC');
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
     );

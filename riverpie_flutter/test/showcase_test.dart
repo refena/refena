@@ -52,7 +52,7 @@ class MockCounter extends Counter {
 
 void main() {
   testWidgets('Showcase test', (tester) async {
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final scope = RiverpieScope(
       observer: observer,
       overrides: [

@@ -9,6 +9,7 @@ export 'package:riverpie/src/notifier/types/pure_notifier.dart';
 export 'package:riverpie/src/notifier/types/state_notifier.dart';
 export 'package:riverpie/src/notifier/types/view_provider_notifier.dart';
 export 'package:riverpie/src/observer/event.dart';
+export 'package:riverpie/src/observer/history_observer.dart';
 export 'package:riverpie/src/observer/observer.dart';
 export 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 export 'package:riverpie/src/provider/types/future_provider.dart';

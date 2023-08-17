@@ -24,17 +24,6 @@ class RiverpieCallbackObserver {
   }
 }
 
-/// An observer that stores every event in a list.
-/// This is useful for testing to keep track of the events.
-class RiverpieHistoryObserver extends RiverpieObserver {
-  final List<RiverpieEvent> history = [];
-
-  @override
-  void handleEvent(RiverpieEvent event) {
-    history.add(event);
-  }
-}
-
 /// The observer to use multiple observers at once.
 class RiverpieMultiObserver extends RiverpieObserver {
   final List<RiverpieObserver> observers;

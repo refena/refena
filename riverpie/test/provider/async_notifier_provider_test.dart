@@ -8,7 +8,7 @@ void main() {
     final notifier = _AsyncCounter(123);
     final provider =
         AsyncNotifierProvider<_AsyncCounter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -65,7 +65,7 @@ void main() {
     final notifier = _AsyncCounter(123);
     final provider =
         AsyncNotifierProvider<_AsyncCounter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
     );
