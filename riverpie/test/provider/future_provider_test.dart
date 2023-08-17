@@ -32,7 +32,7 @@ void main() {
         notifier: notifier,
         prev: AsyncValue<int>.loading(),
         next: AsyncValue.withData(123),
-        flagRebuild: [],
+        rebuild: [],
       ),
     ]);
   });
@@ -102,7 +102,7 @@ void main() {
         notifier: notifierA,
         prev: AsyncValue<String>.loading(),
         next: AsyncValue.withData('AAA'),
-        flagRebuild: [],
+        rebuild: [],
       ),
       ProviderInitEvent(
         provider: providerB,
@@ -114,13 +114,13 @@ void main() {
         notifier: notifierB,
         prev: AsyncValue<String>.loading(),
         next: AsyncValue.withData('BBB'),
-        flagRebuild: [],
+        rebuild: [],
       ),
       ChangeEvent(
         notifier: notifierC,
         prev: AsyncValue<String>.loading(),
         next: AsyncValue.withData('AAA BBB CCC'),
-        flagRebuild: [],
+        rebuild: [],
       ),
     ]);
   });

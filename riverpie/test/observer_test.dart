@@ -26,7 +26,7 @@ void main() {
           notifier: notifier,
           prev: 123,
           next: 124,
-          flagRebuild: [],
+          rebuild: [],
         ),
       ]);
     });
@@ -53,7 +53,7 @@ void main() {
           notifier: notifier,
           prev: 124,
           next: 125,
-          flagRebuild: [],
+          rebuild: [],
         ),
       ]);
     });

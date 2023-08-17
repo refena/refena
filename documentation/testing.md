@@ -55,7 +55,7 @@ class MockCounter extends Counter {
 
 void main() {
   testWidgets('Showcase test', (tester) async {
-    final observer = RiverpieHistoryObserver();
+    final observer = RiverpieHistoryObserver.all();
     final scope = RiverpieScope(
       observer: observer,
       overrides: [
@@ -99,13 +99,13 @@ void main() {
         notifier: counterNotifier,
         prev: 0,
         next: 2,
-        flagRebuild: [WidgetRebuildable<MyPage>()],
+        rebuild: [WidgetRebuildable<MyPage>()],
       ),
       ChangeEvent(
         notifier: counterNotifier,
         prev: 2,
         next: 4,
-        flagRebuild: [WidgetRebuildable<MyPage>()],
+        rebuild: [WidgetRebuildable<MyPage>()],
       ),
     ]);
   });

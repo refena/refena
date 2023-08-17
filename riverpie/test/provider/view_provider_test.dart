@@ -72,13 +72,13 @@ void main() {
         notifier: stateNotifier,
         prev: 0,
         next: 1,
-        flagRebuild: [viewNotifier],
+        rebuild: [viewNotifier],
       ),
       ChangeEvent(
         notifier: viewNotifier,
         prev: 100,
         next: 101,
-        flagRebuild: [],
+        rebuild: [],
       ),
     ]);
   });
@@ -173,31 +173,31 @@ void main() {
         notifier: numberNotifier,
         prev: 0,
         next: 1,
-        flagRebuild: [viewNotifier],
+        rebuild: [viewNotifier],
       ),
       ChangeEvent(
         notifier: viewNotifier,
         prev: _ComplexState(0, 'a'),
         next: _ComplexState(1, 'a'),
-        flagRebuild: [],
+        rebuild: [],
       ),
       ChangeEvent(
         notifier: stringNotifier,
         prev: 'a',
         next: 'ab',
-        flagRebuild: [viewNotifier],
+        rebuild: [viewNotifier],
       ),
       ChangeEvent(
         notifier: viewNotifier,
         prev: _ComplexState(1, 'a'),
         next: _ComplexState(1, 'ab'),
-        flagRebuild: [selectiveViewNotifier],
+        rebuild: [selectiveViewNotifier],
       ),
       ChangeEvent(
         notifier: selectiveViewNotifier,
         prev: 'a',
         next: 'ab',
-        flagRebuild: [],
+        rebuild: [],
       ),
     ]);
   });

@@ -21,14 +21,14 @@ final class ChangeEvent<T> extends RiverpieEvent {
   /// The state after the change.
   final T next;
 
-  /// A list of rebuildable objects that should be rebuilt.
-  final List<Rebuildable> flagRebuild;
+  /// A list of rebuildable objects that should be rebuilt in the next tick.
+  final List<Rebuildable> rebuild;
 
   ChangeEvent({
     required this.notifier,
     required this.prev,
     required this.next,
-    required this.flagRebuild,
+    required this.rebuild,
   });
 
   @override
@@ -39,16 +39,16 @@ final class ChangeEvent<T> extends RiverpieEvent {
             notifier == other.notifier &&
             prev == other.prev &&
             next == other.next &&
-            _eq.equals(flagRebuild, other.flagRebuild);
+            _eq.equals(rebuild, other.rebuild);
   }
 
   @override
   int get hashCode =>
-      notifier.hashCode ^ prev.hashCode ^ next.hashCode ^ flagRebuild.hashCode;
+      notifier.hashCode ^ prev.hashCode ^ next.hashCode ^ rebuild.hashCode;
 
   @override
   String toString() {
-    return 'ChangeEvent{notifier: $notifier, prev: $prev, next: $next, flagRebuild: $flagRebuild}';
+    return 'ChangeEvent{notifier: $notifier, prev: $prev, next: $next, rebuild: $rebuild}';
   }
 }
 

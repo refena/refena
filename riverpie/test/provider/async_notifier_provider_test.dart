@@ -44,19 +44,19 @@ void main() {
         notifier: notifier,
         prev: AsyncValue<int>.loading(),
         next: AsyncValue.withData(123),
-        flagRebuild: [],
+        rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
         prev: AsyncValue.withData(123),
         next: AsyncValue<int>.loading(),
-        flagRebuild: [],
+        rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
         prev: AsyncValue<int>.loading(),
         next: AsyncValue.withData(124),
-        flagRebuild: [],
+        rebuild: [],
       ),
     ]);
   });
@@ -112,25 +112,25 @@ void main() {
         notifier: notifier,
         prev: AsyncValue<int>.loading(),
         next: AsyncValue.withData(123),
-        flagRebuild: [],
+        rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
         prev: AsyncValue.withData(123),
         next: AsyncValue<int>.loading(),
-        flagRebuild: [],
+        rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
         prev: AsyncValue<int>.loading(),
         next: AsyncValue<int>.loading(),
-        flagRebuild: [],
+        rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
         prev: AsyncValue<int>.loading(),
         next: AsyncValue.withData(12),
-        flagRebuild: [],
+        rebuild: [],
       ),
     ]);
   });

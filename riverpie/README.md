@@ -755,7 +755,7 @@ void main() {
         notifier: myNotifier,
         prev: 1,
         next: 2,
-        flagRebuild: [WidgetRebuildable<MyLoginPage>()],
+        rebuild: [WidgetRebuildable<MyLoginPage>()],
       ),
     ]);
   });

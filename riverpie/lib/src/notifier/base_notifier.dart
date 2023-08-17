@@ -49,7 +49,7 @@ abstract class BaseNotifier<T> {
           notifier: this,
           prev: oldState,
           next: value,
-          flagRebuild: notified!,
+          rebuild: notified!,
         ),
       );
     }

@@ -28,7 +28,7 @@ void main() {
         notifier: notifier,
         prev: 123,
         next: 124,
-        flagRebuild: [],
+        rebuild: [],
       ),
     ]);
   });

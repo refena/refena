@@ -4,6 +4,7 @@
 - feat: add `toString` implementation to `AsyncValue`
 - feat: add `toString` implementation to providers
 - feat: add more options for `RiverpieHistoryObserver`
+- **BREAKING**: rename `ChangeEvent.flagRebuild` to `ChangeEvent.rebuild`
 
 ## 0.10.0
 

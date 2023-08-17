@@ -221,7 +221,7 @@ void main() {
         notifier: notifierA,
         prev: 111,
         next: 222,
-        flagRebuild: [notifier],
+        rebuild: [notifier],
       ),
       ChangeEvent(
         notifier: notifier,
@@ -235,13 +235,13 @@ void main() {
           setA: (_) {},
           setB: (_) {},
         ),
-        flagRebuild: [WidgetRebuildable<_ViewModelWidget>()],
+        rebuild: [WidgetRebuildable<_ViewModelWidget>()],
       ),
       ChangeEvent(
         notifier: notifierB,
         prev: 999,
         next: 888,
-        flagRebuild: [notifier],
+        rebuild: [notifier],
       ),
       ChangeEvent(
         notifier: notifier,
@@ -255,7 +255,7 @@ void main() {
           setA: (_) {},
           setB: (_) {},
         ),
-        flagRebuild: [WidgetRebuildable<_ViewModelWidget>()],
+        rebuild: [WidgetRebuildable<_ViewModelWidget>()],
       ),
     ]);
   });

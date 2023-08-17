@@ -82,7 +82,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
           ' - Next: ${event.next.toString().toSingleLine()}',
           followUp: true,
         );
-        final rebuildable = event.flagRebuild;
+        final rebuildable = event.rebuild;
         _line(
           ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '<none>' : rebuildable.map((r) => '[${r.debugLabel}]').join(', ')}',
           followUp: true,
