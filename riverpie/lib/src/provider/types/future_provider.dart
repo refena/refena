@@ -37,9 +37,4 @@ class FutureProvider<T>
       ),
     );
   }
-
-  @override
-  String toString() {
-    return debugLabel ?? 'FutureProvider<$T>';
-  }
 }

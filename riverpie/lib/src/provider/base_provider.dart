@@ -13,6 +13,11 @@ abstract class BaseProvider<N extends BaseNotifier<T>, T> {
 
   @internal
   N createState(Ref ref);
+
+  @override
+  String toString() {
+    return debugLabel ?? runtimeType.toString();
+  }
 }
 
 /// A flag to indicate that the notifier is accessible from [Ref].
