@@ -36,7 +36,7 @@ abstract class BaseNotifier<T> {
   }
 
   /// Sets the state and notify listeners (the actual implementation).
-  // We need to extract this method to make [EventNotifier] work.
+  // We need to extract this method to make [ReduxNotifier] work.
   void _setState(T value, Object? event) {
     if (!_initialized) {
       // We allow initializing the state before the initialization
@@ -180,9 +180,9 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
 /// You do not have access to [ref] in this notifier, so you need to pass
 /// the required dependencies via constructor.
 @internal
-abstract class BaseEventNotifier<T, E extends Object>
+abstract class BaseReduxNotifier<T, E extends Object>
     extends BaseSyncNotifier<T> {
-  BaseEventNotifier({String? debugLabel}) : super(debugLabel: debugLabel);
+  BaseReduxNotifier({String? debugLabel}) : super(debugLabel: debugLabel);
 
   /// Emits an event to update the state.
   void emit(E event) {

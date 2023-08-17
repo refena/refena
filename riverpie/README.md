@@ -56,7 +56,7 @@ class MyPage extends StatelessWidget {
     - [Notifier](#-notifier)
     - [AsyncNotifier](#-asyncnotifier)
     - [PureNotifier](#-purenotifier)
-    - [EventNotifier](#-eventnotifier)
+    - [ReduxNotifier](#-reduxnotifier)
 - [Using ref](#using-ref)
     - [ref.read](#-refread)
     - [ref.watch](#-refwatch)
@@ -470,7 +470,7 @@ Use notifiers in combination with `NotifierProvider` or `AsyncNotifierProvider`.
 | `Notifier`      | For any use case             | `NotifierProvider`      | Yes           |
 | `AsyncNotifier` | For async values             | `AsyncNotifierProvider` | Yes           |
 | `PureNotifier`  | For clean architectures      | `NotifierProvider`      | No            |
-| `EventNotifier` | For very clean architectures | `NotifierProvider`      | No            |
+| `ReduxNotifier` | For very clean architectures | `NotifierProvider`      | No            |
 
 ### ➤ Notifier
 
@@ -527,9 +527,9 @@ class PureCounter extends PureNotifier<int> {
 }
 ```
 
-### ➤ EventNotifier
+### ➤ ReduxNotifier
 
-The `EventNotifier` is the strictest option. The `state` is solely altered by events.
+The `ReduxNotifier` is the strictest option. The `state` is solely altered by events.
 
 This has two main benefits:
 
@@ -557,7 +557,7 @@ final counterProvider = NotifierProvider<Counter, int>((ref) {
   return Counter(ref.notifier(providerA), ref.notifier(providerB));
 });
 
-class Counter extends EventNotifier<int, CountEvent> {
+class Counter extends ReduxNotifier<int, CountEvent> {
   final NotifierA serviceA;
   final NotifierB serviceB;
   
@@ -570,15 +570,17 @@ class Counter extends EventNotifier<int, CountEvent> {
   int reduce(CountEvent event) {
     return switch (event) {
       AddEvent() => state + event.addedAmount,
-      SubtractEvent() => _handleSubtractEvent(event),
+      SubtractEvent() => handleSubtract(event, state),
     };
   }
 
-  // complex logic can be extracted into private methods
-  int _handleSubtract(CountEvent event) {
+  // Complex logic can be extracted into a separate method.
+  // Adding the state parameter makes this easier to test.
+  int handleSubtract(CountEvent event, int state) {
     serviceA.emit(SomeEvent());
     serviceB.emit(SomeEvent());
-    if (state == 3) {
+    final stateB = serviceB.state;
+    if (stateB == 3) {
       // ...
     }
     return state - event.subtractedAmount;
@@ -615,7 +617,8 @@ class MyPage extends StatelessWidget {
 }
 ```
 
-Don't worry about asynchronous business logic. The reduce method is defined as `FutureOr<T> reduce(E event)`.
+Don't worry about asynchronous business logic.\
+The reduce method is defined as `FutureOr<T> reduce(E event)`.
 
 Here is how the console output could look like:
 
@@ -706,7 +709,7 @@ There are lots of providers and notifiers. Which one should you choose?
 For most use cases, `Provider` and `Notifier` are more than enough.
 
 If you work in an environment where clean architecture is important,
-you may want to use `EventNotifier` and `ViewProvider`.
+you may want to use `ReduxNotifier` and `ViewProvider`.
 
 Be aware that you will need to write more boilerplate code.
 
@@ -715,7 +718,7 @@ Be aware that you will need to write more boilerplate code.
 | `Provider`, `StateProvider`                 |                                | Low                        |
 | `Provider`, `Notifier`, `PureNotifier`      | notifiers                      | Medium                     |
 | `Provider`, `ViewProvider`, `Notifier`      | notifiers, view models         | High                       |
-| `Provider`, `ViewProvider`, `EventNotifier` | notifiers, view models, events | Very high                  |
+| `Provider`, `ViewProvider`, `ReduxNotifier` | notifiers, view models, events | Very high                  |
 
 ## Performance Optimization
 
@@ -756,6 +759,8 @@ The `select` will be applied, when `rebuildWhen` returns `true`.
 In a `StatefulWidget`, you can use `ensureRef` to access the providers and notifiers within `initState`.
 
 You may also use `ref` inside `dispose` because `ref` is guaranteed to be initialized.
+
+Please note that you need `with Riverpie`.
 
 ```dart
 @override

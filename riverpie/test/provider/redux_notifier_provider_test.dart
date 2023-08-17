@@ -78,7 +78,7 @@ final class SubtractEvent extends CountEvent {
 
 final counterProvider = NotifierProvider<_Counter, int>((ref) => _Counter());
 
-class _Counter extends EventNotifier<int, CountEvent> {
+class _Counter extends ReduxNotifier<int, CountEvent> {
   @override
   int init() => 123;
 

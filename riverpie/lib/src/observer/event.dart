@@ -15,7 +15,7 @@ final class ChangeEvent<T> extends RiverpieEvent {
   /// The notifier that fired the change event.
   final BaseNotifier<T> notifier;
 
-  /// The [event] if the change was triggered by an [EventNotifier].
+  /// The [event] if the change was triggered by an [ReduxNotifier].
   final Object? event;
 
   /// The previous state before the event.
