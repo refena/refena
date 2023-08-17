@@ -19,12 +19,16 @@ class HistoryObserverConfig {
   /// Whether the observer should save [ChangeEvent]s.
   final bool saveChangeEvents;
 
+  /// Whether the observer should save [EventEmittedEvent]s.
+  final bool saveEventEmittedEvents;
+
   const HistoryObserverConfig({
     this.startImmediately = true,
     this.saveProviderInitEvents = false,
     this.saveListenerAddedEvents = false,
     this.saveListenerRemovedEvents = false,
     this.saveChangeEvents = true,
+    this.saveEventEmittedEvents = true,
   });
 
   /// By default, only [ChangeEvent]s are saved.
@@ -36,6 +40,7 @@ class HistoryObserverConfig {
     saveListenerAddedEvents: true,
     saveListenerRemovedEvents: true,
     saveChangeEvents: true,
+    saveEventEmittedEvents: true,
   );
 }
 
@@ -65,23 +70,28 @@ class RiverpieHistoryObserver extends RiverpieObserver {
     }
 
     switch (event) {
-      case ProviderInitEvent _:
+      case ProviderInitEvent():
         if (config.saveProviderInitEvents) {
           history.add(event);
         }
         break;
-      case ListenerAddedEvent _:
+      case ListenerAddedEvent():
         if (config.saveListenerAddedEvents) {
           history.add(event);
         }
         break;
-      case ListenerRemovedEvent _:
+      case ListenerRemovedEvent():
         if (config.saveListenerRemovedEvents) {
           history.add(event);
         }
         break;
-      case ChangeEvent _:
+      case ChangeEvent():
         if (config.saveChangeEvents) {
+          history.add(event);
+        }
+        break;
+      case EventEmittedEvent():
+        if (config.saveEventEmittedEvents) {
           history.add(event);
         }
         break;

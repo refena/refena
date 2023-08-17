@@ -28,12 +28,20 @@ void main() {
         cause: ProviderInitCause.access,
         value: 123,
       ),
+      EventEmittedEvent(
+        notifier: notifier,
+        event: AddEvent(2),
+      ),
       ChangeEvent(
         notifier: notifier,
         event: AddEvent(2),
         prev: 123,
         next: 125,
         rebuild: [],
+      ),
+      EventEmittedEvent(
+        notifier: notifier,
+        event: SubtractEvent(5),
       ),
       ChangeEvent(
         notifier: notifier,
@@ -58,11 +66,13 @@ sealed class CountEvent {
 
 final class AddEvent extends CountEvent {
   final int addedAmount;
+
   AddEvent(this.addedAmount);
 }
 
 final class SubtractEvent extends CountEvent {
   final int subtractedAmount;
+
   SubtractEvent(this.subtractedAmount);
 }
 

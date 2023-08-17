@@ -620,6 +620,7 @@ Don't worry about asynchronous business logic. The reduce method is defined as `
 Here is how the console output could look like:
 
 ```text
+[Riverpie] Event emitted: [Counter.SubtractEvent]
 [Riverpie] Change by [Counter] triggered by [SubtractEvent]
             - Prev: 5
             - Next: 4

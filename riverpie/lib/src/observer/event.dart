@@ -174,3 +174,33 @@ final class ListenerRemovedEvent extends RiverpieEvent {
     return 'ListenerRemovedEvent{notifier: $notifier, rebuildable: $rebuildable}';
   }
 }
+
+/// An event has been emitted.
+class EventEmittedEvent extends RiverpieEvent {
+  /// The corresponding notifier.
+  final BaseNotifier notifier;
+
+  /// The event that has been emitted.
+  final Object event;
+
+  EventEmittedEvent({
+    required this.notifier,
+    required this.event,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EventEmittedEvent &&
+          runtimeType == other.runtimeType &&
+          notifier == other.notifier &&
+          event == other.event;
+
+  @override
+  int get hashCode => notifier.hashCode ^ event.hashCode;
+
+  @override
+  String toString() {
+    return 'EventEmittedEvent{notifier: $notifier, event: $event}';
+  }
+}

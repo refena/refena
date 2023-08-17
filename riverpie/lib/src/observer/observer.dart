@@ -75,7 +75,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
         final label = _getProviderDebugLabel(null, event.notifier);
         final eventStr = event.event == null
             ? ''
-            : ' triggered by [${event.event is Enum ? event.event : event.event.runtimeType}]';
+            : ' triggered by [${_getEventLabel(event.event!)}]';
         _line('Change by [$label]$eventStr', intentWhenLogger: true);
         _line(
           ' - Prev: ${event.prev.toString().toSingleLine()}',
@@ -111,6 +111,10 @@ class RiverpieDebugObserver extends RiverpieObserver {
         final label = _getProviderDebugLabel(null, event.notifier);
         _line(
             'Listener removed: [${event.rebuildable.debugLabel}] on [$label]');
+        break;
+      case EventEmittedEvent event:
+        final label = _getProviderDebugLabel(null, event.notifier);
+        _line('Event emitted: [$label.${_getEventLabel(event.event)}]');
         break;
     }
   }
@@ -162,4 +166,8 @@ String _getProviderDebugLabel(BaseProvider? provider, BaseNotifier? notifier) {
       provider?.debugLabel ??
       notifier?.runtimeType.toString() ??
       provider!.runtimeType.toString();
+}
+
+String _getEventLabel(Object event) {
+  return event is Enum ? event.toString() : event.runtimeType.toString();
 }

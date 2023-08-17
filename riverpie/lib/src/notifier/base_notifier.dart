@@ -180,7 +180,8 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
 /// You do not have access to [ref] in this notifier, so you need to pass
 /// the required dependencies via constructor.
 @internal
-abstract class BaseEventNotifier<T, E> extends BaseSyncNotifier<T> {
+abstract class BaseEventNotifier<T, E extends Object>
+    extends BaseSyncNotifier<T> {
   BaseEventNotifier({String? debugLabel}) : super(debugLabel: debugLabel);
 
   /// Emits an event to update the state.
@@ -191,6 +192,7 @@ abstract class BaseEventNotifier<T, E> extends BaseSyncNotifier<T> {
   /// Emits an event to update the state.
   /// This method is async and can be used to await the new state.
   Future<void> emitAsync(E event) async {
+    _observer?.handleEvent(EventEmittedEvent(notifier: this, event: event));
     final newState = reduce(event);
     if (newState is Future<T>) {
       // If the reducer returns a Future, wait for it to complete
