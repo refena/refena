@@ -13,7 +13,7 @@ void main() {
 
     expect(ref.read(provider), 123);
 
-    ref.notifier(provider).emit(AddEvent(2));
+    ref.redux(provider).notifier.emit(AddEvent(2));
 
     expect(ref.read(provider), 125);
 
@@ -75,7 +75,7 @@ void main() {
     await Future.delayed(Duration(milliseconds: 100));
     expect(ref.read(provider), 120);
 
-    await ref.notifier(provider).emit(SubtractEvent(5));
+    await ref.redux(provider).notifier.emit(SubtractEvent(5));
     expect(ref.read(provider), 115);
 
     await ref.redux(provider).emit(SubtractEvent(5));

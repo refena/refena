@@ -18,7 +18,7 @@ void main() {
   test('Should use container label', () {
     ref.redux(_reduxProviderA).emit(AddEvent(2));
 
-    final notifier = ref.notifier(_reduxProviderA);
+    final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       EventEmittedEvent(
         debugOwnerLabel: 'RiverpieContainer',
@@ -31,7 +31,7 @@ void main() {
   test('Should use given label', () {
     ref.redux(_reduxProviderA).emit(AddEvent(2), debugLabel: 'MyLabel');
 
-    final notifier = ref.notifier(_reduxProviderA);
+    final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       EventEmittedEvent(
         debugOwnerLabel: 'MyLabel',
@@ -42,7 +42,7 @@ void main() {
   });
 
   test('Should use label of ReduxNotifier', () {
-    final notifier = ref.notifier(_reduxProviderA);
+    final notifier = ref.redux(_reduxProviderA).notifier;
     notifier.emit(AddEvent(2));
 
     expect(observer.history, [
@@ -57,7 +57,7 @@ void main() {
   test('Should use label of another notifier', () {
     ref.notifier(_anotherProvider).trigger();
 
-    final notifier = ref.notifier(_reduxProviderA);
+    final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       EventEmittedEvent(
         debugOwnerLabel: '_AnotherNotifier',
@@ -70,7 +70,7 @@ void main() {
   test('Should use label of view', () {
     ref.read(_viewProvider).trigger();
 
-    final notifier = ref.notifier(_reduxProviderA);
+    final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       EventEmittedEvent(
         debugOwnerLabel: 'ViewProvider<_Vm>',
@@ -81,8 +81,8 @@ void main() {
   });
 
   test('Should use same label when another notifier provided via DI', () {
-    final notifierA = ref.notifier(_reduxProviderA);
-    final notifierB = ref.notifier(_reduxProviderB);
+    final notifierA = ref.redux(_reduxProviderA).notifier;
+    final notifierB = ref.redux(_reduxProviderB).notifier;
     notifierA.emitEventOfB();
     expect(observer.history, [
       EventEmittedEvent(

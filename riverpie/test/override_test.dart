@@ -139,7 +139,7 @@ void main() {
 
       expect(ref.read(provider), 456);
 
-      ref.notifier(provider).emit(_Event.inc);
+      ref.redux(provider).emit(_Event.inc);
 
       expect(ref.read(provider), 458);
     });
@@ -162,15 +162,15 @@ void main() {
       expect(ref.read(provider), 123);
 
       // Should use the overridden reducer
-      ref.notifier(provider).emit(_Event.inc);
+      ref.redux(provider).emit(_Event.inc);
       expect(ref.read(provider), 144);
 
       // Should not change the state
-      ref.notifier(provider).emit(_Event.dec);
+      ref.redux(provider).emit(_Event.dec);
       expect(ref.read(provider), 144);
 
       // Should not be overridden
-      ref.notifier(provider).emit(_Event.half);
+      ref.anyNotifier(provider).emit(_Event.half);
       expect(ref.read(provider), 72);
     });
 
@@ -191,11 +191,11 @@ void main() {
       expect(ref.read(provider), 123);
 
       // Should use the overridden reducer
-      ref.notifier(provider).emit(_AddEvent());
+      ref.redux(provider).emit(_AddEvent());
       expect(ref.read(provider), 144);
 
       // Should not change the state
-      ref.notifier(provider).emit(_SubtractEvent());
+      ref.redux(provider).emit(_SubtractEvent());
       expect(ref.read(provider), 144);
     });
   });

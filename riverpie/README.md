@@ -502,9 +502,6 @@ class MyPage extends StatelessWidget {
 }
 ```
 
-Do **NOT** use `ref.notifier(counterProvider).emit(event)` to trigger events.\
-This works, but you will miss the correct origin of the event in the logs.
-
 Don't worry about asynchronous business logic.\
 The reduce method is defined as `FutureOr<T> reduce(E event)`.
 
