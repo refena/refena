@@ -23,7 +23,7 @@ void main() {
   runApp(
     RiverpieScope(
       overrides: [
-        numberProvider.overrideWithValue(999),
+        numberProvider.overrideWithValue((_) => 999),
       ],
       observer: kDebugMode ? const RiverpieDebugObserver() : null,
       child: const MyApp(),

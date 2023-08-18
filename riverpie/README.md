@@ -248,14 +248,14 @@ final myProvider = Provider((ref) => 42);
 You may initialize this during app start:
 
 ```dart
-final myProvider = Provider<PersistenceService>((_) => throw 'Not initialized');
+final persistenceProvider = Provider<PersistenceService>((_) => throw 'Not initialized');
 
 void main() async {
   final persistenceService = PersistenceService(await SharedPreferences.getInstance());
   runApp(
     RiverpieScope(
       overrides: [
-        myProvider.overrideWithValue(persistenceService),
+        persistenceProvider.overrideWithValue((ref) => persistenceService),
       ],
       child: const MyApp(),
     ),
@@ -862,7 +862,7 @@ void main() {
     await tester.pumpWidget(
       RiverpieScope(
         overrides: [
-          myProvider.overrideWithValue(42),
+          myProvider.overrideWithValue((ref) => 42),
         ],
         child: const MyApp(),
       ),

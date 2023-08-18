@@ -9,11 +9,53 @@ void main() {
       final provider = Provider((ref) => 123);
       final ref = RiverpieContainer(
         overrides: [
-          provider.overrideWithValue(456),
+          provider.overrideWithValue((ref) => 456),
         ],
       );
 
       expect(ref.read(provider), 456);
+    });
+
+    test('Should refer to overridden provider', () {
+      final providerA = Provider((ref) => 100);
+      final providerB = Provider((ref) => ref.read(providerA) + 10);
+      final ref = RiverpieContainer(
+        overrides: [
+          providerA.overrideWithValue((ref) => 200),
+          providerB.overrideWithValue((ref) => ref.read(providerA) + 20),
+        ],
+      );
+
+      expect(ref.read(providerB), 220);
+      expect(ref.read(providerA), 200);
+
+      final observer = RiverpieHistoryObserver.all();
+      final ref2 = RiverpieContainer(
+        observer: observer,
+        overrides: [
+          providerB.overrideWithValue((ref) => ref.read(providerA) + 40),
+          providerA.overrideWithValue((ref) => 400),
+        ],
+      );
+
+      expect(ref2.read(providerB), 440);
+      expect(ref2.read(providerA), 400);
+
+      // Check events
+      expect(observer.history, [
+        ProviderInitEvent(
+          provider: providerA,
+          notifier: ref2.anyNotifier<ImmutableNotifier<int>, int>(providerA),
+          cause: ProviderInitCause.override,
+          value: 400,
+        ),
+        ProviderInitEvent(
+          provider: providerB,
+          notifier: ref2.anyNotifier<ImmutableNotifier<int>, int>(providerB),
+          cause: ProviderInitCause.override,
+          value: 440,
+        ),
+      ]);
     });
   });
 
@@ -22,7 +64,7 @@ void main() {
       final provider = FutureProvider((ref) => Future.value(123));
       final ref = RiverpieContainer(
         overrides: [
-          provider.overrideWithFuture(Future.value(456)),
+          provider.overrideWithFuture((ref) => Future.value(456)),
         ],
       );
 
@@ -35,7 +77,7 @@ void main() {
       final provider = NotifierProvider((ref) => _Notifier());
       final ref = RiverpieContainer(
         overrides: [
-          provider.overrideWithNotifier(() => _OverrideNotifier()),
+          provider.overrideWithNotifier((ref) => _OverrideNotifier()),
         ],
       );
 
@@ -49,7 +91,7 @@ void main() {
       final provider = AsyncNotifierProvider((ref) => _AsyncNotifier());
       final ref = RiverpieContainer(
         overrides: [
-          provider.overrideWithNotifier(() => _OverrideAsyncNotifier()),
+          provider.overrideWithNotifier((ref) => _OverrideAsyncNotifier()),
         ],
       );
 
@@ -65,7 +107,7 @@ void main() {
       final provider = StateProvider((ref) => 123);
       final ref = RiverpieContainer(
         overrides: [
-          provider.overrideWithInitialState(456),
+          provider.overrideWithInitialState((ref) => 456),
         ],
       );
 
@@ -91,7 +133,7 @@ void main() {
       final provider = NotifierProvider((ref) => _ReduxNotifier());
       final ref = RiverpieContainer(
         overrides: [
-          provider.overrideWithNotifier(() => _OverrideReduxNotifier()),
+          provider.overrideWithNotifier((ref) => _OverrideReduxNotifier()),
         ],
       );
 
@@ -108,7 +150,7 @@ void main() {
       final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithReducer(
-            notifier: () => _ReduxNotifier(),
+            notifier: (ref) => _ReduxNotifier(),
             overrides: {
               _Event.inc: (state, event) => state + 21,
               _Event.dec: null,

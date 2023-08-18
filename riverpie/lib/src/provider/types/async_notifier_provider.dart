@@ -23,11 +23,11 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
   }
 
   ProviderOverride<N, AsyncValue<T>> overrideWithNotifier(
-    N Function() notifier,
+    N Function(Ref ref) builder,
   ) {
     return ProviderOverride(
       provider: this,
-      createState: (_) => notifier(),
+      createState: (ref) => builder(ref),
     );
   }
 }

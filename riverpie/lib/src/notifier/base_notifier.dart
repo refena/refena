@@ -11,6 +11,7 @@ import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/notifier_provider.dart';
+import 'package:riverpie/src/ref.dart';
 
 @internal
 abstract class BaseNotifier<T> {
@@ -270,13 +271,15 @@ extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T, E>, T,
   ///   ],
   /// );
   ProviderOverride<N, T> overrideWithReducer({
-    N Function()? notifier,
+    N Function(Ref ref)? notifier,
     required Map<Object, Reducer<T, E>?> overrides,
   }) {
     return ProviderOverride<N, T>(
       provider: this,
       createState: (ref) {
-        return (notifier?.call() ?? createState(ref)).._setOverrides(overrides);
+        final createdNotifier = (notifier?.call(ref) ?? createState(ref));
+        createdNotifier._setOverrides(overrides);
+        return createdNotifier;
       },
     );
   }

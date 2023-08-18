@@ -9,24 +9,27 @@ import 'package:riverpie/src/ref.dart';
 /// Often used with [overrideWithValue] during initialization of the app.
 class Provider<T> extends BaseProvider<ImmutableNotifier<T>, T> {
   @internal
-  final T Function(Ref ref) create;
+  final T Function(Ref ref) builder;
 
-  Provider(this.create, {super.debugLabel});
+  Provider(this.builder, {super.debugLabel});
 
   @internal
   @override
   ImmutableNotifier<T> createState(Ref ref) {
     return ImmutableNotifier(
-      create(ref),
+      builder(ref),
       debugLabel: debugLabel ?? runtimeType.toString(),
     );
   }
 
-  ProviderOverride<ImmutableNotifier<T>, T> overrideWithValue(T value) {
+  /// Overrides the state of a provider with a predefined value.
+  ProviderOverride<ImmutableNotifier<T>, T> overrideWithValue(
+    T Function(Ref ref) builder,
+  ) {
     return ProviderOverride(
       provider: this,
-      createState: (_) => ImmutableNotifier(
-        value,
+      createState: (ref) => ImmutableNotifier(
+        builder(ref),
         debugLabel: debugLabel ?? runtimeType.toString(),
       ),
     );

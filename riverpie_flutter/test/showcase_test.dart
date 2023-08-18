@@ -57,7 +57,7 @@ void main() {
       observer: observer,
       overrides: [
         counterProvider.overrideWithNotifier(
-          () => MockCounter(),
+          (ref) => MockCounter(),
         ),
       ],
       child: MyApp(),

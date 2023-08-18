@@ -20,10 +20,10 @@ class NotifierProvider<N extends BaseSyncNotifier<T>, T>
     return builder(ref);
   }
 
-  ProviderOverride<N, T> overrideWithNotifier(N Function() notifier) {
+  ProviderOverride<N, T> overrideWithNotifier(N Function(Ref ref) builder) {
     return ProviderOverride(
       provider: this,
-      createState: (_) => notifier(),
+      createState: (ref) => builder(ref),
     );
   }
 }

@@ -27,12 +27,12 @@ class FutureProvider<T>
             ));
 
   ProviderOverride<FutureProviderNotifier<T>, AsyncValue<T>> overrideWithFuture(
-    Future<T> value,
+    Future<T> Function(Ref ref) builder,
   ) {
     return ProviderOverride<FutureProviderNotifier<T>, AsyncValue<T>>(
       provider: this,
-      createState: (_) => FutureProviderNotifier<T>(
-        value,
+      createState: (ref) => FutureProviderNotifier<T>(
+        builder(ref),
         debugLabel: debugLabel ?? runtimeType.toString(),
       ),
     );

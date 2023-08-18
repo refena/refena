@@ -22,11 +22,11 @@ class StateProvider<T> extends NotifierProvider<StateNotifier<T>, T>
               debugLabel: debugLabel ?? 'StateProvider<$T>',
             ));
 
-  ProviderOverride overrideWithInitialState(T state) {
+  ProviderOverride overrideWithInitialState(T Function(Ref ref) builder) {
     return ProviderOverride<StateNotifier<T>, T>(
       provider: this,
-      createState: (_) => StateNotifier<T>(
-        state,
+      createState: (ref) => StateNotifier<T>(
+        builder(ref),
         debugLabel: debugLabel ?? runtimeType.toString(),
       ),
     );

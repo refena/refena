@@ -24,6 +24,8 @@ class RiverpieContainer extends Ref {
   /// The provided observer (e.g. for logging)
   final RiverpieObserver? observer;
 
+  final Map<BaseProvider, BaseNotifier Function(Ref ref)>? _overrides;
+
   /// Creates a [RiverpieContainer].
   /// The [overrides] are used to override providers with a different value.
   /// The [initialProviders] are used to initialize providers right away.
@@ -33,8 +35,15 @@ class RiverpieContainer extends Ref {
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     this.observer,
-  }) {
+  }) : _overrides = _overridesToMap(overrides) {
     for (final override in overrides) {
+      if (_state.containsKey(override.provider)) {
+        // Already initialized
+        // This may happen when a provider depends on another provider and
+        // both are overridden.
+        continue;
+      }
+
       final notifier = override.createState(this);
       notifier.setup(this, observer);
       _state[override.provider] = notifier;
@@ -65,7 +74,8 @@ class RiverpieContainer extends Ref {
   ]) {
     N? notifier = _state[provider] as N?;
     if (notifier == null) {
-      notifier = provider.createState(this);
+      final overridden = _overrides?.createState(provider, this);
+      notifier = overridden ?? provider.createState(this);
       notifier.setup(this, observer);
       _state[provider] = notifier;
 
@@ -74,7 +84,7 @@ class RiverpieContainer extends Ref {
           provider: provider,
           notifier: notifier,
           value: notifier.state, // ignore: invalid_use_of_protected_member
-          cause: cause,
+          cause: overridden != null ? ProviderInitCause.override : cause,
         ),
       );
     }
@@ -114,5 +124,24 @@ class RiverpieContainer extends Ref {
   ) {
     // ignore: invalid_use_of_protected_member
     return _getState(provider).future;
+  }
+}
+
+Map<BaseProvider, BaseNotifier Function(Ref ref)>? _overridesToMap(
+    List<ProviderOverride> overrides) {
+  return overrides.isEmpty
+      ? null
+      : Map.fromEntries(
+          overrides.map(
+            (override) => MapEntry(override.provider, override.createState),
+          ),
+        );
+}
+
+extension on Map<BaseProvider, BaseNotifier Function(Ref ref)> {
+  /// Returns the overridden notifier for the provider.
+  N? createState<N extends BaseNotifier<T>, T>(
+      BaseProvider<N, T> provider, Ref ref) {
+    return this[provider]?.call(ref) as N;
   }
 }
