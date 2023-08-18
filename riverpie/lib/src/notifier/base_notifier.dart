@@ -7,9 +7,10 @@ import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
-import 'package:riverpie/src/notifier/types/redux_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
+import 'package:riverpie/src/provider/override.dart';
+import 'package:riverpie/src/provider/types/notifier_provider.dart';
 
 @internal
 abstract class BaseNotifier<T> {
@@ -234,8 +235,7 @@ abstract class BaseReduxNotifier<T, E extends Object>
   FutureOr<T> reduce(E event);
 
   /// Overrides the reducer for the given event type.
-  @internal
-  void setOverrides(Map<Object, Reducer<T, E>?> overrides) {
+  void _setOverrides(Map<Object, Reducer<T, E>?> overrides) {
     assert(
       overrides.keys.every((k) => k is Type || (k is Enum && k is E)),
       'The keys of the overrides map must be either a Type or a valid Enum. Invalid: ${overrides.keys.whereNot((k) => k is Type || (k is Enum && k is E)).toList()}',
@@ -247,5 +247,37 @@ abstract class BaseReduxNotifier<T, E extends Object>
   @internal
   set state(T value) {
     throw UnsupportedError('Not allowed to set state directly');
+  }
+}
+
+typedef Reducer<T, E extends Object> = T Function(T state, E event);
+
+extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T, E>, T,
+    E extends Object> on NotifierProvider<N, T> {
+  /// Overrides the reducer with the given [overrides].
+  ///
+  /// Usage:
+  /// final ref = RiverpieContainer(
+  ///   overrides: [
+  ///     notifierProvider.overrideWithReducer(
+  ///       overrides: {
+  ///         MyEvent: (state, event) => state + 1,
+  ///         MyAnotherEvent: null, // empty reducer
+  ///         MyEnum.value: null, // enum event
+  ///         ...
+  ///       },
+  ///     ),
+  ///   ],
+  /// );
+  ProviderOverride<N, T> overrideWithReducer({
+    N Function()? notifier,
+    required Map<Object, Reducer<T, E>?> overrides,
+  }) {
+    return ProviderOverride<N, T>(
+      provider: this,
+      createState: (ref) {
+        return (notifier?.call() ?? createState(ref)).._setOverrides(overrides);
+      },
+    );
   }
 }
