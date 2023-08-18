@@ -78,7 +78,7 @@ class MyPage extends StatelessWidget {
 
 ## Riverpie vs Riverpod
 
-Riverpie is aimed to be more pragmatic and more opinionated than Riverpod.
+Riverpie is aimed to be more pragmatic and more notifier heavy than Riverpod.
 
 ### ➤ Key differences
 
@@ -96,10 +96,15 @@ Don't worry that you unintentionally use `watch` inside providers because each `
 
 **Use ref anywhere, anytime**:\
 Don't worry that the `ref` within providers or notifiers becomes invalid.
-Even the `ref` within widgets can be accessed all the time by using `ensureRef`.
+They live as long as the `RiverpieScope`.
+With `ensureRef`, you also can access the `ref` within `initState` or `dispose`.
 
 **No provider modifiers**:\
 There is no `.family` or `.autodispose`. This makes the provider landscape simple and straightforward.
+
+**Notifier first**:\
+With `Notifier`, `AsyncNotifier`, `PureNotifier`, and `ReduxNotifier`,
+you can choose the right notifier for your use case.
 
 ### ➤ Similarities
 
