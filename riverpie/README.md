@@ -72,7 +72,8 @@ class MyPage extends StatelessWidget {
 - [Observer](#observer)
 - [Testing](#testing)
     - [Override providers](#-override-providers)
-    - [Override ReduxProvider](#-override-reduxprovider)
+    - [Testing without Flutter](#-testing-without-flutter)
+    - [Testing ReduxProvider](#-testing-reduxprovider)
     - [Access the state within tests](#-access-the-state-within-tests)
     - [State events](#-state-events)
     - [Example test](#-example-test)
@@ -80,7 +81,7 @@ class MyPage extends StatelessWidget {
 
 ## Riverpie vs Riverpod
 
-Riverpie is aimed to be more pragmatic and more notifier heavy than Riverpod.
+Riverpie is aimed to be more pragmatic and more notifier focused than Riverpod.
 
 ### ➤ Key differences
 
@@ -891,17 +892,39 @@ void main() {
 }
 ```
 
-### ➤ Override ReduxProvider
+### ➤ Testing without Flutter
 
-There is a special override for `ReduxProvider` that allows you to override the reducers.
-
-Assuming the following provider:
+You can use `RiverpieContainer` to test your providers without Flutter.
 
 ```dart
-final counterProvider = ReduxProvider<MyCounter, int, CountEvent>((ref) => MyCounter());
+void main() {
+  test('My test', () {
+    final ref = RiverpieContainer();
+
+    expect(ref.read(myCounter), 0);
+    ref.notifier(myCounter).increment();
+    expect(ref.read(myCounter), 1);
+  });
+}
 ```
 
-This is how you override the reducer:
+### ➤ Testing ReduxProvider
+
+For simple tests, you can use the notifier directly (without any container).
+
+```dart
+void main() {
+  test('My test', () {
+    final counter = Counter();
+
+    expect(counter.getState(), 0);
+    counter.emit(AddEvent(5));
+    expect(counter.getState(), 5);
+  });
+}
+```
+
+To quickly override a `ReduxProvider`, you can use `overrideWithReducer`.
 
 ```dart
 void main() {
