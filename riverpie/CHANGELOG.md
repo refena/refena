@@ -1,3 +1,9 @@
+## 0.12.0
+
+- feat: add origin of event (widget or notifier) to `EventEmittedEvent`
+- **BREAKING**: `ReduxNotifier` requires a `ReduxProvider` now
+- **BREAKING**: recommended emit method is `ref.redux(myReduxProvider).emit(MyEvent())`
+
 ## 0.11.0
 
 - feat: add `ReduxNotifier`

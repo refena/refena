@@ -11,7 +11,7 @@ import 'package:riverpie_flutter/src/element_rebuildable.dart';
 // ignore: invalid_use_of_internal_member
 class WidgetRebuildable<W extends Widget> extends Rebuildable {
   @override
-  String get debugLabel => throw UnimplementedError();
+  String get debugLabel => 'WidgetRebuildable<$W>';
 
   @override
   bool get disposed => throw UnimplementedError();

@@ -12,7 +12,7 @@ final class SubtractEvent extends CountEvent {
   SubtractEvent(this.subtractedAmount);
 }
 
-final counterProvider = NotifierProvider<ReduxCounter, int>((ref) {
+final counterProvider = ReduxProvider<ReduxCounter, int, CountEvent>((ref) {
   return ReduxCounter(ref.notifier(counterProviderA));
 });
 
@@ -67,11 +67,11 @@ class MyPage extends StatelessWidget {
         children: [
           Text(state.toString()),
           ElevatedButton(
-            onPressed: () => ref.notifier(counterProvider).emit(AddEvent(2)),
+            onPressed: () => ref.redux(counterProvider).emit(AddEvent(2)),
             child: const Text('Increment'),
           ),
           ElevatedButton(
-            onPressed: () => ref.notifier(counterProvider).emit(SubtractEvent(3)),
+            onPressed: () => ref.redux(counterProvider).emit(SubtractEvent(3)),
             child: const Text('Decrement'),
           ),
         ],

@@ -18,7 +18,7 @@ abstract class Notifier<T> extends BaseSyncNotifier<T> {
   @protected
   Ref get ref => _ref;
 
-  Notifier({String? debugLabel}) : super(debugLabel: debugLabel);
+  Notifier({super.debugLabel});
 
   @internal
   @override

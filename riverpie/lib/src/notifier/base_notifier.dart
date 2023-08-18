@@ -10,7 +10,7 @@ import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/override.dart';
-import 'package:riverpie/src/provider/types/notifier_provider.dart';
+import 'package:riverpie/src/provider/types/redux_provider.dart';
 import 'package:riverpie/src/ref.dart';
 
 @internal
@@ -27,7 +27,7 @@ abstract class BaseNotifier<T> {
   /// A collection of listeners
   late final NotifierListeners<T> _listeners;
 
-  BaseNotifier({required this.debugLabel});
+  BaseNotifier({this.debugLabel});
 
   /// Gets the current state.
   @protected
@@ -184,22 +184,22 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
 /// You do not have access to [ref] in this notifier, so you need to pass
 /// the required dependencies via constructor.
 @internal
-abstract class BaseReduxNotifier<T, E extends Object>
-    extends BaseSyncNotifier<T> {
-  BaseReduxNotifier({String? debugLabel}) : super(debugLabel: debugLabel);
+abstract class BaseReduxNotifier<T, E extends Object> extends BaseNotifier<T> {
+  BaseReduxNotifier({super.debugLabel}) {
+    // Initialize right away for easier unit testing.
+    _state = init();
+  }
 
   /// A map of overrides for the reducers.
   Map<Object, Reducer<T, E>?>? _overrides;
 
   /// Emits an event to update the state.
-  void emit(E event) {
-    emitAsync(event);
-  }
-
-  /// Emits an event to update the state.
-  /// This method is async and can be used to await the new state.
-  Future<void> emitAsync(E event) async {
-    _observer?.handleEvent(EventEmittedEvent(notifier: this, event: event));
+  FutureOr<void> emit(E event, {String? debugLabel}) async {
+    _observer?.handleEvent(EventEmittedEvent(
+      debugOwnerLabel: debugLabel ?? runtimeType.toString(),
+      notifier: this,
+      event: event,
+    ));
 
     if (_overrides != null) {
       // Handle overrides
@@ -249,12 +249,26 @@ abstract class BaseReduxNotifier<T, E extends Object>
   set state(T value) {
     throw UnsupportedError('Not allowed to set state directly');
   }
+
+  /// Initializes the state of the notifier.
+  /// This method is called only once and
+  /// as soon as the notifier is accessed the first time.
+  T init();
+
+  @override
+  @internal
+  @mustCallSuper
+  void setup(RiverpieContainer container, RiverpieObserver? observer) {
+    _listeners = NotifierListeners<T>(this, observer);
+    _observer = observer;
+    _initialized = true;
+  }
 }
 
 typedef Reducer<T, E extends Object> = T Function(T state, E event);
 
 extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T, E>, T,
-    E extends Object> on NotifierProvider<N, T> {
+    E extends Object> on ReduxProvider<N, T, E> {
   /// Overrides the reducer with the given [overrides].
   ///
   /// Usage:

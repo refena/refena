@@ -177,6 +177,10 @@ final class ListenerRemovedEvent extends RiverpieEvent {
 
 /// An event has been emitted.
 class EventEmittedEvent extends RiverpieEvent {
+  /// The owner of the event.
+  /// Usually, this is a notifier or a widget.
+  final String debugOwnerLabel;
+
   /// The corresponding notifier.
   final BaseNotifier notifier;
 
@@ -184,6 +188,7 @@ class EventEmittedEvent extends RiverpieEvent {
   final Object event;
 
   EventEmittedEvent({
+    required this.debugOwnerLabel,
     required this.notifier,
     required this.event,
   });
@@ -193,14 +198,16 @@ class EventEmittedEvent extends RiverpieEvent {
       identical(this, other) ||
       other is EventEmittedEvent &&
           runtimeType == other.runtimeType &&
+          debugOwnerLabel == other.debugOwnerLabel &&
           notifier == other.notifier &&
           event == other.event;
 
   @override
-  int get hashCode => notifier.hashCode ^ event.hashCode;
+  int get hashCode =>
+      debugOwnerLabel.hashCode ^ notifier.hashCode ^ event.hashCode;
 
   @override
   String toString() {
-    return 'EventEmittedEvent{notifier: $notifier, event: $event}';
+    return 'EventEmittedEvent{debugOwnerLabel: $debugOwnerLabel, notifier: $notifier, event: $event}';
   }
 }

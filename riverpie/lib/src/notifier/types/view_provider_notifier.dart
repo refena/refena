@@ -8,13 +8,11 @@ import 'package:riverpie/src/util/batched_stream_controller.dart';
 
 final class ViewProviderNotifier<T> extends PureNotifier<T>
     implements Rebuildable {
+  ViewProviderNotifier(this.builder, {super.debugLabel});
+
   late final WatchableRef watchableRef;
   final T Function(WatchableRef) builder;
-
   final _rebuildController = BatchedStreamController();
-
-  ViewProviderNotifier(this.builder, {String? debugLabel})
-      : super(debugLabel: debugLabel);
 
   @override
   T init() {

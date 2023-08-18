@@ -2,6 +2,7 @@ export 'package:riverpie/src/async_value.dart';
 export 'package:riverpie/src/container.dart';
 export 'package:riverpie/src/notifier/base_notifier.dart'
     show ReduxNotifierOverrideExt, Reducer;
+export 'package:riverpie/src/notifier/emittable.dart';
 export 'package:riverpie/src/notifier/notifier_event.dart';
 export 'package:riverpie/src/notifier/types/async_notifier.dart';
 export 'package:riverpie/src/notifier/types/future_provider_notifier.dart';
@@ -18,6 +19,7 @@ export 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 export 'package:riverpie/src/provider/types/future_provider.dart';
 export 'package:riverpie/src/provider/types/notifier_provider.dart';
 export 'package:riverpie/src/provider/types/provider.dart';
+export 'package:riverpie/src/provider/types/redux_provider.dart';
 export 'package:riverpie/src/provider/types/state_provider.dart';
 export 'package:riverpie/src/provider/types/view_provider.dart';
 export 'package:riverpie/src/ref.dart';

@@ -48,9 +48,10 @@ class MyPage extends StatelessWidget {
 - [Providers](#providers)
     - [Provider](#-provider)
     - [FutureProvider](#-futureprovider)
+    - [StateProvider](#-stateprovider)
     - [NotifierProvider](#-notifierprovider)
     - [AsyncNotifierProvider](#-asyncnotifierprovider)
-    - [StateProvider](#-stateprovider)
+    - [ReduxProvider](#-reduxprovider)
     - [ViewProvider](#-viewprovider)
 - [Notifiers](#notifiers)
     - [Notifier](#-notifier)
@@ -63,6 +64,7 @@ class MyPage extends StatelessWidget {
     - [ref.stream](#-refstream)
     - [ref.future](#-reffuture)
     - [ref.notifier](#-refnotifier)
+    - [ref.redux](#-refredux)
 - [What to choose?](#what-to-choose)
 - [Performance Optimization](#performance-optimization)
 - [ensureRef](#ensureref)
@@ -70,7 +72,7 @@ class MyPage extends StatelessWidget {
 - [Observer](#observer)
 - [Testing](#testing)
     - [Override providers](#-override-providers)
-    - [Override ReduxNotifier](#-override-reduxnotifier)
+    - [Override ReduxProvider](#-override-reduxprovider)
     - [Access the state within tests](#-access-the-state-within-tests)
     - [State events](#-state-events)
     - [Example test](#-example-test)
@@ -233,14 +235,15 @@ There are many types of providers. Each one has its own purpose.
 
 The most important ones are `Provider` and `NotifierProvider` because they are the most flexible.
 
-| Provider                | Usage                               | Notifier API       | Can `watch` |
-|-------------------------|-------------------------------------|--------------------|-------------|
-| `Provider`              | For constants or stateless services | -                  | No          |
-| `FutureProvider`        | For immutable async values          | -                  | No          |
-| `NotifierProvider`      | For regular services                | Define it yourself | No          |
-| `AsyncNotifierProvider` | For services that need futures      | Define it yourself | No          |
-| `StateProvider`         | For simple states                   | `setState`         | No          |
-| `ViewProvider`          | For view models                     | -                  | Yes         |
+| Provider                | Usage                               | Notifier API   | Can `watch` |
+|-------------------------|-------------------------------------|----------------|-------------|
+| `Provider`              | For constants or stateless services | -              | No          |
+| `FutureProvider`        | For immutable async values          | -              | No          |
+| `StateProvider`         | For simple states                   | `setState`     | No          |
+| `NotifierProvider`      | For regular services                | Custom methods | No          |
+| `AsyncNotifierProvider` | For services that need futures      | Custom methods | No          |
+| `ReduxProvider`         | For event based services            | Event based    | No          |
+| `ViewProvider`          | For view models                     | -              | Yes         |
 
 ### ➤ Provider
 
@@ -308,6 +311,20 @@ build(BuildContext context) {
     error: (error, stackTrace) => Text('Error: $error'),
   );
 }
+```
+
+### ➤ StateProvider
+
+The `StateProvider` is handy for simple use cases where you only need a `setState` method.
+
+```dart
+final myProvider = StateProvider((ref) => 10);
+```
+
+Update the state:
+
+```dart
+ref.notifier(myProvider).setState((old) => old + 1);
 ```
 
 ### ➤ NotifierProvider
@@ -395,18 +412,110 @@ AsyncSnapshot<int>? prev = counterState.prev; // show the previous value while l
 AsyncSnapshot<int> curr = counterState.curr; // might be AsyncSnapshot.waiting()
 ```
 
-### ➤ StateProvider
+### ➤ ReduxProvider
 
-The `StateProvider` is handy for simple use cases where you only need a `setState` method.
+The `ReduxProvider` is the strictest option. The `state` is solely altered by events.
+
+This has two main benefits:
+
+- **Logging:** With `RiverpieDebugObserver`, you can see every event in the console.
+- **Testing:** You can easily test the state transitions.
+
+It works best with enums or `sealed` classes as an event type:
 
 ```dart
-final myProvider = StateProvider((ref) => 10);
+sealed class CountEvent {}
+class AddEvent extends CountEvent {
+  final int addedAmount;
+  AddEvent(this.addedAmount);
+}
+class SubtractEvent extends CountEvent {
+  final int subtractedAmount;
+  SubtractEvent(this.subtractedAmount);
+}
 ```
 
-Update the state:
+In the notifier, the event is handled by `reduce`:
 
 ```dart
-ref.notifier(myProvider).setState((old) => old + 1);
+final counterProvider = NotifierProvider<Counter, int>((ref) {
+  return Counter(ref.redux(providerA), ref.redux(providerB));
+});
+
+class Counter extends ReduxNotifier<int, CountEvent> {
+  final Emittable<ServiceA, EventTypeA> serviceA;
+  final Emittable<ServiceB, EventTypeB> serviceB;
+  
+  Counter(this.serviceA, this.serviceB);
+  
+  @override
+  int init() => 0;
+
+  @override
+  int reduce(CountEvent event) {
+    return switch (event) {
+      AddEvent() => state + event.addedAmount,
+      SubtractEvent() => handleSubtract(event, state),
+    };
+  }
+
+  // Complex logic can be extracted into a separate method.
+  // Adding the state parameter makes this easier to test.
+  int handleSubtract(CountEvent event, int state) {
+    serviceA.emit(SomeEvent());
+    serviceB.emit(SomeEvent());
+    final stateB = serviceB.state;
+    if (stateB == 3) {
+      // ...
+    }
+    return state - event.subtractedAmount;
+  }
+}
+```
+
+The widget can trigger events with `ref.redux(provider).emit(event)`:
+
+```dart
+class MyPage extends StatelessWidget {
+  const MyPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final ref = context.ref;
+    final state = ref.watch(counterProvider);
+    return Scaffold(
+      body: Column(
+        children: [
+          Text(state.toString()),
+          ElevatedButton(
+            onPressed: () => ref.redux(counterProvider).emit(AddEvent(2)),
+            child: const Text('Increment'),
+          ),
+          ElevatedButton(
+            onPressed: () => ref.redux(counterProvider).emit(SubtractEvent(3)),
+            child: const Text('Decrement'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+```
+
+Do **NOT** use `ref.notifier(counterProvider).emit(event)` to trigger events.\
+This works, but you will miss the correct origin of the event in the logs.
+
+Don't worry about asynchronous business logic.\
+The reduce method is defined as `FutureOr<T> reduce(E event)`.
+
+Here is how the console output could look like:
+
+```text
+[Riverpie] Event emitted: [Counter.SubtractEvent] by [MyPage]
+[Riverpie] Change by [Counter] triggered by [SubtractEvent]
+            - Prev: 5
+            - Next: 4
+            - Rebuild (1): [MyPage]
 ```
 
 ### ➤ ViewProvider
@@ -465,18 +574,16 @@ class SettingsPage extends StatelessWidget {
 
 ## Notifiers
 
-Every provider exposes some kind of notifier.
-
 A notifier holds the actual state and triggers rebuilds on widgets listening to them.
 
-Use notifiers in combination with `NotifierProvider` or `AsyncNotifierProvider`.
+Use notifiers in combination with `NotifierProvider`, `AsyncNotifierProvider`, or `ReduxProvider`.
 
 | Provider        | Usage                        | Provider                | Exposes `ref` |
 |-----------------|------------------------------|-------------------------|---------------|
 | `Notifier`      | For any use case             | `NotifierProvider`      | Yes           |
 | `AsyncNotifier` | For async values             | `AsyncNotifierProvider` | Yes           |
 | `PureNotifier`  | For clean architectures      | `NotifierProvider`      | No            |
-| `ReduxNotifier` | For very clean architectures | `NotifierProvider`      | No            |
+| `ReduxNotifier` | For very clean architectures | `ReduxProvider`         | No            |
 
 ### ➤ Notifier
 
@@ -499,10 +606,6 @@ class Counter extends Notifier<int> {
   }
 }
 ```
-
-### ➤ AsyncNotifier
-
-See [AsyncNotifierProvider](#-asyncnotifierprovider).
 
 ### ➤ PureNotifier
 
@@ -533,108 +636,13 @@ class PureCounter extends PureNotifier<int> {
 }
 ```
 
+### ➤ AsyncNotifier
+
+See [AsyncNotifierProvider](#-asyncnotifierprovider).
+
 ### ➤ ReduxNotifier
 
-The `ReduxNotifier` is the strictest option. The `state` is solely altered by events.
-
-This has two main benefits:
-
-- **Logging:** With `RiverpieDebugObserver`, you can see every event in the console.
-- **Testing:** You can easily test the state transitions.
-
-It works best with enums or `sealed` classes as an event type:
-
-```dart
-sealed class CountEvent {}
-class AddEvent extends CountEvent {
-  final int addedAmount;
-  AddEvent(this.addedAmount);
-}
-class SubtractEvent extends CountEvent {
-  final int subtractedAmount;
-  SubtractEvent(this.subtractedAmount);
-}
-```
-
-In the notifier, the event is handled by `reduce`:
-
-```dart
-final counterProvider = NotifierProvider<Counter, int>((ref) {
-  return Counter(ref.notifier(providerA), ref.notifier(providerB));
-});
-
-class Counter extends ReduxNotifier<int, CountEvent> {
-  final NotifierA serviceA;
-  final NotifierB serviceB;
-  
-  Counter(this.serviceA, this.serviceB);
-  
-  @override
-  int init() => 0;
-
-  @override
-  int reduce(CountEvent event) {
-    return switch (event) {
-      AddEvent() => state + event.addedAmount,
-      SubtractEvent() => handleSubtract(event, state),
-    };
-  }
-
-  // Complex logic can be extracted into a separate method.
-  // Adding the state parameter makes this easier to test.
-  int handleSubtract(CountEvent event, int state) {
-    serviceA.emit(SomeEvent());
-    serviceB.emit(SomeEvent());
-    final stateB = serviceB.state;
-    if (stateB == 3) {
-      // ...
-    }
-    return state - event.subtractedAmount;
-  }
-}
-```
-
-The widget can trigger events with `emit`:
-
-```dart
-class MyPage extends StatelessWidget {
-  const MyPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final ref = context.ref;
-    final state = ref.watch(counterProvider);
-    return Scaffold(
-      body: Column(
-        children: [
-          Text(state.toString()),
-          ElevatedButton(
-            onPressed: () => ref.notifier(counterProvider).emit(AddEvent(2)),
-            child: const Text('Increment'),
-          ),
-          ElevatedButton(
-            onPressed: () => ref.notifier(counterProvider).emit(SubtractEvent(3)),
-            child: const Text('Decrement'),
-          ),
-        ],
-      ),
-    );
-  }
-}
-```
-
-Don't worry about asynchronous business logic.\
-The reduce method is defined as `FutureOr<T> reduce(E event)`.
-
-Here is how the console output could look like:
-
-```text
-[Riverpie] Event emitted: [Counter.SubtractEvent]
-[Riverpie] Change by [Counter] triggered by [SubtractEvent]
-            - Prev: 5
-            - Next: 4
-            - Rebuild (1): [MyPage]
-```
+See [ReduxProvider](#-reduxprovider).
 
 ## Using ref
 
@@ -708,6 +716,16 @@ Counter counter = ref.notifier(counterProvider);
 ref.notifier(counterProvider).increment();
 ```
 
+### ➤ ref.redux
+
+Emit an event to a `ReduxProvider`.
+
+```dart
+ref.redux(myReduxProvider).emit(MyEvent());
+
+await ref.redux(myReduxProvider).emit(MyEvent());
+```
+
 ## What to choose?
 
 There are lots of providers and notifiers. Which one should you choose?
@@ -715,7 +733,7 @@ There are lots of providers and notifiers. Which one should you choose?
 For most use cases, `Provider` and `Notifier` are more than enough.
 
 If you work in an environment where clean architecture is important,
-you may want to use `ReduxNotifier` and `ViewProvider`.
+you may want to use `ReduxProvider` and `ViewProvider`.
 
 Be aware that you will need to write more boilerplate code.
 
@@ -724,7 +742,7 @@ Be aware that you will need to write more boilerplate code.
 | `Provider`, `StateProvider`                 |                                | Low                        |
 | `Provider`, `Notifier`, `PureNotifier`      | notifiers                      | Medium                     |
 | `Provider`, `ViewProvider`, `Notifier`      | notifiers, view models         | High                       |
-| `Provider`, `ViewProvider`, `ReduxNotifier` | notifiers, view models, events | Very high                  |
+| `Provider`, `ViewProvider`, `ReduxProvider` | notifiers, view models, events | Very high                  |
 
 ## Performance Optimization
 
@@ -876,14 +894,14 @@ void main() {
 }
 ```
 
-### ➤ Override ReduxNotifier
+### ➤ Override ReduxProvider
 
-There is a special override for `ReduxNotifier` that allows you to override the reducers.
+There is a special override for `ReduxProvider` that allows you to override the reducers.
 
 Assuming the following provider:
 
 ```dart
-final counterProvider = NotifierProvider<MyCounter, int>((ref) => MyCounter());
+final counterProvider = ReduxProvider<MyCounter, int, CountEvent>((ref) => MyCounter());
 ```
 
 This is how you override the reducer:
@@ -905,11 +923,11 @@ void main() {
     expect(ref.read(counterProvider), 0);
 
     // Should use the overridden reducer
-    ref.notifier(counterProvider).emit(AddEvent());
+    ref.redux(counterProvider).emit(AddEvent());
     expect(ref.read(counterProvider), 20);
 
     // Should not change the state
-    ref.notifier(counterProvider).emit(SubtractEvent());
+    ref.redux(counterProvider).emit(SubtractEvent());
     expect(ref.read(counterProvider), 20);
   });
 }

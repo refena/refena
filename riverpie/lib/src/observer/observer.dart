@@ -114,7 +114,8 @@ class RiverpieDebugObserver extends RiverpieObserver {
         break;
       case EventEmittedEvent event:
         final label = _getProviderDebugLabel(null, event.notifier);
-        _line('Event emitted: [$label.${_getEventLabel(event.event)}]');
+        _line(
+            'Event emitted: [$label.${_getEventLabel(event.event)}] by [${event.debugOwnerLabel}]');
         break;
     }
   }

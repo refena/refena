@@ -8,5 +8,5 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 /// the required dependencies via constructor.
 abstract class ReduxNotifier<T, E extends Object>
     extends BaseReduxNotifier<T, E> {
-  ReduxNotifier({String? debugLabel}) : super(debugLabel: debugLabel);
+  ReduxNotifier({super.debugLabel});
 }

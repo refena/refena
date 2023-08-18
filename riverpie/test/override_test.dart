@@ -130,7 +130,7 @@ void main() {
 
   group(ReduxNotifier, () {
     test('Should override with notifier', () {
-      final provider = NotifierProvider((ref) => _ReduxNotifier());
+      final provider = ReduxProvider((ref) => _ReduxNotifier());
       final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithNotifier((ref) => _OverrideReduxNotifier()),
@@ -146,7 +146,7 @@ void main() {
 
     test('Should override with enum reducer', () {
       final provider =
-          NotifierProvider<_ReduxNotifier, int>((ref) => _ReduxNotifier());
+          ReduxProvider<_ReduxNotifier, int, _Event>((ref) => _ReduxNotifier());
       final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithReducer(
@@ -175,7 +175,8 @@ void main() {
     });
 
     test('Should override with class reducer', () {
-      final provider = NotifierProvider<_Counter, int>((ref) => _Counter());
+      final provider =
+          ReduxProvider<_Counter, int, _CountEvent>((ref) => _Counter());
       final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithReducer(

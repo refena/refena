@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:riverpie/src/async_value.dart';
 import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
+import 'package:riverpie/src/notifier/emittable.dart';
 import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
@@ -10,6 +11,7 @@ import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
+import 'package:riverpie/src/provider/types/redux_provider.dart';
 import 'package:riverpie/src/provider/watchable.dart';
 
 /// The base ref to read and notify providers.
@@ -22,6 +24,11 @@ abstract class Ref {
 
   /// Get the notifier of a provider.
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider);
+
+  /// Get an [Emittable] of a provider.
+  Emittable<N, E> redux<N extends BaseReduxNotifier<T, E>, T, E extends Object>(
+    ReduxProvider<N, T, E> provider,
+  );
 
   /// Listen for changes to a provider.
   ///
@@ -37,10 +44,21 @@ abstract class Ref {
   Future<T> future<N extends AsyncNotifier<T>, T>(
     AsyncNotifierProvider<N, T> provider,
   );
+
+  /// Returns the owner of this [Ref].
+  /// Usually, this is a notifier or a widget.
+  /// Used by [Ref.redux] to log the owner of the event.
+  String get debugOwnerLabel;
 }
 
 /// The ref available in a [State] with the mixin or in a [ViewProvider].
 class WatchableRef extends Ref {
+  WatchableRef({
+    required RiverpieContainer ref,
+    required Rebuildable rebuildable,
+  })  : _ref = ref,
+        _rebuildable = rebuildable;
+
   final RiverpieContainer _ref;
   final Rebuildable _rebuildable;
 
@@ -52,6 +70,16 @@ class WatchableRef extends Ref {
   @override
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {
     return _ref.notifier<N, T>(provider);
+  }
+
+  @override
+  Emittable<N, E> redux<N extends BaseReduxNotifier<T, E>, T, E extends Object>(
+    ReduxProvider<N, T, E> provider,
+  ) {
+    return Emittable(
+      notifier: _ref.anyNotifier(provider),
+      debugOwnerLabel: debugOwnerLabel,
+    );
   }
 
   @override
@@ -137,11 +165,55 @@ class WatchableRef extends Ref {
     return ChronicleSnapshot(notifier.prev, notifier.state);
   }
 
-  WatchableRef({
-    required RiverpieContainer ref,
-    required Rebuildable rebuildable,
-  })  : _ref = ref,
-        _rebuildable = rebuildable;
+  @override
+  String get debugOwnerLabel => _rebuildable.debugLabel;
+}
+
+/// A [Ref] that proxies all calls to another [Ref].
+/// Used to provide a custom [debugOwnerLabel] to [Ref.redux].
+class ProxyRef extends Ref {
+  ProxyRef(this._ref, this.debugOwnerLabel);
+
+  /// The ref to proxy all calls to.
+  final RiverpieContainer _ref;
+
+  /// The owner of this [Ref].
+  @override
+  final String debugOwnerLabel;
+
+  @override
+  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+    return _ref.read<N, T>(provider);
+  }
+
+  @override
+  N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {
+    return _ref.notifier<N, T>(provider);
+  }
+
+  @override
+  Emittable<N, E> redux<N extends BaseReduxNotifier<T, E>, T, E extends Object>(
+    ReduxProvider<N, T, E> provider,
+  ) {
+    return Emittable(
+      notifier: _ref.anyNotifier(provider),
+      debugOwnerLabel: debugOwnerLabel,
+    );
+  }
+
+  @override
+  Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
+    BaseProvider<N, T> provider,
+  ) {
+    return _ref.stream<N, T>(provider);
+  }
+
+  @override
+  Future<T> future<N extends AsyncNotifier<T>, T>(
+    AsyncNotifierProvider<N, T> provider,
+  ) {
+    return _ref.future<N, T>(provider);
+  }
 }
 
 class ChronicleSnapshot<T> {
