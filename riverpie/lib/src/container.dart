@@ -128,7 +128,7 @@ class RiverpieContainer extends Ref {
   ) {
     return Emittable<N, E>(
       notifier: _getState(provider),
-      debugOwnerLabel: debugOwnerLabel,
+      debugOrigin: debugOwnerLabel,
     );
   }
 
@@ -197,7 +197,7 @@ class _ProxyContainer implements RiverpieContainer {
   ) {
     return Emittable(
       notifier: _container._getState(provider),
-      debugOwnerLabel: debugOwnerLabel,
+      debugOrigin: debugOwnerLabel,
     );
   }
 

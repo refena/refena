@@ -194,9 +194,9 @@ abstract class BaseReduxNotifier<T, E extends Object> extends BaseNotifier<T> {
   Map<Object, Reducer<T, E>?>? _overrides;
 
   /// Emits an event to update the state.
-  FutureOr<void> emit(E event, {String? debugLabel}) async {
+  FutureOr<void> emit(E event, {String? debugOrigin}) async {
     _observer?.handleEvent(EventEmittedEvent(
-      debugOwnerLabel: debugLabel ?? runtimeType.toString(),
+      debugOrigin: debugOrigin ?? runtimeType.toString(),
       notifier: this,
       event: event,
     ));

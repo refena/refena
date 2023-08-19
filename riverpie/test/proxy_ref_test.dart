@@ -21,7 +21,7 @@ void main() {
     final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       EventEmittedEvent(
-        debugOwnerLabel: 'RiverpieContainer',
+        debugOrigin: 'RiverpieContainer',
         notifier: notifier,
         event: AddEvent(2),
       ),
@@ -29,12 +29,12 @@ void main() {
   });
 
   test('Should use given label', () {
-    ref.redux(_reduxProviderA).emit(AddEvent(2), debugLabel: 'MyLabel');
+    ref.redux(_reduxProviderA).emit(AddEvent(2), debugOrigin: 'MyLabel');
 
     final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       EventEmittedEvent(
-        debugOwnerLabel: 'MyLabel',
+        debugOrigin: 'MyLabel',
         notifier: notifier,
         event: AddEvent(2),
       ),
@@ -47,7 +47,7 @@ void main() {
 
     expect(observer.history, [
       EventEmittedEvent(
-        debugOwnerLabel: '_ReduxA',
+        debugOrigin: '_ReduxA',
         notifier: notifier,
         event: AddEvent(2),
       ),
@@ -60,7 +60,7 @@ void main() {
     final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       EventEmittedEvent(
-        debugOwnerLabel: '_AnotherNotifier',
+        debugOrigin: '_AnotherNotifier',
         notifier: notifier,
         event: AddEvent(5),
       ),
@@ -73,7 +73,7 @@ void main() {
     final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       EventEmittedEvent(
-        debugOwnerLabel: 'ViewProvider<_Vm>',
+        debugOrigin: 'ViewProvider<_Vm>',
         notifier: notifier,
         event: AddEvent(10),
       ),
@@ -86,7 +86,7 @@ void main() {
     notifierA.emitEventOfB();
     expect(observer.history, [
       EventEmittedEvent(
-        debugOwnerLabel: '_ReduxA',
+        debugOrigin: '_ReduxA',
         notifier: notifierB,
         event: AddEvent(12),
       ),

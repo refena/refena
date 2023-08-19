@@ -78,7 +78,7 @@ class WatchableRef extends Ref {
   ) {
     return Emittable(
       notifier: _ref.anyNotifier(provider),
-      debugOwnerLabel: debugOwnerLabel,
+      debugOrigin: debugOwnerLabel,
     );
   }
 
@@ -197,7 +197,7 @@ class ProxyRef extends Ref {
   ) {
     return Emittable(
       notifier: _ref.anyNotifier(provider),
-      debugOwnerLabel: debugOwnerLabel,
+      debugOrigin: debugOwnerLabel,
     );
   }
 

@@ -37,7 +37,7 @@ void main() {
         value: 123,
       ),
       EventEmittedEvent(
-        debugOwnerLabel: '_Counter',
+        debugOrigin: '_Counter',
         notifier: notifier,
         event: AddEvent(2),
       ),
@@ -49,7 +49,7 @@ void main() {
         rebuild: [],
       ),
       EventEmittedEvent(
-        debugOwnerLabel: 'RiverpieContainer',
+        debugOrigin: 'RiverpieContainer',
         notifier: notifier,
         event: SubtractEvent(5),
       ),
@@ -91,12 +91,12 @@ void main() {
     // Check events
     expect(observer.history, [
       EventEmittedEvent(
-        debugOwnerLabel: 'RiverpieContainer',
+        debugOrigin: 'RiverpieContainer',
         notifier: notifier,
         event: SubtractEvent(5),
       ),
       EventEmittedEvent(
-        debugOwnerLabel: 'RiverpieContainer',
+        debugOrigin: 'RiverpieContainer',
         notifier: notifier,
         event: AddEvent(2),
       ),
@@ -115,7 +115,7 @@ void main() {
         rebuild: [],
       ),
       EventEmittedEvent(
-        debugOwnerLabel: '_AsyncCounter',
+        debugOrigin: '_AsyncCounter',
         notifier: notifier,
         event: SubtractEvent(5),
       ),
@@ -127,7 +127,7 @@ void main() {
         rebuild: [],
       ),
       EventEmittedEvent(
-        debugOwnerLabel: 'RiverpieContainer',
+        debugOrigin: 'RiverpieContainer',
         notifier: notifier,
         event: SubtractEvent(5),
       ),

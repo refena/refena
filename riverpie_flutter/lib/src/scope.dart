@@ -78,7 +78,7 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
   ) {
     return Emittable(
       notifier: _container.anyNotifier(provider),
-      debugOwnerLabel: debugOwnerLabel,
+      debugOrigin: debugOwnerLabel,
     );
   }
 
