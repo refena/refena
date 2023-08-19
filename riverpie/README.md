@@ -910,16 +910,23 @@ void main() {
 
 ### ➤ Testing ReduxProvider
 
-For simple tests, you can use the notifier directly (without any container).
+For simple tests, you can use `ReduxNotifier.test`.
 
 ```dart
 void main() {
-  test('My test', () {
-    final counter = Counter();
+  test('Should set initial state', () {
+    final notifier = ReduxNotifier.test(
+      notifier: Counter(),
+      initialState: 11,
+    );
 
-    expect(counter.getState(), 0);
-    counter.emit(AddEvent(5));
-    expect(counter.getState(), 5);
+    expect(notifier.state, 11);
+
+    notifier.emit(CounterEvent.increment);
+    expect(notifier.state, 12);
+    
+    notifier.setState(42); // set state directly
+    expect(notifier.state, 42);
   });
 }
 ```

@@ -9,4 +9,16 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 abstract class ReduxNotifier<T, E extends Object>
     extends BaseReduxNotifier<T, E> {
   ReduxNotifier({super.debugLabel});
+
+  /// Returns a debug version of the [notifier] where
+  /// you can set the state directly.
+  static TestableReduxNotifier<T, E> test<T, E extends Object>({
+    required BaseReduxNotifier<T, E> notifier,
+    T? initialState,
+  }) {
+    return TestableReduxNotifier(
+      notifier: notifier,
+      initialState: initialState,
+    );
+  }
 }

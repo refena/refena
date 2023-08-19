@@ -273,6 +273,30 @@ abstract class BaseReduxNotifier<T, E extends Object> extends BaseNotifier<T> {
   }
 }
 
+/// A wrapper for [BaseReduxNotifier] that exposes [setState] and [state].
+/// This is useful for unit tests.
+class TestableReduxNotifier<T, E extends Object> {
+  TestableReduxNotifier({required this.notifier, T? initialState}) {
+    if (initialState != null) {
+      notifier._setState(initialState, null);
+    }
+  }
+
+  /// The wrapped notifier.
+  final BaseReduxNotifier<T, E> notifier;
+
+  /// Emits an event to update the state.
+  FutureOr<void> emit(E event, {String? debugOrigin}) {
+    return notifier.emit(event, debugOrigin: debugOrigin);
+  }
+
+  /// Updates the state without emitting an event.
+  void setState(T state) => notifier._setState(state, null);
+
+  /// Gets the current state.
+  T get state => notifier.state;
+}
+
 typedef Reducer<T, E extends Object> = T Function(T state, E event);
 
 extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T, E>, T,
