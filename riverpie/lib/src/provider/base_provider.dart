@@ -39,4 +39,7 @@ abstract class BaseProvider<N extends BaseNotifier<T>, T>
 /// A flag to indicate that the notifier is accessible from [Ref].
 /// Every [NotifyableProvider] is a [BaseProvider] although not
 /// visible in the type hierarchy.
+///
+/// This restriction is used to discourage direct access to the notifier.
+/// You may get around this in your tests with RiverpieContainer.anyNotifier().
 interface class NotifyableProvider<N extends BaseNotifier<T>, T> {}
