@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:riverpie/riverpie.dart';
-import 'package:riverpie_flutter/src/mixin.dart';
+import 'package:riverpie_flutter/src/extension.dart';
 
 /// A [Consumer] can be used anywhere in the widget tree.
 /// This is useful if you want to use a provider within a [StatelessWidget].
@@ -23,12 +23,7 @@ class Consumer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ExpensiveConsumer(
-      debugLabel: debugLabel,
-      builder: (context, ref, _) {
-        return builder(context, ref);
-      },
-    );
+    return builder(context, context.ref);
   }
 }
 
@@ -37,7 +32,7 @@ class Consumer extends StatelessWidget {
 /// This is useful if the [child] is expensive to build.
 ///
 /// Add a [debugLabel] or [debugParent] for better logging.
-class ExpensiveConsumer extends StatefulWidget {
+class ExpensiveConsumer extends StatelessWidget {
   final String debugLabel;
   final Widget? child;
   final Widget Function(
@@ -57,12 +52,7 @@ class ExpensiveConsumer extends StatefulWidget {
             'ExpensiveConsumer';
 
   @override
-  State<ExpensiveConsumer> createState() => _ExpensiveConsumerState();
-}
-
-class _ExpensiveConsumerState extends State<ExpensiveConsumer> with Riverpie {
-  @override
   Widget build(BuildContext context) {
-    return widget.builder(context, ref, widget.child);
+    return builder(context, context.ref, child);
   }
 }

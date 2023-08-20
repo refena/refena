@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+
 // ignore: implementation_imports
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie_flutter/src/consumer.dart';
@@ -43,8 +44,9 @@ class ElementRebuildable extends Rebuildable {
 }
 
 String _getDebugLabel(Widget? widget) {
-  if (widget is ExpensiveConsumer) {
-    return widget.debugLabel;
-  }
-  return widget.runtimeType.toString();
+  return switch (widget) {
+    Consumer() => widget.debugLabel,
+    ExpensiveConsumer() => widget.debugLabel,
+    _ => widget.runtimeType.toString(),
+  };
 }
