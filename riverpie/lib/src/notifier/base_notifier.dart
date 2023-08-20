@@ -272,6 +272,7 @@ class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
     required this.notifier,
     T? initialState,
   }) {
+    notifier.setup(RiverpieContainer(), null);
     if (initialState != null) {
       notifier._setState(initialState, null);
     } else {

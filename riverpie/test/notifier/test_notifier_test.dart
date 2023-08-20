@@ -27,7 +27,18 @@ void main() {
     tester.notifier.increment();
     expect(tester.state, 12);
   });
+
+  test('Should access state', () {
+    final tester = Notifier.test<_Counter, int>(
+      notifier: _Counter(),
+    );
+
+    expect(tester.state, 50);
+    expect(tester.notifier.accessState(), 20);
+  });
 }
+
+final _stateProvider = StateProvider((ref) => 20);
 
 class _Counter extends Notifier<int> {
   @override
@@ -35,5 +46,9 @@ class _Counter extends Notifier<int> {
 
   void increment() {
     state++;
+  }
+
+  int accessState() {
+    return ref.read(_stateProvider);
   }
 }
