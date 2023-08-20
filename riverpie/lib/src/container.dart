@@ -260,6 +260,6 @@ extension on Map<BaseProvider, BaseNotifier Function(Ref ref)> {
   /// Returns the overridden notifier for the provider.
   N? createState<N extends BaseNotifier<T>, T>(
       BaseProvider<N, T> provider, Ref ref) {
-    return this[provider]?.call(ref) as N;
+    return this[provider]?.call(ref) as N?;
   }
 }

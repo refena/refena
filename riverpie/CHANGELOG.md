@@ -1,3 +1,7 @@
+## 0.13.0
+
+- fix: refer to non-override from override
+
 ## 0.12.0
 
 - feat: add origin of event (widget or notifier) to `EventEmittedEvent`

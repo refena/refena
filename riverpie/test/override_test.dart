@@ -29,6 +29,7 @@ void main() {
       expect(ref.read(providerB), 220);
       expect(ref.read(providerA), 200);
 
+      // different order
       final observer = RiverpieHistoryObserver.all();
       final ref2 = RiverpieContainer(
         observer: observer,
@@ -54,6 +55,37 @@ void main() {
           notifier: ref2.anyNotifier<ImmutableNotifier<int>, int>(providerB),
           cause: ProviderInitCause.override,
           value: 440,
+        ),
+      ]);
+    });
+
+    test('Should refer to non-overridden provider', () {
+      final providerA = Provider((ref) => 100);
+      final providerB = Provider((ref) => ref.read(providerA) + 10);
+      final observer = RiverpieHistoryObserver.all();
+      final ref = RiverpieContainer(
+        observer: observer,
+        overrides: [
+          providerB.overrideWithValue((ref) => ref.read(providerA) + 200),
+        ],
+      );
+
+      expect(ref.read(providerB), 300);
+      expect(ref.read(providerA), 100);
+
+      // Check events
+      expect(observer.history, [
+        ProviderInitEvent(
+          provider: providerA,
+          notifier: ref.anyNotifier<ImmutableNotifier<int>, int>(providerA),
+          cause: ProviderInitCause.access,
+          value: 100,
+        ),
+        ProviderInitEvent(
+          provider: providerB,
+          notifier: ref.anyNotifier<ImmutableNotifier<int>, int>(providerB),
+          cause: ProviderInitCause.override,
+          value: 300,
         ),
       ]);
     });
