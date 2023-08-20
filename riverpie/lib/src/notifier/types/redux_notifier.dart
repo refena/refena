@@ -13,11 +13,11 @@ abstract class ReduxNotifier<T, E extends Object>
   /// Returns a debug version of the [notifier] where
   /// you can set the state directly.
   static TestableReduxNotifier<T, E> test<T, E extends Object>({
-    required BaseReduxNotifier<T, E> notifier,
+    required BaseReduxNotifier<T, E> redux,
     T? initialState,
   }) {
     return TestableReduxNotifier(
-      notifier: notifier,
+      notifier: redux,
       initialState: initialState,
     );
   }

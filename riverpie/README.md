@@ -744,7 +744,7 @@ Be aware that you will need to write more boilerplate code.
 
 ## Performance Optimization
 
-### ➤ ref.watch
+### ➤ Selective watching
 
 You may restrict the rebuilds to only a subset of the state with `provider.select`.
 
@@ -914,19 +914,19 @@ For simple tests, you can use `ReduxNotifier.test`.
 
 ```dart
 void main() {
-  test('Should set initial state', () {
-    final notifier = ReduxNotifier.test(
-      notifier: Counter(),
+  test('My test', () {
+    final counter = ReduxNotifier.test(
+      redux: Counter(),
       initialState: 11,
     );
 
-    expect(notifier.state, 11);
+    expect(counter.state, 11);
 
-    notifier.emit(CounterEvent.increment);
-    expect(notifier.state, 12);
-    
-    notifier.setState(42); // set state directly
-    expect(notifier.state, 42);
+    counter.emit(CounterEvent.increment);
+    expect(counter.state, 12);
+
+    counter.setState(42); // set state directly
+    expect(counter.state, 42);
   });
 }
 ```

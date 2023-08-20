@@ -3,32 +3,32 @@ import 'package:test/test.dart';
 
 void main() {
   test('Should change state', () {
-    final notifier = ReduxNotifier.test(
-      notifier: _Counter(),
+    final counter = ReduxNotifier.test(
+      redux: _Counter(),
     );
 
-    expect(notifier.state, 50);
+    expect(counter.state, 50);
 
-    notifier.emit(_ChangeEvent.increment);
-    expect(notifier.state, 51);
+    counter.emit(_ChangeEvent.increment);
+    expect(counter.state, 51);
 
-    notifier.setState(5);
-    expect(notifier.state, 5);
+    counter.setState(5);
+    expect(counter.state, 5);
 
-    notifier.emit(_ChangeEvent.decrement);
-    expect(notifier.state, 4);
+    counter.emit(_ChangeEvent.decrement);
+    expect(counter.state, 4);
   });
 
   test('Should set initial state', () {
-    final notifier = ReduxNotifier.test(
-      notifier: _Counter(),
+    final counter = ReduxNotifier.test(
+      redux: _Counter(),
       initialState: 11,
     );
 
-    expect(notifier.state, 11);
+    expect(counter.state, 11);
 
-    notifier.emit(_ChangeEvent.increment);
-    expect(notifier.state, 12);
+    counter.emit(_ChangeEvent.increment);
+    expect(counter.state, 12);
   });
 }
 
