@@ -3,7 +3,9 @@ import 'package:test/test.dart';
 
 void main() {
   test('Should change state', () {
-    final notifier = ReduxNotifier.test(notifier: _Counter());
+    final notifier = ReduxNotifier.test(
+      notifier: _Counter(),
+    );
 
     expect(notifier.state, 50);
 

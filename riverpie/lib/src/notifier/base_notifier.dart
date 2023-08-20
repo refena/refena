@@ -244,14 +244,6 @@ abstract class BaseReduxNotifier<T, E extends Object> extends BaseNotifier<T> {
     _overrides = overrides;
   }
 
-  /// Gets the current state.
-  ///
-  /// The [state] getter is protected, but we allow this explicitly.
-  /// This is especially useful for unit tests.
-  T getState() {
-    return state;
-  }
-
   @override
   @internal
   set state(T value) {
@@ -276,7 +268,10 @@ abstract class BaseReduxNotifier<T, E extends Object> extends BaseNotifier<T> {
 /// A wrapper for [BaseReduxNotifier] that exposes [setState] and [state].
 /// This is useful for unit tests.
 class TestableReduxNotifier<T, E extends Object> {
-  TestableReduxNotifier({required this.notifier, T? initialState}) {
+  TestableReduxNotifier({
+    required this.notifier,
+    T? initialState,
+  }) {
     if (initialState != null) {
       notifier._setState(initialState, null);
     }

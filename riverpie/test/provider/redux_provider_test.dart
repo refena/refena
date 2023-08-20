@@ -2,13 +2,6 @@ import 'package:riverpie/riverpie.dart';
 import 'package:test/test.dart';
 
 void main() {
-  test('Should change state without container', () {
-    final notifier = _Counter();
-    expect(notifier.getState(), 123);
-    notifier.emit(AddEvent(10));
-    expect(notifier.getState(), 133);
-  });
-
   test('Should change state', () {
     final notifier = _Counter();
     final provider =
