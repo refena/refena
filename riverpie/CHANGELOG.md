@@ -1,7 +1,7 @@
 ## 0.12.0
 
 - feat: add origin of event (widget or notifier) to `EventEmittedEvent`
-- feat: add `ReduxNotifier.test` to set the state of a `ReduxNotifier` directly
+- feat: add `Notifier.test`, `AsyncNotifier.test` and `ReduxNotifier.test`
 - **BREAKING**: `ReduxNotifier` requires a `ReduxProvider` now
 - **BREAKING**: recommended emit method is `ref.redux(myReduxProvider).emit(MyEvent())`
 
