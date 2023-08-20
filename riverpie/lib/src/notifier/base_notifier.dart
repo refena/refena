@@ -266,6 +266,7 @@ abstract class BaseReduxNotifier<T, E extends Object> extends BaseNotifier<T> {
 }
 
 /// A wrapper for [BaseSyncNotifier] that exposes [setState] and [state].
+/// It creates a container internally, so any ref call still works.
 /// This is useful for unit tests.
 class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
   TestableNotifier({
@@ -288,6 +289,36 @@ class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
 
   /// Gets the current state.
   T get state => notifier.state;
+}
+
+/// A wrapper for [BaseAsyncNotifier] that exposes [setState] and [state].
+/// It creates a container internally, so any ref call still works.
+/// This is useful for unit tests.
+class TestableAsyncNotifier<N extends BaseAsyncNotifier<T>, T> {
+  TestableAsyncNotifier({
+    required this.notifier,
+    AsyncValue<T>? initialState,
+  }) {
+    notifier.setup(RiverpieContainer(), null);
+    if (initialState != null) {
+      notifier._futureCount++; // invalidate previous future callbacks
+      notifier._setState(initialState, null);
+    } else {
+      notifier._setFutureAndListen(notifier.init());
+    }
+  }
+
+  /// The wrapped notifier.
+  final N notifier;
+
+  /// Updates the state.
+  void setState(AsyncValue<T> state) => notifier._setState(state, null);
+
+  /// Sets the future.
+  void setFuture(Future<T> future) => notifier._setFutureAndListen(future);
+
+  /// Gets the current state.
+  AsyncValue<T> get state => notifier.state;
 }
 
 /// A wrapper for [BaseReduxNotifier] that exposes [setState] and [state].

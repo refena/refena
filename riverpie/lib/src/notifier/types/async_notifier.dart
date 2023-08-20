@@ -59,6 +59,18 @@ abstract class AsyncNotifier<T> extends BaseAsyncNotifier<T> {
     _ref = container;
     super.setup(container, observer);
   }
+
+  /// Returns a debug version of the [notifier] where
+  /// you can set the state directly.
+  static TestableAsyncNotifier<N, T> test<N extends BaseAsyncNotifier<T>, T>({
+    required N notifier,
+    AsyncValue<T>? initialState,
+  }) {
+    return TestableAsyncNotifier(
+      notifier: notifier,
+      initialState: initialState,
+    );
+  }
 }
 
 /// A snapshot of the [AsyncNotifier].
