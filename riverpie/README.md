@@ -439,7 +439,7 @@ class SubtractEvent extends CountEvent {
 In the notifier, the event is handled by `reduce`:
 
 ```dart
-final counterProvider = NotifierProvider<Counter, int>((ref) {
+final counterProvider = ReduxProvider<Counter, int, CountEvent>((ref) {
   return Counter(ref.redux(providerA), ref.redux(providerB));
 });
 
@@ -520,7 +520,7 @@ Here is how the console output could look like:
 
 The `ViewProvider` is the only provider that can `watch` other providers.
 
-It is useful for view models that depend on multiple providers.
+This is useful for view models that depend on multiple providers.
 
 This requires more code but makes your app more testable.
 
