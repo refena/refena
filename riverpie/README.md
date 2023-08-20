@@ -742,6 +742,14 @@ Be aware that you will need to write more boilerplate code.
 | `Provider`, `ViewProvider`, `Notifier`      | notifiers, view models         | High                       |
 | `Provider`, `ViewProvider`, `ReduxProvider` | notifiers, view models, events | Very high                  |
 
+### ➤ Can I use different providers & notifiers together?
+
+Yes. You can use any combination of providers and notifiers.
+
+The cool thing about notifiers is that they are self-contained.
+
+It is actually pragmatic to use `Notifier` and `ReduxNotifier` together as each of them has its own strengths.
+
 ## Performance Optimization
 
 ### ➤ Selective watching
