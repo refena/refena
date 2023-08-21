@@ -27,8 +27,7 @@ Use `context.ref` to access the provider:
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final ref = context.ref;
-    final myValue = ref.watch(counterProvider);
+    final myValue = context.ref.watch(counterProvider);
     return Scaffold(
       body: Center(
         child: Text('The value is $myValue'),
@@ -321,7 +320,7 @@ Access:
 
 ```dart
 build(BuildContext context) {
-  AsyncSnapshot<String> versionAsync = ref.watch(versionProvider);
+  AsyncValue<String> versionAsync = ref.watch(versionProvider);
   return versionAsync.when(
     data: (version) => Text('Version: $version'),
     loading: () => const CircularProgressIndicator(),
