@@ -1,3 +1,7 @@
+## 0.13.0
+
+- bump `riverpie` to `0.13.0`
+
 ## 0.12.0
 
 - bump `riverpie` to `0.12.0`

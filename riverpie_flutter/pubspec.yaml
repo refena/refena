@@ -1,6 +1,6 @@
 name: riverpie_flutter
 description: A state management library for Dart and Flutter. Inspired by Riverpod.
-version: 0.12.0
+version: 0.13.0
 repository: https://github.com/Tienisto/riverpie
 topics:
   - state
@@ -16,7 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
   meta: ^1.9.0
-  riverpie: ^0.12.0
+  riverpie: ^0.13.0
 
 dev_dependencies:
   flutter_test:
