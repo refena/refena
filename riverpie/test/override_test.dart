@@ -89,6 +89,64 @@ void main() {
         ),
       ]);
     });
+
+    test('Should await async override', () async {
+      final providerA = FutureProvider((ref) async {
+        await Future.delayed(Duration(milliseconds: 50));
+        return 100;
+      });
+      final providerB = Provider<int>((ref) => throw 'Not initialized');
+      final ref = RiverpieContainer(
+        overrides: [
+          providerB.overrideWithFuture((ref) async {
+            return await ref.future(providerA) + 200;
+          }),
+        ],
+      );
+
+      expect(() => ref.read(providerB), throwsStateError);
+
+      final stopwatch = Stopwatch()..start();
+
+      await ref.ensureOverrides();
+      await ref.ensureOverrides(); // Should be safe to call multiple times
+
+      // >= 100 may infer that the future is awaited twice
+      expect(stopwatch.elapsedMilliseconds, lessThan(99));
+
+      expect(ref.read(providerB), 300);
+      expect(await ref.future(providerA), 100);
+    });
+
+    test('Should await multiple async overrides', () async {
+      final providerA = Provider<int>((ref) => throw 'Not initialized');
+      final providerB = Provider<int>((ref) => throw 'Not initialized');
+      final ref = RiverpieContainer(
+        overrides: [
+          // order is important
+          providerA.overrideWithFuture((ref) async {
+            await Future.delayed(Duration(milliseconds: 50));
+            return 100;
+          }),
+          providerB.overrideWithFuture((ref) async {
+            return ref.read(providerA) + 200;
+          }),
+        ],
+      );
+
+      expect(() => ref.read(providerA), throwsStateError);
+
+      final stopwatch = Stopwatch()..start();
+
+      await ref.ensureOverrides();
+      await ref.ensureOverrides(); // Should be safe to call multiple times
+
+      // >= 100 may infer that the future is awaited twice
+      expect(stopwatch.elapsedMilliseconds, lessThan(99));
+
+      expect(ref.read(providerB), 300);
+      expect(ref.read(providerA), 100);
+    });
   });
 
   group(FutureProvider, () {
@@ -257,7 +315,10 @@ class _AsyncNotifier extends AsyncNotifier<int> {
 
 class _OverrideAsyncNotifier extends _AsyncNotifier {
   @override
-  Future<int> init() => Future.value(456);
+  Future<int> init() async {
+    await Future.delayed(Duration(milliseconds: 50));
+    return Future.value(456);
+  }
 
   @override
   String get s => 'b';

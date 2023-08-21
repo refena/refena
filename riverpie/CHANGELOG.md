@@ -1,5 +1,6 @@
 ## 0.13.0
 
+- feat: add `provider.overrideWithFuture` for regular providers (should call `scope.ensureOverrides`)
 - fix: refer to non-override from override
 
 ## 0.12.0

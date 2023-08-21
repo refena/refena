@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/ref.dart';
@@ -8,7 +10,7 @@ class ProviderOverride<N extends BaseNotifier<T>, T> {
   final BaseProvider<N, T> provider;
 
   /// The state of the provider.
-  final N Function(Ref ref) createState;
+  final FutureOr<N> Function(Ref ref) createState;
 
   ProviderOverride({
     required this.provider,

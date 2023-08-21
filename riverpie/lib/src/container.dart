@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/emittable.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
@@ -31,28 +33,7 @@ class RiverpieContainer extends Ref {
     List<BaseProvider> initialProviders = const [],
     this.observer,
   }) : _overrides = _overridesToMap(overrides) {
-    for (final override in overrides) {
-      final provider = override.provider;
-      if (_state.containsKey(provider)) {
-        // Already initialized
-        // This may happen when a provider depends on another provider and
-        // both are overridden.
-        continue;
-      }
-
-      final notifier = override.createState(_withProviderLabel(provider));
-      notifier.setup(_withNotifierLabel(notifier), observer);
-      _state[provider] = notifier;
-
-      observer?.handleEvent(
-        ProviderInitEvent(
-          provider: provider,
-          notifier: notifier,
-          value: notifier.state, // ignore: invalid_use_of_protected_member
-          cause: ProviderInitCause.override,
-        ),
-      );
-    }
+    _overridesFuture = _initOverrides();
 
     // initialize all specified providers right away
     for (final provider in initialProviders) {
@@ -67,7 +48,55 @@ class RiverpieContainer extends Ref {
   final RiverpieObserver? observer;
 
   /// The overrides that are used to create overridden notifiers.
-  final Map<BaseProvider, BaseNotifier Function(Ref ref)>? _overrides;
+  final Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)>? _overrides;
+
+  /// The future that can be awaited on until all overrides are initialized.
+  late final Future<void> _overridesFuture;
+
+  /// Awaiting this future will ensure that all overrides are initialized.
+  /// Calling it multiple times is safe.
+  Future<void> ensureOverrides() {
+    return _overridesFuture;
+  }
+
+  Future<void> _initOverrides() async {
+    final overrides = _overrides?.entries;
+    if (overrides == null) {
+      return;
+    }
+
+    for (final override in overrides) {
+      final provider = override.key;
+      if (_state.containsKey(provider)) {
+        // Already initialized
+        // This may happen when a provider depends on another provider and
+        // both are overridden.
+        continue;
+      }
+
+      final notifierOrFuture = ProviderOverride(
+        provider: provider,
+        createState: override.value,
+      ).createState(_withProviderLabel(provider));
+
+      final BaseNotifier notifier = switch (notifierOrFuture) {
+        Future<BaseNotifier> future => await future,
+        BaseNotifier notifier => notifier,
+      };
+
+      notifier.setup(_withNotifierLabel(notifier), observer);
+      _state[provider] = notifier;
+
+      observer?.handleEvent(
+        ProviderInitEvent(
+          provider: provider,
+          notifier: notifier,
+          value: notifier.state, // ignore: invalid_use_of_protected_member
+          cause: ProviderInitCause.override,
+        ),
+      );
+    }
+  }
 
   /// Returns the state of the provider.
   ///
@@ -83,6 +112,12 @@ class RiverpieContainer extends Ref {
         provider,
         _withProviderLabel(provider),
       );
+
+      if (overridden is Future) {
+        throw StateError(
+            'Future override not initialized. Call await RiverpieContainer.ensureOverrides() first and ensure that the order of the overrides is correct.');
+      }
+
       notifier = overridden ??
           provider.createState(
             _withProviderLabel(provider),
@@ -177,6 +212,17 @@ class _ProxyContainer implements RiverpieContainer {
   final String debugOwnerLabel;
 
   @override
+  late final Future<void> _overridesFuture;
+
+  @override
+  Future<void> ensureOverrides() {
+    return _container.ensureOverrides();
+  }
+
+  @override
+  Future<void> _initOverrides() => throw UnimplementedError();
+
+  @override
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
     return _container.read<N, T>(provider);
   }
@@ -245,7 +291,7 @@ class _ProxyContainer implements RiverpieContainer {
   RiverpieObserver? get observer => throw UnimplementedError();
 }
 
-Map<BaseProvider, BaseNotifier Function(Ref ref)>? _overridesToMap(
+Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)>? _overridesToMap(
     List<ProviderOverride> overrides) {
   return overrides.isEmpty
       ? null
@@ -256,10 +302,10 @@ Map<BaseProvider, BaseNotifier Function(Ref ref)>? _overridesToMap(
         );
 }
 
-extension on Map<BaseProvider, BaseNotifier Function(Ref ref)> {
+extension on Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)> {
   /// Returns the overridden notifier for the provider.
-  N? createState<N extends BaseNotifier<T>, T>(
+  FutureOr<N>? createState<N extends BaseNotifier<T>, T>(
       BaseProvider<N, T> provider, Ref ref) {
-    return this[provider]?.call(ref) as N?;
+    return this[provider]?.call(ref) as FutureOr<N>?;
   }
 }

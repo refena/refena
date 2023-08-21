@@ -52,6 +52,13 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
   @override
   RiverpieObserver? get observer => _container.observer;
 
+  /// Awaiting this future will ensure that all overrides are initialized.
+  /// Calling it multiple times is safe.
+  @override
+  Future<void> ensureOverrides() {
+    return _container.ensureOverrides();
+  }
+
   /// Returns the actual value of a [Provider].
   @override
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {

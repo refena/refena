@@ -34,4 +34,18 @@ class Provider<T> extends BaseProvider<ImmutableNotifier<T>, T> {
       ),
     );
   }
+
+  /// Overrides the state of a provider with a predefined value.
+  /// Here, you can use a future to build the state.
+  ProviderOverride<ImmutableNotifier<T>, T> overrideWithFuture(
+    Future<T> Function(Ref ref) builder,
+  ) {
+    return ProviderOverride(
+      provider: this,
+      createState: (ref) async => ImmutableNotifier(
+        await builder(ref),
+        debugLabel: debugLabel ?? runtimeType.toString(),
+      ),
+    );
+  }
 }
