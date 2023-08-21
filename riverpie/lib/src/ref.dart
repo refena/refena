@@ -169,53 +169,6 @@ class WatchableRef extends Ref {
   String get debugOwnerLabel => _rebuildable.debugLabel;
 }
 
-/// A [Ref] that proxies all calls to another [Ref].
-/// Used to provide a custom [debugOwnerLabel] to [Ref.redux].
-class ProxyRef extends Ref {
-  ProxyRef(this._ref, this.debugOwnerLabel);
-
-  /// The ref to proxy all calls to.
-  final RiverpieContainer _ref;
-
-  /// The owner of this [Ref].
-  @override
-  final String debugOwnerLabel;
-
-  @override
-  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _ref.read<N, T>(provider);
-  }
-
-  @override
-  N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {
-    return _ref.notifier<N, T>(provider);
-  }
-
-  @override
-  Emittable<N, E> redux<N extends BaseReduxNotifier<T, E>, T, E extends Object>(
-    ReduxProvider<N, T, E> provider,
-  ) {
-    return Emittable(
-      notifier: _ref.anyNotifier(provider),
-      debugOrigin: debugOwnerLabel,
-    );
-  }
-
-  @override
-  Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider,
-  ) {
-    return _ref.stream<N, T>(provider);
-  }
-
-  @override
-  Future<T> future<N extends AsyncNotifier<T>, T>(
-    AsyncNotifierProvider<N, T> provider,
-  ) {
-    return _ref.future<N, T>(provider);
-  }
-}
-
 class ChronicleSnapshot<T> {
   /// The state of the notifier before the latest [future] was set.
   /// This is null if [AsyncNotifier.savePrev] is false

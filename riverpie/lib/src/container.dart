@@ -11,6 +11,7 @@ import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 import 'package:riverpie/src/provider/types/notifier_provider.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
+import 'package:riverpie/src/proxy_container.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// The [RiverpieContainer] holds the state of all providers.
@@ -32,7 +33,8 @@ class RiverpieContainer extends Ref {
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     this.observer,
-  }) : _overrides = _overridesToMap(overrides) {
+  })  : _overrides = _overridesToMap(overrides),
+        _overridesList = overrides {
     _overridesFuture = _initOverrides();
 
     // initialize all specified providers right away
@@ -50,6 +52,12 @@ class RiverpieContainer extends Ref {
   /// The overrides that are used to create overridden notifiers.
   final Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)>? _overrides;
 
+  /// The ordered overrides.
+  final List<ProviderOverride> _overridesList;
+
+  /// During initialization: current override index.
+  int _overrideIndex = 0;
+
   /// The future that can be awaited on until all overrides are initialized.
   late final Future<void> _overridesFuture;
 
@@ -60,13 +68,15 @@ class RiverpieContainer extends Ref {
   }
 
   Future<void> _initOverrides() async {
-    final overrides = _overrides?.entries;
-    if (overrides == null) {
+    if (_overridesList.isEmpty) {
       return;
     }
 
-    for (final override in overrides) {
-      final provider = override.key;
+    for (int i = 0; i < _overridesList.length; i++) {
+      _overrideIndex = i;
+      final provider = _overridesList[i].provider;
+      final createState = _overridesList[i].createState;
+
       if (_state.containsKey(provider)) {
         // Already initialized
         // This may happen when a provider depends on another provider and
@@ -76,7 +86,7 @@ class RiverpieContainer extends Ref {
 
       final notifierOrFuture = ProviderOverride(
         provider: provider,
-        createState: override.value,
+        createState: createState,
       ).createState(_withProviderLabel(provider));
 
       final BaseNotifier notifier = switch (notifierOrFuture) {
@@ -114,8 +124,17 @@ class RiverpieContainer extends Ref {
       );
 
       if (overridden is Future) {
-        throw StateError(
-            'Future override not initialized. Call await RiverpieContainer.ensureOverrides() first and ensure that the order of the overrides is correct.');
+        // Check index for better error messages
+        final overrideIndex = _overridesList.indexWhere(
+          (override) => override.provider == provider,
+        );
+        if (overrideIndex > _overrideIndex) {
+          throw ArgumentError(
+              '[${_overridesList[_overrideIndex].provider}] depends on [$provider] which is overridden later. Reorder future overrides.');
+        } else {
+          throw StateError(
+              'Future override not yet initialized. Call await RiverpieContainer.ensureOverrides() first.');
+        }
       }
 
       notifier = overridden ??
@@ -186,109 +205,20 @@ class RiverpieContainer extends Ref {
   String get debugOwnerLabel => 'RiverpieContainer';
 
   RiverpieContainer _withNotifierLabel(BaseNotifier notifier) {
-    return _ProxyContainer(
-        this, notifier.debugLabel ?? notifier.runtimeType.toString());
+    return ProxyContainer(
+      this,
+      notifier.debugLabel ?? notifier.runtimeType.toString(),
+    );
   }
 
   RiverpieContainer _withProviderLabel<N extends BaseNotifier<T>, T>(
-      BaseProvider<N, T> provider) {
-    return _ProxyContainer(
+    BaseProvider<N, T> provider,
+  ) {
+    return ProxyContainer(
       this,
       provider.debugLabel ?? N.toString(),
     );
   }
-}
-
-/// A container that proxies all calls to another [RiverpieContainer].
-/// Used to have a custom [debugOwnerLabel] for [Ref.redux].
-class _ProxyContainer implements RiverpieContainer {
-  _ProxyContainer(this._container, this.debugOwnerLabel);
-
-  /// The container to proxy all calls to.
-  final RiverpieContainer _container;
-
-  /// The owner of this [Ref].
-  @override
-  final String debugOwnerLabel;
-
-  @override
-  late final Future<void> _overridesFuture;
-
-  @override
-  Future<void> ensureOverrides() {
-    return _container.ensureOverrides();
-  }
-
-  @override
-  Future<void> _initOverrides() => throw UnimplementedError();
-
-  @override
-  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _container.read<N, T>(provider);
-  }
-
-  @override
-  N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {
-    return _container.notifier<N, T>(provider);
-  }
-
-  @override
-  N anyNotifier<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _container.anyNotifier<N, T>(provider);
-  }
-
-  @override
-  Emittable<N, E> redux<N extends BaseReduxNotifier<T, E>, T, E extends Object>(
-    ReduxProvider<N, T, E> provider,
-  ) {
-    return Emittable(
-      notifier: _container._getState(provider),
-      debugOrigin: debugOwnerLabel,
-    );
-  }
-
-  @override
-  Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider,
-  ) {
-    return _container.stream<N, T>(provider);
-  }
-
-  @override
-  Future<T> future<N extends AsyncNotifier<T>, T>(
-    AsyncNotifierProvider<N, T> provider,
-  ) {
-    return _container.future<N, T>(provider);
-  }
-
-  @override
-  N _getState<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider,
-      [ProviderInitCause cause = ProviderInitCause.access]) {
-    throw UnimplementedError();
-  }
-
-  @override
-  Map<BaseProvider<BaseNotifier, dynamic>, BaseNotifier Function(Ref ref)>?
-      get _overrides => throw UnimplementedError();
-
-  @override
-  Map<BaseProvider<BaseNotifier, dynamic>, BaseNotifier> get _state =>
-      throw UnimplementedError();
-
-  @override
-  RiverpieContainer _withNotifierLabel(BaseNotifier notifier) {
-    throw UnimplementedError();
-  }
-
-  @override
-  RiverpieContainer _withProviderLabel<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider,
-  ) {
-    throw UnimplementedError();
-  }
-
-  @override
-  RiverpieObserver? get observer => throw UnimplementedError();
 }
 
 Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)>? _overridesToMap(

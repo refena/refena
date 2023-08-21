@@ -254,21 +254,37 @@ Use this provider for immutable values (constants or stateless services).
 final myProvider = Provider((ref) => 42);
 ```
 
-You may initialize this during app start:
+You may initialize this during app start.\
+The override order is important:
+An exception will be thrown on app start if you reference a provider that is not yet initialized.\
+If you have at least one future override, you should await the initialization with `ref.ensureOverrides()`.
 
 ```dart
-final persistenceProvider = Provider<PersistenceService>((_) => throw 'Not initialized');
+final persistenceProvider = Provider<PersistenceService>((ref) => throw 'Not initialized');
+final apiProvider = Provider<ApiService>((ref) => throw 'Not initialized');
 
 void main() async {
-  final persistenceService = PersistenceService(await SharedPreferences.getInstance());
-  runApp(
-    RiverpieScope(
-      overrides: [
-        persistenceProvider.overrideWithValue((ref) => persistenceService),
-      ],
-      child: const MyApp(),
-    ),
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final scope = RiverpieScope(
+    overrides: [
+      // order is important
+      persistenceProvider.overrideWithFuture((ref) async {
+        final prefs = await SharedPreferences.getInstance();
+        return PersistenceService(prefs);
+      }),
+      apiProvider.overrideWithFuture((ref) async {
+        final persistenceService = ref.read(persistenceProvider);
+        final anotherService = await initAnotherService();
+        return ApiService(persistenceService, anotherService);
+      }),
+    ],
+    child: const MyApp(),
   );
+
+  await scope.ensureOverrides();
+
+  runApp(scope);
 }
 ```
 
@@ -892,6 +908,7 @@ void main() {
       RiverpieScope(
         overrides: [
           myProvider.overrideWithValue((ref) => 42),
+          myNotifierProvider.overrideWithNotifier((ref) => MyNotifier(42)),
         ],
         child: const MyApp(),
       ),

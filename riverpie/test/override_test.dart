@@ -104,7 +104,16 @@ void main() {
         ],
       );
 
-      expect(() => ref.read(providerB), throwsStateError);
+      expect(
+        () => ref.read(providerB),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            'Future override not yet initialized. Call await RiverpieContainer.ensureOverrides() first.',
+          ),
+        ),
+      );
 
       final stopwatch = Stopwatch()..start();
 
@@ -128,13 +137,22 @@ void main() {
             await Future.delayed(Duration(milliseconds: 50));
             return 100;
           }),
-          providerB.overrideWithFuture((ref) async {
+          providerB.overrideWithValue((ref) {
             return ref.read(providerA) + 200;
           }),
         ],
       );
 
-      expect(() => ref.read(providerA), throwsStateError);
+      expect(
+        () => ref.read(providerA),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            'Future override not yet initialized. Call await RiverpieContainer.ensureOverrides() first.',
+          ),
+        ),
+      );
 
       final stopwatch = Stopwatch()..start();
 
@@ -146,6 +164,42 @@ void main() {
 
       expect(ref.read(providerB), 300);
       expect(ref.read(providerA), 100);
+    });
+
+    test('Should throw error on wrong order of async overrides', () async {
+      final providerA = Provider<int>(
+        (ref) => throw 'Not initialized',
+        debugLabel: 'Provider A',
+      );
+      final providerB = Provider<int>(
+        (ref) => throw 'Not initialized',
+        debugLabel: 'Provider B',
+      );
+      init() => RiverpieContainer(
+            overrides: [
+              providerB.overrideWithValue((ref) {
+                return ref.read(providerA) + 200;
+              }),
+              providerA.overrideWithFuture((ref) async {
+                await Future.delayed(Duration(milliseconds: 50));
+                return 100;
+              }),
+            ],
+          );
+
+      await expectLater(
+        () async {
+          final ref = init();
+          await ref.ensureOverrides();
+        },
+        throwsA(
+          isA<ArgumentError>().having(
+            (e) => e.message,
+            'message',
+            '[Provider B] depends on [Provider A] which is overridden later. Reorder future overrides.',
+          ),
+        ),
+      );
     });
   });
 
