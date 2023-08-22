@@ -27,3 +27,13 @@ class SelectedWatchable<N extends BaseNotifier<T>, T, R>
   @override
   R getSelectedState(N notifier, T state) => _selector(state);
 }
+
+/// Additionally to [SelectedWatchable], this class holds a [param]
+/// that is passed to the selector function.
+class FamilySelectedWatchable<N extends BaseNotifier<T>, T, P, R>
+    extends SelectedWatchable<N, T, R> {
+  FamilySelectedWatchable(super._provider, this.param, super._selector);
+
+  /// The family parameter.
+  final P param;
+}

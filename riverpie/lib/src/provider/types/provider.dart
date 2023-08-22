@@ -7,7 +7,8 @@ import 'package:riverpie/src/ref.dart';
 /// Use a [Provider] to implement a stateless provider.
 /// Useful for dependency injection.
 /// Often used with [overrideWithValue] during initialization of the app.
-class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T> {
+class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
+    with ProviderSelectMixin<ImmutableNotifier<T>, T> {
   @internal
   final T Function(Ref ref) builder;
 

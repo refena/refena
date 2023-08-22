@@ -15,6 +15,7 @@ import 'package:riverpie/src/ref.dart';
 /// ref.watch(myProvider); // read
 /// ref.notifier(myProvider).setState((old) => old + 1); // write
 class StateProvider<T> extends NotifierProvider<StateNotifier<T>, T>
+    with ProviderSelectMixin<StateNotifier<T>, T>
     implements NotifyableProvider<StateNotifier<T>, T> {
   StateProvider(T Function(Ref ref) builder, {super.debugLabel})
       : super((ref) => StateNotifier<T>(

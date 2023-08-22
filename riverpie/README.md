@@ -232,16 +232,17 @@ There are many types of providers. Each one has its own purpose.
 
 The most important ones are `Provider` and `NotifierProvider` because they are the most flexible.
 
-| Provider                 | Usage                           | Notifier API   | Can `watch` |
-|--------------------------|---------------------------------|----------------|-------------|
-| `Provider`               | Constants or stateless services | -              | No          |
-| `FutureProvider`         | Immutable async values          | -              | No          |
-| `StateProvider`          | Simple states                   | `setState`     | No          |
-| `ChangeNotifierProvider` | Performance critical services   | Custom methods | No          |
-| `NotifierProvider`       | Regular services                | Custom methods | No          |
-| `AsyncNotifierProvider`  | Services that need futures      | Custom methods | No          |
-| `ReduxProvider`          | Event based services            | Event based    | No          |
-| `ViewProvider`           | View models                     | -              | Yes         |
+| Provider                 | Usage                                | Notifier API   | Can `watch` |
+|--------------------------|--------------------------------------|----------------|-------------|
+| `Provider`               | Constants or stateless services      | -              | No          |
+| `FutureProvider`         | Immutable async values               | -              | No          |
+| `FutureFamilyProvider`   | Immutable collection of async values | -              | No          |
+| `StateProvider`          | Simple states                        | `setState`     | No          |
+| `ChangeNotifierProvider` | Performance critical services        | Custom methods | No          |
+| `NotifierProvider`       | Regular services                     | Custom methods | No          |
+| `AsyncNotifierProvider`  | Services that need futures           | Custom methods | No          |
+| `ReduxProvider`          | Event based services                 | Event based    | No          |
+| `ViewProvider`           | View models                          | -              | Yes         |
 
 ### ➤ Provider
 
@@ -324,6 +325,25 @@ build(BuildContext context) {
     loading: () => const CircularProgressIndicator(),
     error: (error, stackTrace) => Text('Error: $error'),
   );
+}
+```
+
+### ➤ FutureFamilyProvider
+
+Use this provider for multiple asynchronous values.
+
+```dart
+final userProvider = FutureFamilyProvider<User, String>((ref, id) async {
+  final api = ref.read(apiProvider);
+  return api.fetchUser(id);
+});
+```
+
+Access:
+
+```dart
+build(BuildContext context) {
+  AsyncValue<User> userAsync = ref.watch(userProvider('123'));
 }
 ```
 

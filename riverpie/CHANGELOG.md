@@ -1,6 +1,7 @@
 ## 0.14.0
 
 - feat: add `ChangeNotifierProvider`
+- feat: add `FutureFamilyProvider`
 
 ## 0.13.0
 

@@ -6,7 +6,7 @@ import 'package:riverpie/src/provider/override.dart';
 
 /// Holds a [ReduxNotifier]
 class ReduxProvider<N extends BaseReduxNotifier<T, E>, T, E extends Object>
-    extends BaseWatchableProvider<N, T> {
+    extends BaseWatchableProvider<N, T> with ProviderSelectMixin<N, T> {
   @internal
   final N Function(Ref ref) builder;
 

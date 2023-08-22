@@ -8,6 +8,7 @@ import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
+import 'package:riverpie/src/notifier/types/future_family_provider_notifier.dart';
 import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
@@ -116,7 +117,13 @@ class WatchableRef extends Ref {
     if (notifier is! ImmutableNotifier) {
       // We need to add a listener to the notifier
       // to rebuild the widget when the state changes.
-      if (watchable is SelectedWatchable) {
+      if (watchable is SelectedWatchable<N, T, R>) {
+        if (watchable is FamilySelectedWatchable) {
+          // start future
+          final familyNotifier = notifier as FutureFamilyProviderNotifier;
+          final familyWatchable = watchable as FamilySelectedWatchable;
+          familyNotifier.startFuture(familyWatchable.param);
+        }
         notifier.addListener(
           _rebuildable,
           ListenerConfig(

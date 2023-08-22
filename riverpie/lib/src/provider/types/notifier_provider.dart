@@ -8,7 +8,9 @@ import 'package:riverpie/src/ref.dart';
 /// Changes to the state are propagated to all consumers that
 /// called [watch] on the provider.
 class NotifierProvider<N extends BaseSyncNotifier<T>, T>
-    extends BaseWatchableProvider<N, T> implements NotifyableProvider<N, T> {
+    extends BaseWatchableProvider<N, T>
+    with ProviderSelectMixin<N, T>
+    implements NotifyableProvider<N, T> {
   @internal
   final N Function(Ref ref) builder;
 
