@@ -125,8 +125,8 @@ class WatchableRef extends Ref {
               if (rebuildWhen?.call(prev, next) == false) {
                 return false;
               }
-              return watchable.getSelectedState(prev) !=
-                  watchable.getSelectedState(next);
+              return watchable.getSelectedState(notifier, prev) !=
+                  watchable.getSelectedState(notifier, next);
             },
           ),
         );
@@ -141,8 +141,7 @@ class WatchableRef extends Ref {
       }
     }
 
-    // ignore: invalid_use_of_protected_member
-    return watchable.getSelectedState(notifier.state);
+    return watchable.getSelectedState(notifier, notifier.state);
   }
 
   /// Similar to [watch] but also returns the previous value.

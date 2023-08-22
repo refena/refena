@@ -30,7 +30,6 @@ abstract class BaseNotifier<T> {
   BaseNotifier({this.debugLabel});
 
   /// Gets the current state.
-  @protected
   T get state => _state;
 
   /// Sets the state and notify listeners

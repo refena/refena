@@ -159,7 +159,6 @@ class RiverpieContainer extends Ref {
   /// Returns the actual value of a [Provider].
   @override
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    // ignore: invalid_use_of_protected_member
     return _getState(provider).state;
   }
 

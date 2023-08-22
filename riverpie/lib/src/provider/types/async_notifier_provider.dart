@@ -9,7 +9,7 @@ import 'package:riverpie/src/ref.dart';
 /// Changes to the state are propagated to all consumers that
 /// called [watch] on the provider.
 class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
-    extends BaseProvider<N, AsyncValue<T>>
+    extends BaseWatchableProvider<N, AsyncValue<T>>
     implements NotifyableProvider<N, AsyncValue<T>> {
   @internal
   final N Function(Ref ref) builder;

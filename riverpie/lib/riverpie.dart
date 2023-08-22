@@ -5,6 +5,7 @@ export 'package:riverpie/src/notifier/base_notifier.dart'
 export 'package:riverpie/src/notifier/emittable.dart';
 export 'package:riverpie/src/notifier/notifier_event.dart';
 export 'package:riverpie/src/notifier/types/async_notifier.dart';
+export 'package:riverpie/src/notifier/types/change_notifier.dart';
 export 'package:riverpie/src/notifier/types/future_provider_notifier.dart';
 export 'package:riverpie/src/notifier/types/immutable_notifier.dart';
 export 'package:riverpie/src/notifier/types/notifier.dart';
@@ -16,6 +17,7 @@ export 'package:riverpie/src/observer/event.dart';
 export 'package:riverpie/src/observer/history_observer.dart';
 export 'package:riverpie/src/observer/observer.dart';
 export 'package:riverpie/src/provider/types/async_notifier_provider.dart';
+export 'package:riverpie/src/provider/types/change_notifier_provider.dart';
 export 'package:riverpie/src/provider/types/future_provider.dart';
 export 'package:riverpie/src/provider/types/notifier_provider.dart';
 export 'package:riverpie/src/provider/types/provider.dart';

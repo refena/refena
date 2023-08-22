@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
+import 'package:riverpie/src/provider/types/change_notifier_provider.dart';
 import 'package:riverpie/src/provider/watchable.dart';
 import 'package:riverpie/src/ref.dart';
 
@@ -7,8 +8,7 @@ import 'package:riverpie/src/ref.dart';
 /// A "provider" is stateless.
 ///
 /// You may add a [debugLabel] for better logging.
-abstract class BaseProvider<N extends BaseNotifier<T>, T>
-    implements Watchable<N, T, T> {
+abstract class BaseProvider<N extends BaseNotifier<T>, T> {
   final String? debugLabel;
 
   BaseProvider({this.debugLabel});
@@ -20,6 +20,13 @@ abstract class BaseProvider<N extends BaseNotifier<T>, T>
   String toString() {
     return debugLabel ?? runtimeType.toString();
   }
+}
+
+/// A provider with default behaviour for [WatchableRef.watch].
+/// Inherited by all providers except [ChangeNotifierProvider].
+abstract class BaseWatchableProvider<N extends BaseNotifier<T>, T>
+    extends BaseProvider<N, T> implements Watchable<N, T, T> {
+  BaseWatchableProvider({super.debugLabel});
 
   @override
   BaseProvider<N, T> get provider => this;
@@ -27,7 +34,7 @@ abstract class BaseProvider<N extends BaseNotifier<T>, T>
   /// The default behavior to return the whole state when
   /// using `ref.watch(provider)`.
   @override
-  T getSelectedState(T state) => state;
+  T getSelectedState(N notifier, T state) => state;
 
   /// Used for ref.watch(provider.select(...)).
   /// Select a part of the state.

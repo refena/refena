@@ -1,3 +1,7 @@
+## 0.14.0
+
+- feat: add `ChangeNotifierProvider`
+
 ## 0.13.0
 
 - feat: add `provider.overrideWithFuture` for regular providers (should call `scope.ensureOverrides`)

@@ -9,7 +9,8 @@ import 'package:riverpie/src/ref.dart';
 /// A common use case is to define a view model that depends on many providers.
 /// Don't worry about the [ref], you can use it freely inside any function.
 /// The [ref] will never become invalid.
-class ViewProvider<T> extends BaseProvider<ViewProviderNotifier<T>, T> {
+class ViewProvider<T>
+    extends BaseWatchableProvider<ViewProviderNotifier<T>, T> {
   @internal
   final T Function(WatchableRef ref) builder;
 

@@ -48,15 +48,12 @@ class MyPage extends StatelessWidget {
     - [Provider](#-provider)
     - [FutureProvider](#-futureprovider)
     - [StateProvider](#-stateprovider)
+    - [ChangeNotifierProvider](#-changenotifierprovider)
     - [NotifierProvider](#-notifierprovider)
     - [AsyncNotifierProvider](#-asyncnotifierprovider)
     - [ReduxProvider](#-reduxprovider)
     - [ViewProvider](#-viewprovider)
 - [Notifiers](#notifiers)
-    - [Notifier](#-notifier)
-    - [AsyncNotifier](#-asyncnotifier)
-    - [PureNotifier](#-purenotifier)
-    - [ReduxNotifier](#-reduxnotifier)
 - [Using ref](#using-ref)
     - [ref.read](#-refread)
     - [ref.watch](#-refwatch)
@@ -235,15 +232,16 @@ There are many types of providers. Each one has its own purpose.
 
 The most important ones are `Provider` and `NotifierProvider` because they are the most flexible.
 
-| Provider                | Usage                               | Notifier API   | Can `watch` |
-|-------------------------|-------------------------------------|----------------|-------------|
-| `Provider`              | For constants or stateless services | -              | No          |
-| `FutureProvider`        | For immutable async values          | -              | No          |
-| `StateProvider`         | For simple states                   | `setState`     | No          |
-| `NotifierProvider`      | For regular services                | Custom methods | No          |
-| `AsyncNotifierProvider` | For services that need futures      | Custom methods | No          |
-| `ReduxProvider`         | For event based services            | Event based    | No          |
-| `ViewProvider`          | For view models                     | -              | Yes         |
+| Provider                 | Usage                           | Notifier API   | Can `watch` |
+|--------------------------|---------------------------------|----------------|-------------|
+| `Provider`               | Constants or stateless services | -              | No          |
+| `FutureProvider`         | Immutable async values          | -              | No          |
+| `StateProvider`          | Simple states                   | `setState`     | No          |
+| `ChangeNotifierProvider` | Performance critical services   | Custom methods | No          |
+| `NotifierProvider`       | Regular services                | Custom methods | No          |
+| `AsyncNotifierProvider`  | Services that need futures      | Custom methods | No          |
+| `ReduxProvider`          | Event based services            | Event based    | No          |
+| `ViewProvider`           | View models                     | -              | Yes         |
 
 ### ➤ Provider
 
@@ -341,6 +339,45 @@ Update the state:
 
 ```dart
 ref.notifier(myProvider).setState((old) => old + 1);
+```
+
+### ➤ ChangeNotifierProvider
+
+Use this provider if you have many rebuilds and need to optimize performance (e.g., progress indicator).
+
+```dart
+final myProvider = ChangeNotifierProvider((ref) => MyNotifier());
+
+class MyNotifier extends ChangeNotifier {
+  int _counter = 0;
+  int get counter => _counter;
+
+  void increment() {
+    _counter++;
+    notifyListeners();
+  }
+}
+```
+
+To listen, use `ref.watch`:
+
+```dart
+build(BuildContext context) {
+  final counter = ref.watch(myProvider).counter;
+  return Scaffold(
+    body: Center(
+      child: Column(
+        children: [
+          Text('The value is $counter'),
+          ElevatedButton(
+            onPressed: ref.notifier(myProvider).increment,
+            child: const Text('Increment'),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 ```
 
 ### ➤ NotifierProvider
@@ -589,20 +626,19 @@ class SettingsPage extends StatelessWidget {
 
 A notifier holds the actual state and triggers rebuilds on widgets listening to them.
 
-Use notifiers in combination with `NotifierProvider`, `AsyncNotifierProvider`, or `ReduxProvider`.
+| Provider         | Usage                             | Provider                 | Exposes `ref` |
+|------------------|-----------------------------------|--------------------------|---------------|
+| `Notifier`       | For any use case                  | `NotifierProvider`       | Yes           |
+| `ChangeNotifier` | For performance critical services | `ChangeNotifierProvider` | Yes           |
+| `AsyncNotifier`  | For async values                  | `AsyncNotifierProvider`  | Yes           |
+| `PureNotifier`   | For clean architectures           | `NotifierProvider`       | No            |
+| `ReduxNotifier`  | For very clean architectures      | `ReduxProvider`          | No            |
 
-| Provider        | Usage                        | Provider                | Exposes `ref` |
-|-----------------|------------------------------|-------------------------|---------------|
-| `Notifier`      | For any use case             | `NotifierProvider`      | Yes           |
-| `AsyncNotifier` | For async values             | `AsyncNotifierProvider` | Yes           |
-| `PureNotifier`  | For clean architectures      | `NotifierProvider`      | No            |
-| `ReduxNotifier` | For very clean architectures | `ReduxProvider`         | No            |
+### ➤ Notifier vs PureNotifier
 
-### ➤ Notifier
+`Notifier` and `PureNotifier` are very similar.
 
-The `Notifier` is the fastest and easiest way to implement a notifier.
-
-It has access to `ref`, so you can access any provider at any time.
+The difference is that the `Notifier` has access to `ref` and the `PureNotifier` does not.
 
 ```dart
 // You need to specify the generics (<..>) to have the correct type inference
@@ -620,11 +656,7 @@ class Counter extends Notifier<int> {
 }
 ```
 
-### ➤ PureNotifier
-
-The `PureNotifier` is the stricter option.
-
-It has no access to `ref` making this notifier self-contained.
+A `PureNotifier` has no access to `ref` making this notifier self-contained.
 
 This is often used in combination with dependency injection, where you provide the dependencies via constructor.
 
@@ -648,14 +680,6 @@ class PureCounter extends PureNotifier<int> {
   }
 }
 ```
-
-### ➤ AsyncNotifier
-
-See [AsyncNotifierProvider](#-asyncnotifierprovider).
-
-### ➤ ReduxNotifier
-
-See [ReduxProvider](#-reduxprovider).
 
 ## Using ref
 

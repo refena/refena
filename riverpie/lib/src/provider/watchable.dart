@@ -9,7 +9,7 @@ abstract class Watchable<N extends BaseNotifier<T>, T, R> {
   BaseProvider<N, T> get provider;
 
   @internal
-  R getSelectedState(T state);
+  R getSelectedState(N notifier, T state);
 }
 
 /// A concrete implementation of [Watchable] that is used
@@ -25,5 +25,5 @@ class SelectedWatchable<N extends BaseNotifier<T>, T, R>
   BaseProvider<N, T> get provider => _provider;
 
   @override
-  R getSelectedState(T state) => _selector(state);
+  R getSelectedState(N notifier, T state) => _selector(state);
 }
