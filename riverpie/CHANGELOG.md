@@ -1,3 +1,7 @@
+## 0.15.1
+
+- fix: missing `FutureFamilyProvider` export
+
 ## 0.15.0
 
 - **BREAKING**: `ReduxAction` is now action based instead of event based
