@@ -107,6 +107,11 @@ class WatchableRef extends Ref {
   /// use `ref.watch(provider.select((state) => state.attribute))` to
   /// select a part of the state and only rebuild when this part changes.
   ///
+  /// Do NOT execute this method multiple times as only the last one
+  /// will be used for the rebuild condition.
+  /// Instead, you should use *Records* to combine multiple values:
+  /// final (a, b) = ref.watch(provider.select((state) => state.a, state.b));
+  ///
   /// Only call [watch] during build.
   R watch<N extends BaseNotifier<T>, T, R>(
     Watchable<N, T, R> watchable, {

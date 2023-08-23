@@ -843,6 +843,17 @@ build(BuildContext context) {
 You can use both `select` and `rebuildWhen` at the same time.
 The `select` will be applied, when `rebuildWhen` returns `true`.
 
+Do **not** execute `ref.watch` multiple times as only the last one will be used for the rebuild condition.
+Instead, you should use *Records* to combine multiple values.
+
+```dart
+build(BuildContext context) {
+  final (themeMode, locale) = ref.watch(settingsProvider.select((settings) {
+    return (settings.theme, settings.locale);
+  }));
+}
+```
+
 ## ensureRef
 
 In a `StatefulWidget`, you can use `ensureRef` to access the providers and notifiers within `initState`.
