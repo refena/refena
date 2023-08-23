@@ -38,7 +38,7 @@ void main() {
     final history1 =
         observer.history[1] as ChangeEvent<Map<int, AsyncValue<int>>>;
     expect(history1.notifier, doubleNotifier);
-    expect(history1.event, null);
+    expect(history1.action, null);
     expect(history1.prev, {});
     expect(history1.next, {123: AsyncValue<int>.loading()});
     expect(history1.rebuild, []);
@@ -56,14 +56,14 @@ void main() {
     final history4 =
         observer.history[4] as ChangeEvent<Map<int, AsyncValue<int>>>;
     expect(history4.notifier, doubleNotifier);
-    expect(history4.event, null);
+    expect(history4.action, null);
     expect(history4.prev, {123: AsyncValue<int>.loading()});
     expect(history4.next, {123: AsyncValue.withData(246)});
     expect(history4.rebuild, [viewNotifier]);
 
     final history5 = observer.history[5] as ChangeEvent<AsyncValue<int>>;
     expect(history5.notifier, viewNotifier);
-    expect(history5.event, null);
+    expect(history5.action, null);
     expect(history5.prev, AsyncValue<int>.loading());
     expect(history5.next, AsyncValue.withData(246));
     expect(history5.rebuild, []);

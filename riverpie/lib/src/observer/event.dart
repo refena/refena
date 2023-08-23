@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
+import 'package:riverpie/src/notifier/redux.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 
 const _eq = IterableEquality();
@@ -15,8 +16,8 @@ final class ChangeEvent<T> extends RiverpieEvent {
   /// The notifier that fired the change event.
   final BaseNotifier<T> notifier;
 
-  /// The [event] if the change was triggered by an [ReduxNotifier].
-  final Object? event;
+  /// The dispatched [action] if the change was triggered by an [ReduxNotifier].
+  final Object? action;
 
   /// The previous state before the event.
   final T prev;
@@ -29,7 +30,7 @@ final class ChangeEvent<T> extends RiverpieEvent {
 
   ChangeEvent({
     required this.notifier,
-    required this.event,
+    required this.action,
     required this.prev,
     required this.next,
     required this.rebuild,
@@ -41,7 +42,7 @@ final class ChangeEvent<T> extends RiverpieEvent {
         other is ChangeEvent &&
             runtimeType == other.runtimeType &&
             notifier == other.notifier &&
-            event == other.event &&
+            action == other.action &&
             prev == other.prev &&
             next == other.next &&
             _eq.equals(rebuild, other.rebuild);
@@ -50,14 +51,14 @@ final class ChangeEvent<T> extends RiverpieEvent {
   @override
   int get hashCode =>
       notifier.hashCode ^
-      event.hashCode ^
+      action.hashCode ^
       prev.hashCode ^
       next.hashCode ^
       rebuild.hashCode;
 
   @override
   String toString() {
-    return 'ChangeEvent{notifier: $notifier, event: $event, prev: $prev, next: $next, rebuild: $rebuild}';
+    return 'ChangeEvent{notifier: $notifier, action: $action, prev: $prev, next: $next, rebuild: $rebuild}';
   }
 }
 
@@ -176,7 +177,7 @@ final class ListenerRemovedEvent extends RiverpieEvent {
 }
 
 /// An event has been emitted.
-class EventEmittedEvent extends RiverpieEvent {
+class ActionDispatchedEvent extends RiverpieEvent {
   /// The owner of the event.
   /// Usually, this is a notifier or a widget.
   final String debugOrigin;
@@ -185,28 +186,29 @@ class EventEmittedEvent extends RiverpieEvent {
   final BaseNotifier notifier;
 
   /// The event that has been emitted.
-  final Object event;
+  final ReduxAction action;
 
-  EventEmittedEvent({
+  ActionDispatchedEvent({
     required this.debugOrigin,
     required this.notifier,
-    required this.event,
+    required this.action,
   });
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is EventEmittedEvent &&
+      other is ActionDispatchedEvent &&
           runtimeType == other.runtimeType &&
           debugOrigin == other.debugOrigin &&
           notifier == other.notifier &&
-          event == other.event;
+          action == other.action;
 
   @override
-  int get hashCode => debugOrigin.hashCode ^ notifier.hashCode ^ event.hashCode;
+  int get hashCode =>
+      debugOrigin.hashCode ^ notifier.hashCode ^ action.hashCode;
 
   @override
   String toString() {
-    return 'EventEmittedEvent{debugOwnerLabel: $debugOrigin, notifier: $notifier, event: $event}';
+    return 'ActionDispatchedEvent{debugOwnerLabel: $debugOrigin, notifier: $notifier, action: $action}';
   }
 }

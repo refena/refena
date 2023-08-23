@@ -1,3 +1,7 @@
+## 0.15.0
+
+- **BREAKING**: `ReduxAction` is now action based instead of event based
+
 ## 0.14.0
 
 - feat: add `ChangeNotifierProvider`

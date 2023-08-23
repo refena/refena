@@ -1,6 +1,6 @@
 import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
-import 'package:riverpie/src/notifier/emittable.dart';
+import 'package:riverpie/src/notifier/dispatcher.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
@@ -41,10 +41,10 @@ class ProxyContainer implements RiverpieContainer {
   }
 
   @override
-  Emittable<N, E> redux<N extends BaseReduxNotifier<T, E>, T, E extends Object>(
-    ReduxProvider<N, T, E> provider,
+  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
+    ReduxProvider<N, T> provider,
   ) {
-    return Emittable(
+    return Dispatcher(
       notifier: _container.anyNotifier(provider),
       debugOrigin: debugOwnerLabel,
     );

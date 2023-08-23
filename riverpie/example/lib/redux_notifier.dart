@@ -12,28 +12,37 @@ final class SubtractEvent extends CountEvent {
   SubtractEvent(this.subtractedAmount);
 }
 
-final counterProvider = ReduxProvider<ReduxCounter, int, CountEvent>((ref) {
+final counterProvider = ReduxProvider<ReduxCounter, int>((ref) {
   return ReduxCounter(ref.notifier(counterProviderA));
 });
 
-class ReduxCounter extends ReduxNotifier<int, CountEvent> {
+class ReduxCounter extends ReduxNotifier<int> {
   final Counter counter;
   ReduxCounter(this.counter);
 
   @override
   int init() => 0;
+}
+
+class AddAction extends ReduxAction<ReduxCounter, int> {
+  final int addedAmount;
+
+  AddAction(this.addedAmount);
 
   @override
-  int reduce(CountEvent event) {
-    counter.state; // access another state
-    return switch (event) {
-      AddEvent() => state + event.addedAmount,
-      SubtractEvent() => _handleSubtractEvent(event),
-    };
+  int reduce() {
+    return state + addedAmount;
   }
+}
 
-  int _handleSubtractEvent(SubtractEvent event) {
-    return state - event.subtractedAmount;
+class SubtractAction extends ReduxAction<ReduxCounter, int> {
+  final int subtractedAmount;
+
+  SubtractAction(this.subtractedAmount);
+
+  @override
+  int reduce() {
+    return state - subtractedAmount;
   }
 }
 
@@ -67,11 +76,15 @@ class MyPage extends StatelessWidget {
         children: [
           Text(state.toString()),
           ElevatedButton(
-            onPressed: () => ref.redux(counterProvider).emit(AddEvent(2)),
+            onPressed: () {
+              ref.redux(counterProvider).dispatch(AddAction(2));
+            },
             child: const Text('Increment'),
           ),
           ElevatedButton(
-            onPressed: () => ref.redux(counterProvider).emit(SubtractEvent(3)),
+            onPressed: () {
+              ref.redux(counterProvider).dispatch(SubtractAction(3));
+            },
             child: const Text('Decrement'),
           ),
         ],

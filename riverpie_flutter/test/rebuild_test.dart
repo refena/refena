@@ -219,14 +219,14 @@ void main() {
       ),
       ChangeEvent(
         notifier: notifierA,
-        event: null,
+        action: null,
         prev: 111,
         next: 222,
         rebuild: [notifier],
       ),
       ChangeEvent(
         notifier: notifier,
-        event: null,
+        action: null,
         prev: _Vm(
           value: '111 - 999',
           setA: (_) {},
@@ -241,14 +241,14 @@ void main() {
       ),
       ChangeEvent(
         notifier: notifierB,
-        event: null,
+        action: null,
         prev: 999,
         next: 888,
         rebuild: [notifier],
       ),
       ChangeEvent(
         notifier: notifier,
-        event: null,
+        action: null,
         prev: _Vm(
           value: '222 - 999',
           setA: (_) {},

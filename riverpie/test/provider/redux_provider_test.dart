@@ -1,11 +1,12 @@
+import 'dart:async';
+
 import 'package:riverpie/riverpie.dart';
 import 'package:test/test.dart';
 
 void main() {
   test('Should change state', () {
     final notifier = _Counter();
-    final provider =
-        ReduxProvider<_Counter, int, CountEvent>((ref) => notifier);
+    final provider = ReduxProvider<_Counter, int>((ref) => notifier);
     final observer = RiverpieHistoryObserver.all();
     final ref = RiverpieContainer(
       observer: observer,
@@ -13,11 +14,11 @@ void main() {
 
     expect(ref.read(provider), 123);
 
-    ref.redux(provider).notifier.emit(AddEvent(2));
+    ref.redux(provider).notifier.dispatch(_AddAction(2));
 
     expect(ref.read(provider), 125);
 
-    ref.redux(provider).emit(SubtractEvent(5));
+    ref.redux(provider).dispatch(_SubtractAction(5));
 
     expect(ref.read(provider), 120);
 
@@ -29,26 +30,26 @@ void main() {
         cause: ProviderInitCause.access,
         value: 123,
       ),
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: '_Counter',
         notifier: notifier,
-        event: AddEvent(2),
+        action: _AddAction(2),
       ),
       ChangeEvent(
         notifier: notifier,
-        event: AddEvent(2),
+        action: _AddAction(2),
         prev: 123,
         next: 125,
         rebuild: [],
       ),
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
         notifier: notifier,
-        event: SubtractEvent(5),
+        action: _SubtractAction(5),
       ),
       ChangeEvent(
         notifier: notifier,
-        event: SubtractEvent(5),
+        action: _SubtractAction(5),
         prev: 125,
         next: 120,
         rebuild: [],
@@ -58,8 +59,7 @@ void main() {
 
   test('Should await event', () async {
     final notifier = _AsyncCounter();
-    final provider =
-        ReduxProvider<_AsyncCounter, int, CountEvent>((ref) => notifier);
+    final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
     final observer = RiverpieHistoryObserver();
     final ref = RiverpieContainer(
       observer: observer,
@@ -67,66 +67,66 @@ void main() {
 
     expect(ref.read(provider), 123);
 
-    ref.redux(provider).emit(SubtractEvent(5));
+    ref.redux(provider).dispatch(_AsyncSubtractAction(5));
     expect(ref.read(provider), 123);
-    ref.redux(provider).emit(AddEvent(2));
-    expect(ref.read(provider), 123);
+    ref.redux(provider).dispatch(_AsyncAddAction(2));
+    expect(ref.read(provider), 125);
 
     await Future.delayed(Duration(milliseconds: 100));
     expect(ref.read(provider), 120);
 
-    await ref.redux(provider).notifier.emit(SubtractEvent(5));
+    await ref.redux(provider).notifier.dispatch(_AsyncSubtractAction(5));
     expect(ref.read(provider), 115);
 
-    await ref.redux(provider).emit(SubtractEvent(5));
+    await ref.redux(provider).dispatch(_AsyncSubtractAction(5));
     expect(ref.read(provider), 110);
 
     // Check events
     expect(observer.history, [
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
         notifier: notifier,
-        event: SubtractEvent(5),
+        action: _AsyncSubtractAction(5),
       ),
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
         notifier: notifier,
-        event: AddEvent(2),
+        action: _AsyncAddAction(2),
       ),
       ChangeEvent(
         notifier: notifier,
-        event: AddEvent(2),
+        action: _AsyncAddAction(2),
         prev: 123,
         next: 125,
         rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
-        event: SubtractEvent(5),
+        action: _AsyncSubtractAction(5),
         prev: 125,
         next: 120,
         rebuild: [],
       ),
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: '_AsyncCounter',
         notifier: notifier,
-        event: SubtractEvent(5),
+        action: _AsyncSubtractAction(5),
       ),
       ChangeEvent(
         notifier: notifier,
-        event: SubtractEvent(5),
+        action: _AsyncSubtractAction(5),
         prev: 120,
         next: 115,
         rebuild: [],
       ),
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
         notifier: notifier,
-        event: SubtractEvent(5),
+        action: _AsyncSubtractAction(5),
       ),
       ChangeEvent(
         notifier: notifier,
-        event: SubtractEvent(5),
+        action: _AsyncSubtractAction(5),
         prev: 115,
         next: 110,
         rebuild: [],
@@ -135,69 +135,94 @@ void main() {
   });
 }
 
-sealed class CountEvent {
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CountEvent && runtimeType == other.runtimeType;
+final counterProvider = ReduxProvider<_Counter, int>((ref) => _Counter());
 
-  @override
-  int get hashCode => runtimeType.hashCode;
-}
-
-final class AddEvent extends CountEvent {
-  final int addedAmount;
-
-  AddEvent(this.addedAmount);
-}
-
-final class SubtractEvent extends CountEvent {
-  final int subtractedAmount;
-
-  SubtractEvent(this.subtractedAmount);
-}
-
-final counterProvider =
-    ReduxProvider<_Counter, int, CountEvent>((ref) => _Counter());
-
-class _Counter extends ReduxNotifier<int, CountEvent> {
+class _Counter extends ReduxNotifier<int> {
   @override
   int init() => 123;
+}
+
+class _AddAction extends ReduxAction<_Counter, int> {
+  final int amount;
+
+  _AddAction(this.amount);
 
   @override
-  int reduce(CountEvent event) {
-    return switch (event) {
-      AddEvent() => state + event.addedAmount,
-      SubtractEvent() => _handleSubtractEvent(event),
-    };
+  int reduce() {
+    return state + amount;
   }
 
-  int _handleSubtractEvent(SubtractEvent event) {
-    return state - event.subtractedAmount;
+  @override
+  bool operator ==(Object other) {
+    return other is _AddAction && other.amount == amount;
   }
+
+  @override
+  int get hashCode => amount.hashCode;
+}
+
+class _SubtractAction extends ReduxAction<_Counter, int> {
+  final int amount;
+
+  _SubtractAction(this.amount);
+
+  @override
+  int reduce() {
+    return state - amount;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _SubtractAction && other.amount == amount;
+  }
+
+  @override
+  int get hashCode => amount.hashCode;
 }
 
 final asyncCounterProvider =
-    ReduxProvider<_AsyncCounter, int, CountEvent>((ref) => _AsyncCounter());
+    ReduxProvider<_AsyncCounter, int>((ref) => _AsyncCounter());
 
-class _AsyncCounter extends ReduxNotifier<int, CountEvent> {
+class _AsyncCounter extends ReduxNotifier<int> {
   @override
   int init() => 123;
+}
+
+class _AsyncAddAction extends ReduxAction<_AsyncCounter, int> {
+  final int amount;
+
+  _AsyncAddAction(this.amount);
 
   @override
-  Future<int> reduce(CountEvent event) async {
-    return switch (event) {
-      AddEvent() => _handleAddEvent(event),
-      SubtractEvent() => _handleSubtractEvent(event),
-    };
+  int reduce() {
+    return state + amount;
   }
 
-  Future<int> _handleAddEvent(AddEvent event) async {
-    return state + event.addedAmount;
+  @override
+  bool operator ==(Object other) {
+    return other is _AsyncAddAction && other.amount == amount;
   }
 
-  Future<int> _handleSubtractEvent(SubtractEvent event) async {
+  @override
+  int get hashCode => amount.hashCode;
+}
+
+class _AsyncSubtractAction extends ReduxAction<_AsyncCounter, int> {
+  final int amount;
+
+  _AsyncSubtractAction(this.amount);
+
+  @override
+  Future<int> reduce() async {
     await Future.delayed(Duration(milliseconds: 50));
-    return state - event.subtractedAmount;
+    return state - amount;
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _AsyncSubtractAction && other.amount == amount;
+  }
+
+  @override
+  int get hashCode => amount.hashCode;
 }

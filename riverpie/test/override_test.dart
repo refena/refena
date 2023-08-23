@@ -274,7 +274,8 @@ void main() {
 
   group(ReduxNotifier, () {
     test('Should override with notifier', () {
-      final provider = ReduxProvider((ref) => _ReduxNotifier());
+      final provider =
+          ReduxProvider<_ReduxNotifier, int>((ref) => _ReduxNotifier());
       final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithNotifier((ref) => _OverrideReduxNotifier()),
@@ -283,21 +284,21 @@ void main() {
 
       expect(ref.read(provider), 456);
 
-      ref.redux(provider).emit(_Event.inc);
+      ref.redux(provider).dispatch(_IncAction());
 
-      expect(ref.read(provider), 458);
+      expect(ref.read(provider), 457);
     });
 
     test('Should override with enum reducer', () {
       final provider =
-          ReduxProvider<_ReduxNotifier, int, _Event>((ref) => _ReduxNotifier());
+          ReduxProvider<_ReduxNotifier, int>((ref) => _ReduxNotifier());
       final ref = RiverpieContainer(
         overrides: [
           provider.overrideWithReducer(
             notifier: (ref) => _ReduxNotifier(),
             overrides: {
-              _Event.inc: (state, event) => state + 21,
-              _Event.dec: null,
+              _IncAction: (state) => state + 21,
+              _DecAction: null,
             },
           ),
         ],
@@ -306,41 +307,16 @@ void main() {
       expect(ref.read(provider), 123);
 
       // Should use the overridden reducer
-      ref.redux(provider).emit(_Event.inc);
+      ref.redux(provider).dispatch(_IncAction());
       expect(ref.read(provider), 144);
 
       // Should not change the state
-      ref.redux(provider).emit(_Event.dec);
+      ref.redux(provider).dispatch(_DecAction());
       expect(ref.read(provider), 144);
 
       // Should not be overridden
-      ref.anyNotifier(provider).emit(_Event.half);
+      ref.anyNotifier(provider).dispatch(_HalfAction());
       expect(ref.read(provider), 72);
-    });
-
-    test('Should override with class reducer', () {
-      final provider =
-          ReduxProvider<_Counter, int, _CountEvent>((ref) => _Counter());
-      final ref = RiverpieContainer(
-        overrides: [
-          provider.overrideWithReducer(
-            overrides: {
-              _AddEvent: (state, event) => state + 21,
-              _SubtractEvent: null,
-            },
-          ),
-        ],
-      );
-
-      expect(ref.read(provider), 123);
-
-      // Should use the overridden reducer
-      ref.redux(provider).emit(_AddEvent());
-      expect(ref.read(provider), 144);
-
-      // Should not change the state
-      ref.redux(provider).emit(_SubtractEvent());
-      expect(ref.read(provider), 144);
     });
   });
 }
@@ -378,51 +354,33 @@ class _OverrideAsyncNotifier extends _AsyncNotifier {
   String get s => 'b';
 }
 
-enum _Event { inc, dec, half }
-
-class _ReduxNotifier extends ReduxNotifier<int, _Event> {
+class _ReduxNotifier extends ReduxNotifier<int> {
   @override
   int init() => 123;
+}
 
+class _IncAction extends ReduxAction<_ReduxNotifier, int> {
   @override
-  int reduce(_Event event) {
-    return switch (event) {
-      _Event.inc => state + 1,
-      _Event.dec => state - 1,
-      _Event.half => state ~/ 2,
-    };
+  int reduce() {
+    return state + 1;
+  }
+}
+
+class _DecAction extends ReduxAction<_ReduxNotifier, int> {
+  @override
+  int reduce() {
+    return state - 1;
+  }
+}
+
+class _HalfAction extends ReduxAction<_ReduxNotifier, int> {
+  @override
+  int reduce() {
+    return state ~/ 2;
   }
 }
 
 class _OverrideReduxNotifier extends _ReduxNotifier {
   @override
   int init() => 456;
-
-  @override
-  int reduce(_Event event) {
-    return switch (event) {
-      _Event.inc => state + 2,
-      _Event.dec => state - 2,
-      _Event.half => state ~/ 4,
-    };
-  }
-}
-
-sealed class _CountEvent {}
-
-class _AddEvent extends _CountEvent {}
-
-class _SubtractEvent extends _CountEvent {}
-
-class _Counter extends ReduxNotifier<int, _CountEvent> {
-  @override
-  int init() => 123;
-
-  @override
-  int reduce(_CountEvent event) {
-    return switch (event) {
-      _AddEvent() => state + 1,
-      _SubtractEvent() => state - 1,
-    };
-  }
 }

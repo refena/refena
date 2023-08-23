@@ -1,9 +1,10 @@
 export 'package:riverpie/src/async_value.dart';
 export 'package:riverpie/src/container.dart';
 export 'package:riverpie/src/notifier/base_notifier.dart'
-    show ReduxNotifierOverrideExt, Reducer, TestableReduxNotifier;
-export 'package:riverpie/src/notifier/emittable.dart';
+    show ReduxNotifierOverrideExt, MockReducer, TestableReduxNotifier;
+export 'package:riverpie/src/notifier/dispatcher.dart';
 export 'package:riverpie/src/notifier/notifier_event.dart';
+export 'package:riverpie/src/notifier/redux.dart';
 export 'package:riverpie/src/notifier/types/async_notifier.dart';
 export 'package:riverpie/src/notifier/types/change_notifier.dart';
 export 'package:riverpie/src/notifier/types/future_provider_notifier.dart';

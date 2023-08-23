@@ -1,12 +1,12 @@
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/async_value.dart';
 import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
+import 'package:riverpie/src/notifier/redux.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/override.dart';
@@ -40,7 +40,7 @@ abstract class BaseNotifier<T> {
 
   /// Sets the state and notify listeners (the actual implementation).
   // We need to extract this method to make [ReduxNotifier] work.
-  void _setState(T value, Object? event) {
+  void _setState(T value, Object? action) {
     if (!_initialized) {
       // We allow initializing the state before the initialization
       // by Riverpie is done.
@@ -58,7 +58,7 @@ abstract class BaseNotifier<T> {
       _observer?.handleEvent(
         ChangeEvent<T>(
           notifier: this,
-          event: event,
+          action: action,
           prev: oldState,
           next: value,
           rebuild: notified!,
@@ -176,38 +176,49 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   }
 }
 
-/// A notifier where the state can be updated by emitting events.
-/// Events are emitted by calling [emit].
-/// They are handled by the notifier with [reduce].
+/// A notifier where the state can be updated by dispatching actions
+/// by calling [dispatch].
 ///
-/// You do not have access to [ref] in this notifier, so you need to pass
+/// You do not have access to [Ref] in this notifier, so you need to pass
 /// the required dependencies via constructor.
+///
+/// From outside, you can should dispatch events with
+/// `ref.redux(provider).dispatch(action)`.
+///
+/// Dispatching from the notifier itself is also possible but
+/// you will lose the implicit [debugOrigin] stored in a [Ref].
 @internal
-abstract class BaseReduxNotifier<T, E extends Object> extends BaseNotifier<T> {
+abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   BaseReduxNotifier({super.debugLabel}) {
     // Initialize right away for easier unit testing.
     _state = init();
   }
 
   /// A map of overrides for the reducers.
-  Map<Object, Reducer<T, E>?>? _overrides;
+  Map<Type, MockReducer<T>?>? _overrides;
 
   /// Emits an event to update the state.
-  FutureOr<void> emit(E event, {String? debugOrigin}) async {
-    _observer?.handleEvent(EventEmittedEvent(
+  FutureOr<void> dispatch(
+    ReduxAction<BaseReduxNotifier<T>, T> action, {
+    String? debugOrigin,
+  }) async {
+    _observer?.handleEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
       notifier: this,
-      event: event,
+      action: action,
     ));
 
     if (_overrides != null) {
       // Handle overrides
-      final key = event is Enum ? event : event.runtimeType;
-      final override = _overrides![event is Enum ? event : event.runtimeType];
+      final key = action.runtimeType;
+      final override = _overrides![key];
       if (override != null) {
         // Use the override reducer
-        final newState = override(state, event);
-        _setState(newState, event);
+        final newState = switch (override(state)) {
+          Future future => await future,
+          T value => value,
+        };
+        _setState(newState, action);
         return;
       } else if (_overrides!.containsKey(key)) {
         // If the override is null (but the key exist),
@@ -216,30 +227,26 @@ abstract class BaseReduxNotifier<T, E extends Object> extends BaseNotifier<T> {
       }
     }
 
-    final newState = reduce(event);
-    if (newState is Future<T>) {
-      // If the reducer returns a Future, wait for it to complete
-      try {
-        _setState(await newState, event);
-      } catch (e) {
-        rethrow;
-      }
-    } else {
-      // If the reducer returns a plain value, update the state directly
-      _setState(newState, event);
+    action.setup(this);
+    final newState = action.reduce();
+    switch (newState) {
+      case Future<T> future:
+        // If the reducer returns a Future, wait for it to complete
+        try {
+          _setState(await future, action);
+        } catch (e) {
+          rethrow;
+        }
+        break;
+      case T value:
+        // If the reducer returns a plain value, update the state directly
+        _setState(value, action);
+        break;
     }
   }
 
-  /// Returns the new state after applying the event.
-  @protected
-  FutureOr<T> reduce(E event);
-
-  /// Overrides the reducer for the given event type.
-  void _setOverrides(Map<Object, Reducer<T, E>?> overrides) {
-    assert(
-      overrides.keys.every((k) => k is Type || (k is Enum && k is E)),
-      'The keys of the overrides map must be either a Type or a valid Enum. Invalid: ${overrides.keys.whereNot((k) => k is Type || (k is Enum && k is E)).toList()}',
-    );
+  /// Overrides the reducer for the given action type.
+  void _setOverrides(Map<Type, MockReducer<T>?> overrides) {
     _overrides = overrides;
   }
 
@@ -322,7 +329,7 @@ class TestableAsyncNotifier<N extends BaseAsyncNotifier<T>, T> {
 
 /// A wrapper for [BaseReduxNotifier] that exposes [setState] and [state].
 /// This is useful for unit tests.
-class TestableReduxNotifier<T, E extends Object> {
+class TestableReduxNotifier<T> {
   TestableReduxNotifier({
     required this.notifier,
     T? initialState,
@@ -333,11 +340,12 @@ class TestableReduxNotifier<T, E extends Object> {
   }
 
   /// The wrapped notifier.
-  final BaseReduxNotifier<T, E> notifier;
+  final BaseReduxNotifier<T> notifier;
 
   /// Emits an event to update the state.
-  FutureOr<void> emit(E event, {String? debugOrigin}) {
-    return notifier.emit(event, debugOrigin: debugOrigin);
+  FutureOr<void> dispatch(covariant ReduxAction<BaseReduxNotifier<T>, T> action,
+      {String? debugOrigin}) async {
+    return notifier.dispatch(action, debugOrigin: debugOrigin);
   }
 
   /// Updates the state without emitting an event.
@@ -347,10 +355,10 @@ class TestableReduxNotifier<T, E extends Object> {
   T get state => notifier.state;
 }
 
-typedef Reducer<T, E extends Object> = T Function(T state, E event);
+typedef MockReducer<T> = FutureOr<T> Function(T state);
 
-extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T, E>, T,
-    E extends Object> on ReduxProvider<N, T, E> {
+extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T>, T,
+    E extends Object> on ReduxProvider<N, T> {
   /// Overrides the reducer with the given [overrides].
   ///
   /// Usage:
@@ -358,9 +366,8 @@ extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T, E>, T,
   ///   overrides: [
   ///     notifierProvider.overrideWithReducer(
   ///       overrides: {
-  ///         MyEvent: (state, event) => state + 1,
-  ///         MyAnotherEvent: null, // empty reducer
-  ///         MyEnum.value: null, // enum event
+  ///         MyAction: (state) => state + 1,
+  ///         MyAnotherAction: null, // empty reducer
   ///         ...
   ///       },
   ///     ),
@@ -368,7 +375,7 @@ extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T, E>, T,
   /// );
   ProviderOverride<N, T> overrideWithReducer({
     N Function(Ref ref)? notifier,
-    required Map<Object, Reducer<T, E>?> overrides,
+    required Map<Type, MockReducer<T>?> overrides,
   }) {
     return ProviderOverride<N, T>(
       provider: this,

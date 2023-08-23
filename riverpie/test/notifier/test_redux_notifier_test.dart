@@ -9,13 +9,13 @@ void main() {
 
     expect(counter.state, 50);
 
-    counter.emit(_ChangeEvent.increment);
+    counter.dispatch(IncrementAction());
     expect(counter.state, 51);
 
     counter.setState(5);
     expect(counter.state, 5);
 
-    counter.emit(_ChangeEvent.decrement);
+    counter.dispatch(DecrementAction());
     expect(counter.state, 4);
   });
 
@@ -27,22 +27,26 @@ void main() {
 
     expect(counter.state, 11);
 
-    counter.emit(_ChangeEvent.increment);
+    counter.dispatch(IncrementAction());
     expect(counter.state, 12);
   });
 }
 
-enum _ChangeEvent { increment, decrement }
-
-class _Counter extends ReduxNotifier<int, _ChangeEvent> {
+class _Counter extends ReduxNotifier<int> {
   @override
   int init() => 50;
+}
 
+class IncrementAction extends ReduxAction<_Counter, int> {
   @override
-  int reduce(_ChangeEvent event) {
-    return switch (event) {
-      _ChangeEvent.increment => state + 1,
-      _ChangeEvent.decrement => state - 1,
-    };
+  int reduce() {
+    return state + 1;
+  }
+}
+
+class DecrementAction extends ReduxAction<_Counter, int> {
+  @override
+  int reduce() {
+    return state - 1;
   }
 }

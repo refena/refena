@@ -80,10 +80,10 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
   }
 
   @override
-  Emittable<N, E> redux<N extends BaseReduxNotifier<T, E>, T, E extends Object>(
-    ReduxProvider<N, T, E> provider,
+  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
+    ReduxProvider<N, T> provider,
   ) {
-    return Emittable(
+    return Dispatcher(
       notifier: _container.anyNotifier(provider),
       debugOrigin: debugOwnerLabel,
     );

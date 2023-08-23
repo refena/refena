@@ -30,7 +30,7 @@ void main() {
       ),
       ChangeEvent(
         notifier: notifier,
-        event: null,
+        action: null,
         prev: AsyncValue<int>.loading(),
         next: AsyncValue.withData(123),
         rebuild: [],
@@ -101,7 +101,7 @@ void main() {
       ),
       ChangeEvent(
         notifier: notifierA,
-        event: null,
+        action: null,
         prev: AsyncValue<String>.loading(),
         next: AsyncValue.withData('AAA'),
         rebuild: [],
@@ -114,14 +114,14 @@ void main() {
       ),
       ChangeEvent(
         notifier: notifierB,
-        event: null,
+        action: null,
         prev: AsyncValue<String>.loading(),
         next: AsyncValue.withData('BBB'),
         rebuild: [],
       ),
       ChangeEvent(
         notifier: notifierC,
-        event: null,
+        action: null,
         prev: AsyncValue<String>.loading(),
         next: AsyncValue.withData('AAA BBB CCC'),
         rebuild: [],

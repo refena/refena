@@ -5,7 +5,7 @@ void main() {
   late RiverpieContainer ref;
   final observer = RiverpieHistoryObserver(HistoryObserverConfig(
     saveChangeEvents: false,
-    saveEventEmittedEvents: true,
+    saveActionDispatchedEvents: true,
   ));
 
   setUp(() {
@@ -16,40 +16,40 @@ void main() {
   });
 
   test('Should use container label', () {
-    ref.redux(_reduxProviderA).emit(AddEvent(2));
+    ref.redux(_reduxProviderA).dispatch(_AddActionA(2));
 
     final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
         notifier: notifier,
-        event: AddEvent(2),
+        action: _AddActionA(2),
       ),
     ]);
   });
 
   test('Should use given label', () {
-    ref.redux(_reduxProviderA).emit(AddEvent(2), debugOrigin: 'MyLabel');
+    ref.redux(_reduxProviderA).dispatch(_AddActionA(2), debugOrigin: 'MyLabel');
 
     final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: 'MyLabel',
         notifier: notifier,
-        event: AddEvent(2),
+        action: _AddActionA(2),
       ),
     ]);
   });
 
   test('Should use label of ReduxNotifier', () {
     final notifier = ref.redux(_reduxProviderA).notifier;
-    notifier.emit(AddEvent(2));
+    notifier.dispatch(_AddActionA(2));
 
     expect(observer.history, [
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: '_ReduxA',
         notifier: notifier,
-        event: AddEvent(2),
+        action: _AddActionA(2),
       ),
     ]);
   });
@@ -59,10 +59,10 @@ void main() {
 
     final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: '_AnotherNotifier',
         notifier: notifier,
-        event: AddEvent(5),
+        action: _AddActionA(5),
       ),
     ]);
   });
@@ -72,10 +72,10 @@ void main() {
 
     final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: 'ViewProvider<_Vm>',
         notifier: notifier,
-        event: AddEvent(10),
+        action: _AddActionA(10),
       ),
     ]);
   });
@@ -83,85 +83,98 @@ void main() {
   test('Should use same label when another notifier provided via DI', () {
     final notifierA = ref.redux(_reduxProviderA).notifier;
     final notifierB = ref.redux(_reduxProviderB).notifier;
-    notifierA.emitEventOfB();
+    notifierA.dispatch(_DispatchBAction());
     expect(observer.history, [
-      EventEmittedEvent(
+      ActionDispatchedEvent(
+        debugOrigin: '_ReduxA',
+        notifier: notifierA,
+        action: _DispatchBAction(),
+      ),
+      ActionDispatchedEvent(
         debugOrigin: '_ReduxA',
         notifier: notifierB,
-        event: AddEvent(12),
+        action: _AddActionB(12),
       ),
     ]);
   });
 }
 
-final _reduxProviderA = ReduxProvider<_ReduxA, int, _CountEvent>((ref) {
+final _reduxProviderA = ReduxProvider<_ReduxA, int>((ref) {
   return _ReduxA(ref.redux(_reduxProviderB));
 });
 
-class _ReduxA extends ReduxNotifier<int, _CountEvent> {
-  _ReduxA(this._reduxB);
+class _ReduxA extends ReduxNotifier<int> {
+  _ReduxA(this.reduxB);
 
-  final Emittable<_ReduxB, _CountEvent> _reduxB;
+  final Dispatcher<_ReduxB, int> reduxB;
 
   @override
   int init() => 0;
-
-  @override
-  int reduce(_CountEvent event) {
-    return switch (event) {
-      AddEvent() => state + event.value,
-      SubtractEvent() => state - event.value,
-    };
-  }
 
   void trigger() {
-    emit(AddEvent(11));
-  }
-
-  void emitEventOfB() {
-    _reduxB.emit(AddEvent(12));
+    dispatch(_AddActionA(11));
   }
 }
 
-final _reduxProviderB =
-    ReduxProvider<_ReduxB, int, _CountEvent>((ref) => _ReduxB());
-
-class _ReduxB extends ReduxNotifier<int, _CountEvent> {
-  @override
-  int init() => 0;
-
-  @override
-  int reduce(_CountEvent event) {
-    return switch (event) {
-      AddEvent() => state + event.value,
-      SubtractEvent() => state - event.value,
-    };
-  }
-}
-
-sealed class _CountEvent {
-  _CountEvent(this.value);
-
+class _AddActionA extends ReduxAction<_ReduxA, int> {
   final int value;
+
+  _AddActionA(this.value);
+
+  @override
+  int reduce() {
+    return state + value;
+  }
 
   @override
   bool operator ==(Object other) {
-    return identical(this, other) ||
-        other is _CountEvent &&
-            runtimeType == other.runtimeType &&
-            value == other.value;
+    return other is _AddActionA && other.value == value;
   }
 
   @override
   int get hashCode => value.hashCode;
 }
 
-class AddEvent extends _CountEvent {
-  AddEvent(super.value);
+class _DispatchBAction extends ReduxAction<_ReduxA, int> {
+  @override
+  int reduce() {
+    notifier.reduxB.dispatch(_AddActionB(12));
+    return state;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _DispatchBAction;
+  }
+
+  @override
+  int get hashCode => 0;
 }
 
-class SubtractEvent extends _CountEvent {
-  SubtractEvent(super.value);
+final _reduxProviderB = ReduxProvider<_ReduxB, int>((ref) => _ReduxB());
+
+class _ReduxB extends ReduxNotifier<int> {
+  @override
+  int init() => 0;
+}
+
+class _AddActionB extends ReduxAction<_ReduxB, int> {
+  final int value;
+
+  _AddActionB(this.value);
+
+  @override
+  int reduce() {
+    return state + value;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _AddActionB && other.value == value;
+  }
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 final _anotherProvider = NotifierProvider<_AnotherNotifier, int>((ref) {
@@ -173,7 +186,7 @@ class _AnotherNotifier extends Notifier<int> {
   int init() => 0;
 
   void trigger() {
-    ref.redux(_reduxProviderA).emit(AddEvent(5));
+    ref.redux(_reduxProviderA).dispatch(_AddActionA(5));
   }
 }
 
@@ -185,6 +198,6 @@ class _Vm {
 
 final _viewProvider = ViewProvider<_Vm>((ref) {
   return _Vm(() {
-    ref.redux(_reduxProviderA).emit(AddEvent(10));
+    ref.redux(_reduxProviderA).dispatch(_AddActionA(10));
   });
 });

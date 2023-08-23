@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:riverpie/src/async_value.dart';
 import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
-import 'package:riverpie/src/notifier/emittable.dart';
+import 'package:riverpie/src/notifier/dispatcher.dart';
 import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
@@ -27,8 +27,8 @@ abstract class Ref {
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider);
 
   /// Get an [Emittable] of a provider.
-  Emittable<N, E> redux<N extends BaseReduxNotifier<T, E>, T, E extends Object>(
-    ReduxProvider<N, T, E> provider,
+  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
+    ReduxProvider<N, T> provider,
   );
 
   /// Listen for changes to a provider.
@@ -74,10 +74,10 @@ class WatchableRef extends Ref {
   }
 
   @override
-  Emittable<N, E> redux<N extends BaseReduxNotifier<T, E>, T, E extends Object>(
-    ReduxProvider<N, T, E> provider,
+  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
+    ReduxProvider<N, T> provider,
   ) {
-    return Emittable(
+    return Dispatcher(
       notifier: _ref.anyNotifier(provider),
       debugOrigin: debugOwnerLabel,
     );

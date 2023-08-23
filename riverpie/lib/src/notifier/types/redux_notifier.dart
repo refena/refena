@@ -1,19 +1,23 @@
 import 'package:riverpie/src/notifier/base_notifier.dart';
 
-/// A notifier where the state can be updated by emitting events.
-/// Events are emitted by calling [emit].
-/// They are handled by the notifier with [reduce].
+/// A notifier where the state can be updated by dispatching actions
+/// by calling [dispatch].
 ///
-/// You do not have access to [ref] in this notifier, so you need to pass
+/// You do not have access to [Ref] in this notifier, so you need to pass
 /// the required dependencies via constructor.
-abstract class ReduxNotifier<T, E extends Object>
-    extends BaseReduxNotifier<T, E> {
+///
+/// From outside, you can should dispatch events with
+/// `ref.redux(provider).dispatch(action)`.
+///
+/// Dispatching from the notifier itself is also possible but
+/// you will lose the implicit [debugOrigin] stored in a [Ref].
+abstract class ReduxNotifier<T> extends BaseReduxNotifier<T> {
   ReduxNotifier({super.debugLabel});
 
   /// Returns a debug version of the [notifier] where
   /// you can set the state directly.
-  static TestableReduxNotifier<T, E> test<T, E extends Object>({
-    required BaseReduxNotifier<T, E> redux,
+  static TestableReduxNotifier<T> test<T, E extends Object>({
+    required BaseReduxNotifier<T> redux,
     T? initialState,
   }) {
     return TestableReduxNotifier(

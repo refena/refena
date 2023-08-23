@@ -26,7 +26,7 @@ void main() {
       ),
       ChangeEvent(
         notifier: notifier,
-        event: null,
+        action: null,
         prev: 123,
         next: 124,
         rebuild: [],

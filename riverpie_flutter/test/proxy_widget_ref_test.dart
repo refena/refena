@@ -5,7 +5,7 @@ import 'package:riverpie_flutter/riverpie_flutter.dart';
 void main() {
   final observer = RiverpieHistoryObserver(HistoryObserverConfig(
     saveChangeEvents: false,
-    saveEventEmittedEvents: true,
+    saveActionDispatchedEvents: true,
   ));
 
   setUp(() {
@@ -31,10 +31,10 @@ void main() {
 
     final notifier = ref.anyNotifier(counterProvider);
     expect(observer.history, [
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: 'MyPage',
         notifier: notifier,
-        event: CounterEvent.increment,
+        action: IncrementAction(),
       ),
     ]);
   });
@@ -58,31 +58,37 @@ void main() {
 
     final notifier = ref.redux(counterProvider).notifier;
     expect(observer.history, [
-      EventEmittedEvent(
+      ActionDispatchedEvent(
         debugOrigin: 'Banana',
         notifier: notifier,
-        event: CounterEvent.increment,
+        action: IncrementAction(),
       ),
     ]);
   });
 }
 
-enum CounterEvent { increment }
-
-final counterProvider = ReduxProvider<Counter, int, CounterEvent>((ref) {
+final counterProvider = ReduxProvider<Counter, int>((ref) {
   return Counter();
 });
 
-class Counter extends ReduxNotifier<int, CounterEvent> {
+class Counter extends ReduxNotifier<int> {
   @override
   int init() => 0;
+}
+
+class IncrementAction extends ReduxAction<Counter, int> {
+  @override
+  int reduce() {
+    return state + 1;
+  }
 
   @override
-  int reduce(CounterEvent event) {
-    return switch (event) {
-      CounterEvent.increment => state + 1,
-    };
+  bool operator ==(Object other) {
+    return other is IncrementAction;
   }
+
+  @override
+  int get hashCode => 0;
 }
 
 class MyPage extends StatelessWidget {
@@ -96,7 +102,7 @@ class MyPage extends StatelessWidget {
           Text(context.ref.watch(counterProvider).toString()),
           ElevatedButton(
             onPressed: () {
-              context.ref.redux(counterProvider).emit(CounterEvent.increment);
+              context.ref.redux(counterProvider).dispatch(IncrementAction());
             },
             child: const Text('Increment'),
           ),
@@ -119,7 +125,7 @@ class ConsumerPage extends StatelessWidget {
             Text(ref.watch(counterProvider).toString()),
             ElevatedButton(
               onPressed: () {
-                ref.redux(counterProvider).emit(CounterEvent.increment);
+                ref.redux(counterProvider).dispatch(IncrementAction());
               },
               child: const Text('Increment'),
             ),
