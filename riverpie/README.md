@@ -381,7 +381,7 @@ class MyNotifier extends ChangeNotifier {
 }
 ```
 
-To listen, use `ref.watch`:
+Use `ref.watch` to listen and `ref.notifier` to call methods:
 
 ```dart
 build(BuildContext context) {
@@ -530,11 +530,16 @@ class SubtractAction extends ReduxAction<Counter, int> {
 
   @override
   void after() {
-    external(notifier.serviceA).dispatch(SomeAction()); // dispatch actions in other notifiers
-    if (notifier.serviceB.state == 3) { // access the state of other notifiers
+    // dispatch actions of other notifiers
+    external(notifier.serviceA).dispatch(SomeAction());
+
+    // access the state of other notifiers
+    if (notifier.serviceB.state == 3) {
       // ...
     }
-    dispatch(AddAction(amount - 1)); // dispatch actions in the same notifier
+
+    // dispatch actions in the same notifier
+    dispatch(AddAction(amount - 1));
   }
 }
 ```
@@ -789,12 +794,12 @@ you may want to use `ReduxProvider` and `ViewProvider`.
 
 Be aware that you will need to write more boilerplate code.
 
-| Providers & Notifiers                       | Boilerplate                     | Testability, Extensibility |
-|---------------------------------------------|---------------------------------|----------------------------|
-| `Provider`, `StateProvider`                 |                                 | Low                        |
-| `Provider`, `Notifier`, `PureNotifier`      | notifiers                       | Medium                     |
-| `Provider`, `ViewProvider`, `Notifier`      | notifiers, view models          | High                       |
-| `Provider`, `ViewProvider`, `ReduxProvider` | notifiers, view models, actions | Very high                  |
+| Providers & Notifiers                          | Boilerplate                     | Testability |
+|------------------------------------------------|---------------------------------|-------------|
+| `Provider`, `StateProvider`                    |                                 | Low         |
+| `Provider`, `NotifierProvider`                 | notifiers                       | Medium      |
+| `Provider`, `ViewProvider`, `NotifierProvider` | notifiers, view models          | High        |
+| `Provider`, `ViewProvider`, `ReduxProvider`    | notifiers, view models, actions | Very high   |
 
 ### ➤ Can I use different providers & notifiers together?
 
@@ -1067,7 +1072,7 @@ void main() {
       ),
       ChangeEvent(
         notifier: myNotifier,
-        event: null,
+        action: null,
         prev: 1,
         next: 2,
         rebuild: [WidgetRebuildable<MyLoginPage>()],
