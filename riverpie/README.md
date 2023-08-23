@@ -241,7 +241,7 @@ The most important ones are `Provider` and `NotifierProvider` because they are t
 | `ChangeNotifierProvider` | Performance critical services        | Custom methods | No          |
 | `NotifierProvider`       | Regular services                     | Custom methods | No          |
 | `AsyncNotifierProvider`  | Services that need futures           | Custom methods | No          |
-| `ReduxProvider`          | Event based services                 | Event based    | No          |
+| `ReduxProvider`          | Action based services                | Action based   | No          |
 | `ViewProvider`           | View models                          | -              | Yes         |
 
 ### ➤ Provider
@@ -487,66 +487,55 @@ AsyncSnapshot<int> curr = counterState.curr; // might be AsyncSnapshot.waiting()
 
 ### ➤ ReduxProvider
 
-The `ReduxProvider` is the strictest option. The `state` is solely altered by events.
+The `ReduxProvider` is the strictest option. The `state` is solely altered by actions.
+
+You need to provide other notifiers via constructor making the `ReduxNotifier` self-contained and testable.
 
 This has two main benefits:
 
-- **Logging:** With `RiverpieDebugObserver`, you can see every event in the console.
+- **Logging:** With `RiverpieDebugObserver`, you can see every action in the console.
 - **Testing:** You can easily test the state transitions.
 
-It works best with enums or `sealed` classes as an event type:
-
 ```dart
-sealed class CountEvent {}
-class AddEvent extends CountEvent {
-  final int addedAmount;
-  AddEvent(this.addedAmount);
-}
-class SubtractEvent extends CountEvent {
-  final int subtractedAmount;
-  SubtractEvent(this.subtractedAmount);
-}
-```
-
-In the notifier, the event is handled by `reduce`:
-
-```dart
-final counterProvider = ReduxProvider<Counter, int, CountEvent>((ref) {
+final counterProvider = ReduxProvider<Counter, int>((ref) {
   return Counter(ref.redux(providerA), ref.redux(providerB));
 });
 
-class Counter extends ReduxNotifier<int, CountEvent> {
-  final Emittable<ServiceA, EventTypeA> serviceA;
-  final Emittable<ServiceB, EventTypeB> serviceB;
+class Counter extends ReduxNotifier<int> {
+  final Dispatcher<ServiceA, StateA> serviceA;
+  final Dispatcher<ServiceB, StateB> serviceB;
   
   Counter(this.serviceA, this.serviceB);
   
   @override
   int init() => 0;
+}
 
+class AddAction extends ReduxAction<Counter, int> {
+  final int amount;
+  AddAction(this.amount);
+  
   @override
-  int reduce(CountEvent event) {
-    return switch (event) {
-      AddEvent() => state + event.addedAmount,
-      SubtractEvent() => handleSubtract(event, state),
-    };
-  }
+  int reduce() => state + amount;
+}
 
-  // Complex logic can be extracted into a separate method.
-  // Adding the state parameter makes this easier to test.
-  int handleSubtract(CountEvent event, int state) {
-    serviceA.emit(SomeEvent());
-    serviceB.emit(SomeEvent());
-    final stateB = serviceB.state;
-    if (stateB == 3) {
+class SubtractAction extends ReduxAction<Counter, int> {
+  final int amount;
+  SubtractAction(this.amount);
+  
+  @override
+  int reduce() {
+    notifier.serviceA.dispatch(SomeAction()); // dispatch actions in other notifiers
+    if (notifier.serviceB.state == 3) { // access the state of other notifiers
       // ...
     }
-    return state - event.subtractedAmount;
+    dispatch(AddAction(amount - 1)); // dispatch actions in the same notifier
+    return state - amount;
   }
 }
 ```
 
-The widget can trigger events with `ref.redux(provider).emit(event)`:
+The widget can trigger actions with `ref.redux(provider).dispatch(action)`:
 
 ```dart
 class MyPage extends StatelessWidget {
@@ -561,11 +550,11 @@ class MyPage extends StatelessWidget {
         children: [
           Text(state.toString()),
           ElevatedButton(
-            onPressed: () => ref.redux(counterProvider).emit(AddEvent(2)),
+            onPressed: () => ref.redux(counterProvider).dispatch(AddAction(2)),
             child: const Text('Increment'),
           ),
           ElevatedButton(
-            onPressed: () => ref.redux(counterProvider).emit(SubtractEvent(3)),
+            onPressed: () => ref.redux(counterProvider).dispatch(SubtractAction(3)),
             child: const Text('Decrement'),
           ),
         ],
@@ -576,15 +565,15 @@ class MyPage extends StatelessWidget {
 ```
 
 Don't worry about asynchronous business logic.\
-The reduce method is defined as `FutureOr<T> reduce(E event)`.
+The reduce method is defined as `FutureOr<T> reduce()`.
 
-Here is how the console output could look like:
+Here is how the console output could look like with `RiverpieDebugObserver`:
 
 ```text
-[Riverpie] Event emitted: [Counter.SubtractEvent] by [MyPage]
-[Riverpie] Change by [Counter] triggered by [SubtractEvent]
-            - Prev: 5
-            - Next: 4
+[Riverpie] Action dispatched: [ReduxCounter.SubtractAction] by [MyPage]
+[Riverpie] Change by [ReduxCounter] triggered by [SubtractAction]
+            - Prev: 8
+            - Next: 5
             - Rebuild (1): [MyPage]
 ```
 
@@ -775,12 +764,12 @@ ref.notifier(counterProvider).increment();
 
 ### ➤ ref.redux
 
-Emit an event to a `ReduxProvider`.
+Dispatches an action to a `ReduxProvider`.
 
 ```dart
-ref.redux(myReduxProvider).emit(MyEvent());
+ref.redux(myReduxProvider).dispatch(MyAction());
 
-await ref.redux(myReduxProvider).emit(MyEvent());
+await ref.redux(myReduxProvider).dispatch(MyAction());
 ```
 
 ## What to choose?
@@ -978,7 +967,7 @@ void main() {
 
 ### ➤ Testing ReduxProvider
 
-For simple tests, you can use `ReduxNotifier.test`.
+For simple tests, you can use `ReduxNotifier.test`. It provides a `state` getter, a `setState` method and optionally allows you to specify an initial state.
 
 ```dart
 void main() {
@@ -990,7 +979,7 @@ void main() {
 
     expect(counter.state, 11);
 
-    counter.emit(CounterEvent.increment);
+    counter.dispatch(IncrementAction());
     expect(counter.state, 12);
 
     counter.setState(42); // set state directly
@@ -1008,8 +997,8 @@ void main() {
       overrides: [
         counterProvider.overrideWithReducer(
           overrides: {
-            AddEvent: (state, event) => state + 20,
-            SubtractEvent: null, // do nothing
+            IncrementAction: (state) => state + 20,
+            DecrementAction: null, // do nothing
           },
         ),
       ],
@@ -1018,11 +1007,11 @@ void main() {
     expect(ref.read(counterProvider), 0);
 
     // Should use the overridden reducer
-    ref.redux(counterProvider).emit(AddEvent());
+    ref.redux(counterProvider).dispatch(IncrementAction());
     expect(ref.read(counterProvider), 20);
 
     // Should not change the state
-    ref.redux(counterProvider).emit(SubtractEvent());
+    ref.redux(counterProvider).dispatch(DecrementAction());
     expect(ref.read(counterProvider), 20);
   });
 }

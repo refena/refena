@@ -26,7 +26,7 @@ abstract class Ref {
   /// Get the notifier of a provider.
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider);
 
-  /// Get an [Emittable] of a provider.
+  /// Get a proxy class to dispatch actions to a [ReduxNotifier].
   Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
     ReduxProvider<N, T> provider,
   );
@@ -48,7 +48,7 @@ abstract class Ref {
 
   /// Returns the owner of this [Ref].
   /// Usually, this is a notifier or a widget.
-  /// Used by [Ref.redux] to log the owner of the event.
+  /// Used by [Ref.redux] to log the origin of the action.
   String get debugOwnerLabel;
 }
 

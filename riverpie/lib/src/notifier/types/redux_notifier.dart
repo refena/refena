@@ -6,7 +6,7 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 /// You do not have access to [Ref] in this notifier, so you need to pass
 /// the required dependencies via constructor.
 ///
-/// From outside, you can should dispatch events with
+/// From outside, you can should dispatch actions with
 /// `ref.redux(provider).dispatch(action)`.
 ///
 /// Dispatching from the notifier itself is also possible but

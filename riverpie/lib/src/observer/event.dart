@@ -176,16 +176,18 @@ final class ListenerRemovedEvent extends RiverpieEvent {
   }
 }
 
-/// An event has been emitted.
+/// An action has been dispatched.
+/// Usually, a [ChangeEvent] directly follows this event.
+/// If the action is asynchronous, the [ChangeEvent] can be delayed.
 class ActionDispatchedEvent extends RiverpieEvent {
-  /// The owner of the event.
-  /// Usually, this is a notifier or a widget.
+  /// Where the action has been dispatched.
+  /// Usually, the class name of the widget, provider or notifier.
   final String debugOrigin;
 
   /// The corresponding notifier.
   final BaseNotifier notifier;
 
-  /// The event that has been emitted.
+  /// The action that has been dispatched.
   final ReduxAction action;
 
   ActionDispatchedEvent({

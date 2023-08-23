@@ -182,7 +182,7 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
 /// You do not have access to [Ref] in this notifier, so you need to pass
 /// the required dependencies via constructor.
 ///
-/// From outside, you can should dispatch events with
+/// From outside, you can should dispatch actions with
 /// `ref.redux(provider).dispatch(action)`.
 ///
 /// Dispatching from the notifier itself is also possible but
@@ -197,7 +197,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// A map of overrides for the reducers.
   Map<Type, MockReducer<T>?>? _overrides;
 
-  /// Emits an event to update the state.
+  /// Dispatches an action and updates the state.
   FutureOr<void> dispatch(
     ReduxAction<BaseReduxNotifier<T>, T> action, {
     String? debugOrigin,
@@ -342,13 +342,15 @@ class TestableReduxNotifier<T> {
   /// The wrapped notifier.
   final BaseReduxNotifier<T> notifier;
 
-  /// Emits an event to update the state.
-  FutureOr<void> dispatch(covariant ReduxAction<BaseReduxNotifier<T>, T> action,
-      {String? debugOrigin}) async {
+  /// Dispatches an action and updates the state.
+  FutureOr<void> dispatch(
+    covariant ReduxAction<BaseReduxNotifier<T>, T> action, {
+    String? debugOrigin,
+  }) async {
     return notifier.dispatch(action, debugOrigin: debugOrigin);
   }
 
-  /// Updates the state without emitting an event.
+  /// Updates the state without dispatching an action.
   void setState(T state) => notifier._setState(state, null);
 
   /// Gets the current state.
