@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
-import 'package:riverpie/riverpie.dart';
+import 'package:riverpie/src/async_value.dart';
+import 'package:riverpie/src/notifier/types/notifier.dart';
 import 'package:riverpie/src/provider/types/future_family_provider.dart';
 
 /// The corresponding notifier for a [FutureFamilyProvider].
