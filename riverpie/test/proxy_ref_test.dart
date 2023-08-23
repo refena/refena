@@ -80,6 +80,24 @@ void main() {
     ]);
   });
 
+  test('Should use label of the ReduxAction', () {
+    final notifier = ref.redux(_reduxProviderA).notifier;
+    notifier.dispatch(_DispatchActionA(2));
+
+    expect(observer.history, [
+      ActionDispatchedEvent(
+        debugOrigin: '_ReduxA',
+        notifier: notifier,
+        action: _DispatchActionA(2),
+      ),
+      ActionDispatchedEvent(
+        debugOrigin: '_DispatchActionA',
+        notifier: notifier,
+        action: _AddActionA(2),
+      ),
+    ]);
+  });
+
   test('Should use same label when another notifier provided via DI', () {
     final notifierA = ref.redux(_reduxProviderA).notifier;
     final notifierB = ref.redux(_reduxProviderB).notifier;
@@ -129,6 +147,26 @@ class _AddActionA extends ReduxAction<_ReduxA, int> {
   @override
   bool operator ==(Object other) {
     return other is _AddActionA && other.value == value;
+  }
+
+  @override
+  int get hashCode => value.hashCode;
+}
+
+class _DispatchActionA extends ReduxAction<_ReduxA, int> {
+  final int value;
+
+  _DispatchActionA(this.value);
+
+  @override
+  int reduce() {
+    dispatch(_AddActionA(value));
+    return state;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _DispatchActionA && other.value == value;
   }
 
   @override

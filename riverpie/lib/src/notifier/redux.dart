@@ -16,10 +16,15 @@ abstract class ReduxAction<N extends BaseReduxNotifier, T> {
   /// Returns the current state of the notifier.
   T get state => notifier.state;
 
-  /// Dispatches an new action.
+  /// Dispatches a new action.
   void dispatch(ReduxAction<N, T> action) {
-    notifier.dispatch(action);
+    notifier.dispatch(action, debugOrigin: debugLabel);
   }
+
+  /// The debug label of the action.
+  /// Override this getter to provide a custom label.
+  @protected
+  String get debugLabel => '$runtimeType';
 
   @internal
   void setup(N notifier) {
