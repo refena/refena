@@ -1,5 +1,6 @@
 ## 0.16.0
 
+- fix: should update `ref.watch` config
 - feat: add `Provider.overrideWithValue`
 - **BREAKING**: `Provider.overrideWithValue` to `Provider.overrideWithBuilder`
 - **BREAKING**: renaming `setup` to `internalSetup` to avoid name clashes

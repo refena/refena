@@ -1,6 +1,8 @@
 import 'package:riverpie/riverpie.dart';
 import 'package:test/test.dart';
 
+import '../util/skip_microtasks.dart';
+
 void main() {
   test('Should read the value', () async {
     final doubleProvider = FutureFamilyProvider<int, int>((ref, param) async {
@@ -79,6 +81,69 @@ void main() {
     expect(
       ref.read(view2Provider),
       AsyncValue.withData(800),
+    );
+  });
+
+  test('Should update the listener config', () async {
+    final doubleProvider = FutureFamilyProvider<int, int>((ref, param) async {
+      await Future.delayed(Duration(milliseconds: 50));
+      return Future.value(param * 2);
+    });
+    final stateProvider = StateProvider((ref) => 123);
+    final viewProvider = ViewProvider((ref) {
+      final param = ref.watch(stateProvider);
+      return ref.watch(doubleProvider(param));
+    });
+    final view2Provider = ViewProvider((ref) {
+      return ref.watch(doubleProvider(123));
+    });
+    final observer = RiverpieHistoryObserver.all();
+    final ref = RiverpieContainer(
+      observer: observer,
+    );
+
+    expect(ref.read(viewProvider), AsyncValue<int>.loading());
+    await Future.delayed(Duration(milliseconds: 100));
+    expect(
+      ref.read(viewProvider),
+      AsyncValue.withData(246),
+    );
+
+    ref.notifier(stateProvider).setState((old) => 100);
+    await skipAllMicrotasks();
+    expect(ref.read(viewProvider), AsyncValue<int>.loading());
+    expect(
+      ref.read(view2Provider),
+      AsyncValue.withData(246),
+    );
+
+    await Future.delayed(Duration(milliseconds: 100));
+    expect(
+      ref.read(viewProvider),
+      AsyncValue.withData(200),
+    );
+    expect(
+      ref.read(view2Provider),
+      AsyncValue.withData(246),
+    );
+
+    // Check events
+    final viewNotifier = ref.anyNotifier(viewProvider);
+    expect(
+      observer.history
+          .whereType<ChangeEvent>()
+          .where((e) => e.notifier == viewNotifier)
+          .length,
+      3,
+    );
+
+    final view2Notifier = ref.anyNotifier(view2Provider);
+    expect(
+      observer.history
+          .whereType<ChangeEvent>()
+          .where((e) => e.notifier == view2Notifier)
+          .length,
+      0,
     );
   });
 }

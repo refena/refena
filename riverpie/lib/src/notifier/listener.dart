@@ -72,12 +72,14 @@ class NotifierListeners<T> {
         _removeUnusedListeners();
       }
 
-      _listeners[rebuildable] = config;
-
       _observer?.handleEvent(
         ListenerAddedEvent(notifier: _notifier, rebuildable: rebuildable),
       );
     }
+
+    // We still need to add the listener even if it is already added.
+    // This is because the config may have changed.
+    _listeners[rebuildable] = config;
   }
 
   /// Listen manually to the notifier.
