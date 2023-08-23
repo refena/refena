@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
+import 'package:riverpie/src/notifier/dispatcher.dart';
 
 /// A [ReduxAction] is dispatched by a [ReduxNotifier].
 abstract class ReduxAction<N extends BaseReduxNotifier, T> {
@@ -40,7 +41,26 @@ abstract class ReduxAction<N extends BaseReduxNotifier, T> {
 
   /// Dispatches a new action.
   FutureOr<void> dispatch(ReduxAction<N, T> action) {
+    // ignore: invalid_use_of_protected_member
     return notifier.dispatch(action, debugOrigin: debugLabel);
+  }
+
+  /// Use this method to dispatch external actions within an action.
+  /// This ensures that the dispatched action has the correct [debugOrigin].
+  ///
+  /// Usage:
+  /// class MyNotifier extends ReduxNotifier<int> {
+  ///   final ServiceB serviceB;
+  /// }
+  /// // ...
+  /// external(notifier.serviceB).dispatch(SubtractAction(11));
+  Dispatcher<N2, T2> external<N2 extends BaseReduxNotifier<T2>, T2>(
+    N2 notifier,
+  ) {
+    return Dispatcher<N2, T2>(
+      notifier: notifier,
+      debugOrigin: debugLabel,
+    );
   }
 
   /// The debug label of the action.

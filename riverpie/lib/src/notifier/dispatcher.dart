@@ -22,15 +22,8 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   final String debugOrigin;
 
   /// Dispatches an [action] to the [notifier].
-  ///
-  /// (a) Oneliner:
-  /// ref.redux(myReduxProvider).dispatch(AddAction(2));
-  ///
-  /// (b) Store in a variable:
-  /// Dispatcher<ServiceB, int> serviceB = ref.redux(providerB);
-  /// ...
-  /// serviceB.dispatch(SubtractAction(11));
   FutureOr<void> dispatch(ReduxAction<N, T> action, {String? debugOrigin}) {
+    // ignore: invalid_use_of_protected_member
     return notifier.dispatch(
       action,
       debugOrigin: debugOrigin ?? this.debugOrigin,

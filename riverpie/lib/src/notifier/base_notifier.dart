@@ -198,6 +198,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Map<Type, MockReducer<T>?>? _overrides;
 
   /// Dispatches an action and updates the state.
+  @protected
   FutureOr<void> dispatch(
     ReduxAction<BaseReduxNotifier<T>, T> action, {
     String? debugOrigin,

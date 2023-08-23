@@ -14,6 +14,7 @@ void main() {
 
     expect(ref.read(provider), 123);
 
+    // ignore: invalid_use_of_protected_member
     ref.redux(provider).notifier.dispatch(_AddAction(2));
 
     expect(ref.read(provider), 125);
@@ -75,6 +76,7 @@ void main() {
     await Future.delayed(Duration(milliseconds: 100));
     expect(ref.read(provider), 120);
 
+    // ignore: invalid_use_of_protected_member
     await ref.redux(provider).notifier.dispatch(_AsyncSubtractAction(5));
     expect(ref.read(provider), 115);
 

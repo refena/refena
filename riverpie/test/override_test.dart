@@ -315,6 +315,7 @@ void main() {
       expect(ref.read(provider), 144);
 
       // Should not be overridden
+      // ignore: invalid_use_of_protected_member
       ref.anyNotifier(provider).dispatch(_HalfAction());
       expect(ref.read(provider), 72);
     });

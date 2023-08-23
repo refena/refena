@@ -43,6 +43,8 @@ void main() {
 
   test('Should use label of ReduxNotifier', () {
     final notifier = ref.redux(_reduxProviderA).notifier;
+
+    // ignore: invalid_use_of_protected_member
     notifier.dispatch(_AddActionA(2));
 
     expect(observer.history, [
@@ -82,6 +84,8 @@ void main() {
 
   test('Should use label of the ReduxAction', () {
     final notifier = ref.redux(_reduxProviderA).notifier;
+
+    // ignore: invalid_use_of_protected_member
     notifier.dispatch(_DispatchActionA(2));
 
     expect(observer.history, [
@@ -100,8 +104,11 @@ void main() {
 
   test('Should use same label when another notifier provided via DI', () {
     final notifierA = ref.redux(_reduxProviderA).notifier;
-    final notifierB = ref.redux(_reduxProviderB).notifier;
+
+    // ignore: invalid_use_of_protected_member
     notifierA.dispatch(_DispatchBAction());
+
+    final notifierB = ref.redux(_reduxProviderB).notifier;
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: '_ReduxA',
@@ -109,7 +116,7 @@ void main() {
         action: _DispatchBAction(),
       ),
       ActionDispatchedEvent(
-        debugOrigin: '_ReduxA',
+        debugOrigin: '_DispatchBAction',
         notifier: notifierB,
         action: _AddActionB(12),
       ),
@@ -118,13 +125,13 @@ void main() {
 }
 
 final _reduxProviderA = ReduxProvider<_ReduxA, int>((ref) {
-  return _ReduxA(ref.redux(_reduxProviderB));
+  return _ReduxA(ref.notifier(_reduxProviderB));
 });
 
 class _ReduxA extends ReduxNotifier<int> {
   _ReduxA(this.reduxB);
 
-  final Dispatcher<_ReduxB, int> reduxB;
+  final _ReduxB reduxB;
 
   @override
   int init() => 0;
@@ -175,9 +182,11 @@ class _DispatchActionA extends ReduxAction<_ReduxA, int> {
 
 class _DispatchBAction extends ReduxAction<_ReduxA, int> {
   @override
-  int reduce() {
-    notifier.reduxB.dispatch(_AddActionB(12));
-    return state;
+  int reduce() => state;
+
+  @override
+  void after() {
+    external(notifier.reduxB).dispatch(_AddActionB(12));
   }
 
   @override
