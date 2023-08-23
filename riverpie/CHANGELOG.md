@@ -1,5 +1,7 @@
 ## 0.16.0
 
+- feat: add `Provider.overrideWithValue`
+- **BREAKING**: `Provider.overrideWithValue` to `Provider.overrideWithBuilder`
 - **BREAKING**: renaming `setup` to `internalSetup` to avoid name clashes
 
 ## 0.15.1

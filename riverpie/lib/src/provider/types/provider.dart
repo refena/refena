@@ -25,6 +25,19 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
 
   /// Overrides the state of a provider with a predefined value.
   ProviderOverride<ImmutableNotifier<T>, T> overrideWithValue(
+    T value,
+  ) {
+    return ProviderOverride(
+      provider: this,
+      createState: (ref) => ImmutableNotifier(
+        value,
+        debugLabel: debugLabel ?? runtimeType.toString(),
+      ),
+    );
+  }
+
+  /// Overrides the state of a provider with a predefined value.
+  ProviderOverride<ImmutableNotifier<T>, T> overrideWithBuilder(
     T Function(Ref ref) builder,
   ) {
     return ProviderOverride(

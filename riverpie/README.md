@@ -950,7 +950,7 @@ void main() {
     await tester.pumpWidget(
       RiverpieScope(
         overrides: [
-          myProvider.overrideWithValue((ref) => 42),
+          myProvider.overrideWithValue(42),
           myNotifierProvider.overrideWithNotifier((ref) => MyNotifier(42)),
         ],
         child: const MyApp(),

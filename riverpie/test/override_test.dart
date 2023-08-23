@@ -5,11 +5,22 @@ import 'package:test/test.dart';
 
 void main() {
   group(Provider, () {
-    test('Should override', () {
+    test('Should override with plain value', () {
       final provider = Provider((ref) => 123);
       final ref = RiverpieContainer(
         overrides: [
-          provider.overrideWithValue((ref) => 456),
+          provider.overrideWithValue(500),
+        ],
+      );
+
+      expect(ref.read(provider), 500);
+    });
+
+    test('Should override with builder', () {
+      final provider = Provider((ref) => 123);
+      final ref = RiverpieContainer(
+        overrides: [
+          provider.overrideWithBuilder((ref) => 456),
         ],
       );
 
@@ -21,8 +32,8 @@ void main() {
       final providerB = Provider((ref) => ref.read(providerA) + 10);
       final ref = RiverpieContainer(
         overrides: [
-          providerA.overrideWithValue((ref) => 200),
-          providerB.overrideWithValue((ref) => ref.read(providerA) + 20),
+          providerA.overrideWithValue(200),
+          providerB.overrideWithBuilder((ref) => ref.read(providerA) + 20),
         ],
       );
 
@@ -34,8 +45,8 @@ void main() {
       final ref2 = RiverpieContainer(
         observer: observer,
         overrides: [
-          providerB.overrideWithValue((ref) => ref.read(providerA) + 40),
-          providerA.overrideWithValue((ref) => 400),
+          providerB.overrideWithBuilder((ref) => ref.read(providerA) + 40),
+          providerA.overrideWithValue(400),
         ],
       );
 
@@ -66,7 +77,7 @@ void main() {
       final ref = RiverpieContainer(
         observer: observer,
         overrides: [
-          providerB.overrideWithValue((ref) => ref.read(providerA) + 200),
+          providerB.overrideWithBuilder((ref) => ref.read(providerA) + 200),
         ],
       );
 
@@ -137,7 +148,7 @@ void main() {
             await Future.delayed(Duration(milliseconds: 50));
             return 100;
           }),
-          providerB.overrideWithValue((ref) {
+          providerB.overrideWithBuilder((ref) {
             return ref.read(providerA) + 200;
           }),
         ],
@@ -177,7 +188,7 @@ void main() {
       );
       init() => RiverpieContainer(
             overrides: [
-              providerB.overrideWithValue((ref) {
+              providerB.overrideWithBuilder((ref) {
                 return ref.read(providerA) + 200;
               }),
               providerA.overrideWithFuture((ref) async {
