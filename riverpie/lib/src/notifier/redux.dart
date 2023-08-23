@@ -69,7 +69,7 @@ abstract class ReduxAction<N extends BaseReduxNotifier, T> {
   String get debugLabel => '$runtimeType';
 
   @internal
-  void setup(N notifier) {
+  void internalSetup(N notifier) {
     this.notifier = notifier;
   }
 }

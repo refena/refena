@@ -1,3 +1,7 @@
+## 0.16.0
+
+- **BREAKING**: renaming `setup` to `internalSetup` to avoid name clashes
+
 ## 0.15.1
 
 - fix: missing `FutureFamilyProvider` export

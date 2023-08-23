@@ -76,7 +76,7 @@ abstract class BaseNotifier<T> {
   /// Handles the actual initialization of the notifier.
   /// Calls [init] internally.
   @internal
-  void setup(RiverpieContainer container, RiverpieObserver? observer);
+  void internalSetup(RiverpieContainer container, RiverpieObserver? observer);
 
   @internal
   void addListener(Rebuildable rebuildable, ListenerConfig<T> config) {
@@ -106,7 +106,7 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
   @override
   @internal
   @mustCallSuper
-  void setup(RiverpieContainer container, RiverpieObserver? observer) {
+  void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
     _listeners = NotifierListeners<T>(this, observer);
     _observer = observer;
     _state = init();
@@ -165,7 +165,7 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   @override
   @internal
   @mustCallSuper
-  void setup(RiverpieContainer container, RiverpieObserver? observer) {
+  void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
     _listeners = NotifierListeners<AsyncValue<T>>(this, observer);
     _observer = observer;
 
@@ -228,7 +228,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       }
     }
 
-    action.setup(this);
+    action.internalSetup(this);
     try {
       switch (action.before()) {
         case Future future:
@@ -280,7 +280,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @override
   @internal
   @mustCallSuper
-  void setup(RiverpieContainer container, RiverpieObserver? observer) {
+  void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
     _listeners = NotifierListeners<T>(this, observer);
     _observer = observer;
     _initialized = true;
@@ -295,7 +295,7 @@ class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
     required this.notifier,
     T? initialState,
   }) {
-    notifier.setup(RiverpieContainer(), null);
+    notifier.internalSetup(RiverpieContainer(), null);
     if (initialState != null) {
       notifier._setState(initialState, null);
     } else {
@@ -321,7 +321,7 @@ class TestableAsyncNotifier<N extends BaseAsyncNotifier<T>, T> {
     required this.notifier,
     AsyncValue<T>? initialState,
   }) {
-    notifier.setup(RiverpieContainer(), null);
+    notifier.internalSetup(RiverpieContainer(), null);
     if (initialState != null) {
       notifier._futureCount++; // invalidate previous future callbacks
       notifier._setState(initialState, null);

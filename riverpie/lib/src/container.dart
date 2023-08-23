@@ -94,7 +94,7 @@ class RiverpieContainer extends Ref {
         BaseNotifier notifier => notifier,
       };
 
-      notifier.setup(_withNotifierLabel(notifier), observer);
+      notifier.internalSetup(_withNotifierLabel(notifier), observer);
       _state[provider] = notifier;
 
       observer?.handleEvent(
@@ -141,7 +141,7 @@ class RiverpieContainer extends Ref {
           provider.createState(
             _withProviderLabel(provider),
           );
-      notifier.setup(_withNotifierLabel(notifier), observer);
+      notifier.internalSetup(_withNotifierLabel(notifier), observer);
       _state[provider] = notifier;
 
       observer?.handleEvent(

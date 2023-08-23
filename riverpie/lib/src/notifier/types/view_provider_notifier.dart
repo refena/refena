@@ -25,12 +25,12 @@ final class ViewProviderNotifier<T> extends PureNotifier<T>
 
   @internal
   @override
-  void setup(RiverpieContainer container, RiverpieObserver? observer) {
+  void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
     watchableRef = WatchableRef(
       ref: container,
       rebuildable: this,
     );
-    super.setup(container, observer);
+    super.internalSetup(container, observer);
   }
 
   @override

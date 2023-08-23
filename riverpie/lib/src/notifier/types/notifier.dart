@@ -22,9 +22,9 @@ abstract class Notifier<T> extends BaseSyncNotifier<T> {
 
   @internal
   @override
-  void setup(RiverpieContainer container, RiverpieObserver? observer) {
+  void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
     _ref = container;
-    super.setup(container, observer);
+    super.internalSetup(container, observer);
   }
 
   /// Returns a debug version of the [notifier] where
