@@ -120,6 +120,8 @@ You don't need to register any provider. They will be initialized lazily when yo
 
 **Step 1: Add dependency**
 
+Add [riverpie_flutter](https://pub.dev/packages/riverpie_flutter) for Flutter projects, or [riverpie](https://pub.dev/packages/riverpie) for Dart projects.
+
 ```yaml
 # pubspec.yaml
 dependencies:
@@ -498,12 +500,12 @@ This has two main benefits:
 
 ```dart
 final counterProvider = ReduxProvider<Counter, int>((ref) {
-  return Counter(ref.redux(providerA), ref.redux(providerB));
+  return Counter(ref.notifier(providerA), ref.notifier(providerB));
 });
 
 class Counter extends ReduxNotifier<int> {
-  final Dispatcher<ServiceA, StateA> serviceA;
-  final Dispatcher<ServiceB, StateB> serviceB;
+  final ServiceA serviceA;
+  final ServiceB serviceB;
   
   Counter(this.serviceA, this.serviceB);
   
@@ -524,13 +526,15 @@ class SubtractAction extends ReduxAction<Counter, int> {
   SubtractAction(this.amount);
   
   @override
-  int reduce() {
-    notifier.serviceA.dispatch(SomeAction()); // dispatch actions in other notifiers
+  int reduce() => state - amount;
+
+  @override
+  void after() {
+    external(notifier.serviceA).dispatch(SomeAction()); // dispatch actions in other notifiers
     if (notifier.serviceB.state == 3) { // access the state of other notifiers
       // ...
     }
     dispatch(AddAction(amount - 1)); // dispatch actions in the same notifier
-    return state - amount;
   }
 }
 ```
@@ -785,12 +789,12 @@ you may want to use `ReduxProvider` and `ViewProvider`.
 
 Be aware that you will need to write more boilerplate code.
 
-| Providers & Notifiers                       | Boilerplate                    | Testability, Extensibility |
-|---------------------------------------------|--------------------------------|----------------------------|
-| `Provider`, `StateProvider`                 |                                | Low                        |
-| `Provider`, `Notifier`, `PureNotifier`      | notifiers                      | Medium                     |
-| `Provider`, `ViewProvider`, `Notifier`      | notifiers, view models         | High                       |
-| `Provider`, `ViewProvider`, `ReduxProvider` | notifiers, view models, events | Very high                  |
+| Providers & Notifiers                       | Boilerplate                     | Testability, Extensibility |
+|---------------------------------------------|---------------------------------|----------------------------|
+| `Provider`, `StateProvider`                 |                                 | Low                        |
+| `Provider`, `Notifier`, `PureNotifier`      | notifiers                       | Medium                     |
+| `Provider`, `ViewProvider`, `Notifier`      | notifiers, view models          | High                       |
+| `Provider`, `ViewProvider`, `ReduxProvider` | notifiers, view models, actions | Very high                  |
 
 ### ➤ Can I use different providers & notifiers together?
 
