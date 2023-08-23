@@ -228,20 +228,35 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     }
 
     action.setup(this);
-    final newState = action.reduce();
-    switch (newState) {
-      case Future<T> future:
-        // If the reducer returns a Future, wait for it to complete
-        try {
+    try {
+      switch (action.before()) {
+        case Future future:
+          // If the before method returns a Future, wait for it to complete
+          await future;
+          break;
+        case null:
+          // Do nothing if before is synchronous
+          break;
+      }
+
+      switch (action.wrapReduce()) {
+        case Future<T> future:
+          // If the reducer returns a Future, wait for it to complete
           _setState(await future, action);
-        } catch (e) {
-          rethrow;
-        }
-        break;
-      case T value:
-        // If the reducer returns a plain value, update the state directly
-        _setState(value, action);
-        break;
+          break;
+        case T value:
+          // If the reducer returns a plain value, update the state directly
+          _setState(value, action);
+          break;
+      }
+    } catch (e) {
+      rethrow;
+    } finally {
+      try {
+        action.after();
+      } catch (e, st) {
+        print('Error in after method of ${action.runtimeType}: $e\n$st');
+      }
     }
   }
 

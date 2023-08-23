@@ -577,6 +577,8 @@ Here is how the console output could look like with `RiverpieDebugObserver`:
             - Rebuild (1): [MyPage]
 ```
 
+You can additionally override `before`, `after`, and `wrapReduce` in a `ReduxAction` to add custom logic.
+
 ### ➤ ViewProvider
 
 The `ViewProvider` is the only provider that can `watch` other providers.
