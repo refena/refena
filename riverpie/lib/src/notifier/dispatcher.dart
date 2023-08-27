@@ -13,6 +13,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   Dispatcher({
     required this.notifier,
     required this.debugOrigin,
+    required this.debugOriginRef,
   });
 
   /// The notifier to dispatch actions to.
@@ -23,12 +24,16 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   /// Usually, the class name of the widget, provider or notifier.
   final String debugOrigin;
 
+  /// The origin reference of the dispatched action.
+  final Object? debugOriginRef;
+
   /// Dispatches an [action] to the [notifier].
   /// Returns the new state.
   T dispatch(ReduxAction<N, T> action, {String? debugOrigin}) {
     return notifier.dispatch(
       action,
       debugOrigin: debugOrigin ?? this.debugOrigin,
+      debugOriginRef: debugOriginRef,
     );
   }
 
@@ -41,6 +46,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
     return notifier.dispatchAsync(
       action,
       debugOrigin: debugOrigin ?? this.debugOrigin,
+      debugOriginRef: debugOriginRef,
     );
   }
 
@@ -53,6 +59,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
     return notifier.dispatchWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? this.debugOrigin,
+      debugOriginRef: debugOriginRef,
     );
   }
 
@@ -66,6 +73,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
         .dispatchWithResult<R2>(
           action,
           debugOrigin: debugOrigin ?? this.debugOrigin,
+          debugOriginRef: debugOriginRef,
         )
         .$2;
   }
@@ -79,6 +87,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
     return notifier.dispatchAsyncWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? this.debugOrigin,
+      debugOriginRef: debugOriginRef,
     );
   }
 
@@ -91,6 +100,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
     final (_, result) = await notifier.dispatchAsyncWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? this.debugOrigin,
+      debugOriginRef: debugOriginRef,
     );
     return result;
   }

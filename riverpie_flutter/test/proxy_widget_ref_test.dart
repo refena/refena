@@ -33,6 +33,7 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'MyPage',
+        debugOriginRef: null,
         notifier: notifier,
         action: IncrementAction(),
       ),
@@ -60,6 +61,7 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'Banana',
+        debugOriginRef: null,
         notifier: notifier,
         action: IncrementAction(),
       ),

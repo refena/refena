@@ -29,7 +29,11 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   /// Dispatches a synchronous action and updates the state.
   /// Returns the new state.
   T dispatch(ReduxAction<N, T> action, {String? debugOrigin}) {
-    return notifier.dispatch(action, debugOrigin: debugOrigin ?? debugLabel);
+    return notifier.dispatch(
+      action,
+      debugOrigin: debugOrigin ?? debugLabel,
+      debugOriginRef: this,
+    );
   }
 
   /// Dispatches an asynchronous action and updates the state.
@@ -41,6 +45,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
     return notifier.dispatchAsync(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
+      debugOriginRef: this,
     );
   }
 
@@ -53,6 +58,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
     return notifier.dispatchWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
+      debugOriginRef: this,
     );
   }
 
@@ -63,7 +69,11 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
     String? debugOrigin,
   }) {
     return notifier
-        .dispatchWithResult<R2>(action, debugOrigin: debugOrigin ?? debugLabel)
+        .dispatchWithResult<R2>(
+          action,
+          debugOrigin: debugOrigin ?? debugLabel,
+          debugOriginRef: this,
+        )
         .$2;
   }
 
@@ -76,6 +86,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
     return notifier.dispatchAsyncWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
+      debugOriginRef: this,
     );
   }
 
@@ -88,6 +99,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
     final (_, result) = await notifier.dispatchAsyncWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
+      debugOriginRef: this,
     );
     return result;
   }
@@ -107,6 +119,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
     return Dispatcher<N2, T2>(
       notifier: notifier,
       debugOrigin: debugLabel,
+      debugOriginRef: this,
     );
   }
 

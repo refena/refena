@@ -45,11 +45,13 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
+        debugOriginRef: ref,
         notifier: notifier,
         action: _AsyncSubtractAction(5),
       ),
       ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
+        debugOriginRef: ref,
         notifier: notifier,
         action: _AsyncAddAction(2),
       ),
@@ -69,6 +71,7 @@ void main() {
       ),
       ActionDispatchedEvent(
         debugOrigin: '_AsyncCounter',
+        debugOriginRef: notifier,
         notifier: notifier,
         action: _AsyncSubtractAction(5),
       ),
@@ -81,6 +84,7 @@ void main() {
       ),
       ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
+        debugOriginRef: ref,
         notifier: notifier,
         action: _AsyncSubtractAction(15),
       ),

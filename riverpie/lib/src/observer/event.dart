@@ -17,7 +17,7 @@ final class ChangeEvent<T> extends RiverpieEvent {
   final BaseNotifier<T> notifier;
 
   /// The dispatched [action] if the change was triggered by an [ReduxNotifier].
-  final Object? action;
+  final BaseReduxAction? action;
 
   /// The previous state before the event.
   final T prev;
@@ -58,7 +58,7 @@ final class ChangeEvent<T> extends RiverpieEvent {
 
   @override
   String toString() {
-    return 'ChangeEvent{notifier: $notifier, action: $action, prev: $prev, next: $next, rebuild: $rebuild}';
+    return 'ChangeEvent(notifier: $notifier, action: $action, prev: $prev, next: $next, rebuild: $rebuild)';
   }
 }
 
@@ -115,7 +115,7 @@ final class ProviderInitEvent extends RiverpieEvent {
 
   @override
   String toString() {
-    return 'ProviderInitEvent{provider: $provider, notifier: $notifier, cause: $cause, value: $value}';
+    return 'ProviderInitEvent(provider: $provider, notifier: $notifier, cause: $cause, value: $value)';
   }
 }
 
@@ -143,7 +143,7 @@ final class ListenerAddedEvent extends RiverpieEvent {
 
   @override
   String toString() {
-    return 'ListenerAddedEvent{notifier: $notifier, rebuildable: $rebuildable}';
+    return 'ListenerAddedEvent(notifier: $notifier, rebuildable: $rebuildable)';
   }
 }
 
@@ -172,7 +172,7 @@ final class ListenerRemovedEvent extends RiverpieEvent {
 
   @override
   String toString() {
-    return 'ListenerRemovedEvent{notifier: $notifier, rebuildable: $rebuildable}';
+    return 'ListenerRemovedEvent(notifier: $notifier, rebuildable: $rebuildable)';
   }
 }
 
@@ -181,8 +181,12 @@ final class ListenerRemovedEvent extends RiverpieEvent {
 /// If the action is asynchronous, the [ChangeEvent] can be delayed.
 class ActionDispatchedEvent extends RiverpieEvent {
   /// Where the action has been dispatched.
-  /// Usually, the class name of the widget, provider or notifier.
+  /// Usually, the class name of the widget, provider, notifier, or action.
   final String debugOrigin;
+
+  /// The actual reference to the origin.
+  /// This may be null.
+  final Object? debugOriginRef;
 
   /// The corresponding notifier.
   final BaseNotifier notifier;
@@ -192,6 +196,7 @@ class ActionDispatchedEvent extends RiverpieEvent {
 
   ActionDispatchedEvent({
     required this.debugOrigin,
+    required this.debugOriginRef,
     required this.notifier,
     required this.action,
   });
@@ -202,15 +207,19 @@ class ActionDispatchedEvent extends RiverpieEvent {
       other is ActionDispatchedEvent &&
           runtimeType == other.runtimeType &&
           debugOrigin == other.debugOrigin &&
+          debugOriginRef == other.debugOriginRef &&
           notifier == other.notifier &&
           action == other.action;
 
   @override
   int get hashCode =>
-      debugOrigin.hashCode ^ notifier.hashCode ^ action.hashCode;
+      debugOrigin.hashCode ^
+      debugOriginRef.hashCode ^
+      notifier.hashCode ^
+      action.hashCode;
 
   @override
   String toString() {
-    return 'ActionDispatchedEvent{debugOwnerLabel: $debugOrigin, notifier: $notifier, action: $action}';
+    return 'ActionDispatchedEvent(debugOrigin: $debugOrigin, debugOriginRef: $debugOriginRef, notifier: $notifier, action: $action)';
   }
 }

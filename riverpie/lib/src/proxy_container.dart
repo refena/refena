@@ -11,7 +11,7 @@ import 'package:riverpie/src/provider/types/redux_provider.dart';
 /// A container that proxies all calls to another [RiverpieContainer].
 /// Used to have a custom [debugOwnerLabel] for [Ref.redux].
 class ProxyContainer implements RiverpieContainer {
-  ProxyContainer(this._container, this.debugOwnerLabel);
+  ProxyContainer(this._container, this.debugOwnerLabel, this._debugOriginRef);
 
   /// The container to proxy all calls to.
   final RiverpieContainer _container;
@@ -19,6 +19,8 @@ class ProxyContainer implements RiverpieContainer {
   /// The owner of this [Ref].
   @override
   final String debugOwnerLabel;
+
+  final Object _debugOriginRef;
 
   @override
   Future<void> ensureOverrides() {
@@ -47,6 +49,7 @@ class ProxyContainer implements RiverpieContainer {
     return Dispatcher(
       notifier: _container.anyNotifier(provider),
       debugOrigin: debugOwnerLabel,
+      debugOriginRef: _debugOriginRef,
     );
   }
 

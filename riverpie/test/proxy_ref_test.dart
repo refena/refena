@@ -22,6 +22,7 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
+        debugOriginRef: ref,
         notifier: notifier,
         action: _AddActionA(2),
       ),
@@ -35,6 +36,7 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'MyLabel',
+        debugOriginRef: ref,
         notifier: notifier,
         action: _AddActionA(2),
       ),
@@ -50,6 +52,7 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: '_ReduxA',
+        debugOriginRef: notifier,
         notifier: notifier,
         action: _AddActionA(2),
       ),
@@ -60,9 +63,11 @@ void main() {
     ref.notifier(_anotherProvider).trigger();
 
     final notifier = ref.redux(_reduxProviderA).notifier;
+    final anotherNotifier = ref.notifier(_anotherProvider);
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: '_AnotherNotifier',
+        debugOriginRef: anotherNotifier,
         notifier: notifier,
         action: _AddActionA(5),
       ),
@@ -72,10 +77,12 @@ void main() {
   test('Should use label of view', () {
     ref.read(_viewProvider).trigger();
 
+    final viewNotifier = ref.anyNotifier(_viewProvider);
     final notifier = ref.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'ViewProvider<_Vm>',
+        debugOriginRef: viewNotifier,
         notifier: notifier,
         action: _AddActionA(10),
       ),
@@ -91,11 +98,13 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: '_ReduxA',
+        debugOriginRef: notifier,
         notifier: notifier,
         action: _DispatchActionA(2),
       ),
       ActionDispatchedEvent(
         debugOrigin: '_DispatchActionA',
+        debugOriginRef: _DispatchActionA(2),
         notifier: notifier,
         action: _AddActionA(2),
       ),
@@ -112,11 +121,13 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: '_ReduxA',
+        debugOriginRef: notifierA,
         notifier: notifierA,
         action: _DispatchBAction(),
       ),
       ActionDispatchedEvent(
         debugOrigin: '_DispatchBAction',
+        debugOriginRef: _DispatchBAction(),
         notifier: notifierB,
         action: _AddActionB(12),
       ),

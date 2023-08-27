@@ -31,6 +31,7 @@ void main() {
       ),
       ActionDispatchedEvent(
         debugOrigin: '_Counter',
+        debugOriginRef: notifier,
         notifier: notifier,
         action: _AddAction(2),
       ),
@@ -43,6 +44,7 @@ void main() {
       ),
       ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
+        debugOriginRef: ref,
         notifier: notifier,
         action: _SubtractAction(5),
       ),
@@ -81,11 +83,13 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'RiverpieContainer',
+        debugOriginRef: ref,
         notifier: notifier,
         action: _LifeCycleAction(10),
       ),
       ActionDispatchedEvent(
         debugOrigin: '_LifeCycleAction',
+        debugOriginRef: _LifeCycleAction(10),
         notifier: notifier,
         action: _SetCounterAction(0),
       ),
@@ -98,6 +102,7 @@ void main() {
       ),
       ActionDispatchedEvent(
         debugOrigin: '_LifeCycleAction',
+        debugOriginRef: _LifeCycleAction(10),
         notifier: notifier,
         action: _SubtractAction(10),
       ),
@@ -110,6 +115,7 @@ void main() {
       ),
       ActionDispatchedEvent(
         debugOrigin: '_LifeCycleAction',
+        debugOriginRef: _LifeCycleAction(10),
         notifier: notifier,
         action: _SubtractAction(10),
       ),
@@ -129,6 +135,7 @@ void main() {
       ),
       ActionDispatchedEvent(
         debugOrigin: '_LifeCycleAction',
+        debugOriginRef: _LifeCycleAction(10),
         notifier: notifier,
         action: _AddAction(10),
       ),

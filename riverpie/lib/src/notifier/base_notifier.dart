@@ -13,6 +13,8 @@ import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
 import 'package:riverpie/src/ref.dart';
 
+const _absent = Object();
+
 @internal
 abstract class BaseNotifier<T> {
   bool _initialized = false;
@@ -41,7 +43,7 @@ abstract class BaseNotifier<T> {
 
   /// Sets the state and notify listeners (the actual implementation).
   // We need to extract this method to make [ReduxNotifier] work.
-  void _setState(T value, Object? action) {
+  void _setState(T value, BaseReduxAction? action) {
     if (!_initialized) {
       // We allow initializing the state before the initialization
       // by Riverpie is done.
@@ -205,8 +207,13 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   T dispatch(
     ReduxAction<BaseReduxNotifier<T>, T> action, {
     String? debugOrigin,
+    Object? debugOriginRef = _absent,
   }) {
-    return _dispatchWithResult<void>(action, debugOrigin: debugOrigin).$1;
+    return _dispatchWithResult<void>(
+      action,
+      debugOrigin: debugOrigin,
+      debugOriginRef: debugOriginRef,
+    ).$1;
   }
 
   /// Dispatches an action and updates the state.
@@ -216,8 +223,13 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   (T, R) dispatchWithResult<R>(
     ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
+    Object? debugOriginRef = _absent,
   }) {
-    return _dispatchWithResult<R>(action, debugOrigin: debugOrigin);
+    return _dispatchWithResult<R>(
+      action,
+      debugOrigin: debugOrigin,
+      debugOriginRef: debugOriginRef,
+    );
   }
 
   /// Dispatches an action and updates the state.
@@ -227,17 +239,24 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   R dispatchTakeResult<R>(
     ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
+    Object? debugOriginRef = _absent,
   }) {
-    return _dispatchWithResult<R>(action, debugOrigin: debugOrigin).$2;
+    return _dispatchWithResult<R>(
+      action,
+      debugOrigin: debugOrigin,
+      debugOriginRef: debugOriginRef,
+    ).$2;
   }
 
   @nonVirtual
   (T, R) _dispatchWithResult<R>(
     SynchronousReduxAction<BaseReduxNotifier<T>, T, R> action, {
-    String? debugOrigin,
+    required String? debugOrigin,
+    required Object? debugOriginRef,
   }) {
     _observer?.handleEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
+      debugOriginRef: debugOriginRef == _absent ? this : debugOriginRef,
       notifier: this,
       action: action,
     ));
@@ -287,9 +306,13 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<T> dispatchAsync(
     AsyncReduxAction<BaseReduxNotifier<T>, T> action, {
     String? debugOrigin,
+    Object? debugOriginRef = _absent,
   }) async {
-    final (state, _) =
-        await _dispatchAsyncWithResult<void>(action, debugOrigin: debugOrigin);
+    final (state, _) = await _dispatchAsyncWithResult<void>(
+      action,
+      debugOrigin: debugOrigin,
+      debugOriginRef: debugOriginRef,
+    );
     return state;
   }
 
@@ -300,8 +323,13 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<(T, R)> dispatchAsyncWithResult<R>(
     AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
+    Object? debugOriginRef = _absent,
   }) async {
-    return _dispatchAsyncWithResult<R>(action, debugOrigin: debugOrigin);
+    return _dispatchAsyncWithResult<R>(
+      action,
+      debugOrigin: debugOrigin,
+      debugOriginRef: debugOriginRef,
+    );
   }
 
   /// Dispatches an asynchronous action and updates the state.
@@ -311,10 +339,12 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<R> dispatchAsyncTakeResult<R>(
     AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
+    Object? debugOriginRef = _absent,
   }) async {
     final (_, result) = await _dispatchAsyncWithResult<R>(
       action,
       debugOrigin: debugOrigin,
+      debugOriginRef: debugOriginRef,
     );
     return result;
   }
@@ -324,9 +354,11 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<(T, R)> _dispatchAsyncWithResult<R>(
     AsynchronousReduxAction<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
+    Object? debugOriginRef,
   }) async {
     _observer?.handleEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
+      debugOriginRef: debugOriginRef == _absent ? this : debugOriginRef,
       notifier: this,
       action: action,
     ));

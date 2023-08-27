@@ -182,6 +182,7 @@ class RiverpieContainer extends Ref {
     return Dispatcher<N, T>(
       notifier: _getState(provider),
       debugOrigin: debugOwnerLabel,
+      debugOriginRef: this,
     );
   }
 
@@ -207,6 +208,7 @@ class RiverpieContainer extends Ref {
     return ProxyContainer(
       this,
       notifier.debugLabel ?? notifier.runtimeType.toString(),
+      notifier,
     );
   }
 
@@ -216,6 +218,7 @@ class RiverpieContainer extends Ref {
     return ProxyContainer(
       this,
       provider.debugLabel ?? N.toString(),
+      provider,
     );
   }
 }
