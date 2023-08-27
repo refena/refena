@@ -6,6 +6,7 @@ import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
+import 'package:riverpie/src/observer/tracing_observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
@@ -35,6 +36,15 @@ class RiverpieContainer extends Ref {
     this.observer,
   })  : _overrides = _overridesToMap(overrides),
         _overridesList = overrides {
+    switch (observer) {
+      case RiverpieTracingObserver observer:
+        observer.internalSetup(this);
+        break;
+      case RiverpieMultiObserver observer:
+        observer.internalSetup(this);
+        break;
+    }
+
     _overridesFuture = _initOverrides();
 
     // initialize all specified providers right away

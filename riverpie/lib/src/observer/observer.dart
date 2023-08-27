@@ -1,5 +1,8 @@
+import 'package:meta/meta.dart';
+import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
+import 'package:riverpie/src/observer/tracing_observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 
 /// The observer receives every [RiverpieEvent].
@@ -29,6 +32,17 @@ class RiverpieMultiObserver extends RiverpieObserver {
   final List<RiverpieObserver> observers;
 
   const RiverpieMultiObserver({required this.observers});
+
+  @internal
+  void internalSetup(RiverpieContainer container) {
+    for (final observer in observers) {
+      switch (observer) {
+        case RiverpieTracingObserver observer:
+          observer.internalSetup(container);
+          break;
+      }
+    }
+  }
 
   @override
   void handleEvent(RiverpieEvent event) {

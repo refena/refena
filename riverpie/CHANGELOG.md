@@ -1,5 +1,6 @@
 ## 0.17.0
 
+- feat: add `RiverpieTracingObserver` and `RiverpieTracingPage`
 - **BREAKING**: distinguish between sync and async `ReduxAction` (see updated documentation)
 
 ## 0.16.0

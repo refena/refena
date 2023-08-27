@@ -71,6 +71,7 @@ class MyPage extends StatelessWidget {
 - [ensureRef](#ensureref)
 - [defaultRef](#defaultref)
 - [Observer](#observer)
+- [Tracing UI](#tracing-ui)
 - [Testing](#testing)
     - [Override providers](#-override-providers)
     - [Testing without Flutter](#-testing-without-flutter)
@@ -955,6 +956,51 @@ void main() {
   );
 }
 ```
+
+## Tracing UI
+
+Riverpie includes a ready-to-use UI to trace the state changes.
+
+First, you need to add the `RiverpieTracingObserver` to the `RiverpieScope`.
+
+```dart
+void main() {
+  runApp(
+    RiverpieScope(
+      observer: RiverpieTracingObserver(),
+      child: const MyApp(),
+    ),
+  );
+}
+```
+
+Then, you can use the `RiverpieTracingPage` to show the state changes.
+
+```dart
+class MyPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const RiverpieTracingPage(),
+              ),
+            );
+          },
+          child: const Text('Show tracing'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+Here is how it looks like:
+
+![tracing-ui](https://raw.githubusercontent.com/Tienisto/riverpie/main/resources/tracing-ui.png)
 
 ## Testing
 
