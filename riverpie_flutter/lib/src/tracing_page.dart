@@ -1,6 +1,10 @@
 // ignore_for_file: invalid_use_of_internal_member, invalid_use_of_protected_member
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+// ignore: implementation_imports
+import 'package:riverpie/src/notifier/base_notifier.dart';
 
 // ignore: implementation_imports
 import 'package:riverpie/src/observer/tracing_observer.dart';
@@ -55,7 +59,7 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
       _filter();
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         _scrollController.jumpTo(
-          100 + 20 + (_entries.length * 120).toDouble(),
+          100 + 50 + (_entries.length * 120).toDouble(),
         );
 
         await Future.delayed(showDelay);
@@ -78,6 +82,7 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.sizeOf(context).width;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riverpie Tracing'),
@@ -100,30 +105,51 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
       ),
       body: Stack(
         children: [
-          ListView.builder(
-            controller: _scrollController,
-            padding: const EdgeInsets.only(bottom: 100, top: 20),
-            itemCount: _filteredEntries.length,
-            itemBuilder: (context, index) {
-              final entry = _filteredEntries[index];
-              return _EntryTile(
-                entry: entry,
-                depth: 0,
-              );
-            },
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: screenWidth * 3,
+              child: ListView.builder(
+                controller: _scrollController,
+                padding: const EdgeInsets.only(bottom: 100, top: 20),
+                itemCount: _filteredEntries.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(left: 85, bottom: 10),
+                      child: Text(
+                        'Start of history...',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    );
+                  }
+
+                  final entry = _filteredEntries[index - 1];
+
+                  return _EntryTile(
+                    entry: entry,
+                    depth: 0,
+                  );
+                },
+              ),
+            ),
           ),
           Align(
             alignment: Alignment.bottomCenter,
             child: Padding(
               padding: const EdgeInsets.all(20),
               child: TextField(
+                style: TextStyle(color: Colors.grey.shade700),
                 decoration: InputDecoration(
                   hintText: 'Filter',
                   filled: true,
                   fillColor: Colors.white,
+                  labelStyle: TextStyle(color: Colors.grey.shade700),
+                  iconColor: Colors.grey.shade700,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
+                  isDense: true,
                   prefixIcon: Icon(Icons.search),
                 ),
                 onChanged: (value) {
@@ -190,10 +216,18 @@ class _EntryTileState extends State<_EntryTile> {
           children: [
             Row(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(_formatTimestamp(widget.entry.event.timestamp),
-                      style: TextStyle(color: Colors.grey)),
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minWidth: 85,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: Text(
+                      _formatTimestamp(widget.entry.event.timestamp),
+                      style: TextStyle(color: Colors.grey),
+                      textAlign: TextAlign.right,
+                    ),
+                  ),
                 ),
                 if (widget.depth != 0)
                   Padding(
@@ -248,31 +282,18 @@ class _EntryTileState extends State<_EntryTile> {
                         color: _getColor(widget.entry.event.event)
                             .withOpacity(0.1),
                       ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              switch (widget.entry.event.event) {
-                                ChangeEvent event =>
-                                  event.prev.runtimeType.toString(),
-                                ActionDispatchedEvent event =>
-                                  '${event.action.debugLabel}${widget.depth == 0 ? ' (${event.debugOrigin})' : ''}',
-                                ProviderInitEvent event =>
-                                  event.provider.toString(),
-                                ListenerAddedEvent event =>
-                                  '${event.rebuildable.debugLabel} on ${event.notifier.debugLabel ?? event.notifier.runtimeType.toString()}',
-                                ListenerRemovedEvent event =>
-                                  '${event.rebuildable.debugLabel} on ${event.notifier.debugLabel ?? event.notifier.runtimeType.toString()}',
-                              },
-                            ),
-                          ),
-                          if (canExpand)
-                            Icon(
-                              _expanded ? Icons.expand_less : Icons.expand_more,
-                              size: 16,
-                              color: Colors.grey,
-                            ),
-                        ],
+                      child: Text(
+                        switch (widget.entry.event.event) {
+                          ChangeEvent event => event.stateType.toString(),
+                          ActionDispatchedEvent event =>
+                            '${event.action.debugLabel}${widget.depth == 0 ? ' (${event.debugOrigin})' : ''}',
+                          ProviderInitEvent event => event.provider.toString(),
+                          ListenerAddedEvent event =>
+                            '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
+                          ListenerRemovedEvent event =>
+                            '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
+                        },
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                   ),
@@ -288,18 +309,7 @@ class _EntryTileState extends State<_EntryTile> {
                 firstChild: const SizedBox(),
                 secondChild: Row(
                   children: [
-                    Visibility(
-                      visible: false,
-                      maintainSize: true,
-                      maintainAnimation: true,
-                      maintainState: true,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text(
-                            _formatTimestamp(widget.entry.event.timestamp),
-                            style: TextStyle(color: Colors.grey)),
-                      ),
-                    ),
+                    const SizedBox(width: 85),
                     SizedBox(width: (widget.depth + 1) * 40),
                     Expanded(
                       child: Container(
@@ -308,46 +318,36 @@ class _EntryTileState extends State<_EntryTile> {
                           color: _getColor(widget.entry.event.event)
                               .withOpacity(0.1),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: switch (widget.entry.event.event) {
-                            ChangeEvent event => [
-                                _AttributeRow(
-                                    label: 'Prev',
-                                    value: event.prev.toString()),
-                                _AttributeRow(
-                                    label: 'Next',
-                                    value: event.next.toString()),
-                                _AttributeRow(
-                                  label: 'Rebuild',
-                                  value: event.rebuild
+                        child: _EntryDetail(switch (widget.entry.event.event) {
+                          ChangeEvent event => {
+                              'Notifier': event.notifier.customDebugLabel,
+                              'Prev': event.prev.toString(),
+                              'Next': event.next.toString(),
+                              'Rebuild': event.rebuild.isEmpty
+                                  ? '<none>'
+                                  : event.rebuild
                                       .map((r) => r.debugLabel)
                                       .join(', '),
-                                ),
-                              ],
-                            ActionDispatchedEvent event => [
-                                _AttributeRow(
-                                    label: 'Origin', value: event.debugOrigin),
-                                _AttributeRow(
-                                  label: 'Action Group',
-                                  value: event.notifier.debugLabel ??
-                                      event.notifier.runtimeType.toString(),
-                                ),
-                                _AttributeRow(
-                                  label: 'Action',
-                                  value: event.action.toString(),
-                                ),
-                              ],
-                            ProviderInitEvent event => [
-                                _AttributeRow(
-                                  label: 'Initial',
-                                  value: event.value.toString(),
-                                ),
-                              ],
-                            ListenerAddedEvent _ => [],
-                            ListenerRemovedEvent _ => [],
-                          },
-                        ),
+                            },
+                          ActionDispatchedEvent event => {
+                              'Origin': event.debugOrigin,
+                              'Action Group': event.notifier.customDebugLabel,
+                              'Action': event.action.toString(),
+                            },
+                          ProviderInitEvent event => {
+                              'Provider': event.provider.toString(),
+                              'Initial': event.value.toString(),
+                              'Reason': event.cause.name.toUpperCase(),
+                            },
+                          ListenerAddedEvent event => {
+                              'Rebuildable': event.rebuildable.debugLabel,
+                              'Notifier': event.notifier.customDebugLabel,
+                            },
+                          ListenerRemovedEvent event => {
+                              'Rebuildable': event.rebuildable.debugLabel,
+                              'Notifier': event.notifier.customDebugLabel,
+                            },
+                        }),
                       ),
                     ),
                   ],
@@ -364,28 +364,48 @@ class _EntryTileState extends State<_EntryTile> {
   }
 }
 
-class _AttributeRow extends StatelessWidget {
-  final String label;
-  final String value;
+class _EntryDetail extends StatelessWidget {
+  final Map<String, String> attributes;
 
-  const _AttributeRow({
-    required this.label,
-    required this.value,
-  });
+  const _EntryDetail(this.attributes);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2),
-      child: Row(
-        children: [
-          Text('[ $label ]', style: TextStyle(color: Colors.grey)),
-          const SizedBox(width: 5),
-          Expanded(
-            child: Text(value),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ...attributes.entries.map((e) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('${e.key} : ', style: TextStyle(color: Colors.grey)),
+                  Expanded(
+                    child: Text(e.value),
+                  ),
+                ],
+              ),
+            )),
+        const SizedBox(height: 5),
+        TextButton.icon(
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.grey,
           ),
-        ],
-      ),
+          onPressed: () {
+            final text = attributes.entries
+                .map((e) => '${e.key} : ${e.value}')
+                .join('\n');
+            Clipboard.setData(ClipboardData(text: text));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('Copied to clipboard'),
+              ),
+            );
+          },
+          icon: const Icon(Icons.copy, size: 16),
+          label: const Text('Copy'),
+        ),
+      ],
     );
   }
 }
@@ -501,4 +521,10 @@ bool _contains(_TracingEntry entry, String query) {
   }
 
   return false;
+}
+
+extension on BaseNotifier {
+  String get customDebugLabel {
+    return debugLabel ?? runtimeType.toString();
+  }
 }

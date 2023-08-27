@@ -36,6 +36,9 @@ final class ChangeEvent<T> extends RiverpieEvent {
     required this.rebuild,
   });
 
+  /// The generic type of the state.
+  Type get stateType => T;
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
