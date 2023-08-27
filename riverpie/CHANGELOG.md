@@ -1,3 +1,7 @@
+## 0.18.0
+
+- feat: improve `RiverpieTracingPage` UI
+
 ## 0.17.0
 
 - feat: add `RiverpieTracingObserver` and `RiverpieTracingPage`
