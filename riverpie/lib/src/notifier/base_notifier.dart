@@ -6,7 +6,7 @@ import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
-import 'package:riverpie/src/notifier/redux.dart';
+import 'package:riverpie/src/notifier/redux_action.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/override.dart';
@@ -30,6 +30,7 @@ abstract class BaseNotifier<T> {
   BaseNotifier({this.debugLabel});
 
   /// Gets the current state.
+  @nonVirtual
   T get state => _state;
 
   /// Sets the state and notify listeners
@@ -198,9 +199,130 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Map<Type, MockReducer<T>?>? _overrides;
 
   /// Dispatches an action and updates the state.
+  /// Returns the new state.
   @protected
-  FutureOr<void> dispatch(
+  @nonVirtual
+  T dispatch(
     ReduxAction<BaseReduxNotifier<T>, T> action, {
+    String? debugOrigin,
+  }) {
+    return _dispatchWithResult<void>(action, debugOrigin: debugOrigin).$1;
+  }
+
+  /// Dispatches an action and updates the state.
+  /// Returns the new state along with the result of the action.
+  @protected
+  @nonVirtual
+  (T, R) dispatchWithResult<R>(
+    ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) {
+    return _dispatchWithResult<R>(action, debugOrigin: debugOrigin);
+  }
+
+  /// Dispatches an action and updates the state.
+  /// Returns only the result of the action.
+  @protected
+  @nonVirtual
+  R dispatchTakeResult<R>(
+    ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) {
+    return _dispatchWithResult<R>(action, debugOrigin: debugOrigin).$2;
+  }
+
+  @nonVirtual
+  (T, R) _dispatchWithResult<R>(
+    SynchronousReduxAction<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) {
+    _observer?.handleEvent(ActionDispatchedEvent(
+      debugOrigin: debugOrigin ?? runtimeType.toString(),
+      notifier: this,
+      action: action,
+    ));
+
+    if (_overrides != null) {
+      // Handle overrides
+      final key = action.runtimeType;
+      final override = _overrides![key];
+      if (override != null) {
+        // Use the override reducer
+        final (T, R) temp = switch (override(state)) {
+          T state => (state, null as R),
+          (T, R) stateWithResult => stateWithResult,
+          _ => throw Exception(
+              'Invalid override reducer for ${action.runtimeType}'),
+        };
+        _setState(temp.$1, action);
+        return temp;
+      } else if (_overrides!.containsKey(key)) {
+        // If the override is null (but the key exist),
+        // we do not update the state.
+        return (state, null as R);
+      }
+    }
+
+    action.internalSetup(this);
+    try {
+      action.before();
+      final newState = action.internalWrapReduce();
+      _setState(newState.$1, action);
+      return newState;
+    } catch (e) {
+      rethrow;
+    } finally {
+      try {
+        action.after();
+      } catch (e, st) {
+        print('Error in after method of ${action.runtimeType}: $e\n$st');
+      }
+    }
+  }
+
+  /// Dispatches an asynchronous action and updates the state.
+  /// Returns the new state.
+  @protected
+  @nonVirtual
+  Future<T> dispatchAsync(
+    AsyncReduxAction<BaseReduxNotifier<T>, T> action, {
+    String? debugOrigin,
+  }) async {
+    final (state, _) =
+        await _dispatchAsyncWithResult<void>(action, debugOrigin: debugOrigin);
+    return state;
+  }
+
+  /// Dispatches an asynchronous action and updates the state.
+  /// Returns the new state along with the result of the action.
+  @protected
+  @nonVirtual
+  Future<(T, R)> dispatchAsyncWithResult<R>(
+    AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) async {
+    return _dispatchAsyncWithResult<R>(action, debugOrigin: debugOrigin);
+  }
+
+  /// Dispatches an asynchronous action and updates the state.
+  /// Returns only the result of the action.
+  @protected
+  @nonVirtual
+  Future<R> dispatchAsyncTakeResult<R>(
+    AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) async {
+    final (_, result) = await _dispatchAsyncWithResult<R>(
+      action,
+      debugOrigin: debugOrigin,
+    );
+    return result;
+  }
+
+  @protected
+  @nonVirtual
+  Future<(T, R)> _dispatchAsyncWithResult<R>(
+    AsynchronousReduxAction<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
   }) async {
     _observer?.handleEvent(ActionDispatchedEvent(
@@ -215,41 +337,27 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       final override = _overrides![key];
       if (override != null) {
         // Use the override reducer
-        final newState = switch (override(state)) {
-          Future future => await future,
-          T value => value,
+        final (T, R) temp = switch (override(state)) {
+          T state => (state, null as R),
+          (T, R) stateWithResult => stateWithResult,
+          _ => throw Exception(
+              'Invalid override reducer for ${action.runtimeType}'),
         };
-        _setState(newState, action);
-        return;
+        _setState(temp.$1, action);
       } else if (_overrides!.containsKey(key)) {
         // If the override is null (but the key exist),
         // we do not update the state.
-        return;
+        return (state, null as R);
       }
     }
 
     action.internalSetup(this);
-    try {
-      switch (action.before()) {
-        case Future future:
-          // If the before method returns a Future, wait for it to complete
-          await future;
-          break;
-        case null:
-          // Do nothing if before is synchronous
-          break;
-      }
 
-      switch (action.wrapReduce()) {
-        case Future<T> future:
-          // If the reducer returns a Future, wait for it to complete
-          _setState(await future, action);
-          break;
-        case T value:
-          // If the reducer returns a plain value, update the state directly
-          _setState(value, action);
-          break;
-      }
+    try {
+      await action.before();
+      final newState = await action.internalWrapReduce();
+      _setState(newState.$1, action);
+      return newState;
     } catch (e) {
       rethrow;
     } finally {
@@ -359,11 +467,21 @@ class TestableReduxNotifier<T> {
   final BaseReduxNotifier<T> notifier;
 
   /// Dispatches an action and updates the state.
-  FutureOr<void> dispatch(
+  /// Returns the new state.
+  T dispatch(
     covariant ReduxAction<BaseReduxNotifier<T>, T> action, {
     String? debugOrigin,
-  }) async {
+  }) {
     return notifier.dispatch(action, debugOrigin: debugOrigin);
+  }
+
+  /// Dispatches an asynchronous action and updates the state.
+  /// Returns the new state.
+  Future<T> dispatchAsync(
+    covariant AsyncReduxAction<BaseReduxNotifier<T>, T> action, {
+    String? debugOrigin,
+  }) async {
+    return notifier.dispatchAsync(action, debugOrigin: debugOrigin);
   }
 
   /// Updates the state without dispatching an action.
@@ -373,7 +491,7 @@ class TestableReduxNotifier<T> {
   T get state => notifier.state;
 }
 
-typedef MockReducer<T> = FutureOr<T> Function(T state);
+typedef MockReducer<T> = Object? Function(T state);
 
 extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T>, T,
     E extends Object> on ReduxProvider<N, T> {

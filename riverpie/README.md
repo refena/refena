@@ -27,10 +27,15 @@ Use `context.ref` to access the provider:
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final myValue = context.ref.watch(counterProvider);
+    Ref ref = context.ref;
+    int counterState = ref.watch(counterProvider);
     return Scaffold(
       body: Center(
-        child: Text('The value is $myValue'),
+        child: Text('Counter state: $counterState'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => ref.notifier(counterProvider).increment(),
+        child: const Icon(Icons.add),
       ),
     );
   }
@@ -489,6 +494,8 @@ AsyncSnapshot<int> curr = counterState.curr; // might be AsyncSnapshot.waiting()
 
 ### ➤ ReduxProvider
 
+[Redux full documentation](https://github.com/Tienisto/riverpie/blob/main/documentation/redux.md).
+
 The `ReduxProvider` is the strictest option. The `state` is solely altered by actions.
 
 You need to provide other notifiers via constructor making the `ReduxNotifier` self-contained and testable.
@@ -573,9 +580,6 @@ class MyPage extends StatelessWidget {
 }
 ```
 
-Don't worry about asynchronous business logic.\
-The reduce method is defined as `FutureOr<T> reduce()`.
-
 Here is how the console output could look like with `RiverpieDebugObserver`:
 
 ```text
@@ -587,6 +591,9 @@ Here is how the console output could look like with `RiverpieDebugObserver`:
 ```
 
 You can additionally override `before`, `after`, and `wrapReduce` in a `ReduxAction` to add custom logic.
+
+The redux feature is quite complex.
+You can read more about it [here](https://github.com/Tienisto/riverpie/blob/main/documentation/redux.md).
 
 ### ➤ ViewProvider
 

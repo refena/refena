@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
-import 'package:riverpie/src/notifier/redux.dart';
+import 'package:riverpie/src/notifier/redux_action.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 
 const _eq = IterableEquality();
@@ -188,7 +188,7 @@ class ActionDispatchedEvent extends RiverpieEvent {
   final BaseNotifier notifier;
 
   /// The action that has been dispatched.
-  final ReduxAction action;
+  final BaseReduxAction action;
 
   ActionDispatchedEvent({
     required this.debugOrigin,

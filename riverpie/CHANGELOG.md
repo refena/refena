@@ -1,3 +1,7 @@
+## 0.17.0
+
+- **BREAKING**: distinguish between sync and async `ReduxAction` (see updated documentation)
+
 ## 0.16.0
 
 - fix: should update `ref.watch` config
