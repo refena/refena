@@ -1002,6 +1002,9 @@ Here is how it looks like:
 
 ![tracing-ui](https://raw.githubusercontent.com/Tienisto/riverpie/main/resources/tracing-ui.png)
 
+Side note: The `RiverpieTracingObserver` itself is quite performant as events are added and removed with `O(1)` complexity.
+To build the tree, it uses `O(n^2)` complexity, where `n` is the number of events. That's why you see a loading indicator when you open the tracing UI.
+
 ## Testing
 
 ### ➤ Override providers
