@@ -1,3 +1,7 @@
+## 0.19.0
+
+- feat: export `ProviderOverride`
+
 ## 0.18.0
 
 - feat: improve `RiverpieTracingPage` UI

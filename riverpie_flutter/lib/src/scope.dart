@@ -12,9 +12,6 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 // ignore: implementation_imports
 import 'package:riverpie/src/provider/base_provider.dart';
 
-// ignore: implementation_imports
-import 'package:riverpie/src/provider/override.dart';
-
 /// A wrapper widget around [RiverpieContainer].
 class RiverpieScope extends InheritedWidget implements RiverpieContainer {
   /// Creates a [RiverpieScope].

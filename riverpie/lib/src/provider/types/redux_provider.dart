@@ -1,8 +1,8 @@
 import 'package:meta/meta.dart';
-import 'package:riverpie/riverpie.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
+import 'package:riverpie/src/ref.dart';
 
 /// Holds a [ReduxNotifier]
 class ReduxProvider<N extends BaseReduxNotifier<T>, T>
