@@ -864,6 +864,40 @@ build(BuildContext context) {
 }
 ```
 
+### ➤ Notify Strategy
+
+A more global approach than `select` is to set a `defaultNotifyStrategy`.
+
+By default, `NotifyStrategy.identity` is used.
+This means that the rebuild is triggered whenever a new instance is assigned.
+This avoids comparing deeply nested objects.
+
+If you think that your `==` overrides are fast enough, you can use `NotifyStrategy.equality` instead.
+
+```dart
+void main() {
+  runApp(
+    RiverpieScope(
+      defaultNotifyStrategy: NotifyStrategy.equality,
+      child: const MyApp(),
+    ),
+  );
+}
+```
+
+You probably noticed the `default-` prefix.
+Of course, you can override `updateShouldNotify` for each notifier individually.
+
+```dart
+class MyNotifier extends Notifier<int> {
+  @override
+  int init() => 10;
+  
+  @override
+  bool updateShouldNotify(int old, int next) => old != next;
+}
+```
+
 ## ensureRef
 
 In a `StatefulWidget`, you can use `ensureRef` to access the providers and notifiers within `initState`.

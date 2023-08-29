@@ -16,12 +16,28 @@ import 'package:riverpie/src/util/batched_stream_controller.dart';
 
 const _absent = Object();
 
+/// This enum controls the default behaviour of [updateShouldNotify].
+/// Keep in mind that you can override [updateShouldNotify] in your notifiers
+/// to implement a custom behaviour.
+enum NotifyStrategy {
+  /// Notify and rebuild whenever we have a new instance.
+  /// This is the default behaviour to avoid comparing deeply
+  /// nested objects.
+  identity,
+
+  /// Notify and rebuild whenever the state in terms of equality (==) changes.
+  /// This may result in less rebuilds.
+  equality,
+}
+
 @internal
 abstract class BaseNotifier<T> {
   bool _initialized = false;
   RiverpieObserver? _observer;
 
   final String? debugLabel;
+
+  late final NotifyStrategy _notifyStrategy;
 
   /// The current state of the notifier.
   /// It will be initialized by [init].
@@ -78,7 +94,12 @@ abstract class BaseNotifier<T> {
   /// Override this if you want to a different kind of equality.
   @protected
   bool updateShouldNotify(T prev, T next) {
-    return !identical(prev, next);
+    switch (_notifyStrategy) {
+      case NotifyStrategy.identity:
+        return !identical(prev, next);
+      case NotifyStrategy.equality:
+        return prev != next;
+    }
   }
 
   /// Handles the actual initialization of the notifier.
@@ -116,6 +137,7 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
   @mustCallSuper
   void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
     _listeners = NotifierListeners<T>(this, observer);
+    _notifyStrategy = container.defaultNotifyStrategy;
     _observer = observer;
     _state = init();
     _initialized = true;
@@ -175,6 +197,7 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   @mustCallSuper
   void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
     _listeners = NotifierListeners<AsyncValue<T>>(this, observer);
+    _notifyStrategy = container.defaultNotifyStrategy;
     _observer = observer;
 
     // do not set future directly, as the setter may be overridden
@@ -560,6 +583,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @mustCallSuper
   void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
     _listeners = NotifierListeners<T>(this, observer);
+    _notifyStrategy = container.defaultNotifyStrategy;
     _observer = observer;
     _initialized = true;
   }

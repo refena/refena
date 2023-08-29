@@ -3,7 +3,7 @@ export 'package:riverpie/src/container.dart';
 export 'package:riverpie/src/notifier/base_notifier.dart'
     show ReduxNotifierOverrideExt, MockReducer, TestableReduxNotifier;
 export 'package:riverpie/src/notifier/base_notifier.dart'
-    show ViewProviderNotifier;
+    show NotifyStrategy, ViewProviderNotifier;
 export 'package:riverpie/src/notifier/dispatcher.dart';
 export 'package:riverpie/src/notifier/notifier_event.dart';
 export 'package:riverpie/src/notifier/redux_action.dart';

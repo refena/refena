@@ -18,17 +18,21 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
   /// The [overrides] are used to override providers with a different value.
   /// The [initialProviders] are used to initialize providers right away.
   /// Otherwise, the providers are initialized lazily when they are accessed.
+  /// The [defaultNotifyStrategy] defines when widgets and providers
+  /// are notified to rebuild.
   /// The [observer] is used to observe events.
   /// The [child] is the widget tree that is wrapped by the [RiverpieScope].
   RiverpieScope({
     super.key,
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
+    NotifyStrategy defaultNotifyStrategy = NotifyStrategy.identity,
     RiverpieObserver? observer,
     required super.child,
   }) : _container = RiverpieContainer(
           overrides: overrides,
           initialProviders: initialProviders,
+          defaultNotifyStrategy: defaultNotifyStrategy,
           observer: observer,
         ) {
     defaultRef = this;
@@ -44,6 +48,10 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
 
   /// Holds all provider states
   final RiverpieContainer _container;
+
+  /// The default notify strategy
+  @override
+  NotifyStrategy get defaultNotifyStrategy => _container.defaultNotifyStrategy;
 
   /// The provided observer (e.g. for logging)
   @override

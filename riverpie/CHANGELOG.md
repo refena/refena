@@ -2,6 +2,7 @@
 
 - feat: add error handling for redux actions
 - feat: access `ref` within observers
+- feat: add `defaultNotifyStrategy` parameter for `RiverpieScope`
 - feat: improve `RiverpieTracingPage` UI
 
 ## 0.19.0

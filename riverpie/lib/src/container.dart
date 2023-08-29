@@ -28,10 +28,13 @@ class RiverpieContainer extends Ref {
   /// The [overrides] are used to override providers with a different value.
   /// The [initialProviders] are used to initialize providers right away.
   /// Otherwise, the providers are initialized lazily when they are accessed.
+  /// The [defaultNotifyStrategy] defines when widgets and providers
+  /// are notified to rebuild.
   /// The [observer] is used to observe events.
   RiverpieContainer({
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
+    this.defaultNotifyStrategy = NotifyStrategy.identity,
     this.observer,
   })  : _overrides = _overridesToMap(overrides),
         _overridesList = overrides {
@@ -58,6 +61,9 @@ class RiverpieContainer extends Ref {
 
   /// The provided observer (e.g. for logging)
   final RiverpieObserver? observer;
+
+  /// The default notify strategy
+  final NotifyStrategy defaultNotifyStrategy;
 
   /// The overrides that are used to create overridden notifiers.
   final Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)>? _overrides;

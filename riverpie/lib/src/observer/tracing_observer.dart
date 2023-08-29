@@ -1,7 +1,6 @@
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
-import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/types/change_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
@@ -10,8 +9,6 @@ import 'package:riverpie/src/provider/types/change_notifier_provider.dart';
 /// A more sophisticated version of [RiverpieHistoryObserver].
 /// This should be used in combination with [RiverpieTracingPage].
 class RiverpieTracingObserver extends RiverpieObserver {
-  late final RiverpieContainer container;
-
   /// The maximum number of events to store.
   final int limit;
 
@@ -29,11 +26,10 @@ class RiverpieTracingObserver extends RiverpieObserver {
     this.exclude,
   }) : assert(limit > 0, 'limit must be greater than 0');
 
-  @internal
-  void internalSetup(RiverpieContainer container) {
-    this.container = container;
-    container.notifier(tracingProvider)._limit = limit;
-    container.notifier(tracingProvider)._initialized = true;
+  @override
+  void init() {
+    ref.notifier(tracingProvider)._limit = limit;
+    ref.notifier(tracingProvider)._initialized = true;
   }
 
   @override
@@ -47,7 +43,7 @@ class RiverpieTracingObserver extends RiverpieObserver {
       return;
     }
 
-    container.notifier(tracingProvider)._addEvent(event);
+    ref.notifier(tracingProvider)._addEvent(event);
   }
 }
 

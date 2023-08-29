@@ -68,5 +68,8 @@ class ProxyContainer implements RiverpieContainer {
   }
 
   @override
+  NotifyStrategy get defaultNotifyStrategy => _container.defaultNotifyStrategy;
+
+  @override
   RiverpieObserver? get observer => _container.observer;
 }
