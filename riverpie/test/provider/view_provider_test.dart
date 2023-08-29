@@ -75,9 +75,17 @@ void main() {
         next: 1,
         rebuild: [viewNotifier],
       ),
-      ChangeEvent(
-        notifier: viewNotifier,
-        action: null,
+      RebuildEvent(
+        rebuildable: viewNotifier,
+        causes: [
+          ChangeEvent<int>(
+            notifier: stateNotifier,
+            action: null,
+            prev: 0,
+            next: 1,
+            rebuild: [viewNotifier],
+          ),
+        ],
         prev: 100,
         next: 101,
         rebuild: [],
@@ -178,9 +186,17 @@ void main() {
         next: 1,
         rebuild: [viewNotifier],
       ),
-      ChangeEvent(
-        notifier: viewNotifier,
-        action: null,
+      RebuildEvent(
+        rebuildable: viewNotifier,
+        causes: [
+          ChangeEvent<int>(
+            notifier: numberNotifier,
+            action: null,
+            prev: 0,
+            next: 1,
+            rebuild: [viewNotifier],
+          ),
+        ],
         prev: _ComplexState(0, 'a'),
         next: _ComplexState(1, 'a'),
         rebuild: [],
@@ -192,16 +208,40 @@ void main() {
         next: 'ab',
         rebuild: [viewNotifier],
       ),
-      ChangeEvent(
-        notifier: viewNotifier,
-        action: null,
+      RebuildEvent(
+        rebuildable: viewNotifier,
+        causes: [
+          ChangeEvent<String>(
+            notifier: stringNotifier,
+            action: null,
+            prev: 'a',
+            next: 'ab',
+            rebuild: [viewNotifier],
+          ),
+        ],
         prev: _ComplexState(1, 'a'),
         next: _ComplexState(1, 'ab'),
         rebuild: [selectiveViewNotifier],
       ),
-      ChangeEvent(
-        notifier: selectiveViewNotifier,
-        action: null,
+      RebuildEvent(
+        rebuildable: selectiveViewNotifier,
+        causes: [
+          RebuildEvent<_ComplexState>(
+            rebuildable: viewNotifier,
+            causes: [
+              ChangeEvent<String>(
+                notifier: stringNotifier,
+                action: null,
+                prev: 'a',
+                next: 'ab',
+                rebuild: [viewNotifier],
+              ),
+            ],
+            prev: _ComplexState(1, 'a'),
+            next: _ComplexState(1, 'ab'),
+            rebuild: [selectiveViewNotifier],
+          ),
+        ],
         prev: 'a',
         next: 'ab',
         rebuild: [],

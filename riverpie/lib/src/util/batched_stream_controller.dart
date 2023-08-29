@@ -2,23 +2,30 @@ import 'dart:async';
 
 /// A stream controller that batches multiple calls to [schedule]
 /// into a single event.
-class BatchedStreamController {
-  final _streamController = StreamController<void>();
-  bool _isScheduled = false;
+class BatchedStreamController<T> {
+  final _streamController = StreamController<List<T>>();
+  List<T>? _scheduledEvents;
 
   /// Schedules an event to be fired on the stream.
   /// If an event is already scheduled, this call is ignored.
-  void schedule() {
-    if (_isScheduled) {
+  void schedule(T? data) {
+    if (_scheduledEvents != null) {
+      if (data != null) {
+        _scheduledEvents!.add(data);
+      }
       return;
     }
 
-    _isScheduled = true;
+    if (data != null) {
+      _scheduledEvents = [data];
+    } else {
+      _scheduledEvents = [];
+    }
     scheduleMicrotask(() {
-      _isScheduled = false;
-      _streamController.add(null);
+      _streamController.add(_scheduledEvents!);
+      _scheduledEvents = null;
     });
   }
 
-  Stream<void> get stream => _streamController.stream;
+  Stream<List<T>> get stream => _streamController.stream;
 }

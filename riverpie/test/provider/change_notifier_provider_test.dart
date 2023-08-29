@@ -50,9 +50,17 @@ void main() {
         next: null,
         rebuild: [viewNotifier],
       ),
-      ChangeEvent(
-        notifier: viewNotifier,
-        action: null,
+      RebuildEvent(
+        rebuildable: viewNotifier,
+        causes: [
+          ChangeEvent<void>(
+            notifier: notifier,
+            action: null,
+            prev: null,
+            next: null,
+            rebuild: [viewNotifier],
+          ),
+        ],
         prev: 123,
         next: 124,
         rebuild: [],

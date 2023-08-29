@@ -1,5 +1,5 @@
 import 'package:meta/meta.dart';
-import 'package:riverpie/src/notifier/types/view_provider_notifier.dart';
+import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/ref.dart';

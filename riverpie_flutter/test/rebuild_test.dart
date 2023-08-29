@@ -224,9 +224,17 @@ void main() {
         next: 222,
         rebuild: [notifier],
       ),
-      ChangeEvent(
-        notifier: notifier,
-        action: null,
+      RebuildEvent(
+        rebuildable: notifier,
+        causes: [
+          ChangeEvent<int>(
+            notifier: notifierA,
+            action: null,
+            prev: 111,
+            next: 222,
+            rebuild: [notifier],
+          ),
+        ],
         prev: _Vm(
           value: '111 - 999',
           setA: (_) {},
@@ -246,9 +254,17 @@ void main() {
         next: 888,
         rebuild: [notifier],
       ),
-      ChangeEvent(
-        notifier: notifier,
-        action: null,
+      RebuildEvent(
+        rebuildable: notifier,
+        causes: [
+          ChangeEvent<int>(
+            notifier: notifierB,
+            action: null,
+            prev: 999,
+            next: 888,
+            rebuild: [notifier],
+          ),
+        ],
         prev: _Vm(
           value: '222 - 999',
           setA: (_) {},

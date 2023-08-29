@@ -33,7 +33,7 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'MyPage',
-        debugOriginRef: null,
+        debugOriginRef: WidgetRebuildable<MyPage>(),
         notifier: notifier,
         action: IncrementAction(),
       ),
@@ -61,7 +61,7 @@ void main() {
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'Banana',
-        debugOriginRef: null,
+        debugOriginRef: WidgetRebuildable<Consumer>(),
         notifier: notifier,
         action: IncrementAction(),
       ),

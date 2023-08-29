@@ -25,7 +25,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   final String debugOrigin;
 
   /// The origin reference of the dispatched action.
-  final Object? debugOriginRef;
+  final Object debugOriginRef;
 
   /// Dispatches an [action] to the [notifier].
   /// Returns the new state.

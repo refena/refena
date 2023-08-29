@@ -68,12 +68,17 @@ class RiverpieDebugObserver extends RiverpieObserver {
   /// )
   final void Function(String s)? onLine;
 
+  /// Similar to [onLine] but only called when an error occurs.
+  /// Fallbacks to [onLine] if not specified.
+  final void Function(String s, Object e, StackTrace st)? onErrorLine;
+
   /// If the given function returns `true`, then the event
   /// won't be logged.
   final bool Function(RiverpieEvent event)? exclude;
 
   const RiverpieDebugObserver({
     this.onLine,
+    this.onErrorLine,
     this.exclude,
   });
 
@@ -87,10 +92,10 @@ class RiverpieDebugObserver extends RiverpieObserver {
       case ChangeEvent event:
         onLine?.call(_t);
         final label = _getProviderDebugLabel(null, event.notifier);
-        final eventStr = event.action == null
+        final actionStr = event.action == null
             ? ''
             : ' triggered by [${event.action.runtimeType}]';
-        _line('Change by [$label]$eventStr', intentWhenLogger: true);
+        _line('Change by [$label]$actionStr', intentWhenLogger: true);
         _line(
           ' - Prev: ${event.prev.toString().toSingleLine()}',
           followUp: true,
@@ -106,6 +111,27 @@ class RiverpieDebugObserver extends RiverpieObserver {
         );
         onLine?.call(_b);
         break;
+      case RebuildEvent event:
+        onLine?.call(_t);
+        final label =
+            _getProviderDebugLabel(null, event.rebuildable as BaseNotifier);
+        final causes =
+            ' triggered by [${event.causes.map((c) => c.toString()).join(', ')}]';
+        _line('Rebuild by [$label]$causes', intentWhenLogger: true);
+        _line(
+          ' - Prev: ${event.prev.toString().toSingleLine()}',
+          followUp: true,
+        );
+        _line(
+          ' - Next: ${event.next.toString().toSingleLine()}',
+          followUp: true,
+        );
+        final rebuildable = event.rebuild;
+        _line(
+          ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '<none>' : rebuildable.map((r) => '[${r.debugLabel}]').join(', ')}',
+          followUp: true,
+        );
+        onLine?.call(_b);
       case ProviderInitEvent event:
         onLine?.call(_t);
         final label = _getProviderDebugLabel(event.provider, event.notifier);
@@ -131,6 +157,14 @@ class RiverpieDebugObserver extends RiverpieObserver {
         _line(
             'Action dispatched: [$label.${event.action.runtimeType}] by [${event.debugOrigin}]');
         break;
+      case ActionErrorEvent event:
+        final label = _getProviderDebugLabel(null, event.action.notifier);
+        _line(
+          'Action error: [$label.${event.action.debugLabel}] has thrown the following error:',
+          error: event.error,
+          stackTrace: event.stackTrace,
+        );
+        break;
     }
   }
 
@@ -138,7 +172,21 @@ class RiverpieDebugObserver extends RiverpieObserver {
     String line, {
     bool followUp = false,
     bool intentWhenLogger = false,
+    Object? error,
+    StackTrace? stackTrace,
   }) {
+    if (error != null) {
+      if (onErrorLine != null) {
+        onErrorLine!.call(line, error, stackTrace!);
+        return;
+      }
+
+      if (onLine != null) {
+        onLine!.call('  $line\n$error\n$stackTrace');
+        return;
+      }
+    }
+
     if (onLine != null) {
       // use given callback
       if (intentWhenLogger) {

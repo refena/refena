@@ -97,6 +97,144 @@ void main() {
       ),
     ]);
   });
+
+  test('Should handle errors in before', () async {
+    final notifier = _AsyncCounter();
+    final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
+    final observer = RiverpieHistoryObserver();
+    final ref = RiverpieContainer(
+      observer: observer,
+    );
+
+    expect(ref.read(provider), 123);
+
+    await expectLater(
+      () => ref.redux(provider).dispatchAsync(_ErrorInBeforeAction()),
+      throwsA(isA<String>()),
+    );
+
+    // The after() method should still produce a side effect
+    expect(ref.read(provider), 124);
+
+    // Check events
+    expect(observer.history, [
+      ActionDispatchedEvent(
+        debugOrigin: 'RiverpieContainer',
+        debugOriginRef: ref,
+        notifier: notifier,
+        action: _ErrorInBeforeAction(),
+      ),
+      ActionErrorEvent(
+        action: _ErrorInBeforeAction(),
+        lifecycle: ActionLifecycle.before,
+        error: 'Error in before',
+        stackTrace: StackTrace.fromString(''),
+      ),
+      ActionDispatchedEvent(
+        debugOrigin: '_ErrorInBeforeAction',
+        debugOriginRef: _ErrorInBeforeAction(),
+        notifier: notifier,
+        action: _AsyncAddAction(1),
+      ),
+      ChangeEvent(
+        notifier: notifier,
+        action: _AsyncAddAction(1),
+        prev: 123,
+        next: 124,
+        rebuild: [],
+      ),
+    ]);
+  });
+
+  test('Should handle errors in reduce', () async {
+    final notifier = _AsyncCounter();
+    final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
+    final observer = RiverpieHistoryObserver();
+    final ref = RiverpieContainer(
+      observer: observer,
+    );
+
+    expect(ref.read(provider), 123);
+
+    await expectLater(
+      () => ref.redux(provider).dispatchAsync(_ErrorInReduceAction()),
+      throwsA(isA<String>()),
+    );
+
+    // The after() method should still produce a side effect
+    expect(ref.read(provider), 124);
+
+    // Check events
+    expect(observer.history, [
+      ActionDispatchedEvent(
+        debugOrigin: 'RiverpieContainer',
+        debugOriginRef: ref,
+        notifier: notifier,
+        action: _ErrorInReduceAction(),
+      ),
+      ActionErrorEvent(
+        action: _ErrorInReduceAction(),
+        lifecycle: ActionLifecycle.reduce,
+        error: 'Error in reduce',
+        stackTrace: StackTrace.fromString(''),
+      ),
+      ActionDispatchedEvent(
+        debugOrigin: '_ErrorInReduceAction',
+        debugOriginRef: _ErrorInReduceAction(),
+        notifier: notifier,
+        action: _AsyncAddAction(1),
+      ),
+      ChangeEvent(
+        notifier: notifier,
+        action: _AsyncAddAction(1),
+        prev: 123,
+        next: 124,
+        rebuild: [],
+      ),
+    ]);
+  });
+
+  test('Should handle errors in after', () async {
+    final notifier = _AsyncCounter();
+    final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
+    final observer = RiverpieHistoryObserver();
+    final ref = RiverpieContainer(
+      observer: observer,
+    );
+
+    expect(ref.read(provider), 123);
+
+    expect(
+      await ref.redux(provider).dispatchAsync(_ErrorInAfterAction()),
+      125,
+    );
+
+    // The reduce() method should still produce a side effect
+    expect(ref.read(provider), 125);
+
+    // Check events
+    expect(observer.history, [
+      ActionDispatchedEvent(
+        debugOrigin: 'RiverpieContainer',
+        debugOriginRef: ref,
+        notifier: notifier,
+        action: _ErrorInAfterAction(),
+      ),
+      ChangeEvent(
+        notifier: notifier,
+        action: _ErrorInAfterAction(),
+        prev: 123,
+        next: 125,
+        rebuild: [],
+      ),
+      ActionErrorEvent(
+        action: _ErrorInAfterAction(),
+        lifecycle: ActionLifecycle.after,
+        error: 'Error in after',
+        stackTrace: StackTrace.fromString(''),
+      ),
+    ]);
+  });
 }
 
 class _AsyncCounter extends ReduxNotifier<int> {
@@ -142,4 +280,74 @@ class _AsyncSubtractAction
 
   @override
   int get hashCode => amount.hashCode;
+}
+
+class _ErrorInBeforeAction extends AsyncReduxAction<_AsyncCounter, int> {
+  @override
+  Future<void> before() async {
+    await Future.delayed(Duration(milliseconds: 50));
+    throw 'Error in before';
+  }
+
+  @override
+  Future<int> reduce() async {
+    return state + 2;
+  }
+
+  @override
+  void after() {
+    // Should still be called
+    dispatch(_AsyncAddAction(1));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _ErrorInBeforeAction;
+  }
+
+  @override
+  int get hashCode => 0;
+}
+
+class _ErrorInReduceAction extends AsyncReduxAction<_AsyncCounter, int> {
+  @override
+  Future<int> reduce() async {
+    await Future.delayed(Duration(milliseconds: 50));
+    throw 'Error in reduce';
+  }
+
+  @override
+  void after() {
+    // Should still be called
+    dispatch(_AsyncAddAction(1));
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _ErrorInReduceAction;
+  }
+
+  @override
+  int get hashCode => 0;
+}
+
+class _ErrorInAfterAction extends AsyncReduxAction<_AsyncCounter, int> {
+  @override
+  Future<int> reduce() async {
+    await Future.delayed(Duration(milliseconds: 50));
+    return state + 2;
+  }
+
+  @override
+  void after() {
+    throw 'Error in after';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _ErrorInAfterAction;
+  }
+
+  @override
+  int get hashCode => 0;
 }

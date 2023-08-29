@@ -1,10 +1,15 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:riverpie_flutter/riverpie_flutter.dart';
 
 void main() {
   runApp(
     RiverpieScope(
-      observer: RiverpieTracingObserver(),
+      observer: RiverpieMultiObserver(observers: [
+        RiverpieTracingObserver(),
+        RiverpieDebugObserver(),
+      ]),
       child: MyApp(),
     ),
   );
@@ -28,6 +33,7 @@ class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final counterState = context.ref.watch(counterProvider);
+    final vm = context.ref.watch(viewProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riverpie Tracing'),
@@ -49,6 +55,8 @@ class MyPage extends StatelessWidget {
         children: [
           Text('Counter: ${counterState.counter}'),
           const SizedBox(height: 20),
+          Text('Sum: ${vm.sum}'),
+          const SizedBox(height: 20),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -65,6 +73,13 @@ class MyPage extends StatelessWidget {
                 },
                 child: Text('Nested Action'),
               ),
+              const SizedBox(width: 20),
+              FilledButton(
+                onPressed: () {
+                  context.ref.notifier(randomProvider).increment();
+                },
+                child: Text('Notifier Change'),
+              ),
             ],
           ),
         ],
@@ -77,6 +92,9 @@ class CounterState {
   final int counter;
 
   const CounterState(this.counter);
+
+  @override
+  String toString() => 'CounterState(counter: $counter)';
 }
 
 final counterProvider =
@@ -98,4 +116,51 @@ class NestedAddAction extends ReduxAction<CounterService, CounterState> {
     final result = dispatch(AddAction());
     return CounterState(result.counter + 1);
   }
+
+  @override
+  void after() {
+    dispatch(AnotherAction());
+  }
 }
+
+class AnotherAction extends ReduxAction<CounterService, CounterState> {
+  @override
+  CounterState reduce() => throw 'Test Error';
+}
+
+class RandomState {
+  final int number;
+
+  const RandomState(this.number);
+
+  @override
+  String toString() => 'RandomState(number: $number)';
+}
+
+final randomProvider = NotifierProvider<RandomService, RandomState>((ref) => RandomService());
+
+class RandomService extends Notifier<RandomState> {
+  final Random random = Random();
+
+  @override
+  RandomState init() => RandomState(random.nextInt(5));
+
+  void increment() {
+    state = RandomState(random.nextInt(5));
+  }
+}
+
+class CounterVm {
+  final int sum;
+
+  const CounterVm(this.sum);
+
+  @override
+  String toString() => 'CounterVm(sum: $sum)';
+}
+
+final viewProvider = ViewProvider((ref) {
+  final counterState = ref.watch(counterProvider);
+  final randomState = ref.watch(randomProvider);
+  return CounterVm(counterState.counter + randomState.number);
+});

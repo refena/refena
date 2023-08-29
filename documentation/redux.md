@@ -273,12 +273,14 @@ class IncrementAction extends ReduxAction<Counter, int> {
 
 Because every action is typed accordingly, you can easily handle errors like in any other Dart code.
 
+It is important to notice that errors thrown in `after()` are not rethrown to the caller.
+
 ```dart
 class IncrementAction extends AsyncReduxAction<Counter, int> {
   @override
   Future<int> reduce() {
     try {
-      await dispatchAsync(ErrorAction());
+      await dispatchAsync(AsyncErrorAction());
     } catch (e) {
       // handle error
     }
@@ -298,9 +300,42 @@ In case there are no try-catch blocks, the error will be thrown to the caller.
 ```dart
 void onTap() async {
   try {
-    await context.ref.redux(counterProvider).dispatchAsync(ErrorAction());
+    await context.ref.redux(counterProvider).dispatchAsync(AsyncErrorAction());
   } catch (e) {
     // handle error
   }
+}
+```
+
+To safely observe all errors (e.g., to send them to a crash reporting service),
+you can implement a `RiverpieObserver`.
+
+```dart
+class MyObserver extends RiverpieObserver {
+  @override
+  void handleEvent(RiverpieEvent event) {
+    if (event is ActionErrorEvent) {
+      BaseAction action = event.action;
+      ActionLifecycle lifecycle = event.lifecycle; // before, reduce, after
+      Object error = event.error;
+      StackTrace stackTrace = event.stackTrace;
+    }
+  }
+}
+```
+
+Register the observer in the `RiverpieScope`:
+
+```dart
+void main() {
+  runApp(RiverpieScope(
+    observer: RiverpieMultiObserver(
+      observers: [
+        RiverpieDebugObserver(),
+        MyObserver(),
+      ],
+    ),
+    child: MyApp(),
+  ));
 }
 ```

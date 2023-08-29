@@ -125,7 +125,6 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
 
   /// The debug label of the action.
   /// Override this getter to provide a custom label.
-  @protected
   String get debugLabel => '$runtimeType';
 
   @internal

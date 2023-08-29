@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'package:riverpie/riverpie.dart';
 
 // ignore: implementation_imports
 import 'package:riverpie/src/notifier/rebuildable.dart';
@@ -23,7 +24,7 @@ class ElementRebuildable extends Rebuildable {
         debugLabel = _getDebugLabel(element.widget);
 
   @override
-  void rebuild() {
+  void rebuild(ChangeEvent? changeEvent, RebuildEvent? rebuildEvent) {
     element.target?.markNeedsBuild();
   }
 
@@ -41,6 +42,11 @@ class ElementRebuildable extends Rebuildable {
 
   @override
   int get hashCode => element.hashCode;
+
+  @override
+  String toString() {
+    return 'ElementRebuildable<${element.target?.widget.runtimeType}>($debugLabel)';
+  }
 }
 
 String _getDebugLabel(Widget? widget) {

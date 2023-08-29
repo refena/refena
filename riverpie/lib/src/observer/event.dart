@@ -9,16 +9,8 @@ const _eq = IterableEquality();
 /// The base event.
 sealed class RiverpieEvent {}
 
-/// The most frequent event.
-/// A notifier changed its state and notifies all listeners
-/// that they should rebuild.
-final class ChangeEvent<T> extends RiverpieEvent {
-  /// The notifier that fired the change event.
-  final BaseNotifier<T> notifier;
-
-  /// The dispatched [action] if the change was triggered by an [ReduxNotifier].
-  final BaseReduxAction? action;
-
+/// A flag that is applied for [ChangeEvent] and [RebuildEvent].
+sealed class AbstractChangeEvent<T> extends RiverpieEvent {
   /// The previous state before the event.
   final T prev;
 
@@ -26,11 +18,10 @@ final class ChangeEvent<T> extends RiverpieEvent {
   final T next;
 
   /// A list of rebuildable objects that should be rebuilt in the next tick.
+  /// This is the case if one view provider is dependent on another one.
   final List<Rebuildable> rebuild;
 
-  ChangeEvent({
-    required this.notifier,
-    required this.action,
+  AbstractChangeEvent({
     required this.prev,
     required this.next,
     required this.rebuild,
@@ -38,6 +29,25 @@ final class ChangeEvent<T> extends RiverpieEvent {
 
   /// The generic type of the state.
   Type get stateType => T;
+}
+
+/// The most frequent event.
+/// A notifier changed its state and notifies all listeners
+/// that they should rebuild.
+class ChangeEvent<T> extends AbstractChangeEvent<T> {
+  /// The notifier that fired the change event.
+  final BaseNotifier<T> notifier;
+
+  /// The dispatched [action] if the change was triggered by an [ReduxNotifier].
+  final BaseReduxAction? action;
+
+  ChangeEvent({
+    required this.notifier,
+    required this.action,
+    required super.prev,
+    required super.next,
+    required super.rebuild,
+  });
 
   @override
   bool operator ==(Object other) {
@@ -61,7 +71,52 @@ final class ChangeEvent<T> extends RiverpieEvent {
 
   @override
   String toString() {
-    return 'ChangeEvent(notifier: $notifier, action: $action, prev: $prev, next: $next, rebuild: $rebuild)';
+    return 'ChangeEvent<$T>(notifier: $notifier, action: $action, prev: $prev, next: $next, rebuild: $rebuild)';
+  }
+}
+
+/// A [ViewProvider] has been rebuilt. (**NOT** widget rebuild)
+/// This is very similar to a [ChangeEvent] but instead of one action,
+/// there can be multiple pairs of actions and notifiers.
+class RebuildEvent<T> extends AbstractChangeEvent<T> {
+  /// The view notifier that has been rebuilt.
+  final Rebuildable rebuildable;
+
+  /// The causes leading to the rebuild.
+  /// They are batched together to avoid unnecessary rebuilds in the same frame.
+  final List<AbstractChangeEvent> causes;
+
+  RebuildEvent({
+    required this.rebuildable,
+    required this.causes,
+    required super.prev,
+    required super.next,
+    required super.rebuild,
+  });
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        other is RebuildEvent &&
+            runtimeType == other.runtimeType &&
+            rebuildable == other.rebuildable &&
+            _eq.equals(causes, other.causes) &&
+            prev == other.prev &&
+            next == other.next &&
+            _eq.equals(rebuild, other.rebuild);
+  }
+
+  @override
+  int get hashCode =>
+      rebuildable.hashCode ^
+      causes.hashCode ^
+      prev.hashCode ^
+      next.hashCode ^
+      rebuild.hashCode;
+
+  @override
+  String toString() {
+    return 'RebuildEvent<$T>(notifier: $rebuildable, causes: $causes, prev: $prev, next: $next, rebuild: $rebuild)';
   }
 }
 
@@ -82,7 +137,7 @@ enum ProviderInitCause {
 /// A provider is initialized (happens only once per runtime).
 /// This happens either immediately during provider override or
 /// lazily when the provider is accessed the first time.
-final class ProviderInitEvent extends RiverpieEvent {
+class ProviderInitEvent extends RiverpieEvent {
   /// The provider that has been initialized.
   final BaseProvider provider;
 
@@ -124,7 +179,7 @@ final class ProviderInitEvent extends RiverpieEvent {
 
 /// A listener is added to a notifier.
 /// This happens on ref.watch the first time the call happens within a state.
-final class ListenerAddedEvent extends RiverpieEvent {
+class ListenerAddedEvent extends RiverpieEvent {
   final BaseNotifier notifier;
   final Rebuildable rebuildable;
 
@@ -153,7 +208,7 @@ final class ListenerAddedEvent extends RiverpieEvent {
 /// Listener is removed from a notifier.
 /// This usually happens when a notifier tries to notify or
 /// periodically when new listeners are added.
-final class ListenerRemovedEvent extends RiverpieEvent {
+class ListenerRemovedEvent extends RiverpieEvent {
   final BaseNotifier notifier;
   final Rebuildable rebuildable;
 
@@ -188,8 +243,8 @@ class ActionDispatchedEvent extends RiverpieEvent {
   final String debugOrigin;
 
   /// The actual reference to the origin.
-  /// This may be null.
-  final Object? debugOriginRef;
+  /// This may be the notifier, the action, or the rebuildable.
+  final Object debugOriginRef;
 
   /// The corresponding notifier.
   final BaseNotifier notifier;
@@ -224,5 +279,55 @@ class ActionDispatchedEvent extends RiverpieEvent {
   @override
   String toString() {
     return 'ActionDispatchedEvent(debugOrigin: $debugOrigin, debugOriginRef: $debugOriginRef, notifier: $notifier, action: $action)';
+  }
+}
+
+/// The location of an error.
+enum ActionLifecycle {
+  /// The error happened in the [before] method of the action.
+  before,
+
+  /// The error happened in the [reduce] method of the action.
+  reduce,
+
+  /// The error happened in the [after] method of the action.
+  after,
+}
+
+/// An action threw an error.
+class ActionErrorEvent extends RiverpieEvent {
+  /// The action that has thrown the error.
+  final BaseReduxAction action;
+
+  /// The location of the error.
+  final ActionLifecycle lifecycle;
+
+  /// The error that has been thrown.
+  final Object error;
+
+  /// The stack trace of the error.
+  final StackTrace stackTrace;
+
+  ActionErrorEvent({
+    required this.action,
+    required this.lifecycle,
+    required this.error,
+    required this.stackTrace,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActionErrorEvent &&
+          action == other.action &&
+          lifecycle == other.lifecycle &&
+          error == other.error;
+
+  @override
+  int get hashCode => action.hashCode ^ lifecycle.hashCode ^ error.hashCode;
+
+  @override
+  String toString() {
+    return 'ActionErrorEvent(action: $action, lifecycle: $lifecycle, error: $error)';
   }
 }

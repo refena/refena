@@ -12,6 +12,7 @@ import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
 import 'package:riverpie/src/ref.dart';
+import 'package:riverpie/src/util/batched_stream_controller.dart';
 
 const _absent = Object();
 
@@ -57,16 +58,20 @@ abstract class BaseNotifier<T> {
     _state = value;
 
     if (_initialized && updateShouldNotify(oldState, _state)) {
-      final notified = _listeners.notifyAll(oldState, _state);
-      _observer?.handleEvent(
-        ChangeEvent<T>(
+      final observer = _observer;
+      if (observer != null) {
+        final event = ChangeEvent<T>(
           notifier: this,
           action: action,
           prev: oldState,
           next: value,
-          rebuild: notified!,
-        ),
-      );
+          rebuild: [], // will be modified by notifyAll
+        );
+        _listeners.notifyAll(prev: oldState, next: _state, changeEvent: event);
+        observer.handleEvent(event);
+      } else {
+        _listeners.notifyAll(prev: oldState, next: _state);
+      }
     }
   }
 
@@ -179,6 +184,87 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   }
 }
 
+final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
+    implements Rebuildable {
+  ViewProviderNotifier(this.builder, {super.debugLabel});
+
+  late final WatchableRef watchableRef;
+  final T Function(WatchableRef) builder;
+  final _rebuildController = BatchedStreamController<AbstractChangeEvent>();
+
+  @override
+  T init() {
+    _rebuildController.stream.listen((event) {
+      // rebuild notifier state
+      _setStateCustom(
+        builder(watchableRef),
+        event,
+      );
+    });
+    return builder(watchableRef);
+  }
+
+  // See [BaseNotifier._setState] for reference.
+  void _setStateCustom(T value, List<AbstractChangeEvent> causes) {
+    if (!_initialized) {
+      _state = value;
+      return;
+    }
+
+    final oldState = _state;
+    _state = value;
+
+    if (_initialized && updateShouldNotify(oldState, _state)) {
+      final observer = _observer;
+      if (observer != null) {
+        final event = RebuildEvent<T>(
+          rebuildable: this,
+          causes: causes,
+          prev: oldState,
+          next: value,
+          rebuild: [], // will be modified by notifyAll
+        );
+        _listeners.notifyAll(prev: oldState, next: _state, rebuildEvent: event);
+        observer.handleEvent(event);
+      } else {
+        _listeners.notifyAll(prev: oldState, next: _state);
+      }
+    }
+  }
+
+  @internal
+  @override
+  void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
+    watchableRef = WatchableRef(
+      ref: container,
+      rebuildable: this,
+    );
+    super.internalSetup(container, observer);
+  }
+
+  @override
+  void rebuild(ChangeEvent? changeEvent, RebuildEvent? rebuildEvent) {
+    assert(
+      changeEvent == null || rebuildEvent == null,
+      'Cannot have both changeEvent and rebuildEvent',
+    );
+
+    if (changeEvent != null) {
+      _rebuildController.schedule(changeEvent);
+    } else if (rebuildEvent != null) {
+      _rebuildController.schedule(rebuildEvent);
+    } else {
+      _rebuildController.schedule(null);
+    }
+  }
+
+  @override
+  bool get disposed => false;
+
+  @override
+  String get debugLabel => super.debugLabel ?? runtimeType.toString();
+}
+
 /// A notifier where the state can be updated by dispatching actions
 /// by calling [dispatch].
 ///
@@ -207,7 +293,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   T dispatch(
     ReduxAction<BaseReduxNotifier<T>, T> action, {
     String? debugOrigin,
-    Object? debugOriginRef = _absent,
+    Object debugOriginRef = _absent,
   }) {
     return _dispatchWithResult<void>(
       action,
@@ -223,7 +309,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   (T, R) dispatchWithResult<R>(
     ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
-    Object? debugOriginRef = _absent,
+    Object debugOriginRef = _absent,
   }) {
     return _dispatchWithResult<R>(
       action,
@@ -239,7 +325,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   R dispatchTakeResult<R>(
     ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
-    Object? debugOriginRef = _absent,
+    Object debugOriginRef = _absent,
   }) {
     return _dispatchWithResult<R>(
       action,
@@ -252,7 +338,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   (T, R) _dispatchWithResult<R>(
     SynchronousReduxAction<BaseReduxNotifier<T>, T, R> action, {
     required String? debugOrigin,
-    required Object? debugOriginRef,
+    required Object debugOriginRef,
   }) {
     _observer?.handleEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
@@ -284,17 +370,43 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
     action.internalSetup(this);
     try {
-      action.before();
-      final newState = action.internalWrapReduce();
-      _setState(newState.$1, action);
-      return newState;
-    } catch (e) {
+      try {
+        action.before();
+      } catch (error, stackTrace) {
+        _observer?.handleEvent(ActionErrorEvent(
+          action: action,
+          lifecycle: ActionLifecycle.before,
+          error: error,
+          stackTrace: stackTrace,
+        ));
+        rethrow;
+      }
+
+      try {
+        final newState = action.internalWrapReduce();
+        _setState(newState.$1, action);
+        return newState;
+      } catch (error, stackTrace) {
+        _observer?.handleEvent(ActionErrorEvent(
+          action: action,
+          lifecycle: ActionLifecycle.reduce,
+          error: error,
+          stackTrace: stackTrace,
+        ));
+        rethrow;
+      }
+    } catch (error) {
       rethrow;
     } finally {
       try {
         action.after();
-      } catch (e, st) {
-        print('Error in after method of ${action.runtimeType}: $e\n$st');
+      } catch (error, stackTrace) {
+        _observer?.handleEvent(ActionErrorEvent(
+          action: action,
+          lifecycle: ActionLifecycle.after,
+          error: error,
+          stackTrace: stackTrace,
+        ));
       }
     }
   }
@@ -306,7 +418,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<T> dispatchAsync(
     AsyncReduxAction<BaseReduxNotifier<T>, T> action, {
     String? debugOrigin,
-    Object? debugOriginRef = _absent,
+    Object debugOriginRef = _absent,
   }) async {
     final (state, _) = await _dispatchAsyncWithResult<void>(
       action,
@@ -323,7 +435,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<(T, R)> dispatchAsyncWithResult<R>(
     AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
-    Object? debugOriginRef = _absent,
+    Object debugOriginRef = _absent,
   }) async {
     return _dispatchAsyncWithResult<R>(
       action,
@@ -339,7 +451,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<R> dispatchAsyncTakeResult<R>(
     AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
-    Object? debugOriginRef = _absent,
+    Object debugOriginRef = _absent,
   }) async {
     final (_, result) = await _dispatchAsyncWithResult<R>(
       action,
@@ -353,8 +465,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @nonVirtual
   Future<(T, R)> _dispatchAsyncWithResult<R>(
     AsynchronousReduxAction<BaseReduxNotifier<T>, T, R> action, {
-    String? debugOrigin,
-    Object? debugOriginRef,
+    required String? debugOrigin,
+    required Object debugOriginRef,
   }) async {
     _observer?.handleEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
@@ -386,17 +498,43 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     action.internalSetup(this);
 
     try {
-      await action.before();
-      final newState = await action.internalWrapReduce();
-      _setState(newState.$1, action);
-      return newState;
+      try {
+        await action.before();
+      } catch (error, stackTrace) {
+        _observer?.handleEvent(ActionErrorEvent(
+          action: action,
+          lifecycle: ActionLifecycle.before,
+          error: error,
+          stackTrace: stackTrace,
+        ));
+        rethrow;
+      }
+
+      try {
+        final newState = await action.internalWrapReduce();
+        _setState(newState.$1, action);
+        return newState;
+      } catch (error, stackTrace) {
+        _observer?.handleEvent(ActionErrorEvent(
+          action: action,
+          lifecycle: ActionLifecycle.reduce,
+          error: error,
+          stackTrace: stackTrace,
+        ));
+        rethrow;
+      }
     } catch (e) {
       rethrow;
     } finally {
       try {
         action.after();
-      } catch (e, st) {
-        print('Error in after method of ${action.runtimeType}: $e\n$st');
+      } catch (error, stackTrace) {
+        _observer?.handleEvent(ActionErrorEvent(
+          action: action,
+          lifecycle: ActionLifecycle.after,
+          error: error,
+          stackTrace: stackTrace,
+        ));
       }
     }
   }

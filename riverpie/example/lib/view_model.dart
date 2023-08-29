@@ -2,7 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpie_flutter/riverpie_flutter.dart';
 
-final counterProviderA = NotifierProvider<Counter, int>((ref) => Counter(debugLabel: 'Counter A'));
+final counterProviderA =
+    NotifierProvider<Counter, int>((ref) => Counter(debugLabel: 'Counter A'));
 
 final counterProviderB = NotifierProvider<Counter, int>((ref) => Counter());
 
@@ -24,7 +25,8 @@ class Vm {
 }
 
 final viewProvider = ViewProvider((ref) {
-  final a = ref.watch(counterProviderA, rebuildWhen: (prev, next) => next % 2 == 0);
+  final a =
+      ref.watch(counterProviderA, rebuildWhen: (prev, next) => next % 2 == 0);
   final b = ref.watch(counterProviderB);
 
   return Vm(

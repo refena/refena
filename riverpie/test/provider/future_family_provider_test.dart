@@ -62,9 +62,10 @@ void main() {
     expect(history4.next, {123: AsyncValue.withData(246)});
     expect(history4.rebuild, [viewNotifier]);
 
-    final history5 = observer.history[5] as ChangeEvent<AsyncValue<int>>;
-    expect(history5.notifier, viewNotifier);
-    expect(history5.action, null);
+    final history5 = observer.history[5] as RebuildEvent<AsyncValue<int>>;
+    expect(history5.rebuildable, viewNotifier);
+    expect(history5.causes.length, 1);
+    expect(history5.causes[0], history4);
     expect(history5.prev, AsyncValue<int>.loading());
     expect(history5.next, AsyncValue.withData(246));
     expect(history5.rebuild, []);
@@ -131,8 +132,8 @@ void main() {
     final viewNotifier = ref.anyNotifier(viewProvider);
     expect(
       observer.history
-          .whereType<ChangeEvent>()
-          .where((e) => e.notifier == viewNotifier)
+          .whereType<RebuildEvent>()
+          .where((e) => e.rebuildable == viewNotifier)
           .length,
       3,
     );
@@ -140,8 +141,8 @@ void main() {
     final view2Notifier = ref.anyNotifier(view2Provider);
     expect(
       observer.history
-          .whereType<ChangeEvent>()
-          .where((e) => e.notifier == view2Notifier)
+          .whereType<RebuildEvent>()
+          .where((e) => e.rebuildable == view2Notifier)
           .length,
       0,
     );

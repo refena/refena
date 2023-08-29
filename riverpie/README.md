@@ -609,7 +609,9 @@ class SettingsVm {
   final String firstName;
   final String lastName;
   final ThemeMode themeMode;
-  final void Function() logout;  
+  final void Function() logout;
+
+  // insert constructor
 }
 
 final settingsVmProvider = ViewProvider((ref) {

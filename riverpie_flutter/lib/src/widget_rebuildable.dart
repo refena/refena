@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:riverpie/riverpie.dart';
+
 // ignore: implementation_imports
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie_flutter/src/element_rebuildable.dart';
@@ -17,7 +19,9 @@ class WidgetRebuildable<W extends Widget> extends Rebuildable {
   bool get disposed => throw UnimplementedError();
 
   @override
-  void rebuild() => throw UnimplementedError();
+  void rebuild(ChangeEvent? changeEvent, RebuildEvent? rebuildEvent) {
+    throw UnimplementedError();
+  }
 
   Type get widgetType => W;
 

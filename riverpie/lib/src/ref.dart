@@ -10,7 +10,6 @@ import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/notifier/types/future_family_provider_notifier.dart';
 import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
-import 'package:riverpie/src/notifier/types/view_provider_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
@@ -81,10 +80,7 @@ class WatchableRef extends Ref {
     return Dispatcher(
       notifier: _ref.anyNotifier(provider),
       debugOrigin: debugOwnerLabel,
-      // Only store the reference if we are inside a ViewProvider.
-      // If, we are inside a widget, we would leak memory.
-      debugOriginRef:
-          _rebuildable is ViewProviderNotifier ? _rebuildable : null,
+      debugOriginRef: _rebuildable,
     );
   }
 
@@ -136,7 +132,7 @@ class WatchableRef extends Ref {
         }
         notifier.addListener(
           _rebuildable,
-          ListenerConfig(
+          ListenerConfig<T>(
             callback: listener,
             rebuildWhen: (prev, next) {
               if (rebuildWhen?.call(prev, next) == false) {
@@ -150,7 +146,7 @@ class WatchableRef extends Ref {
       } else {
         notifier.addListener(
           _rebuildable,
-          ListenerConfig(
+          ListenerConfig<T>(
             callback: listener,
             rebuildWhen: rebuildWhen,
           ),

@@ -32,14 +32,13 @@ class NotifierListeners<T> {
 
   NotifierListeners(this._notifier, this._observer);
 
-  List<Rebuildable>? notifyAll(T prev, T next) {
+  void notifyAll({
+    required T prev,
+    required T next,
+    ChangeEvent? changeEvent,
+    RebuildEvent? rebuildEvent,
+  }) {
     _removeUnusedListeners();
-
-    List<Rebuildable>? notified;
-
-    if (_observer != null) {
-      notified = <Rebuildable>[];
-    }
 
     _listeners.forEach((rebuildable, config) {
       if (config.rebuildWhen != null && !config.rebuildWhen!(prev, next)) {
@@ -50,14 +49,15 @@ class NotifierListeners<T> {
         config.callback!.call(prev, next);
       }
 
-      rebuildable.rebuild();
+      // notify rebuildable (ref.watch)
+      rebuildable.rebuild(changeEvent, rebuildEvent);
 
-      notified?.add(rebuildable);
+      changeEvent?.rebuild.add(rebuildable);
+      rebuildEvent?.rebuild.add(rebuildable);
     });
 
+    // notify manual listeners (ref.stream)
     _stream.add(NotifierEvent(prev, next));
-
-    return notified;
   }
 
   /// Adds a listener to the notifier.

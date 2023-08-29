@@ -1,3 +1,8 @@
+## 0.20.0
+
+- feat: add error handling for redux actions
+- feat: improve `RiverpieTracingPage` UI
+
 ## 0.19.0
 
 - feat: export `ProviderOverride`
