@@ -9,6 +9,7 @@ void main() {
       observer: RiverpieMultiObserver(observers: [
         RiverpieTracingObserver(),
         RiverpieDebugObserver(),
+        MyObserver(),
       ]),
       child: MyApp(),
     ),
@@ -85,6 +86,15 @@ class MyPage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class MyObserver extends RiverpieObserver {
+  @override
+  void handleEvent(RiverpieEvent event) {
+    if (event is ActionDispatchedEvent && event.action is AnotherAction) {
+      // ref.notifier(randomProvider).increment();
+    }
   }
 }
 

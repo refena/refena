@@ -275,7 +275,7 @@ class _EntryDetail extends StatelessWidget {
       return Text(
         'The widget has been marked\nto be rebuilt in the next frame.\n\nThis is managed by Flutter\nand is shown here for completeness.',
         style: TextStyle(
-          color: Colors.red,
+          color: Colors.orange,
         ),
       );
     }

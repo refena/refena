@@ -2,15 +2,35 @@ import 'package:meta/meta.dart';
 import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
-import 'package:riverpie/src/observer/tracing_observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
+import 'package:riverpie/src/proxy_container.dart';
+import 'package:riverpie/src/ref.dart';
 
 /// The observer receives every [RiverpieEvent].
 /// It is up to the implementation of how to use it.
 abstract class RiverpieObserver {
-  const RiverpieObserver();
+  RiverpieObserver();
 
+  late Ref _ref;
+
+  /// Use the [ref] to access the state.
+  Ref get ref => _ref;
+
+  /// Override this method to have additional initialization logic.
+  /// You can use the [ref] at this point.
+  void init() {}
+
+  /// Called when an event occurs.
+  /// Override this method to handle the event.
   void handleEvent(RiverpieEvent event);
+
+  /// Override this getter to provide a custom label.
+  String get debugLabel => runtimeType.toString();
+
+  @internal
+  void internalSetup(RiverpieContainer container) {
+    _ref = container;
+  }
 }
 
 /// An observer where you can specify the behavior right in the constructor.
@@ -31,16 +51,12 @@ class RiverpieCallbackObserver {
 class RiverpieMultiObserver extends RiverpieObserver {
   final List<RiverpieObserver> observers;
 
-  const RiverpieMultiObserver({required this.observers});
+  RiverpieMultiObserver({required this.observers});
 
-  @internal
-  void internalSetup(RiverpieContainer container) {
+  @override
+  void init() {
     for (final observer in observers) {
-      switch (observer) {
-        case RiverpieTracingObserver observer:
-          observer.internalSetup(container);
-          break;
-      }
+      observer.init();
     }
   }
 
@@ -48,6 +64,18 @@ class RiverpieMultiObserver extends RiverpieObserver {
   void handleEvent(RiverpieEvent event) {
     for (final observer in observers) {
       observer.handleEvent(event);
+    }
+  }
+
+  @internal
+  @override
+  void internalSetup(RiverpieContainer container) {
+    for (final observer in observers) {
+      observer.internalSetup(ProxyContainer(
+        container,
+        observer.debugLabel,
+        observer,
+      ));
     }
   }
 }
@@ -76,7 +104,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
   /// won't be logged.
   final bool Function(RiverpieEvent event)? exclude;
 
-  const RiverpieDebugObserver({
+  RiverpieDebugObserver({
     this.onLine,
     this.onErrorLine,
     this.exclude,

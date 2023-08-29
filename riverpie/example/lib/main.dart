@@ -25,7 +25,7 @@ void main() {
       overrides: [
         numberProvider.overrideWithValue(999),
       ],
-      observer: kDebugMode ? const RiverpieDebugObserver() : null,
+      observer: kDebugMode ? RiverpieDebugObserver() : null,
       child: const MyApp(),
     ),
   );

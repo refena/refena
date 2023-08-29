@@ -271,7 +271,7 @@ class IncrementAction extends ReduxAction<Counter, int> {
 
 ## Error handling
 
-Because every action is typed accordingly, you can easily handle errors like in any other Dart code.
+You can easily handle errors like in any other Dart code.
 
 It is important to notice that errors thrown in `after()` are not rethrown to the caller.
 
@@ -319,6 +319,9 @@ class MyObserver extends RiverpieObserver {
       ActionLifecycle lifecycle = event.lifecycle; // before, reduce, after
       Object error = event.error;
       StackTrace stackTrace = event.stackTrace;
+      
+      // you can access ref inside the observer
+      ref.read(crashReporterProvider).report(error, stackTrace);
     }
   }
 }

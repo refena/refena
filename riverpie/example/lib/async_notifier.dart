@@ -29,7 +29,7 @@ class DelayedCounter extends AsyncNotifier<int> {
 void main() {
   runApp(
     RiverpieScope(
-      observer: kDebugMode ? const RiverpieDebugObserver() : null,
+      observer: kDebugMode ? RiverpieDebugObserver() : null,
       child: const MyApp(),
     ),
   );
