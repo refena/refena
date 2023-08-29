@@ -83,8 +83,8 @@ class _EntryTileState extends State<_EntryTile> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _getColor(widget.entry.event.event.internalType)
-                            .withOpacity(0.1),
+                        color: _backgroundColor[
+                            widget.entry.event.event.internalType],
                       ),
                       child: Row(
                         children: [
@@ -151,9 +151,8 @@ class _EntryTileState extends State<_EntryTile> {
                       child: Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color:
-                              _getColor(widget.entry.event.event.internalType)
-                                  .withOpacity(0.1),
+                          color: _backgroundColor[
+                              widget.entry.event.event.internalType],
                         ),
                         child: _EntryDetail(
                           isWidget: widget.entry.isWidget,
@@ -236,7 +235,7 @@ class _EntryCharacterBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: _getColor(type).withOpacity(0.3),
+      color: _headerColor[type],
       padding: const EdgeInsets.all(8),
       constraints: const BoxConstraints(
         minWidth: 40,
@@ -273,7 +272,7 @@ class _EntryDetail extends StatelessWidget {
   Widget build(BuildContext context) {
     if (isWidget) {
       return Text(
-        'The widget has been marked\nto be rebuilt in the next frame.\n\nThis is managed by Flutter\nand is shown here for completeness.',
+        'This is a widget.\nFlutter will rebuild this\nas soon as possible.',
         style: TextStyle(
           color: Colors.orange,
         ),

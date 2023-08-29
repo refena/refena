@@ -1,5 +1,7 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -15,8 +17,11 @@ import 'package:riverpie_flutter/riverpie_flutter.dart';
 import 'package:riverpie_flutter/src/element_rebuildable.dart';
 
 part 'tracing_model.dart';
+
 part 'tracing_model_builder.dart';
+
 part 'tracing_util.dart';
+
 part 'tracing_widgets.dart';
 
 class RiverpieTracingPage extends StatefulWidget {
@@ -28,11 +33,13 @@ class RiverpieTracingPage extends StatefulWidget {
 
 class _RiverpieTracingPageState extends State<RiverpieTracingPage>
     with Riverpie {
+  final _sampleWidgetKey = GlobalKey();
   final _scrollController = ScrollController();
   List<_TracingEntry> _entries = [];
   List<_TracingEntry> _filteredEntries = [];
   bool _show = false;
   bool _notInitializedError = false;
+  Size _sampleWidgetSize = Size(40, 32);
   String _query = '';
 
   @override
@@ -64,12 +71,24 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
         return;
       }
 
+      final renderObject = _sampleWidgetKey.currentContext?.findRenderObject();
+      if (renderObject != null) {
+        // Get the size of one item for reference
+        _sampleWidgetSize = renderObject.paintBounds.size;
+      }
+
       _entries = _buildEntries(ref.notifier(tracingProvider).events);
       _filter();
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        _scrollController.jumpTo(
-          150 + 50 + (_entries.length * 120).toDouble(),
-        );
+        final entriesCount = _countItems(_entries);
+        final destination = max(
+                0,
+                330 +
+                    (entriesCount * _sampleWidgetSize.height) -
+                    MediaQuery.sizeOf(context).height)
+            .toDouble();
+
+        _scrollController.jumpTo(destination);
 
         await Future.delayed(showDelay);
 
@@ -96,20 +115,36 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
       appBar: AppBar(
         title: const Text('Riverpie Tracing'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.delete),
-            onPressed: _show
-                ? () {
-                    ref.notifier(tracingProvider).clear();
-                    WidgetsBinding.instance.addPostFrameCallback((_) async {
-                      _load(
-                        loadDelay: Duration.zero,
-                        showDelay: Duration.zero,
-                      );
-                    });
-                  }
-                : null,
+          Tooltip(
+            message: 'Refresh',
+            child: IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _show
+                  ? () {
+                      _load(loadDelay: const Duration(milliseconds: 100));
+                    }
+                  : null,
+            ),
           ),
+          const SizedBox(width: 10),
+          Tooltip(
+            message: 'Clear',
+            child: IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: _show
+                  ? () {
+                      ref.notifier(tracingProvider).clear();
+                      WidgetsBinding.instance.addPostFrameCallback((_) async {
+                        _load(
+                          loadDelay: Duration.zero,
+                          showDelay: Duration.zero,
+                        );
+                      });
+                    }
+                  : null,
+            ),
+          ),
+          const SizedBox(width: 10),
         ],
       ),
       body: Stack(
@@ -120,7 +155,10 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
               width: screenWidth * 3,
               child: ListView.builder(
                 controller: _scrollController,
-                padding: const EdgeInsets.only(bottom: 80, top: 20),
+                padding: EdgeInsets.only(
+                  bottom: 100 + MediaQuery.of(context).padding.bottom,
+                  top: 20,
+                ),
                 itemCount: _filteredEntries.length + 2,
                 itemBuilder: (context, index) {
                   if (index == 0) {
@@ -186,30 +224,32 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
               ),
             ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: TextField(
-                style: TextStyle(color: Colors.grey.shade700),
-                decoration: InputDecoration(
-                  hintText: 'Filter',
-                  filled: true,
-                  fillColor: Colors.white,
-                  labelStyle: TextStyle(color: Colors.grey.shade700),
-                  iconColor: Colors.grey.shade700,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: TextField(
+                  style: TextStyle(color: Colors.grey.shade700),
+                  decoration: InputDecoration(
+                    hintText: 'Filter',
+                    filled: true,
+                    fillColor: Colors.white,
+                    labelStyle: TextStyle(color: Colors.grey.shade700),
+                    iconColor: Colors.grey.shade700,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    isDense: true,
+                    prefixIcon: Icon(Icons.search),
                   ),
-                  isDense: true,
-                  prefixIcon: Icon(Icons.search),
+                  onChanged: (value) {
+                    setState(() {
+                      _query = value;
+                      _filter();
+                    });
+                  },
                 ),
-                onChanged: (value) {
-                  setState(() {
-                    _query = value;
-                    _filter();
-                  });
-                },
               ),
             ),
           ),
@@ -231,6 +271,14 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                 ),
               ),
             ),
+          Visibility(
+            key: _sampleWidgetKey,
+            visible: false,
+            maintainSize: true,
+            maintainAnimation: true,
+            maintainState: true,
+            child: _EntryCharacterBox(_EventType.action),
+          ),
         ],
       ),
     );

@@ -11,11 +11,21 @@ List<_TracingEntry> _buildEntries(Iterable<TimedRiverpieEvent> events) {
           final existing = _findEventWithAction(result, e.action!);
 
           if (existing != null) {
-            existing.children.add(_TracingEntry(event, []));
+            final created = _TracingEntry(
+              event,
+              [],
+            );
+
+            _addWidgetEntries(created, e.rebuild);
+
+            existing.children.add(created);
             continue;
           }
         }
-        result.add(_TracingEntry(event, []));
+
+        final created = _TracingEntry(event, []);
+        _addWidgetEntries(created, e.rebuild);
+        result.add(created);
         break;
       case RebuildEvent e:
         for (int i = 0; i < e.causes.length; i++) {
@@ -124,11 +134,11 @@ void _addWidgetEntries(_TracingEntry entry, List<Rebuildable> rebuildableList) {
 bool _contains(_TracingEntry entry, String query) {
   final contains = switch (entry.event.event) {
     ChangeEvent event =>
-      event.stateType.toString().toLowerCase().contains(query) ||
-          event.rebuild.any((r) => r.debugLabel.contains(query)),
+      event.stateType.toString().toLowerCase().contains(query),
     RebuildEvent event =>
-      event.stateType.toString().toLowerCase().contains(query) ||
-          event.rebuild.any((r) => r.debugLabel.contains(query)),
+      event.rebuildable.debugLabel.toLowerCase().contains(query) ||
+          (event is! FakeRebuildEvent &&
+              event.stateType.toString().toLowerCase().contains(query)),
     ActionDispatchedEvent event =>
       event.action.debugLabel.toLowerCase().contains(query) ||
           event.debugOrigin.toLowerCase().contains(query),
@@ -155,4 +165,14 @@ bool _contains(_TracingEntry entry, String query) {
   }
 
   return false;
+}
+
+/// Count the number of items in the tree
+int _countItems(List<_TracingEntry> entries) {
+  var count = 0;
+  for (final entry in entries) {
+    count++;
+    count += _countItems(entry.children);
+  }
+  return count;
 }

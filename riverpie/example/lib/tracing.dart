@@ -83,6 +83,12 @@ class MyPage extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 20),
+          context.ref.watch(futureProvider).when(
+                data: (value) => Text('Future: $value'),
+                loading: () => const CircularProgressIndicator(),
+                error: (error, stackTrace) => Text('Error: $error'),
+              ),
         ],
       ),
     );
@@ -97,6 +103,11 @@ class MyObserver extends RiverpieObserver {
     }
   }
 }
+
+final futureProvider = FutureProvider((ref) async {
+  await Future.delayed(const Duration(seconds: 1));
+  return 42;
+});
 
 class CounterState {
   final int counter;
