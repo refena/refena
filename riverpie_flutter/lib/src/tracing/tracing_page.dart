@@ -187,7 +187,7 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     _EntryCharacterBox(e),
-                                    const SizedBox(width: 5),
+                                    const SizedBox(width: 10),
                                     Text(
                                       switch (e) {
                                         _EventType.change => 'State Change',
@@ -195,6 +195,8 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                                         _EventType.action => 'Action Dispatch',
                                         _EventType.providerInit =>
                                           'Provider Initialization',
+                                        _EventType.providerDispose =>
+                                          'Provider Dispose',
                                         _EventType.listenerAdded =>
                                           'Listener Added',
                                         _EventType.listenerRemoved =>

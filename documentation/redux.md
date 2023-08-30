@@ -7,6 +7,8 @@ Its state is altered by dispatching actions. Actions are simple classes that con
 
 Actions are dispatched to the notifier using the `ref.redux(notifier).dispatch(action)` method.
 
+The anatomy of an action is inspired by [async_redux](https://pub.dev/packages/async_redux).
+
 ## Example
 
 ```dart
@@ -342,3 +344,13 @@ void main() {
   ));
 }
 ```
+
+## Tracing
+
+All errors are also logged by the `RiverpieTracingObserver`.
+
+They can be shown by opening the `RiverpieTracingPage`:
+
+Here is how it looks like:
+
+![tracing-ui](https://raw.githubusercontent.com/Tienisto/riverpie/main/resources/tracing-ui.png)

@@ -46,6 +46,12 @@ abstract class Ref {
     AsyncNotifierProvider<N, T> provider,
   );
 
+  /// Disposes a [provider].
+  /// Be aware that streams (ref.stream) are closed also.
+  /// You may call this method in the dispose method of a stateful widget.
+  /// Note: The [provider] will be initialized again on next access.
+  void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider);
+
   /// Returns the owner of this [Ref].
   /// Usually, this is a notifier or a widget.
   /// Used by [Ref.redux] to log the origin of the action.
@@ -96,6 +102,11 @@ class WatchableRef extends Ref {
     AsyncNotifierProvider<N, T> provider,
   ) {
     return _ref.future<N, T>(provider);
+  }
+
+  @override
+  void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+    _ref.dispose<N, T>(provider);
   }
 
   /// Get the current value of a provider and listen to changes.

@@ -26,6 +26,7 @@ class _EntryTileState extends State<_EntryTile> {
       ActionDispatchedEvent() => true,
       ActionErrorEvent() => false,
       ProviderInitEvent() => true,
+      ProviderDisposeEvent() => true,
       ListenerAddedEvent() => false,
       ListenerRemovedEvent() => false,
     };
@@ -98,6 +99,8 @@ class _EntryTileState extends State<_EntryTile> {
                                 '${event.action.debugLabel}${widget.depth == 0 ? ' (${event.debugOrigin})' : ''}',
                               ActionErrorEvent _ => '',
                               ProviderInitEvent event =>
+                                event.provider.toString(),
+                              ProviderDisposeEvent event =>
                                 event.provider.toString(),
                               ListenerAddedEvent event =>
                                 '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
@@ -201,6 +204,9 @@ class _EntryTileState extends State<_EntryTile> {
                                 'Initial': event.value.toString(),
                                 'Reason': event.cause.name.toUpperCase(),
                               },
+                            ProviderDisposeEvent event => {
+                                'Provider': event.provider.toString(),
+                              },
                             ListenerAddedEvent event => {
                                 'Rebuildable': event.rebuildable.debugLabel,
                                 'Notifier': event.notifier.customDebugLabel,
@@ -246,6 +252,7 @@ class _EntryCharacterBox extends StatelessWidget {
           _EventType.rebuild => 'R',
           _EventType.action => 'A',
           _EventType.providerInit => 'I',
+          _EventType.providerDispose => 'D',
           _EventType.listenerAdded => 'LA',
           _EventType.listenerRemoved => 'LR',
         },

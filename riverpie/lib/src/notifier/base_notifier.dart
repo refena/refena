@@ -117,6 +117,11 @@ abstract class BaseNotifier<T> {
     return _listeners.getStream();
   }
 
+  @internal
+  void dispose() {
+    _listeners.dispose();
+  }
+
   @override
   String toString() {
     return '$runtimeType(state: ${_initialized ? _state : 'uninitialized'})';

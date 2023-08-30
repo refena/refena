@@ -68,6 +68,11 @@ class ProxyContainer implements RiverpieContainer {
   }
 
   @override
+  void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+    _container.dispose<N, T>(provider);
+  }
+
+  @override
   NotifyStrategy get defaultNotifyStrategy => _container.defaultNotifyStrategy;
 
   @override

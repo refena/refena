@@ -218,6 +218,20 @@ class RiverpieContainer extends Ref {
   }
 
   @override
+  void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+    final notifier = _state.remove(provider);
+    if (notifier != null) {
+      notifier.dispose();
+      observer?.handleEvent(
+        ProviderDisposeEvent(
+          provider: provider,
+          notifier: notifier,
+        ),
+      );
+    }
+  }
+
+  @override
   String get debugOwnerLabel => 'RiverpieContainer';
 
   RiverpieContainer _withNotifierLabel(BaseNotifier notifier) {

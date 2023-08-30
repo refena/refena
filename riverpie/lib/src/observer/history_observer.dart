@@ -10,6 +10,9 @@ class HistoryObserverConfig {
   /// Whether the observer should save [ProviderInitEvent]s.
   final bool saveProviderInitEvents;
 
+  /// Whether the observer should save [ProviderDisposeEvent]s.
+  final bool saveProviderDisposeEvents;
+
   /// Whether the observer should save [ListenerAddedEvent]s.
   final bool saveListenerAddedEvents;
 
@@ -31,6 +34,7 @@ class HistoryObserverConfig {
   const HistoryObserverConfig({
     this.startImmediately = true,
     this.saveProviderInitEvents = false,
+    this.saveProviderDisposeEvents = false,
     this.saveListenerAddedEvents = false,
     this.saveListenerRemovedEvents = false,
     this.saveChangeEvents = true,
@@ -45,6 +49,7 @@ class HistoryObserverConfig {
   /// Saves all events.
   static const all = HistoryObserverConfig(
     saveProviderInitEvents: true,
+    saveProviderDisposeEvents: true,
     saveListenerAddedEvents: true,
     saveListenerRemovedEvents: true,
     saveChangeEvents: true,
@@ -52,6 +57,31 @@ class HistoryObserverConfig {
     saveActionDispatchedEvents: true,
     saveActionErrorEvents: true,
   );
+
+  /// Saves only the specified events.
+  static HistoryObserverConfig only({
+    bool startImmediately = true,
+    bool providerInitEvents = false,
+    bool providerDisposeEvents = false,
+    bool listenerAddedEvents = false,
+    bool listenerRemovedEvents = false,
+    bool changeEvents = false,
+    bool rebuildEvents = false,
+    bool actionDispatchedEvents = false,
+    bool actionErrorEvents = false,
+  }) {
+    return HistoryObserverConfig(
+      startImmediately: startImmediately,
+      saveProviderInitEvents: providerInitEvents,
+      saveProviderDisposeEvents: providerDisposeEvents,
+      saveListenerAddedEvents: listenerAddedEvents,
+      saveListenerRemovedEvents: listenerRemovedEvents,
+      saveChangeEvents: changeEvents,
+      saveRebuildEvents: rebuildEvents,
+      saveActionDispatchedEvents: actionDispatchedEvents,
+      saveActionErrorEvents: actionErrorEvents,
+    );
+  }
 }
 
 /// An observer that stores every event in a list.
@@ -82,6 +112,11 @@ class RiverpieHistoryObserver extends RiverpieObserver {
     switch (event) {
       case ProviderInitEvent():
         if (config.saveProviderInitEvents) {
+          history.add(event);
+        }
+        break;
+      case ProviderDisposeEvent():
+        if (config.saveProviderDisposeEvents) {
           history.add(event);
         }
         break;

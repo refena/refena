@@ -69,6 +69,9 @@ List<_TracingEntry> _buildEntries(Iterable<TimedRiverpieEvent> events) {
       case ProviderInitEvent _:
         result.add(_TracingEntry(event, []));
         break;
+      case ProviderDisposeEvent _:
+        result.add(_TracingEntry(event, []));
+        break;
       case ListenerAddedEvent _:
         result.add(_TracingEntry(event, []));
         break;
@@ -144,6 +147,8 @@ bool _contains(_TracingEntry entry, String query) {
           event.debugOrigin.toLowerCase().contains(query),
     ActionErrorEvent _ => throw UnimplementedError(),
     ProviderInitEvent event =>
+      event.provider.toString().toLowerCase().contains(query),
+    ProviderDisposeEvent event =>
       event.provider.toString().toLowerCase().contains(query),
     ListenerAddedEvent event =>
       event.rebuildable.debugLabel.toLowerCase().contains(query) ||

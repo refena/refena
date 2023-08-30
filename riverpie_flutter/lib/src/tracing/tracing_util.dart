@@ -5,8 +5,9 @@ final Map<_EventType, Color> _baseColors = {
   _EventType.rebuild: Colors.purple,
   _EventType.action: Colors.blue,
   _EventType.providerInit: Colors.green,
-  _EventType.listenerAdded: Colors.grey,
-  _EventType.listenerRemoved: Colors.grey,
+  _EventType.providerDispose: Colors.grey,
+  _EventType.listenerAdded: Colors.cyan,
+  _EventType.listenerRemoved: Colors.cyan,
 };
 
 final Map<_EventType, Color> _headerColor = _baseColors.map((key, value) {

@@ -81,6 +81,13 @@ class MyPage extends StatelessWidget {
                 },
                 child: Text('Notifier Change'),
               ),
+              const SizedBox(width: 20),
+              FilledButton(
+                onPressed: () {
+                  context.ref.dispose(counterProvider);
+                },
+                child: Text('Dispose'),
+              ),
             ],
           ),
           const SizedBox(height: 20),

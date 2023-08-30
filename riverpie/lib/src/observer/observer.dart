@@ -171,6 +171,12 @@ class RiverpieDebugObserver extends RiverpieObserver {
         );
         onLine?.call(_b);
         break;
+      case ProviderDisposeEvent event:
+        onLine?.call(_t);
+        final label = _getProviderDebugLabel(event.provider, event.notifier);
+        _line('Provider disposed: [$label]');
+        onLine?.call(_b);
+        break;
       case ListenerAddedEvent event:
         final label = _getProviderDebugLabel(null, event.notifier);
         _line('Listener added: [${event.rebuildable.debugLabel}] on [$label]');

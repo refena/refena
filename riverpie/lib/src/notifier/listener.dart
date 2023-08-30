@@ -87,6 +87,11 @@ class NotifierListeners<T> {
     return _stream.stream;
   }
 
+  void dispose() {
+    _listeners.clear();
+    _stream.close();
+  }
+
   void _removeUnusedListeners() {
     // remove any listener that has been disposed
     final observer = _observer;

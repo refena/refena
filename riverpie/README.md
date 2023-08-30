@@ -4,6 +4,8 @@
 ![ci](https://github.com/Tienisto/riverpie/actions/workflows/ci.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+/ˈrɪvər-paɪ/
+
 A state management library for Dart and Flutter. Inspired by [Riverpod](https://pub.dev/packages/riverpod).
 
 ## Preview
@@ -66,6 +68,7 @@ class MyPage extends StatelessWidget {
     - [ref.future](#-reffuture)
     - [ref.notifier](#-refnotifier)
     - [ref.redux](#-refredux)
+    - [ref.dispose](#-refdispose)
 - [What to choose?](#what-to-choose)
 - [Performance Optimization](#performance-optimization)
 - [ensureRef](#ensureref)
@@ -85,24 +88,29 @@ class MyPage extends StatelessWidget {
 
 Riverpie is aimed to be more pragmatic and more notifier focused than Riverpod.
 
+Riverpie also includes a comprehensive [Redux](https://github.com/Tienisto/riverpie/blob/main/documentation/redux.md) implementation
+that can be used for crucial parts of your app.
+
 ### ➤ Key differences
 
 **Flutter native**:\
 No `ConsumerWidget` or `ConsumerStatefulWidget`. You still use `StatefulWidget` or `StatelessWidget` as usual.
-To access `ref`, you can either use `with Riverpie` (only in `StatefulWidget`) or `context.ref`.
-
-**ref.watch**:\
-Providers cannot `watch` other providers. Instead, you can only access other providers with `ref.read` or `ref.notifier`.
-The only provider that can `watch` is the `ViewProvider`. This provider is intended to be used as a "view model".
-Don't worry that you unintentionally use `watch` inside providers because each `ref` is typed accordingly.
+To access `ref`, you can either add `with Riverpie` (only in `StatefulWidget`) or call `context.ref`.
 
 **Common super class**:\
-`WatchableRef` extends `Ref`. You can use `Ref` as parameter to implement util functions that need access to `ref`.
+`WatchableRef extends Ref`.
+You can use `Ref` as parameter to implement util functions that need access to `ref`.
+These functions can be called by providers and widgets.
+
+**ref.watch**:\
+Only the `ViewProvider` can `watch` other providers.
+Every other provider can only be accessed with `ref.read` or `ref.notifier` within a provider body.
+This ensures that the notifier itself is not accidentally rebuilt.
 
 **Use ref anywhere, anytime**:\
 Don't worry that the `ref` within providers or notifiers becomes invalid.
 They live as long as the `RiverpieScope`.
-With `ensureRef`, you also can access the `ref` within `initState` or `dispose`.
+With `ensureRef`, you also can access the `ref` within `initState` or `dispose` of a `StatefulWidget`.
 
 **No provider modifiers**:\
 There is no `.family` or `.autodispose`. This makes the provider landscape simple and straightforward.
@@ -793,6 +801,34 @@ ref.redux(myReduxProvider).dispatch(MyAction());
 await ref.redux(myReduxProvider).dispatch(MyAction());
 ```
 
+### ➤ ref.dispose
+
+Providers are not disposed automatically.
+Instead, you should create a custom "cleanup" logic.
+
+To make your life easier, you can dispose a provider by calling this method:
+
+```dart
+ref.dispose(myProvider);
+```
+
+This can be called in a `StatefulWidget`'s `dispose` method because `ref.dispose` does not trigger a rebuild.
+
+```dart
+class MyPage extends StatefulWidget {
+  @override
+  State<MyPage> createState() => _MyPageState();
+}
+
+class _MyPageState extends State<MyPage> with Riverpie {
+  @override
+  void dispose() {
+    ref.dispose(myProvider); // <-- dispose the provider
+    super.dispose();
+  }
+}
+```
+
 ## What to choose?
 
 There are lots of providers and notifiers. Which one should you choose?
@@ -817,7 +853,7 @@ Yes. You can use any combination of providers and notifiers.
 
 The cool thing about notifiers is that they are self-contained.
 
-It is actually pragmatic to use `Notifier` and `ReduxNotifier` together as each of them has its own strengths.
+It is actually pragmatic to use `Notifier` and `ReduxNotifier` together, as each has its own strengths.
 
 ## Performance Optimization
 

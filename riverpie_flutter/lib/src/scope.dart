@@ -109,6 +109,11 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
     return _container.future(provider);
   }
 
+  @override
+  void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+    _container.dispose(provider);
+  }
+
   @internal
   @override
   bool updateShouldNotify(RiverpieScope oldWidget) {

@@ -177,6 +177,37 @@ class ProviderInitEvent extends RiverpieEvent {
   }
 }
 
+/// A provider has been disposed.
+/// This does not happen automatically but only when
+/// ref.dispose(provider) is called.
+class ProviderDisposeEvent extends RiverpieEvent {
+  /// The provider that has been disposed.
+  final BaseProvider provider;
+
+  /// The notifier that is associated with the provider.
+  final BaseNotifier notifier;
+
+  ProviderDisposeEvent({
+    required this.provider,
+    required this.notifier,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ProviderDisposeEvent &&
+          provider == other.provider &&
+          notifier == other.notifier;
+
+  @override
+  int get hashCode => provider.hashCode ^ notifier.hashCode;
+
+  @override
+  String toString() {
+    return 'ProviderDisposeEvent(provider: $provider, notifier: $notifier)';
+  }
+}
+
 /// A listener is added to a notifier.
 /// This happens on ref.watch the first time the call happens within a state.
 class ListenerAddedEvent extends RiverpieEvent {

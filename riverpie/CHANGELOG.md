@@ -1,3 +1,7 @@
+## 0.20.0
+
+- feat: add `ref.dispose(provider)`
+
 ## 0.19.0
 
 - feat: add error handling for redux actions
