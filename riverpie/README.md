@@ -993,6 +993,28 @@ void main() {
 }
 ```
 
+Example implementation of a custom observer. Note that you also have access to `ref`.
+
+```dart
+class MyObserver extends RiverpieObserver {
+  @override
+  void init() {
+    // optional initialization logic
+    ref.read(crashReporterProvider).init();
+  }
+
+  @override
+  void handleEvent(RiverpieEvent event) {
+    if (event is ActionErrorEvent) {
+      Object error = event.error;
+      StackTrace stackTrace = event.stackTrace;
+
+      ref.read(crashReporterProvider).report(error, stackTrace);
+    }
+  }
+}
+```
+
 ## Tracing UI
 
 Riverpie includes a ready-to-use UI to trace the state changes.

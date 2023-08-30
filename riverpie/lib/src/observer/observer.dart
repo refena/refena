@@ -17,7 +17,7 @@ abstract class RiverpieObserver {
   Ref get ref => _ref;
 
   /// Override this method to have additional initialization logic.
-  /// You can use the [ref] at this point.
+  /// You can use [ref] at this point.
   void init() {}
 
   /// Called when an event occurs.
