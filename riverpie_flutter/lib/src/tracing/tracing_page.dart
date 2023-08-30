@@ -197,6 +197,7 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                                           'Provider Initialization',
                                         _EventType.providerDispose =>
                                           'Provider Dispose',
+                                        _EventType.message => 'Message',
                                         _EventType.listenerAdded =>
                                           'Listener Added',
                                         _EventType.listenerRemoved =>

@@ -10,6 +10,7 @@ import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/notifier/types/future_family_provider_notifier.dart';
 import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
+import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
@@ -51,6 +52,10 @@ abstract class Ref {
   /// You may call this method in the dispose method of a stateful widget.
   /// Note: The [provider] will be initialized again on next access.
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider);
+
+  /// Emits a message to the observer.
+  /// This might be handy if you use [RiverpieTracingPage].
+  void emitMessage(String message);
 
   /// Returns the owner of this [Ref].
   /// Usually, this is a notifier or a widget.
@@ -107,6 +112,11 @@ class WatchableRef extends Ref {
   @override
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
     _ref.dispose<N, T>(provider);
+  }
+
+  @override
+  void emitMessage(String message) {
+    _ref.observer?.handleEvent(MessageEvent(message, _rebuildable));
   }
 
   /// Get the current value of a provider and listen to changes.

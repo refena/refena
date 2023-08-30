@@ -2,18 +2,18 @@ import 'package:riverpie/riverpie.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late RiverpieHistoryObserver observer;
-
-  setUp(() {
-    observer = RiverpieHistoryObserver(
-      HistoryObserverConfig.only(
-        providerInitEvents: true,
-        providerDisposeEvents: true,
-      ),
-    );
-  });
-
   group('dispose', () {
+    late RiverpieHistoryObserver observer;
+
+    setUp(() {
+      observer = RiverpieHistoryObserver(
+        HistoryObserverConfig.only(
+          providerInitEvents: true,
+          providerDisposeEvents: true,
+        ),
+      );
+    });
+
     test('Should dispose a provider', () {
       final ref = RiverpieContainer(observer: observer);
       final stateProvider = StateProvider((ref) => 10);
@@ -61,6 +61,30 @@ void main() {
           isA<ProviderInitEvent>(),
         ],
       );
+    });
+  });
+
+  group('emitMessage', () {
+    late RiverpieHistoryObserver observer;
+
+    setUp(() {
+      observer = RiverpieHistoryObserver(
+        HistoryObserverConfig.only(
+          messageEvents: true,
+        ),
+      );
+    });
+
+    test('Should emit a message', () {
+      final ref = RiverpieContainer(observer: observer);
+
+      ref.emitMessage('Hello world!!');
+
+      expect(observer.history.length, 1);
+
+      final event = observer.history.first as MessageEvent;
+      expect(event.message, 'Hello world!!');
+      expect(event.origin, ref);
     });
   });
 }

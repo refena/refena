@@ -73,6 +73,11 @@ class ProxyContainer implements RiverpieContainer {
   }
 
   @override
+  void emitMessage(String message) {
+    _container.emitMessage(message);
+  }
+
+  @override
   NotifyStrategy get defaultNotifyStrategy => _container.defaultNotifyStrategy;
 
   @override

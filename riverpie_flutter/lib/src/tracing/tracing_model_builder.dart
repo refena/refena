@@ -72,6 +72,18 @@ List<_TracingEntry> _buildEntries(Iterable<TimedRiverpieEvent> events) {
       case ProviderDisposeEvent _:
         result.add(_TracingEntry(event, []));
         break;
+      case MessageEvent e:
+        final origin = e.origin;
+        if (origin is BaseReduxAction) {
+          final existing = _findEventWithAction(result, origin);
+
+          if (existing != null) {
+            existing.children.add(_TracingEntry(event, []));
+            continue;
+          }
+        }
+        result.add(_TracingEntry(event, []));
+        break;
       case ListenerAddedEvent _:
         result.add(_TracingEntry(event, []));
         break;
@@ -150,6 +162,7 @@ bool _contains(_TracingEntry entry, String query) {
       event.provider.toString().toLowerCase().contains(query),
     ProviderDisposeEvent event =>
       event.provider.toString().toLowerCase().contains(query),
+    MessageEvent event => event.message.toLowerCase().contains(query),
     ListenerAddedEvent event =>
       event.rebuildable.debugLabel.toLowerCase().contains(query) ||
           event.notifier.debugLabel?.toLowerCase().contains(query) == true,

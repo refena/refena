@@ -199,6 +199,9 @@ class RiverpieDebugObserver extends RiverpieObserver {
           stackTrace: event.stackTrace,
         );
         break;
+      case MessageEvent event:
+        _line(event.message);
+        break;
     }
   }
 

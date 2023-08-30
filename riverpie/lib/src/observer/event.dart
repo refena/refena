@@ -362,3 +362,31 @@ class ActionErrorEvent extends RiverpieEvent {
     return 'ActionErrorEvent(action: $action, lifecycle: $lifecycle, error: $error)';
   }
 }
+
+/// A custom message.
+/// This is useful for debugging.
+class MessageEvent extends RiverpieEvent {
+  /// The message.
+  final String message;
+
+  /// The origin of the message.
+  /// This may be the global scope, the action, or the rebuildable.
+  final Object origin;
+
+  MessageEvent(this.message, this.origin);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MessageEvent &&
+          message == other.message &&
+          origin == other.origin;
+
+  @override
+  int get hashCode => message.hashCode ^ origin.hashCode;
+
+  @override
+  String toString() {
+    return 'MessageEvent(message: $message)';
+  }
+}

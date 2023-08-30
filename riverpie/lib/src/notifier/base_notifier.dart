@@ -396,7 +396,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       }
     }
 
-    action.internalSetup(this);
+    action.internalSetup(this, _observer);
     try {
       try {
         action.before();
@@ -523,7 +523,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       }
     }
 
-    action.internalSetup(this);
+    action.internalSetup(this, _observer);
 
     try {
       try {

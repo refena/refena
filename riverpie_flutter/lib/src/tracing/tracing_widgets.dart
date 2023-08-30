@@ -20,16 +20,6 @@ class _EntryTileState extends State<_EntryTile> {
 
   @override
   Widget build(BuildContext context) {
-    final canExpand = switch (widget.entry.event.event) {
-      ChangeEvent() => true,
-      RebuildEvent() => true,
-      ActionDispatchedEvent() => true,
-      ActionErrorEvent() => false,
-      ProviderInitEvent() => true,
-      ProviderDisposeEvent() => true,
-      ListenerAddedEvent() => false,
-      ListenerRemovedEvent() => false,
-    };
     return Column(
       children: [
         Column(
@@ -66,21 +56,17 @@ class _EntryTileState extends State<_EntryTile> {
                     ),
                   ),
                 GestureDetector(
-                  onTap: canExpand
-                      ? () {
-                          setState(() => _expanded = !_expanded);
-                        }
-                      : null,
+                  onTap: () {
+                    setState(() => _expanded = !_expanded);
+                  },
                   child:
                       _EntryCharacterBox(widget.entry.event.event.internalType),
                 ),
                 Expanded(
                   child: GestureDetector(
-                    onTap: canExpand
-                        ? () {
-                            setState(() => _expanded = !_expanded);
-                          }
-                        : null,
+                    onTap: () {
+                      setState(() => _expanded = !_expanded);
+                    },
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
@@ -102,6 +88,7 @@ class _EntryTileState extends State<_EntryTile> {
                                 event.provider.toString(),
                               ProviderDisposeEvent event =>
                                 event.provider.toString(),
+                              MessageEvent event => event.message,
                               ListenerAddedEvent event =>
                                 '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
                               ListenerRemovedEvent event =>
@@ -139,89 +126,90 @@ class _EntryTileState extends State<_EntryTile> {
                 ),
               ],
             ),
-            if (canExpand)
-              AnimatedCrossFade(
-                crossFadeState: _expanded
-                    ? CrossFadeState.showSecond
-                    : CrossFadeState.showFirst,
-                duration: const Duration(milliseconds: 200),
-                firstChild: const SizedBox(),
-                secondChild: Row(
-                  children: [
-                    const SizedBox(width: 85),
-                    SizedBox(width: (widget.depth + 1) * 40),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: _backgroundColor[
-                              widget.entry.event.event.internalType],
-                        ),
-                        child: _EntryDetail(
-                          isWidget: widget.entry.isWidget,
-                          superseded: widget.entry.superseded,
-                          error: widget.entry.error,
-                          attributes: switch (widget.entry.event.event) {
-                            ChangeEvent event => {
-                                'Notifier': event.notifier.customDebugLabel,
-                                if (event.action != null)
-                                  'Triggered by': event.action!.debugLabel,
-                                'Prev': event.prev.toString(),
-                                'Next': event.next.toString(),
-                                'Rebuild': event.rebuild.isEmpty
-                                    ? '<none>'
-                                    : event.rebuild
-                                        .map((r) => r.debugLabel)
-                                        .join(', '),
-                              },
-                            RebuildEvent event => widget.entry.isWidget
-                                ? {}
-                                : {
-                                    'Notifier': event.rebuildable
-                                            is BaseNotifier
-                                        ? (event.rebuildable as BaseNotifier)
-                                            .customDebugLabel
-                                        : '',
-                                    'Triggered by': event.causes
-                                        .map((e) => e.stateType.toString())
-                                        .join(', '),
-                                    'Prev': event.prev.toString(),
-                                    'Next': event.next.toString(),
-                                    'Rebuild': event.rebuild.isEmpty
-                                        ? '<none>'
-                                        : event.rebuild
-                                            .map((r) => r.debugLabel)
-                                            .join(', '),
-                                  },
-                            ActionDispatchedEvent event => {
-                                'Origin': event.debugOrigin,
-                                'Action Group': event.notifier.customDebugLabel,
-                                'Action': event.action.toString(),
-                              },
-                            ActionErrorEvent _ => {},
-                            ProviderInitEvent event => {
-                                'Provider': event.provider.toString(),
-                                'Initial': event.value.toString(),
-                                'Reason': event.cause.name.toUpperCase(),
-                              },
-                            ProviderDisposeEvent event => {
-                                'Provider': event.provider.toString(),
-                              },
-                            ListenerAddedEvent event => {
-                                'Rebuildable': event.rebuildable.debugLabel,
-                                'Notifier': event.notifier.customDebugLabel,
-                              },
-                            ListenerRemovedEvent event => {
-                                'Rebuildable': event.rebuildable.debugLabel,
-                                'Notifier': event.notifier.customDebugLabel,
-                              },
-                          },
-                        ),
+            AnimatedCrossFade(
+              crossFadeState: _expanded
+                  ? CrossFadeState.showSecond
+                  : CrossFadeState.showFirst,
+              duration: const Duration(milliseconds: 200),
+              firstChild: const SizedBox(),
+              secondChild: Row(
+                children: [
+                  const SizedBox(width: 85),
+                  SizedBox(width: (widget.depth + 1) * 40),
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: _backgroundColor[
+                            widget.entry.event.event.internalType],
+                      ),
+                      child: _EntryDetail(
+                        isWidget: widget.entry.isWidget,
+                        superseded: widget.entry.superseded,
+                        error: widget.entry.error,
+                        attributes: switch (widget.entry.event.event) {
+                          ChangeEvent event => {
+                              'Notifier': event.notifier.customDebugLabel,
+                              if (event.action != null)
+                                'Triggered by': event.action!.debugLabel,
+                              'Prev': event.prev.toString(),
+                              'Next': event.next.toString(),
+                              'Rebuild': event.rebuild.isEmpty
+                                  ? '<none>'
+                                  : event.rebuild
+                                      .map((r) => r.debugLabel)
+                                      .join(', '),
+                            },
+                          RebuildEvent event => widget.entry.isWidget
+                              ? {}
+                              : {
+                                  'Notifier': event.rebuildable is BaseNotifier
+                                      ? (event.rebuildable as BaseNotifier)
+                                          .customDebugLabel
+                                      : '',
+                                  'Triggered by': event.causes
+                                      .map((e) => e.stateType.toString())
+                                      .join(', '),
+                                  'Prev': event.prev.toString(),
+                                  'Next': event.next.toString(),
+                                  'Rebuild': event.rebuild.isEmpty
+                                      ? '<none>'
+                                      : event.rebuild
+                                          .map((r) => r.debugLabel)
+                                          .join(', '),
+                                },
+                          ActionDispatchedEvent event => {
+                              'Origin': event.debugOrigin,
+                              'Action Group': event.notifier.customDebugLabel,
+                              'Action': event.action.toString(),
+                            },
+                          ActionErrorEvent _ => {},
+                          ProviderInitEvent event => {
+                              'Provider': event.provider.toString(),
+                              'Initial': event.value.toString(),
+                              'Reason': event.cause.name.toUpperCase(),
+                            },
+                          ProviderDisposeEvent event => {
+                              'Provider': event.provider.toString(),
+                            },
+                          MessageEvent event => {
+                              'Message': event.message,
+                            },
+                          ListenerAddedEvent event => {
+                              'Rebuildable': event.rebuildable.debugLabel,
+                              'Notifier': event.notifier.customDebugLabel,
+                            },
+                          ListenerRemovedEvent event => {
+                              'Rebuildable': event.rebuildable.debugLabel,
+                              'Notifier': event.notifier.customDebugLabel,
+                            },
+                        },
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
           ],
         ),
         ...widget.entry.children.map((e) => _EntryTile(
@@ -253,6 +241,7 @@ class _EntryCharacterBox extends StatelessWidget {
           _EventType.action => 'A',
           _EventType.providerInit => 'I',
           _EventType.providerDispose => 'D',
+          _EventType.message => 'M',
           _EventType.listenerAdded => 'LA',
           _EventType.listenerRemoved => 'LR',
         },

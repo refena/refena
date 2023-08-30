@@ -6,6 +6,7 @@ final Map<_EventType, Color> _baseColors = {
   _EventType.action: Colors.blue,
   _EventType.providerInit: Colors.green,
   _EventType.providerDispose: Colors.grey,
+  _EventType.message: Colors.yellow,
   _EventType.listenerAdded: Colors.cyan,
   _EventType.listenerRemoved: Colors.cyan,
 };

@@ -69,6 +69,7 @@ class MyPage extends StatelessWidget {
     - [ref.notifier](#-refnotifier)
     - [ref.redux](#-refredux)
     - [ref.dispose](#-refdispose)
+    - [ref.emitMessage](#-refemitmessage)
 - [What to choose?](#what-to-choose)
 - [Performance Optimization](#performance-optimization)
 - [ensureRef](#ensureref)
@@ -831,6 +832,18 @@ class _MyPageState extends State<MyPage> with Riverpie {
   }
 }
 ```
+
+### ➤ ref.emitMessage
+
+Emits a message to the observer.
+
+This might be handy if you have a `RiverpieTracingPage`.
+
+```dart
+ref.emitMessage('Hello World');
+```
+
+Within `ReduxAction`, this method is available as `emitMessage`.
 
 ## What to choose?
 

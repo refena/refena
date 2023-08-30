@@ -25,6 +25,7 @@ enum _EventType {
   action,
   providerInit,
   providerDispose,
+  message,
   listenerAdded,
   listenerRemoved,
 }
@@ -68,6 +69,7 @@ extension on RiverpieEvent {
       ActionErrorEvent() => throw UnimplementedError(),
       ProviderInitEvent() => _EventType.providerInit,
       ProviderDisposeEvent() => _EventType.providerDispose,
+      MessageEvent() => _EventType.message,
       ListenerAddedEvent() => _EventType.listenerAdded,
       ListenerRemovedEvent() => _EventType.listenerRemoved,
     };

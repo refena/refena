@@ -5,6 +5,8 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/dispatcher.dart';
+import 'package:riverpie/src/observer/event.dart';
+import 'package:riverpie/src/observer/observer.dart';
 
 /// The action that is dispatched by a [ReduxNotifier].
 /// You should use [ReduxAction] or [AsyncReduxAction] instead.
@@ -126,13 +128,23 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
     );
   }
 
+  /// Emits a message to the observer.
+  void emitMessage(String message) {
+    _observer?.handleEvent(
+      MessageEvent(message, this),
+    );
+  }
+
   /// The debug label of the action.
   /// Override this getter to provide a custom label.
   String get debugLabel => '$runtimeType';
 
+  RiverpieObserver? _observer;
+
   @internal
-  void internalSetup(N notifier) {
+  void internalSetup(N notifier, RiverpieObserver? observer) {
     this.notifier = notifier;
+    _observer = observer;
   }
 
   @internal

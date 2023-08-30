@@ -232,6 +232,11 @@ class RiverpieContainer extends Ref {
   }
 
   @override
+  void emitMessage(String message) {
+    observer?.handleEvent(MessageEvent(message, this));
+  }
+
+  @override
   String get debugOwnerLabel => 'RiverpieContainer';
 
   RiverpieContainer _withNotifierLabel(BaseNotifier notifier) {

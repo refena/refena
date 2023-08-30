@@ -3,6 +3,7 @@
 - feat: add `NavigationService`, example usage: `ref.read(navigationProvider).push(MyPage())`
 - feat: add `SnackBarService`, example usage: `ref.read(snackBarProvider).showSnackBar`
 - feat: add `ref.dispose(provider)`
+- feat: add `ref.log` to emit custom messages to the observer
 
 ## 0.19.0
 

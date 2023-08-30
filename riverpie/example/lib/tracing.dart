@@ -84,6 +84,20 @@ class MyPage extends StatelessWidget {
               const SizedBox(width: 20),
               FilledButton(
                 onPressed: () {
+                  context.ref.emitMessage('LOL!');
+                },
+                child: Text('Custom Message'),
+              ),
+              const SizedBox(width: 20),
+              FilledButton(
+                onPressed: () {
+                  context.ref.redux(counterProvider).dispatch(MessageAction());
+                },
+                child: Text('Message within Action'),
+              ),
+              const SizedBox(width: 20),
+              FilledButton(
+                onPressed: () {
                   context.ref.dispose(counterProvider);
                 },
                 child: Text('Dispose'),
@@ -154,6 +168,15 @@ class NestedAddAction extends ReduxAction<CounterService, CounterState> {
 class AnotherAction extends ReduxAction<CounterService, CounterState> {
   @override
   CounterState reduce() => throw 'Test Error';
+}
+
+class MessageAction extends ReduxAction<CounterService, CounterState> {
+  @override
+  CounterState reduce() {
+    emitMessage('Some Message');
+    emitMessage('Another Message');
+    return state;
+  }
 }
 
 class RandomState {

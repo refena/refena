@@ -114,6 +114,11 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
     _container.dispose(provider);
   }
 
+  @override
+  void emitMessage(String message) {
+    _container.emitMessage(message);
+  }
+
   @internal
   @override
   bool updateShouldNotify(RiverpieScope oldWidget) {
