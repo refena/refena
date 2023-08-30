@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:riverpie/riverpie.dart';
-import 'package:riverpie_flutter/addons.dart';
 import 'package:riverpie_flutter/src/addons/action.dart';
 
 /// The [Provider] for [SnackBarService].
@@ -10,22 +9,21 @@ final snackBarProvider = Provider((ref) => SnackBarService());
 ///
 /// Usage:
 /// MaterialApp(
-///   scaffoldMessengerKey: ref.watch(snackBarProvider).snackbarKey,
+///   scaffoldMessengerKey: ref.watch(snackBarProvider).key,
 ///   ...
 /// )
 ///
 /// ref.read(snackBarProvider).showMessage('Hello World');
 class SnackBarService {
-  GlobalKey<ScaffoldMessengerState> _snackbarKey =
-      GlobalKey<ScaffoldMessengerState>();
+  GlobalKey<ScaffoldMessengerState> _key = GlobalKey<ScaffoldMessengerState>();
 
   /// The [GlobalKey] to access the [ScaffoldMessengerState].
-  GlobalKey<ScaffoldMessengerState> get snackbarKey => _snackbarKey;
+  GlobalKey<ScaffoldMessengerState> get key => _key;
 
   /// Set the [GlobalKey] to access the [ScaffoldMessengerState].
   /// Use this if you already have a [GlobalKey] for [ScaffoldMessengerState].
   void setKey(GlobalKey<ScaffoldMessengerState> key) {
-    _snackbarKey = key;
+    _key = key;
   }
 
   /// Whether to hide the current [SnackBar] before showing a new one.
@@ -39,9 +37,9 @@ class SnackBarService {
     bool? hideCurrent,
   }) {
     if (hideCurrent ?? this.hideCurrent) {
-      snackbarKey.currentState?.hideCurrentSnackBar();
+      _key.currentState?.hideCurrentSnackBar();
     }
-    snackbarKey.currentState?.showSnackBar(
+    _key.currentState?.showSnackBar(
       SnackBar(
         content: Text(message),
         action: action,
@@ -80,7 +78,7 @@ class SnackBarReduxService extends ReduxNotifier<void> {
 
 /// An action to show a [SnackBar].
 class ShowSnackBarAction extends ReduxAction<SnackBarReduxService, void>
-    implements AddonAction {
+    implements SyncAddonAction {
   /// The message to show.
   final String message;
 

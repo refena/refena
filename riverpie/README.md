@@ -83,7 +83,8 @@ class MyPage extends StatelessWidget {
     - [State events](#-state-events)
     - [Example test](#-example-test)
 - [Add-ons](#add-ons)
-    - [Snackbar Service](#-snackbar-service)
+    - [Snackbars](#-snackbars)
+    - [Navigation](#-navigation)
 - [Dart only](#dart-only)
 
 ## Riverpie vs Riverpod
@@ -1255,6 +1256,7 @@ There is an example test that shows how to test a counter app.
 
 Add-ons are features implemented on top of Riverpie,
 so you don't have to write the boilerplate code yourself.
+The add-ons are entirely optional of course.
 
 To get started, add the following import:
 
@@ -1262,17 +1264,18 @@ To get started, add the following import:
 import 'package:riverpie_flutter/addons.dart';
 ```
 
-### ➤ Snackbar Service
+The core library never imports the add-ons, so we don't need to publish an additional package
+as the add-ons are tree-shaken away if you don't use them.
 
-The `SnackbarService` is a simple service to show snackbar messages.
+### ➤ Snackbars
 
-As long as you have access to `ref`, you can show a snackbar message.
+Show snackbar messages.
 
-First, set up the service:
+First, set up the `snackBarProvider`:
 
 ```dart
 MaterialApp(
-  scaffoldMessengerKey: ref.watch(snackBarProvider).snackbarKey,
+  scaffoldMessengerKey: ref.watch(snackBarProvider).key,
   home: MyPage(),
 )
 ```
@@ -1295,6 +1298,49 @@ Optionally, you can also dispatch a `ShowSnackBarAction`:
 
 ```dart
 ref.dispatch(ShowSnackBarAction(message: 'Hello World from Action!'));
+```
+
+### ➤ Navigation
+
+Manage your navigation stack.
+
+First, set up the `navigationProvider`:
+
+```dart
+MaterialApp(
+  navigatorKey: ref.watch(navigationProvider).key,
+  home: MyPage(),
+)
+```
+
+Then navigate:
+
+```dart
+class MyNotifier extends Notifier<int> {
+  @override
+  int init() => 10;
+
+  void someMethod() async {
+    state++;
+    ref.read(navigationProvider).push(MyPage());
+
+    // or wait for the result
+    final result = await ref.read(navigationProvider).push<DateTime>(DatePickerPage());
+  }
+}
+```
+
+Optionally, you can also dispatch a `NavigateAction`:
+
+```dart
+ref.dispatchAsync(
+  NavigateAction.push(SecondPage()),
+);
+
+// or wait for the result
+final result = await ref.dispatchAsync<DateTime>(
+  NavigateAction.push(DatePickerPage()),
+);
 ```
 
 ## Dart only

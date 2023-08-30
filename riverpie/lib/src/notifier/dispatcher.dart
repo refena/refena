@@ -29,7 +29,10 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
 
   /// Dispatches an [action] to the [notifier].
   /// Returns the new state.
-  T dispatch(ReduxAction<N, T> action, {String? debugOrigin}) {
+  T dispatch(
+    SynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
+    String? debugOrigin,
+  }) {
     return notifier.dispatch(
       action,
       debugOrigin: debugOrigin ?? this.debugOrigin,
@@ -40,7 +43,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state.
   Future<T> dispatchAsync(
-    AsyncReduxAction<N, T> action, {
+    AsynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchAsync(

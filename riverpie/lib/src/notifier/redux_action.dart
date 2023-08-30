@@ -28,7 +28,10 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
 
   /// Dispatches a synchronous action and updates the state.
   /// Returns the new state.
-  T dispatch(ReduxAction<N, T> action, {String? debugOrigin}) {
+  T dispatch(
+    SynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
+    String? debugOrigin,
+  }) {
     return notifier.dispatch(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
@@ -39,7 +42,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state.
   Future<T> dispatchAsync(
-    AsyncReduxAction<N, T> action, {
+    AsynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchAsync(
@@ -166,6 +169,8 @@ abstract class AsynchronousReduxAction<N extends BaseReduxNotifier<T>, T, R>
 /// Trigger this with [dispatch].
 abstract class ReduxAction<N extends BaseReduxNotifier<T>, T>
     extends SynchronousReduxAction<N, T, void> {
+  ReduxAction();
+
   /// The method that returns the new state.
   T reduce();
 

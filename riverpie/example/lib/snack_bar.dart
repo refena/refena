@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      scaffoldMessengerKey: context.ref.watch(snackBarProvider).snackbarKey,
+      scaffoldMessengerKey: context.ref.watch(snackBarProvider).key,
       home: MyPage(),
     );
   }

@@ -319,11 +319,11 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @protected
   @nonVirtual
   T dispatch(
-    ReduxAction<BaseReduxNotifier<T>, T> action, {
+    SynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
     String? debugOrigin,
     Object debugOriginRef = _absent,
   }) {
-    return _dispatchWithResult<void>(
+    return _dispatchWithResult<dynamic>(
       action,
       debugOrigin: debugOrigin,
       debugOriginRef: debugOriginRef,
@@ -444,11 +444,11 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @protected
   @nonVirtual
   Future<T> dispatchAsync(
-    AsyncReduxAction<BaseReduxNotifier<T>, T> action, {
+    AsynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
     String? debugOrigin,
     Object debugOriginRef = _absent,
   }) async {
-    final (state, _) = await _dispatchAsyncWithResult<void>(
+    final (state, _) = await _dispatchAsyncWithResult<dynamic>(
       action,
       debugOrigin: debugOrigin,
       debugOriginRef: debugOriginRef,
