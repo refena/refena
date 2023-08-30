@@ -8,7 +8,7 @@ import 'package:riverpie_flutter/src/scope.dart';
 RiverpieContainer getScope(BuildContext context) {
   final scope = context.dependOnInheritedWidgetOfExactType<RiverpieScope>();
   if (scope == null) {
-    throw Exception('Wrap your app with RiverpieScope');
+    throw StateError('Wrap your app with RiverpieScope');
   }
   return scope;
 }
