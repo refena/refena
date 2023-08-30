@@ -82,6 +82,8 @@ class MyPage extends StatelessWidget {
     - [Access the state within tests](#-access-the-state-within-tests)
     - [State events](#-state-events)
     - [Example test](#-example-test)
+- [Add-ons](#add-ons)
+    - [Snackbar Service](#-snackbar-service)
 - [Dart only](#dart-only)
 
 ## Riverpie vs Riverpod
@@ -1248,6 +1250,52 @@ void main() {
 There is an example test that shows how to test a counter app.
 
 [See the example test](https://github.com/Tienisto/riverpie/blob/main/documentation/testing.md).
+
+## Add-ons
+
+Add-ons are features implemented on top of Riverpie,
+so you don't have to write the boilerplate code yourself.
+
+To get started, add the following import:
+
+```dart
+import 'package:riverpie_flutter/addons.dart';
+```
+
+### ➤ Snackbar Service
+
+The `SnackbarService` is a simple service to show snackbar messages.
+
+As long as you have access to `ref`, you can show a snackbar message.
+
+First, set up the service:
+
+```dart
+MaterialApp(
+  scaffoldMessengerKey: ref.watch(snackBarProvider).snackbarKey,
+  home: MyPage(),
+)
+```
+
+Then show a message:
+
+```dart
+class MyNotifier extends Notifier<int> {
+  @override
+  int init() => 10;
+
+  void increment() {
+    state++;
+    ref.read(snackbarProvider).showMessage('Incremented');
+  }
+}
+```
+
+Optionally, you can also dispatch a `ShowSnackBarAction`:
+
+```dart
+ref.dispatch(ShowSnackBarAction(message: 'Hello World from Action!'));
+```
 
 ## Dart only
 

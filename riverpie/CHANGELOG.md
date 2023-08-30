@@ -1,5 +1,7 @@
 ## 0.20.0
 
+- feat: add add-ons
+- feat: add `SnackBarService` (the first add-on), example usage: `ref.read(snackBarProvider).showSnackBar`
 - feat: add `ref.dispose(provider)`
 
 ## 0.19.0
