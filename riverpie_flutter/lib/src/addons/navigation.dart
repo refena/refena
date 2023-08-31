@@ -118,7 +118,7 @@ class NavigatePushNamedAction<T>
 }
 
 class NavigatePopAction extends ReduxAction<NavigationReduxService, void>
-    implements SyncAddonAction {
+    implements AddonAction<void> {
   final Object? _result;
 
   NavigatePopAction._([this._result]);

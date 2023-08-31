@@ -399,7 +399,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       }
     }
 
-    action.internalSetup(this, _observer);
+    action.internalSetup(_ref, this, _observer);
     try {
       try {
         action.before();
@@ -526,7 +526,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       }
     }
 
-    action.internalSetup(this, _observer);
+    action.internalSetup(_ref, this, _observer);
 
     try {
       try {
@@ -581,6 +581,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     throw UnsupportedError('Not allowed to set state directly');
   }
 
+  late Ref _ref;
+
   /// Initializes the state of the notifier.
   /// This method is called only once and
   /// as soon as the notifier is accessed the first time.
@@ -590,6 +592,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @internal
   @mustCallSuper
   void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
+    _ref = container;
     _listeners = NotifierListeners<T>(this, observer);
     _notifyStrategy = container.defaultNotifyStrategy;
     _observer = observer;

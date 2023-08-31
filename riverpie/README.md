@@ -69,7 +69,7 @@ class MyPage extends StatelessWidget {
     - [ref.notifier](#-refnotifier)
     - [ref.redux](#-refredux)
     - [ref.dispose](#-refdispose)
-    - [ref.emitMessage](#-refemitmessage)
+    - [ref.message](#-refmessage)
 - [What to choose?](#what-to-choose)
 - [Performance Optimization](#performance-optimization)
 - [ensureRef](#ensureref)
@@ -848,14 +848,14 @@ class MyNotifier extends Notifier<int> {
 }
 ```
 
-### ➤ ref.emitMessage
+### ➤ ref.message
 
 Emits a message to the observer.
 
 This might be handy if you have a `RiverpieTracingPage`.
 
 ```dart
-ref.emitMessage('Hello World');
+ref.message('Hello World');
 ```
 
 Within `ReduxAction`, this method is available as `emitMessage`.
@@ -1361,14 +1361,31 @@ class MyNotifier extends Notifier<int> {
 Optionally, you can also dispatch a `NavigateAction`:
 
 ```dart
-ref.dispatchAsync(
-  NavigateAction.push(SecondPage()),
-);
+ref.dispatch(NavigateAction.push(SecondPage()));
 
 // or wait for the result
 final result = await ref.dispatchAsync<DateTime>(
   NavigateAction.push(DatePickerPage()),
 );
+```
+
+### ➤ Actions
+
+Inside a `ReduxAction`, you can access all add-ons by adding `with AddonActions`.
+
+This mixin adds a `addon` getter to the action.
+
+```dart
+class MyAction extends ReduxAction<Counter, int> with AddonActions {
+  @override
+  int reduce() => state + 1;
+
+  @override
+  void after() {
+    addon.dispatch(ShowSnackBarAction(message: 'Hello World from Action!'));
+    addon.dispatch(NavigateAction.push(SecondPage()));
+  }
+}
 ```
 
 ## Dart only

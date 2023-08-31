@@ -233,7 +233,7 @@ class RiverpieContainer extends Ref {
   }
 
   @override
-  void emitMessage(String message) {
+  void message(String message) {
     observer?.handleEvent(MessageEvent(message, this));
   }
 

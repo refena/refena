@@ -31,41 +31,61 @@ class MyPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final ref = context.ref;
     return Scaffold(
-      body: Column(
-        children: [
-          ElevatedButton(
-            onPressed: () async {
-              final result = await ref.read(navigationProvider).push<String>(SecondPage());
+      body: Center(
+        child: Wrap(
+          alignment: WrapAlignment.center,
+          runAlignment: WrapAlignment.center,
+          spacing: 20,
+          runSpacing: 20,
+          children: [
+            ElevatedButton(
+              onPressed: () async {
+                final result = await ref.read(navigationProvider).push<String>(SecondPage());
 
-              print('RESULT: $result (${result.runtimeType})');
-            },
-            child: Text('Push'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final result = await ref.dispatchAsync<String>(
-                NavigateAction.push(SecondPage()),
-              );
+                print('RESULT: $result (${result.runtimeType})');
+              },
+              child: Text('Push'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                ref.dispatch(
+                  NavigateAction.push(SecondPage()),
+                );
+              },
+              child: Text('Push Action (sync)'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final result = await ref.dispatchAsync<String>(
+                  NavigateAction.push(SecondPage()),
+                );
 
-              print('RESULT: $result (${result.runtimeType})');
-            },
-            child: Text('Push Action'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              ref.dispatchAsync(NavigateAction.pushNamed('/second'));
-            },
-            child: Text('Push Named Action'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              ref.dispatchAsync(
-                NavigateAction.push(RiverpieTracingPage()),
-              );
-            },
-            child: Text('Show Tracing'),
-          ),
-        ],
+                print('RESULT: $result (${result.runtimeType})');
+              },
+              child: Text('Push Action'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                ref.redux(myReduxProvider).dispatch(DispatchAddonWithinAction());
+              },
+              child: Text('Push Action within Action'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                ref.dispatchAsync(NavigateAction.pushNamed('/second'));
+              },
+              child: Text('Push Named Action'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                ref.dispatchAsync(
+                  NavigateAction.push(RiverpieTracingPage()),
+                );
+              },
+              child: Text('Show Tracing'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -97,5 +117,22 @@ class SecondPage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+final myReduxProvider = ReduxProvider((_) => MyReduxService());
+
+class MyReduxService extends ReduxNotifier<void> {
+  @override
+  int init() => 0;
+}
+
+class DispatchAddonWithinAction extends ReduxAction<MyReduxService, void> with AddonActions {
+  @override
+  int reduce() => 0;
+
+  @override
+  void after() {
+    addon.dispatchAsync(NavigateAction.push(SecondPage()));
   }
 }

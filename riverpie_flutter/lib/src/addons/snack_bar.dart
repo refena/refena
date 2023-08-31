@@ -78,7 +78,7 @@ class SnackBarReduxService extends ReduxNotifier<void> {
 
 /// An action to show a [SnackBar].
 class ShowSnackBarAction extends ReduxAction<SnackBarReduxService, void>
-    implements SyncAddonAction {
+    implements AddonAction<void> {
   /// The message to show.
   final String message;
 

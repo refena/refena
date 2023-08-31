@@ -115,8 +115,8 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
   }
 
   @override
-  void emitMessage(String message) {
-    _container.emitMessage(message);
+  void message(String message) {
+    _container.message(message);
   }
 
   @internal

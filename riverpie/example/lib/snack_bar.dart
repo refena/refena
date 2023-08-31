@@ -47,6 +47,12 @@ class MyPage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
+              context.ref.redux(myReduxProvider).dispatch(DispatchAddonWithinAction());
+            },
+            child: Text('Show SnackBar Action within Action'),
+          ),
+          ElevatedButton(
+            onPressed: () {
               Navigator.push(context, MaterialPageRoute(builder: (_) {
                 return RiverpieTracingPage();
               }));
@@ -56,5 +62,22 @@ class MyPage extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+final myReduxProvider = ReduxProvider((_) => MyReduxService());
+
+class MyReduxService extends ReduxNotifier<void> {
+  @override
+  int init() => 0;
+}
+
+class DispatchAddonWithinAction extends ReduxAction<MyReduxService, void> with AddonActions {
+  @override
+  int reduce() => 0;
+
+  @override
+  void after() {
+    addon.dispatch(ShowSnackBarAction(message: 'Hello World from Mixin!'));
   }
 }

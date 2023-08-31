@@ -55,7 +55,7 @@ abstract class Ref {
 
   /// Emits a message to the observer.
   /// This might be handy if you use [RiverpieTracingPage].
-  void emitMessage(String message);
+  void message(String message);
 
   /// Returns the owner of this [Ref].
   /// Usually, this is a notifier or a widget.
@@ -89,7 +89,7 @@ class WatchableRef extends Ref {
     ReduxProvider<N, T> provider,
   ) {
     return Dispatcher(
-      notifier: _ref.anyNotifier(provider),
+      notifier: _ref.notifier(provider),
       debugOrigin: debugOwnerLabel,
       debugOriginRef: _rebuildable,
     );
@@ -115,7 +115,7 @@ class WatchableRef extends Ref {
   }
 
   @override
-  void emitMessage(String message) {
+  void message(String message) {
     _ref.observer?.handleEvent(MessageEvent(message, _rebuildable));
   }
 

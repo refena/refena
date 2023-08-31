@@ -58,51 +58,51 @@ class MyPage extends StatelessWidget {
           const SizedBox(height: 20),
           Text('Sum: ${vm.sum}'),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              FilledButton(
-                onPressed: () {
-                  context.ref.redux(counterProvider).dispatch(AddAction());
-                },
-                child: Text('Single Action'),
-              ),
-              const SizedBox(width: 20),
-              FilledButton(
-                onPressed: () {
-                  context.ref.redux(counterProvider).dispatch(NestedAddAction());
-                },
-                child: Text('Nested Action'),
-              ),
-              const SizedBox(width: 20),
-              FilledButton(
-                onPressed: () {
-                  context.ref.notifier(randomProvider).increment();
-                },
-                child: Text('Notifier Change'),
-              ),
-              const SizedBox(width: 20),
-              FilledButton(
-                onPressed: () {
-                  context.ref.emitMessage('LOL!');
-                },
-                child: Text('Custom Message'),
-              ),
-              const SizedBox(width: 20),
-              FilledButton(
-                onPressed: () {
-                  context.ref.redux(counterProvider).dispatch(MessageAction());
-                },
-                child: Text('Message within Action'),
-              ),
-              const SizedBox(width: 20),
-              FilledButton(
-                onPressed: () {
-                  context.ref.dispose(counterProvider);
-                },
-                child: Text('Dispose'),
-              ),
-            ],
+          Center(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              runAlignment: WrapAlignment.center,
+              spacing: 20,
+              runSpacing: 20,
+              children: [
+                FilledButton(
+                  onPressed: () {
+                    context.ref.redux(counterProvider).dispatch(AddAction());
+                  },
+                  child: Text('Single Action'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    context.ref.redux(counterProvider).dispatch(NestedAddAction());
+                  },
+                  child: Text('Nested Action'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    context.ref.notifier(randomProvider).increment();
+                  },
+                  child: Text('Notifier Change'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    context.ref.message('LOL!');
+                  },
+                  child: Text('Custom Message'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    context.ref.redux(counterProvider).dispatch(MessageAction());
+                  },
+                  child: Text('Message within Action'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    context.ref.dispose(counterProvider);
+                  },
+                  child: Text('Dispose'),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 20),
           context.ref.watch(futureProvider).when(

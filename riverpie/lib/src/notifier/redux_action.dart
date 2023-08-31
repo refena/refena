@@ -7,10 +7,11 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/dispatcher.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
+import 'package:riverpie/src/ref.dart';
 
 /// The action that is dispatched by a [ReduxNotifier].
 /// You should use [ReduxAction] or [AsyncReduxAction] instead.
-sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
+abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   BaseReduxAction();
 
   /// Override this to have some logic before the action is dispatched.
@@ -23,7 +24,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   void after() {}
 
   /// Access the notifier to access other notifiers.
-  late N notifier;
+  N get notifier => _notifier;
 
   /// Returns the current state of the notifier.
   T get state => notifier.state;
@@ -31,7 +32,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   /// Dispatches a synchronous action and updates the state.
   /// Returns the new state.
   T dispatch(
-    SynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
+    SynchronousReduxAction<N, T, dynamic> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatch(
@@ -44,7 +45,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state.
   Future<T> dispatchAsync(
-    AsynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
+    AsynchronousReduxAction<N, T, dynamic> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchAsync(
@@ -57,7 +58,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   /// Dispatches an action and updates the state.
   /// Returns the new state along with the result of the action.
   (T, R2) dispatchWithResult<R2>(
-    ReduxActionWithResult<BaseReduxNotifier<T>, T, R2> action, {
+    ReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchWithResult<R2>(
@@ -70,7 +71,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   /// Dispatches an action and updates the state.
   /// Returns only the result of the action.
   R2 dispatchTakeResult<R2>(
-    ReduxActionWithResult<BaseReduxNotifier<T>, T, R2> action, {
+    ReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
     return notifier
@@ -85,7 +86,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state along with the result of the action.
   Future<(T, R2)> dispatchAsyncWithResult<R2>(
-    AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R2> action, {
+    AsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) async {
     return notifier.dispatchAsyncWithResult<R2>(
@@ -98,7 +99,7 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns only the result of the action.
   Future<R2> dispatchAsyncTakeResult<R2>(
-    AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R2> action, {
+    AsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) async {
     final (_, result) = await notifier.dispatchAsyncWithResult<R2>(
@@ -141,9 +142,20 @@ sealed class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
 
   RiverpieObserver? _observer;
 
+  late Ref _ref;
+
+  late N _notifier;
+
+  /// Provides access to [Ref].
+  /// To access external notifiers, you should use dependency injection.
+  /// This getter is used by addons to allow dispatching global actions.
   @internal
-  void internalSetup(N notifier, RiverpieObserver? observer) {
-    this.notifier = notifier;
+  Ref get internalRef => _ref;
+
+  @internal
+  void internalSetup(Ref ref, N notifier, RiverpieObserver? observer) {
+    _ref = ref;
+    _notifier = notifier;
     _observer = observer;
   }
 

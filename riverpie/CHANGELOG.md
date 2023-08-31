@@ -1,7 +1,11 @@
+## 0.21.0
+
+- **BREAKING**: change `ref.emitMessage` to `ref.message`
+
 ## 0.20.0
 
 - feat: add `NavigationService`, example usage: `ref.read(navigationProvider).push(MyPage())`
-- feat: add `SnackBarService`, example usage: `ref.read(snackBarProvider).showSnackBar`
+- feat: add `SnackBarService`, example usage: `ref.read(snackBarProvider).showSnackBar('Hello')`
 - feat: add `ref.dispose(provider)`
 - feat: add `ref.emitMessage` to emit custom messages to the observer
 

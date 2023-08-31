@@ -1,20 +1,21 @@
-import 'package:riverpie/src/container.dart';
+import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/dispatcher.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
-import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
+import 'package:riverpie/src/ref.dart';
 
-/// A container that proxies all calls to another [RiverpieContainer].
+/// A ref that proxies all calls to another [Ref].
 /// Used to have a custom [debugOwnerLabel] for [Ref.redux].
-class ProxyContainer implements RiverpieContainer {
-  ProxyContainer(this._container, this.debugOwnerLabel, this._debugOriginRef);
+@internal
+class ProxyRef implements Ref {
+  ProxyRef(this._ref, this.debugOwnerLabel, this._debugOriginRef);
 
   /// The container to proxy all calls to.
-  final RiverpieContainer _container;
+  final Ref _ref;
 
   /// The owner of this [Ref].
   @override
@@ -23,23 +24,13 @@ class ProxyContainer implements RiverpieContainer {
   final Object _debugOriginRef;
 
   @override
-  Future<void> ensureOverrides() {
-    return _container.ensureOverrides();
-  }
-
-  @override
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _container.read<N, T>(provider);
+    return _ref.read<N, T>(provider);
   }
 
   @override
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {
-    return _container.notifier<N, T>(provider);
-  }
-
-  @override
-  N anyNotifier<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _container.anyNotifier<N, T>(provider);
+    return _ref.notifier<N, T>(provider);
   }
 
   @override
@@ -47,7 +38,7 @@ class ProxyContainer implements RiverpieContainer {
     ReduxProvider<N, T> provider,
   ) {
     return Dispatcher(
-      notifier: _container.anyNotifier(provider),
+      notifier: _ref.notifier(provider),
       debugOrigin: debugOwnerLabel,
       debugOriginRef: _debugOriginRef,
     );
@@ -57,29 +48,23 @@ class ProxyContainer implements RiverpieContainer {
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
     BaseProvider<N, T> provider,
   ) {
-    return _container.stream<N, T>(provider);
+    return _ref.stream<N, T>(provider);
   }
 
   @override
   Future<T> future<N extends AsyncNotifier<T>, T>(
     AsyncNotifierProvider<N, T> provider,
   ) {
-    return _container.future<N, T>(provider);
+    return _ref.future<N, T>(provider);
   }
 
   @override
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    _container.dispose<N, T>(provider);
+    _ref.dispose<N, T>(provider);
   }
 
   @override
   void message(String message) {
-    _container.message(message);
+    _ref.message(message);
   }
-
-  @override
-  NotifyStrategy get defaultNotifyStrategy => _container.defaultNotifyStrategy;
-
-  @override
-  RiverpieObserver? get observer => _container.observer;
 }

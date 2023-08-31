@@ -78,7 +78,7 @@ void main() {
     test('Should emit a message', () {
       final ref = RiverpieContainer(observer: observer);
 
-      ref.emitMessage('Hello world!!');
+      ref.message('Hello world!!');
 
       expect(observer.history.length, 1);
 
