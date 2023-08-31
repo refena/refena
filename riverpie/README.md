@@ -807,7 +807,7 @@ await ref.redux(myReduxProvider).dispatch(MyAction());
 
 ### ➤ ref.dispose
 
-Providers are not disposed automatically.
+Providers are **never** disposed automatically.
 Instead, you should create a custom "cleanup" logic.
 
 To make your life easier, you can dispose a provider by calling this method:
@@ -816,7 +816,7 @@ To make your life easier, you can dispose a provider by calling this method:
 ref.dispose(myProvider);
 ```
 
-This can be called in a `StatefulWidget`'s `dispose` method because `ref.dispose` does not trigger a rebuild.
+This can be called in a `StatefulWidget`'s `dispose` method and is safe to do so because `ref.dispose` does not trigger a rebuild.
 
 ```dart
 class MyPage extends StatefulWidget {
@@ -828,6 +828,21 @@ class _MyPageState extends State<MyPage> with Riverpie {
   @override
   void dispose() {
     ref.dispose(myProvider); // <-- dispose the provider
+    super.dispose();
+  }
+}
+```
+
+In a notifier, you can hook into the dispose process by overriding `dispose`.
+
+```dart
+class MyNotifier extends Notifier<int> {
+  @override
+  int init() => 10;
+
+  @override
+  void dispose() {
+    // custom cleanup logic
     super.dispose();
   }
 }

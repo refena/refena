@@ -91,6 +91,14 @@ abstract class BaseNotifier<T> {
     }
   }
 
+  /// This is called on [Ref.dispose].
+  /// You can override this method to dispose resources.
+  @protected
+  @mustCallSuper
+  void dispose() {
+    _listeners.dispose();
+  }
+
   /// Override this if you want to a different kind of equality.
   @protected
   bool updateShouldNotify(T prev, T next) {
@@ -115,11 +123,6 @@ abstract class BaseNotifier<T> {
   @internal
   Stream<NotifierEvent<T>> getStream() {
     return _listeners.getStream();
-  }
-
-  @internal
-  void dispose() {
-    _listeners.dispose();
   }
 
   @override

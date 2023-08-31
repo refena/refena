@@ -77,6 +77,27 @@ void main() {
       );
     });
   });
+
+  group('dispose', () {
+    test('Should call dispose on Notifier', () {
+      final ref = RiverpieContainer();
+      bool called = false;
+      final provider = NotifierProvider((ref) {
+        return _DisposableCounter(() => called = true);
+      });
+
+      expect(ref.read(provider), 66);
+      expect(called, false);
+
+      ref.notifier(provider).increment();
+      expect(ref.read(provider), 67);
+      expect(called, false);
+
+      ref.dispose(provider);
+      expect(ref.read(provider), 66);
+      expect(called, true);
+    });
+  });
 }
 
 class _Counter extends Notifier<int> {
@@ -92,4 +113,23 @@ class _PureCounter extends PureNotifier<int> {
 class _AsyncCounter extends AsyncNotifier<int> {
   @override
   Future<int> init() async => 55;
+}
+
+class _DisposableCounter extends Notifier<int> {
+  final void Function() onDispose;
+
+  _DisposableCounter(this.onDispose);
+
+  @override
+  int init() => 66;
+
+  void increment() {
+    state++;
+  }
+
+  @override
+  void dispose() {
+    onDispose();
+    super.dispose();
+  }
 }

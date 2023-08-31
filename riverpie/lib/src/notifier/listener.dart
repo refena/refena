@@ -87,6 +87,7 @@ class NotifierListeners<T> {
     return _stream.stream;
   }
 
+  /// Disposes the notifier and all its listeners.
   void dispose() {
     _listeners.clear();
     _stream.close();

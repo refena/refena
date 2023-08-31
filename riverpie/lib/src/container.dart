@@ -221,6 +221,7 @@ class RiverpieContainer extends Ref {
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
     final notifier = _state.remove(provider);
     if (notifier != null) {
+      // ignore: invalid_use_of_protected_member
       notifier.dispose();
       observer?.handleEvent(
         ProviderDisposeEvent(
