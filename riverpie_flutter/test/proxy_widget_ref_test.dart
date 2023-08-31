@@ -6,6 +6,7 @@ void main() {
   final observer = RiverpieHistoryObserver(HistoryObserverConfig(
     saveChangeEvents: false,
     saveActionDispatchedEvents: true,
+    saveActionFinishedEvents: false,
   ));
 
   setUp(() {

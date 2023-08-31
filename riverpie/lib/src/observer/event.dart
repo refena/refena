@@ -4,11 +4,18 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/notifier/redux_action.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
+import 'package:riverpie/src/util/time_provider.dart';
 
 const _eq = IterableEquality();
 
+final _timeProvider = TimeProvider();
+
 /// The base event.
 sealed class RiverpieEvent with LabeledReference {
+  /// The timestamp when the event was fired.
+  /// We use [int] to save memory.
+  final int microsSinceEpoch = _timeProvider.getMicrosSinceEpoch();
+
   @override
   String get debugLabel => runtimeType.toString();
 }
@@ -314,6 +321,35 @@ class ActionDispatchedEvent extends RiverpieEvent {
   @override
   String toString() {
     return 'ActionDispatchedEvent(debugOrigin: $debugOrigin, debugOriginRef: $debugOriginRef, notifier: $notifier, action: $action)';
+  }
+}
+
+/// An action has been finished successfully.
+class ActionFinishedEvent extends RiverpieEvent {
+  /// The action that has been dispatched.
+  final BaseReduxAction action;
+
+  /// The result of the action. (NOT the state)
+  final Object? result;
+
+  ActionFinishedEvent({
+    required this.action,
+    required this.result,
+  });
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ActionFinishedEvent &&
+          action == other.action &&
+          result == other.result;
+
+  @override
+  int get hashCode => action.hashCode ^ result.hashCode;
+
+  @override
+  String toString() {
+    return 'ActionFinishedEvent(action: $action, result: $result)';
   }
 }
 

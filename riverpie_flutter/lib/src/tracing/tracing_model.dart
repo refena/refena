@@ -3,7 +3,8 @@
 part of 'tracing_page.dart';
 
 class _TracingEntry {
-  final TimedRiverpieEvent event;
+  final DateTime timestamp;
+  final RiverpieEvent event;
   final List<_TracingEntry> children;
   final bool superseded;
   final bool isWidget;
@@ -11,12 +12,20 @@ class _TracingEntry {
   // set afterwards
   ActionErrorEvent? error;
 
+  // the result of the action
+  // set afterwards
+  Object? result;
+
+  // the execution time of the action
+  // set afterwards
+  int? micros;
+
   _TracingEntry(
     this.event,
     this.children, {
     this.superseded = false,
     this.isWidget = false,
-  });
+  }) : timestamp = DateTime.fromMicrosecondsSinceEpoch(event.microsSinceEpoch);
 }
 
 enum _EventType {
@@ -33,7 +42,10 @@ enum _EventType {
 class FakeRebuildEvent implements RebuildEvent {
   final Rebuildable _rebuildable;
 
-  FakeRebuildEvent(this._rebuildable);
+  @override
+  final int microsSinceEpoch;
+
+  FakeRebuildEvent(this._rebuildable, this.microsSinceEpoch);
 
   @override
   List<AbstractChangeEvent> get causes => throw UnimplementedError();
@@ -57,15 +69,18 @@ class FakeRebuildEvent implements RebuildEvent {
   String get debugLabel => throw UnimplementedError();
 
   @override
-  bool compareIdentity(LabeledReference other) => _rebuildable.compareIdentity(other);
+  bool compareIdentity(LabeledReference other) =>
+      _rebuildable.compareIdentity(other);
 }
 
 extension on RiverpieEvent {
   _EventType get internalType {
+    // ActionFinishedEvent and ActionErrorEvent are merged into ActionDispatchedEvent
     return switch (this) {
       ChangeEvent() => _EventType.change,
       RebuildEvent() => _EventType.rebuild,
       ActionDispatchedEvent() => _EventType.action,
+      ActionFinishedEvent() => throw UnimplementedError(),
       ActionErrorEvent() => throw UnimplementedError(),
       ProviderInitEvent() => _EventType.providerInit,
       ProviderDisposeEvent() => _EventType.providerDispose,

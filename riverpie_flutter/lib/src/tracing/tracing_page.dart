@@ -24,7 +24,14 @@ part 'tracing_util.dart';
 part 'tracing_widgets.dart';
 
 class RiverpieTracingPage extends StatefulWidget {
-  const RiverpieTracingPage({super.key});
+  /// Time in milliseconds to consider an event as slow.
+  /// The execution time will be highlighted in the UI.
+  final int slowExecutionThreshold;
+
+  const RiverpieTracingPage({
+    super.key,
+    this.slowExecutionThreshold = 500,
+  });
 
   @override
   State<RiverpieTracingPage> createState() => _RiverpieTracingPageState();
@@ -219,6 +226,7 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                   final entry = _filteredEntries[index - 1];
 
                   return _EntryTile(
+                    slowExecutionThreshold: widget.slowExecutionThreshold,
                     entry: entry,
                     depth: 0,
                   );

@@ -2,10 +2,24 @@ import 'package:riverpie/riverpie.dart';
 import 'package:test/test.dart';
 
 void main() {
+  late RiverpieHistoryObserver observer;
+
+  setUp(() {
+    observer = RiverpieHistoryObserver.only(
+      changeEvents: true,
+      actionDispatchedEvents: true,
+      actionErrorEvents: true,
+    );
+  });
+
   test('Should change state', () {
     final notifier = _Counter();
     final provider = ReduxProvider<_Counter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver.all();
+    final observer = RiverpieHistoryObserver.only(
+      providerInitEvents: true,
+      changeEvents: true,
+      actionDispatchedEvents: true,
+    );
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -61,11 +75,6 @@ void main() {
   test('Should trigger lifecycle methods', () {
     final notifier = _Counter();
     final provider = ReduxProvider<_Counter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver(HistoryObserverConfig(
-      saveChangeEvents: true,
-      saveActionDispatchedEvents: true,
-    ));
-
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -152,12 +161,6 @@ void main() {
   test('Should handle errors in before', () {
     final notifier = _Counter();
     final provider = ReduxProvider<_Counter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver(HistoryObserverConfig(
-      saveChangeEvents: true,
-      saveActionDispatchedEvents: true,
-      saveActionErrorEvents: true,
-    ));
-
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -205,12 +208,6 @@ void main() {
   test('Should handle errors in reduce', () {
     final notifier = _Counter();
     final provider = ReduxProvider<_Counter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver(HistoryObserverConfig(
-      saveChangeEvents: true,
-      saveActionDispatchedEvents: true,
-      saveActionErrorEvents: true,
-    ));
-
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -258,12 +255,6 @@ void main() {
   test('Should handle errors in after', () {
     final notifier = _Counter();
     final provider = ReduxProvider<_Counter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver(HistoryObserverConfig(
-      saveChangeEvents: true,
-      saveActionDispatchedEvents: true,
-      saveActionErrorEvents: true,
-    ));
-
     final ref = RiverpieContainer(
       observer: observer,
     );

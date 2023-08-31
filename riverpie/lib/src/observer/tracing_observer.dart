@@ -53,15 +53,12 @@ final tracingProvider = ChangeNotifierProvider((ref) {
 class TracingNotifier extends ChangeNotifier {
   int _limit = 100;
   bool _initialized = false;
-  final Queue<TimedRiverpieEvent> events = Queue();
+  final Queue<RiverpieEvent> events = Queue();
 
   bool get initialized => _initialized;
 
   void _addEvent(RiverpieEvent event) {
-    events.add(TimedRiverpieEvent(
-      timestamp: DateTime.now(),
-      event: event,
-    ));
+    events.add(event);
 
     if (events.length > _limit) {
       events.removeFirst();
@@ -76,14 +73,4 @@ class TracingNotifier extends ChangeNotifier {
   void clear() {
     events.clear();
   }
-}
-
-class TimedRiverpieEvent {
-  final DateTime timestamp;
-  final RiverpieEvent event;
-
-  const TimedRiverpieEvent({
-    required this.timestamp,
-    required this.event,
-  });
 }

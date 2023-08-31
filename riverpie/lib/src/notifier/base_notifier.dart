@@ -389,6 +389,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
               'Invalid override reducer for ${action.runtimeType}'),
         };
         _setState(temp.$1, action);
+        _observer?.handleEvent(ActionFinishedEvent(
+          action: action,
+          result: temp.$2,
+        ));
         return temp;
       } else if (_overrides!.containsKey(key)) {
         // If the override is null (but the key exist),
@@ -414,6 +418,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       try {
         final newState = action.internalWrapReduce();
         _setState(newState.$1, action);
+        _observer?.handleEvent(ActionFinishedEvent(
+          action: action,
+          result: newState.$2,
+        ));
         return newState;
       } catch (error, stackTrace) {
         _observer?.handleEvent(ActionErrorEvent(
@@ -517,6 +525,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
               'Invalid override reducer for ${action.runtimeType}'),
         };
         _setState(temp.$1, action);
+        _observer?.handleEvent(ActionFinishedEvent(
+          action: action,
+          result: temp.$2,
+        ));
       } else if (_overrides!.containsKey(key)) {
         // If the override is null (but the key exist),
         // we do not update the state.
@@ -542,6 +554,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       try {
         final newState = await action.internalWrapReduce();
         _setState(newState.$1, action);
+        _observer?.handleEvent(ActionFinishedEvent(
+          action: action,
+          result: newState.$2,
+        ));
         return newState;
       } catch (error, stackTrace) {
         _observer?.handleEvent(ActionErrorEvent(

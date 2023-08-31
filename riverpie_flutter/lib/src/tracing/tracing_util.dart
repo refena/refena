@@ -22,3 +22,11 @@ final Map<_EventType, Color> _backgroundColor = _baseColors.map((key, value) {
 String _formatTimestamp(DateTime timestamp) {
   return '${timestamp.hour.toString().padLeft(2, '0')}:${timestamp.minute.toString().padLeft(2, '0')}:${timestamp.second.toString().padLeft(2, '0')}';
 }
+
+extension on int {
+  String formatMicros() {
+    final int milliseconds = this ~/ 1000;
+    final int tenths = (this % 1000) ~/ 100;
+    return '$milliseconds.${tenths}ms';
+  }
+}

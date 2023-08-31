@@ -6,11 +6,9 @@ void main() {
     late RiverpieHistoryObserver observer;
 
     setUp(() {
-      observer = RiverpieHistoryObserver(
-        HistoryObserverConfig.only(
-          providerInitEvents: true,
-          providerDisposeEvents: true,
-        ),
+      observer = RiverpieHistoryObserver.only(
+        providerInitEvents: true,
+        providerDisposeEvents: true,
       );
     });
 
@@ -68,10 +66,8 @@ void main() {
     late RiverpieHistoryObserver observer;
 
     setUp(() {
-      observer = RiverpieHistoryObserver(
-        HistoryObserverConfig.only(
-          messageEvents: true,
-        ),
+      observer = RiverpieHistoryObserver.only(
+        messageEvents: true,
       );
     });
 

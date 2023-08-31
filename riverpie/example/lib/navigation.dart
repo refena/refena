@@ -40,7 +40,9 @@ class MyPage extends StatelessWidget {
           children: [
             ElevatedButton(
               onPressed: () async {
-                final result = await ref.read(navigationProvider).push<String>(SecondPage());
+                final result = await ref
+                    .read(navigationProvider)
+                    .push<String>(SecondPage());
 
                 print('RESULT: $result (${result.runtimeType})');
               },
@@ -66,7 +68,9 @@ class MyPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                ref.redux(myReduxProvider).dispatch(DispatchAddonWithinAction());
+                ref
+                    .redux(myReduxProvider)
+                    .dispatchAsync(DispatchAddonWithinAction());
               },
               child: Text('Push Action within Action'),
             ),
@@ -124,15 +128,13 @@ final myReduxProvider = ReduxProvider((_) => MyReduxService());
 
 class MyReduxService extends ReduxNotifier<void> {
   @override
-  int init() => 0;
+  void init() {}
 }
 
-class DispatchAddonWithinAction extends ReduxAction<MyReduxService, void> with AddonActions {
+class DispatchAddonWithinAction extends AsyncReduxAction<MyReduxService, void>
+    with AddonActions {
   @override
-  int reduce() => 0;
-
-  @override
-  void after() {
-    addon.dispatchAsync(NavigateAction.push(SecondPage()));
+  Future<void> reduce() async {
+    await addon.dispatchAsync(NavigateAction.push(SecondPage()));
   }
 }

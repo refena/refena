@@ -3,10 +3,12 @@
 part of 'tracing_page.dart';
 
 class _EntryTile extends StatefulWidget {
+  final int slowExecutionThreshold;
   final _TracingEntry entry;
   final int depth;
 
   const _EntryTile({
+    required this.slowExecutionThreshold,
     required this.entry,
     required this.depth,
   });
@@ -33,7 +35,7 @@ class _EntryTileState extends State<_EntryTile> {
                   child: Padding(
                     padding: const EdgeInsets.only(right: 10),
                     child: Text(
-                      _formatTimestamp(widget.entry.event.timestamp),
+                      _formatTimestamp(widget.entry.timestamp),
                       style: TextStyle(color: Colors.grey),
                       textAlign: TextAlign.right,
                     ),
@@ -59,8 +61,7 @@ class _EntryTileState extends State<_EntryTile> {
                   onTap: () {
                     setState(() => _expanded = !_expanded);
                   },
-                  child:
-                      _EntryCharacterBox(widget.entry.event.event.internalType),
+                  child: _EntryCharacterBox(widget.entry.event.internalType),
                 ),
                 Expanded(
                   child: GestureDetector(
@@ -70,21 +71,22 @@ class _EntryTileState extends State<_EntryTile> {
                     child: Container(
                       padding: const EdgeInsets.only(left: 8),
                       decoration: BoxDecoration(
-                        color: _backgroundColor[
-                            widget.entry.event.event.internalType],
+                        color:
+                            _backgroundColor[widget.entry.event.internalType],
                       ),
                       child: Row(
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Text(
-                              switch (widget.entry.event.event) {
+                              switch (widget.entry.event) {
                                 ChangeEvent event => event.stateType.toString(),
                                 RebuildEvent event => widget.entry.isWidget
                                     ? event.rebuildable.debugLabel
                                     : event.stateType.toString(),
                                 ActionDispatchedEvent event =>
                                   event.action.debugLabel,
+                                ActionFinishedEvent _ => '',
                                 ActionErrorEvent _ => '',
                                 ProviderInitEvent event =>
                                   event.provider.toString(),
@@ -122,15 +124,37 @@ class _EntryTileState extends State<_EntryTile> {
                                     size: 16, color: Colors.orange),
                               },
                             ),
-                          ...switch (widget.entry.event.event) {
-                            ActionDispatchedEvent e
-                                when e.debugOriginRef is Rebuildable =>
-                              [
-                                const SizedBox(width: 8),
-                                _EntryBadge(
-                                  label: 'from: ${e.debugOrigin}',
-                                  color: _headerColor[e.internalType]!,
-                                ),
+                          ...switch (widget.entry.event) {
+                            ActionDispatchedEvent e => [
+                                if (e.debugOriginRef is Rebuildable)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: _EntryBadge(
+                                      label: 'from: ${e.debugOrigin}',
+                                      color: _headerColor[e.internalType]!,
+                                    ),
+                                  ),
+                                if (widget.entry.result != null)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: _EntryBadge(
+                                      label: '✓ Result',
+                                      color: _headerColor[e.internalType]!,
+                                    ),
+                                  ),
+                                if (widget.entry.micros != null &&
+                                    widget.entry.micros! >
+                                        widget.slowExecutionThreshold * 1000)
+                                  Padding(
+                                    padding: const EdgeInsets.only(left: 8),
+                                    child: Text(
+                                      widget.entry.micros!.formatMicros(),
+                                      style: TextStyle(
+                                        color: Colors.orange,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ),
                               ],
                             MessageEvent e when e.origin is Rebuildable => [
                                 const SizedBox(width: 8),
@@ -162,14 +186,14 @@ class _EntryTileState extends State<_EntryTile> {
                     child: Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: _backgroundColor[
-                            widget.entry.event.event.internalType],
+                        color:
+                            _backgroundColor[widget.entry.event.internalType],
                       ),
                       child: _EntryDetail(
                         isWidget: widget.entry.isWidget,
                         superseded: widget.entry.superseded,
                         error: widget.entry.error,
-                        attributes: switch (widget.entry.event.event) {
+                        attributes: switch (widget.entry.event) {
                           ChangeEvent event => {
                               'Notifier': event.notifier.debugLabel,
                               if (event.action != null)
@@ -204,7 +228,13 @@ class _EntryTileState extends State<_EntryTile> {
                               'Origin': event.debugOrigin,
                               'Action Group': event.notifier.debugLabel,
                               'Action': event.action.toString(),
+                              if (widget.entry.micros != null)
+                                'Duration':
+                                    '${widget.entry.micros?.formatMicros()}',
+                              if (widget.entry.result != null)
+                                'Result': widget.entry.result.toString(),
                             },
+                          ActionFinishedEvent _ => {},
                           ActionErrorEvent _ => {},
                           ProviderInitEvent event => {
                               'Provider': event.provider.toString(),
@@ -235,6 +265,7 @@ class _EntryTileState extends State<_EntryTile> {
           ],
         ),
         ...widget.entry.children.map((e) => _EntryTile(
+              slowExecutionThreshold: widget.slowExecutionThreshold,
               entry: e,
               depth: widget.depth + 1,
             )),

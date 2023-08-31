@@ -4,10 +4,19 @@ import 'package:riverpie/riverpie.dart';
 import 'package:test/test.dart';
 
 void main() {
+  late RiverpieHistoryObserver observer;
+
+  setUp(() {
+    observer = RiverpieHistoryObserver.only(
+      changeEvents: true,
+      actionDispatchedEvents: true,
+      actionErrorEvents: true,
+    );
+  });
+
   test('Should await event', () async {
     final notifier = _AsyncCounter();
     final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver();
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -101,7 +110,6 @@ void main() {
   test('Should handle errors in before', () async {
     final notifier = _AsyncCounter();
     final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver();
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -149,7 +157,6 @@ void main() {
   test('Should handle errors in reduce', () async {
     final notifier = _AsyncCounter();
     final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver();
     final ref = RiverpieContainer(
       observer: observer,
     );
@@ -197,7 +204,6 @@ void main() {
   test('Should handle errors in after', () async {
     final notifier = _AsyncCounter();
     final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
-    final observer = RiverpieHistoryObserver();
     final ref = RiverpieContainer(
       observer: observer,
     );

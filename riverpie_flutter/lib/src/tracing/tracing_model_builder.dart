@@ -2,10 +2,10 @@
 
 part of 'tracing_page.dart';
 
-List<_TracingEntry> _buildEntries(Iterable<TimedRiverpieEvent> events) {
+List<_TracingEntry> _buildEntries(Iterable<RiverpieEvent> events) {
   final result = <_TracingEntry>[];
   for (final event in events) {
-    switch (event.event) {
+    switch (event) {
       case ChangeEvent e:
         if (e.action != null) {
           final existing = _findEventWithAction(result, e.action!);
@@ -60,6 +60,14 @@ List<_TracingEntry> _buildEntries(Iterable<TimedRiverpieEvent> events) {
         }
         result.add(_TracingEntry(event, []));
         break;
+      case ActionFinishedEvent e:
+        final existing = _findEventWithAction(result, e.action);
+        if (existing != null) {
+          existing.result = e.result;
+          existing.micros =
+              event.microsSinceEpoch - existing.event.microsSinceEpoch;
+        }
+        break;
       case ActionErrorEvent e:
         final existing = _findEventWithAction(result, e.action);
         if (existing != null) {
@@ -99,8 +107,8 @@ List<_TracingEntry> _buildEntries(Iterable<TimedRiverpieEvent> events) {
 _TracingEntry? _findEventWithAction(
     List<_TracingEntry> result, BaseReduxAction action) {
   for (final entry in result.reversed) {
-    if (entry.event.event is ActionDispatchedEvent) {
-      if ((entry.event.event as ActionDispatchedEvent)
+    if (entry.event is ActionDispatchedEvent) {
+      if ((entry.event as ActionDispatchedEvent)
           .action
           .compareIdentity(action)) {
         return entry;
@@ -124,7 +132,7 @@ void _findEvent(
   for (final entry in result.reversed) {
     _findEvent(entry.children, event, found);
 
-    if (entry.event.event.compareIdentity(event)) {
+    if (entry.event.compareIdentity(event)) {
       found.add(entry);
     }
   }
@@ -134,10 +142,7 @@ void _addWidgetEntries(_TracingEntry entry, List<Rebuildable> rebuildableList) {
   for (final rebuild in rebuildableList) {
     if (rebuild is ElementRebuildable) {
       entry.children.add(_TracingEntry(
-        TimedRiverpieEvent(
-          timestamp: entry.event.timestamp,
-          event: FakeRebuildEvent(rebuild),
-        ),
+        FakeRebuildEvent(rebuild, entry.event.microsSinceEpoch),
         [],
         isWidget: true,
       ));
@@ -148,7 +153,7 @@ void _addWidgetEntries(_TracingEntry entry, List<Rebuildable> rebuildableList) {
 
 // query is already lower case
 bool _contains(_TracingEntry entry, String query) {
-  final contains = switch (entry.event.event) {
+  final contains = switch (entry.event) {
     ChangeEvent event =>
       event.stateType.toString().toLowerCase().contains(query),
     RebuildEvent event =>
@@ -158,6 +163,7 @@ bool _contains(_TracingEntry entry, String query) {
     ActionDispatchedEvent event =>
       event.action.debugLabel.toLowerCase().contains(query) ||
           event.debugOrigin.toLowerCase().contains(query),
+    ActionFinishedEvent _ => throw UnimplementedError(),
     ActionErrorEvent _ => throw UnimplementedError(),
     ProviderInitEvent event =>
       event.provider.toString().toLowerCase().contains(query),

@@ -189,14 +189,19 @@ class RiverpieDebugObserver extends RiverpieObserver {
             'Listener removed: [${event.rebuildable.debugLabel}] on [$label]');
         break;
       case ActionDispatchedEvent event:
-        final label = _getProviderDebugLabel(null, event.notifier);
         _line(
-            'Action dispatched: [$label.${event.action.runtimeType}] by [${event.debugOrigin}]');
+            'Action dispatched: [${event.notifier.debugLabel}.${event.action.runtimeType}] by [${event.debugOrigin}]');
+        break;
+      case ActionFinishedEvent event:
+        final resultString = event.result == null
+            ? ''
+            : ' with result: [${event.result.toString().toSingleLine()}]';
+        _line(
+            'Action finished: [${event.action.notifier.debugLabel}.${event.action.debugLabel}]$resultString');
         break;
       case ActionErrorEvent event:
-        final label = _getProviderDebugLabel(null, event.action.notifier);
         _line(
-          'Action error: [$label.${event.action.debugLabel}.${event.lifecycle.name}] has thrown the following error:',
+          'Action error: [${event.action.notifier.debugLabel}.${event.action.debugLabel}.${event.lifecycle.name}] has thrown the following error:',
           error: event.error,
           stackTrace: event.stackTrace,
         );

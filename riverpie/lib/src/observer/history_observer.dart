@@ -28,6 +28,9 @@ class HistoryObserverConfig {
   /// Whether the observer should save [ActionDispatchedEvent]s.
   final bool saveActionDispatchedEvents;
 
+  /// Whether the observer should save [ActionFinishedEvent]s.
+  final bool saveActionFinishedEvents;
+
   /// Whether the observer should save [ActionErrorEvent]s.
   final bool saveActionErrorEvents;
 
@@ -43,6 +46,7 @@ class HistoryObserverConfig {
     this.saveChangeEvents = true,
     this.saveRebuildEvents = true,
     this.saveActionDispatchedEvents = true,
+    this.saveActionFinishedEvents = true,
     this.saveActionErrorEvents = true,
     this.saveMessageEvents = true,
   });
@@ -73,6 +77,7 @@ class HistoryObserverConfig {
     bool changeEvents = false,
     bool rebuildEvents = false,
     bool actionDispatchedEvents = false,
+    bool actionFinishedEvents = false,
     bool actionErrorEvents = false,
     bool messageEvents = false,
   }) {
@@ -85,6 +90,7 @@ class HistoryObserverConfig {
       saveChangeEvents: changeEvents,
       saveRebuildEvents: rebuildEvents,
       saveActionDispatchedEvents: actionDispatchedEvents,
+      saveActionFinishedEvents: actionFinishedEvents,
       saveActionErrorEvents: actionErrorEvents,
       saveMessageEvents: messageEvents,
     );
@@ -108,6 +114,34 @@ class RiverpieHistoryObserver extends RiverpieObserver {
 
   factory RiverpieHistoryObserver.all() {
     return RiverpieHistoryObserver(HistoryObserverConfig.all);
+  }
+
+  factory RiverpieHistoryObserver.only({
+    bool startImmediately = true,
+    bool providerInitEvents = false,
+    bool providerDisposeEvents = false,
+    bool listenerAddedEvents = false,
+    bool listenerRemovedEvents = false,
+    bool changeEvents = false,
+    bool rebuildEvents = false,
+    bool actionDispatchedEvents = false,
+    bool actionFinishedEvents = false,
+    bool actionErrorEvents = false,
+    bool messageEvents = false,
+  }) {
+    return RiverpieHistoryObserver(HistoryObserverConfig.only(
+      startImmediately: startImmediately,
+      providerInitEvents: providerInitEvents,
+      providerDisposeEvents: providerDisposeEvents,
+      listenerAddedEvents: listenerAddedEvents,
+      listenerRemovedEvents: listenerRemovedEvents,
+      changeEvents: changeEvents,
+      rebuildEvents: rebuildEvents,
+      actionDispatchedEvents: actionDispatchedEvents,
+      actionFinishedEvents: actionFinishedEvents,
+      actionErrorEvents: actionErrorEvents,
+      messageEvents: messageEvents,
+    ));
   }
 
   @override
@@ -149,6 +183,11 @@ class RiverpieHistoryObserver extends RiverpieObserver {
         break;
       case ActionDispatchedEvent():
         if (config.saveActionDispatchedEvents) {
+          history.add(event);
+        }
+        break;
+      case ActionFinishedEvent():
+        if (config.saveActionFinishedEvents) {
           history.add(event);
         }
         break;
