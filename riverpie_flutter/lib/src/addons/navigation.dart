@@ -94,6 +94,16 @@ class NavigatePushAction<T>
 
   @override
   String get debugLabel => 'NavigatePushAction(${_widget.runtimeType})';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NavigatePushAction<T> &&
+          runtimeType == other.runtimeType &&
+          _widget.runtimeType == other._widget.runtimeType;
+
+  @override
+  int get hashCode => _widget.hashCode;
 }
 
 class NavigatePushNamedAction<T>
@@ -115,6 +125,17 @@ class NavigatePushNamedAction<T>
   @override
   String get debugLabel =>
       'NavigatePushNamedAction($_routeName, settings: $_arguments)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NavigatePushNamedAction<T> &&
+          runtimeType == other.runtimeType &&
+          _routeName == other._routeName &&
+          _arguments == other._arguments;
+
+  @override
+  int get hashCode => _routeName.hashCode ^ _arguments.hashCode;
 }
 
 class NavigatePopAction extends ReduxAction<NavigationReduxService, void>
@@ -130,4 +151,12 @@ class NavigatePopAction extends ReduxAction<NavigationReduxService, void>
 
   @override
   String get debugLabel => 'NavigatePopAction($_result)';
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is NavigatePopAction && _result == other._result;
+
+  @override
+  int get hashCode => _result.hashCode;
 }

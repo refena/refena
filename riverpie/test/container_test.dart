@@ -7,8 +7,8 @@ void main() {
 
     setUp(() {
       observer = RiverpieHistoryObserver.only(
-        providerInitEvents: true,
-        providerDisposeEvents: true,
+        providerInit: true,
+        providerDispose: true,
       );
     });
 
@@ -96,7 +96,7 @@ void main() {
 
     setUp(() {
       observer = RiverpieHistoryObserver.only(
-        messageEvents: true,
+        message: true,
       );
     });
 

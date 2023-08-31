@@ -8,9 +8,9 @@ void main() {
 
   setUp(() {
     observer = RiverpieHistoryObserver.only(
-      changeEvents: true,
-      actionDispatchedEvents: true,
-      actionErrorEvents: true,
+      change: true,
+      actionDispatched: true,
+      actionError: true,
     );
   });
 

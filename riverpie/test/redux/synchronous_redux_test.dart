@@ -6,9 +6,9 @@ void main() {
 
   setUp(() {
     observer = RiverpieHistoryObserver.only(
-      changeEvents: true,
-      actionDispatchedEvents: true,
-      actionErrorEvents: true,
+      change: true,
+      actionDispatched: true,
+      actionError: true,
     );
   });
 
@@ -16,9 +16,9 @@ void main() {
     final notifier = _Counter();
     final provider = ReduxProvider<_Counter, int>((ref) => notifier);
     final observer = RiverpieHistoryObserver.only(
-      providerInitEvents: true,
-      changeEvents: true,
-      actionDispatchedEvents: true,
+      providerInit: true,
+      change: true,
+      actionDispatched: true,
     );
     final ref = RiverpieContainer(
       observer: observer,
