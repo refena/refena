@@ -222,6 +222,8 @@ class RiverpieDebugObserver extends RiverpieObserver {
         onLine!.call('  $line\n$error\n$stackTrace');
         return;
       }
+
+      print('[Riverpie] $line\n$error\n$stackTrace');
     }
 
     if (onLine != null) {

@@ -110,6 +110,18 @@ class _EntryTileState extends State<_EntryTile> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
+                          if (widget.entry.error != null)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: switch (widget.entry.error!.lifecycle) {
+                                ActionLifecycle.before => Icon(Icons.error,
+                                    size: 16, color: Colors.red),
+                                ActionLifecycle.reduce => Icon(Icons.error,
+                                    size: 16, color: Colors.red),
+                                ActionLifecycle.after => Icon(Icons.warning,
+                                    size: 16, color: Colors.orange),
+                              },
+                            ),
                           ...switch (widget.entry.event.event) {
                             ActionDispatchedEvent e
                                 when e.debugOriginRef is Rebuildable =>
@@ -130,18 +142,6 @@ class _EntryTileState extends State<_EntryTile> {
                               ],
                             _ => [],
                           },
-                          if (widget.entry.error != null)
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: switch (widget.entry.error!.lifecycle) {
-                                ActionLifecycle.before => Icon(Icons.error,
-                                    size: 16, color: Colors.red),
-                                ActionLifecycle.reduce => Icon(Icons.error,
-                                    size: 16, color: Colors.red),
-                                ActionLifecycle.after => Icon(Icons.warning,
-                                    size: 16, color: Colors.orange),
-                              },
-                            ),
                         ],
                       ),
                     ),
