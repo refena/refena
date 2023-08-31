@@ -86,6 +86,7 @@ class MyPage extends StatelessWidget {
 - [Add-ons](#add-ons)
     - [Snackbars](#-snackbars)
     - [Navigation](#-navigation)
+    - [Actions](#-actions)
 - [Dart only](#dart-only)
 
 ## Riverpie vs Riverpod
@@ -1373,7 +1374,7 @@ final result = await ref.dispatchAsync<DateTime>(
 
 Inside a `ReduxAction`, you can access all add-ons by adding `with AddonActions`.
 
-This mixin adds a `addon` getter to the action.
+This mixin adds an `addon` getter to the action.
 
 ```dart
 class MyAction extends ReduxAction<Counter, int> with AddonActions {
