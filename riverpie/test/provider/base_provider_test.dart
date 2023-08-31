@@ -6,38 +6,39 @@ void main() {
     test(Provider, () {
       expect(
         Provider((ref) => 11).toString(),
-        'Provider<int>',
+        'Provider<int>(label: Provider<int>)',
       );
 
       expect(
         Provider((ref) => 11, debugLabel: 'Foo').toString(),
-        'Foo',
+        'Provider<int>(label: Foo)',
       );
     });
 
     test(FutureProvider, () {
       expect(
         FutureProvider((ref) async => 22).toString(),
-        'FutureProvider<int>',
+        'FutureProvider<int>(label: FutureProvider<int>)',
       );
 
       expect(
         FutureProvider((ref) async => 22, debugLabel: 'Foo').toString(),
-        'Foo',
+        'FutureProvider<int>(label: Foo)',
       );
     });
 
     test(NotifierProvider, () {
       expect(
-        NotifierProvider<StateNotifier<int>, int>((ref) => StateNotifier(3))
-            .toString(),
-        'NotifierProvider<StateNotifier<int>, int>',
+        NotifierProvider<_MyNotifier, int>((ref) => _MyNotifier()).toString(),
+        'NotifierProvider<_MyNotifier, int>(label: _MyNotifier)',
       );
 
       expect(
-        NotifierProvider((ref) => StateNotifier(3), debugLabel: 'Foo')
-            .toString(),
-        'Foo',
+        NotifierProvider<_MyNotifier, int>(
+          (ref) => _MyNotifier(),
+          debugLabel: 'Foo',
+        ).toString(),
+        'NotifierProvider<_MyNotifier, int>(label: Foo)',
       );
     });
 
@@ -46,39 +47,45 @@ void main() {
         AsyncNotifierProvider<FutureProviderNotifier<int>, int>(
           (ref) => FutureProviderNotifier(Future.value(0)),
         ).toString(),
-        'AsyncNotifierProvider<FutureProviderNotifier<int>, int>',
+        'AsyncNotifierProvider<FutureProviderNotifier<int>, int>(label: FutureProviderNotifier<int>)',
       );
 
       expect(
-        AsyncNotifierProvider((ref) => FutureProviderNotifier(Future.value(0)),
-                debugLabel: 'Foo')
-            .toString(),
-        'Foo',
+        AsyncNotifierProvider<FutureProviderNotifier<int>, int>(
+          (ref) => FutureProviderNotifier(Future.value(0)),
+          debugLabel: 'Foo',
+        ).toString(),
+        'AsyncNotifierProvider<FutureProviderNotifier<int>, int>(label: Foo)',
       );
     });
 
     test(StateProvider, () {
       expect(
         StateProvider<int>((ref) => 11).toString(),
-        'StateProvider<int>',
+        'StateProvider<int>(label: StateProvider<int>)',
       );
 
       expect(
         StateProvider<int>((ref) => 11, debugLabel: 'Foo').toString(),
-        'Foo',
+        'StateProvider<int>(label: Foo)',
       );
     });
 
     test(ViewProvider, () {
       expect(
         ViewProvider<int>((ref) => 11).toString(),
-        'ViewProvider<int>',
+        'ViewProvider<int>(label: ViewProvider<int>)',
       );
 
       expect(
         ViewProvider<int>((ref) => 11, debugLabel: 'Foo').toString(),
-        'Foo',
+        'ViewProvider<int>(label: Foo)',
       );
     });
   });
+}
+
+class _MyNotifier extends Notifier<int> {
+  @override
+  int init() => 0;
 }

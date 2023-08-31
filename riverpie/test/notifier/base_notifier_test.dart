@@ -11,7 +11,7 @@ void main() {
 
       expect(
         ref.anyNotifier(provider).toString(),
-        'ImmutableNotifier<int>(state: 11)',
+        'ImmutableNotifier<int>(label: Provider<int>, state: 11)',
       );
     });
 
@@ -22,29 +22,32 @@ void main() {
 
       expect(
         notifier.toString(),
-        'FutureProviderNotifier<int>(state: AsyncLoading<int>)',
+        'FutureProviderNotifier<int>(label: FutureProvider<int>, state: AsyncLoading<int>)',
       );
       await skipAllMicrotasks();
       expect(
         notifier.toString(),
-        'FutureProviderNotifier<int>(state: AsyncData<int>(22))',
+        'FutureProviderNotifier<int>(label: FutureProvider<int>, state: AsyncData<int>(22))',
       );
     });
 
     test(Notifier, () {
-      expect(_Counter().toString(), '_Counter(state: uninitialized)');
+      expect(_Counter().toString(),
+          '_Counter(label: _Counter, state: uninitialized)');
 
       final ref = RiverpieContainer();
       final provider = NotifierProvider((ref) => _Counter());
 
-      expect(ref.notifier(provider).toString(), '_Counter(state: 33)');
+      expect(ref.notifier(provider).toString(),
+          '_Counter(label: _Counter, state: 33)');
     });
 
     test(PureNotifier, () {
       final ref = RiverpieContainer();
       final provider = NotifierProvider((ref) => _PureCounter());
 
-      expect(ref.notifier(provider).toString(), '_PureCounter(state: 44)');
+      expect(ref.notifier(provider).toString(),
+          '_PureCounter(label: _PureCounter, state: 44)');
     });
 
     test(AsyncNotifier, () async {
@@ -52,9 +55,11 @@ void main() {
       final provider = AsyncNotifierProvider((ref) => _AsyncCounter());
       final notifier = ref.notifier(provider);
 
-      expect(notifier.toString(), '_AsyncCounter(state: AsyncLoading<int>)');
+      expect(notifier.toString(),
+          '_AsyncCounter(label: _AsyncCounter, state: AsyncLoading<int>)');
       await skipAllMicrotasks();
-      expect(notifier.toString(), '_AsyncCounter(state: AsyncData<int>(55))');
+      expect(notifier.toString(),
+          '_AsyncCounter(label: _AsyncCounter, state: AsyncData<int>(55))');
     });
 
     test(StateNotifier, () {
@@ -63,7 +68,7 @@ void main() {
 
       expect(
         ref.notifier(provider).toString(),
-        'StateNotifier<int>(state: 66)',
+        'StateNotifier<int>(label: StateProvider<int>, state: 66)',
       );
     });
 
@@ -73,7 +78,7 @@ void main() {
 
       expect(
         ref.anyNotifier(provider).toString(),
-        'ViewProviderNotifier<int>(state: 77)',
+        'ViewProviderNotifier<int>(label: ViewProvider<int>, state: 77)',
       );
     });
   });

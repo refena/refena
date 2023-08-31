@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/notifier/redux_action.dart';
@@ -7,7 +8,10 @@ import 'package:riverpie/src/provider/base_provider.dart';
 const _eq = IterableEquality();
 
 /// The base event.
-sealed class RiverpieEvent {}
+sealed class RiverpieEvent with LabeledReference {
+  @override
+  String get debugLabel => runtimeType.toString();
+}
 
 /// A flag that is applied for [ChangeEvent] and [RebuildEvent].
 sealed class AbstractChangeEvent<T> extends RiverpieEvent {
@@ -275,7 +279,7 @@ class ActionDispatchedEvent extends RiverpieEvent {
 
   /// The actual reference to the origin.
   /// This may be the notifier, the action, or the rebuildable.
-  final Object debugOriginRef;
+  final LabeledReference debugOriginRef;
 
   /// The corresponding notifier.
   final BaseNotifier notifier;
@@ -371,7 +375,7 @@ class MessageEvent extends RiverpieEvent {
 
   /// The origin of the message.
   /// This may be the global scope, the action, or the rebuildable.
-  final Object origin;
+  final LabeledReference origin;
 
   MessageEvent(this.message, this.origin);
 

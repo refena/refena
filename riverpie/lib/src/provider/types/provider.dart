@@ -12,14 +12,15 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
   @internal
   final T Function(Ref ref) builder;
 
-  Provider(this.builder, {super.debugLabel});
+  Provider(this.builder, {String? debugLabel})
+      : super(debugLabel: debugLabel ?? 'Provider<$T>');
 
   @internal
   @override
   ImmutableNotifier<T> createState(Ref ref) {
     return ImmutableNotifier(
       builder(ref),
-      debugLabel: debugLabel ?? runtimeType.toString(),
+      debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
   }
 
@@ -31,7 +32,7 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
       provider: this,
       createState: (ref) => ImmutableNotifier(
         value,
-        debugLabel: debugLabel ?? runtimeType.toString(),
+        debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
     );
   }
@@ -44,7 +45,7 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
       provider: this,
       createState: (ref) => ImmutableNotifier(
         builder(ref),
-        debugLabel: debugLabel ?? runtimeType.toString(),
+        debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
     );
   }
@@ -58,7 +59,7 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
       provider: this,
       createState: (ref) async => ImmutableNotifier(
         await builder(ref),
-        debugLabel: debugLabel ?? runtimeType.toString(),
+        debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
     );
   }

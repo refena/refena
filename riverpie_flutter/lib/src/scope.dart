@@ -127,4 +127,11 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
 
   @override
   String get debugOwnerLabel => 'RiverpieScope';
+
+  @override
+  String get debugLabel => debugOwnerLabel;
+
+  @override
+  bool compareIdentity(LabeledReference other) =>
+      _container.compareIdentity(other);
 }

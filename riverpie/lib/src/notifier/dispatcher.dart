@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/redux_action.dart';
 
@@ -25,7 +26,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   final String debugOrigin;
 
   /// The origin reference of the dispatched action.
-  final Object debugOriginRef;
+  final LabeledReference debugOriginRef;
 
   /// Dispatches an [action] to the [notifier].
   /// Returns the new state.

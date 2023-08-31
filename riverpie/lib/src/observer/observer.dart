@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/container.dart';
+import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
@@ -8,7 +9,7 @@ import 'package:riverpie/src/ref.dart';
 
 /// The observer receives every [RiverpieEvent].
 /// It is up to the implementation of how to use it.
-abstract class RiverpieObserver {
+abstract class RiverpieObserver with LabeledReference {
   RiverpieObserver();
 
   late Ref _ref;
@@ -25,6 +26,7 @@ abstract class RiverpieObserver {
   void handleEvent(RiverpieEvent event);
 
   /// Override this getter to provide a custom label.
+  @override
   String get debugLabel => runtimeType.toString();
 
   @internal

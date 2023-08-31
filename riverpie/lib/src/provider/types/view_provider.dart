@@ -14,13 +14,14 @@ class ViewProvider<T> extends BaseWatchableProvider<ViewProviderNotifier<T>, T>
   @internal
   final T Function(WatchableRef ref) builder;
 
-  ViewProvider(this.builder, {super.debugLabel});
+  ViewProvider(this.builder, {String? debugLabel})
+      : super(debugLabel: debugLabel ?? 'ViewProvider<$T>');
 
   @override
   ViewProviderNotifier<T> createState(Ref ref) {
     return ViewProviderNotifier<T>(
       builder,
-      debugLabel: debugLabel ?? runtimeType.toString(),
+      debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
   }
 
@@ -31,7 +32,7 @@ class ViewProvider<T> extends BaseWatchableProvider<ViewProviderNotifier<T>, T>
       provider: this,
       createState: (_) => ViewProviderNotifier(
         builder,
-        debugLabel: debugLabel ?? runtimeType.toString(),
+        debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
     );
   }

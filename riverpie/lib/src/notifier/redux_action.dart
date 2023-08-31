@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/dispatcher.dart';
 import 'package:riverpie/src/observer/event.dart';
@@ -11,7 +12,8 @@ import 'package:riverpie/src/ref.dart';
 
 /// The action that is dispatched by a [ReduxNotifier].
 /// You should use [ReduxAction] or [AsyncReduxAction] instead.
-abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
+abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
+    with LabeledReference {
   BaseReduxAction();
 
   /// Override this to have some logic before the action is dispatched.
@@ -138,22 +140,24 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R> {
 
   /// The debug label of the action.
   /// Override this getter to provide a custom label.
+  @override
   String get debugLabel => '$runtimeType';
 
   RiverpieObserver? _observer;
 
-  late Ref _ref;
+  Ref? _ref;
 
   late N _notifier;
 
   /// Provides access to [Ref].
   /// To access external notifiers, you should use dependency injection.
   /// This getter is used by addons to allow dispatching global actions.
+  /// This might be null in unit tests, when used without [RiverpieContainer].
   @internal
-  Ref get internalRef => _ref;
+  Ref? get internalRef => _ref;
 
   @internal
-  void internalSetup(Ref ref, N notifier, RiverpieObserver? observer) {
+  void internalSetup(Ref? ref, N notifier, RiverpieObserver? observer) {
     _ref = ref;
     _notifier = notifier;
     _observer = observer;

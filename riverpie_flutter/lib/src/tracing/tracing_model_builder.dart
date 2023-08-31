@@ -100,8 +100,9 @@ _TracingEntry? _findEventWithAction(
     List<_TracingEntry> result, BaseReduxAction action) {
   for (final entry in result.reversed) {
     if (entry.event.event is ActionDispatchedEvent) {
-      if (identical(
-          (entry.event.event as ActionDispatchedEvent).action, action)) {
+      if ((entry.event.event as ActionDispatchedEvent)
+          .action
+          .compareIdentity(action)) {
         return entry;
       }
     }
@@ -123,7 +124,7 @@ void _findEvent(
   for (final entry in result.reversed) {
     _findEvent(entry.children, event, found);
 
-    if (identical(entry.event.event, event)) {
+    if (entry.event.event.compareIdentity(event)) {
       found.add(entry);
     }
   }
@@ -165,10 +166,10 @@ bool _contains(_TracingEntry entry, String query) {
     MessageEvent event => event.message.toLowerCase().contains(query),
     ListenerAddedEvent event =>
       event.rebuildable.debugLabel.toLowerCase().contains(query) ||
-          event.notifier.debugLabel?.toLowerCase().contains(query) == true,
+          event.notifier.debugLabel.toLowerCase().contains(query),
     ListenerRemovedEvent event =>
       event.rebuildable.debugLabel.toLowerCase().contains(query) ||
-          event.notifier.debugLabel?.toLowerCase().contains(query) == true,
+          event.notifier.debugLabel.toLowerCase().contains(query),
   };
 
   if (contains) {

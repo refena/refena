@@ -52,12 +52,12 @@ class FakeRebuildEvent implements RebuildEvent {
 
   @override
   Type get stateType => throw UnimplementedError();
-}
 
-extension on BaseNotifier {
-  String get customDebugLabel {
-    return debugLabel ?? runtimeType.toString();
-  }
+  @override
+  String get debugLabel => throw UnimplementedError();
+
+  @override
+  bool compareIdentity(LabeledReference other) => throw UnimplementedError();
 }
 
 extension on RiverpieEvent {

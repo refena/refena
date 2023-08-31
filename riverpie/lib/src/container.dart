@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/dispatcher.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
@@ -23,7 +24,7 @@ import 'package:riverpie/src/ref.dart';
 ///
 /// You can override a provider by passing [overrides] to the constructor.
 /// In this case, the state of the provider is initialized right away.
-class RiverpieContainer extends Ref {
+class RiverpieContainer extends Ref with LabeledReference {
   /// Creates a [RiverpieContainer].
   /// The [overrides] are used to override providers with a different value.
   /// The [initialProviders] are used to initialize providers right away.
@@ -146,7 +147,7 @@ class RiverpieContainer extends Ref {
         );
         if (overrideIndex > _overrideIndex) {
           throw ArgumentError(
-              '[${_overridesList[_overrideIndex].provider}] depends on [$provider] which is overridden later. Reorder future overrides.');
+              '[${_overridesList[_overrideIndex].provider.debugLabel}] depends on [${provider.debugLabel}] which is overridden later. Reorder future overrides.');
         } else {
           throw StateError(
               'Future override not yet initialized. Call await RiverpieContainer.ensureOverrides() first.');
@@ -243,7 +244,7 @@ class RiverpieContainer extends Ref {
   RiverpieContainer _withNotifierLabel(BaseNotifier notifier) {
     return ProxyContainer(
       this,
-      notifier.debugLabel ?? notifier.runtimeType.toString(),
+      notifier.debugLabel,
       notifier,
     );
   }
@@ -253,10 +254,13 @@ class RiverpieContainer extends Ref {
   ) {
     return ProxyContainer(
       this,
-      provider.debugLabel ?? N.toString(),
+      provider.debugLabel,
       provider,
     );
   }
+
+  @override
+  String get debugLabel => debugOwnerLabel;
 }
 
 Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)>? _overridesToMap(

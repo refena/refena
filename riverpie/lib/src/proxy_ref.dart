@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/dispatcher.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
@@ -21,7 +22,7 @@ class ProxyRef implements Ref {
   @override
   final String debugOwnerLabel;
 
-  final Object _debugOriginRef;
+  final LabeledReference _debugOriginRef;
 
   @override
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {

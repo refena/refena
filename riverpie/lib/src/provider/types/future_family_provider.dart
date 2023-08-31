@@ -21,7 +21,7 @@ class FutureFamilyProvider<T, P> extends BaseProvider<
   @override
   FutureFamilyProviderNotifier<T, P> createState(Ref ref) {
     return FutureFamilyProviderNotifier(builder,
-        debugLabel: debugLabel ?? 'FutureFamilyProvider<$T>');
+        debugLabel: customDebugLabel ?? 'FutureFamilyProvider<$T>');
   }
 
   ProviderOverride<FutureFamilyProviderNotifier<T, P>, Map<P, AsyncValue<T>>>
@@ -30,8 +30,10 @@ class FutureFamilyProvider<T, P> extends BaseProvider<
   ) {
     return ProviderOverride(
       provider: this,
-      createState: (ref) => FutureFamilyProviderNotifier(builder(ref),
-          debugLabel: debugLabel ?? runtimeType.toString()),
+      createState: (ref) => FutureFamilyProviderNotifier(
+        builder(ref),
+        debugLabel: customDebugLabel ?? runtimeType.toString(),
+      ),
     );
   }
 

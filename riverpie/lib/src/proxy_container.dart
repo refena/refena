@@ -1,4 +1,5 @@
 import 'package:riverpie/src/container.dart';
+import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/dispatcher.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
@@ -20,7 +21,7 @@ class ProxyContainer implements RiverpieContainer {
   @override
   final String debugOwnerLabel;
 
-  final Object _debugOriginRef;
+  final LabeledReference _debugOriginRef;
 
   @override
   Future<void> ensureOverrides() {
@@ -82,4 +83,11 @@ class ProxyContainer implements RiverpieContainer {
 
   @override
   RiverpieObserver? get observer => _container.observer;
+
+  @override
+  String get debugLabel => _debugOriginRef.debugLabel;
+
+  @override
+  bool compareIdentity(LabeledReference other) =>
+      _container.compareIdentity(other);
 }

@@ -17,18 +17,21 @@ import 'package:riverpie/src/ref.dart';
 class StateProvider<T> extends NotifierProvider<StateNotifier<T>, T>
     with ProviderSelectMixin<StateNotifier<T>, T>
     implements NotifyableProvider<StateNotifier<T>, T> {
-  StateProvider(T Function(Ref ref) builder, {super.debugLabel})
-      : super((ref) => StateNotifier<T>(
-              builder(ref),
-              debugLabel: debugLabel ?? 'StateProvider<$T>',
-            ));
+  StateProvider(T Function(Ref ref) builder, {String? debugLabel})
+      : super(
+          (ref) => StateNotifier<T>(
+            builder(ref),
+            debugLabel: debugLabel ?? 'StateProvider<$T>',
+          ),
+          debugLabel: debugLabel ?? 'StateProvider<$T>',
+        );
 
   ProviderOverride overrideWithInitialState(T Function(Ref ref) builder) {
     return ProviderOverride<StateNotifier<T>, T>(
       provider: this,
       createState: (ref) => StateNotifier<T>(
         builder(ref),
-        debugLabel: debugLabel ?? runtimeType.toString(),
+        debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
     );
   }

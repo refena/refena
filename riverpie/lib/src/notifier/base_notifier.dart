@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/async_value.dart';
 import 'package:riverpie/src/container.dart';
+import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
@@ -13,8 +14,6 @@ import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
 import 'package:riverpie/src/ref.dart';
 import 'package:riverpie/src/util/batched_stream_controller.dart';
-
-const _absent = Object();
 
 /// This enum controls the default behaviour of [updateShouldNotify].
 /// Keep in mind that you can override [updateShouldNotify] in your notifiers
@@ -31,11 +30,10 @@ enum NotifyStrategy {
 }
 
 @internal
-abstract class BaseNotifier<T> {
+abstract class BaseNotifier<T> with LabeledReference {
   bool _initialized = false;
   RiverpieObserver? _observer;
-
-  final String? debugLabel;
+  final String? _debugLabel;
 
   late final NotifyStrategy _notifyStrategy;
 
@@ -46,7 +44,7 @@ abstract class BaseNotifier<T> {
   /// A collection of listeners
   late final NotifierListeners<T> _listeners;
 
-  BaseNotifier({this.debugLabel});
+  BaseNotifier({String? debugLabel}) : _debugLabel = debugLabel;
 
   /// Gets the current state.
   @nonVirtual
@@ -110,6 +108,9 @@ abstract class BaseNotifier<T> {
     }
   }
 
+  @override
+  String get debugLabel => _debugLabel ?? runtimeType.toString();
+
   /// Handles the actual initialization of the notifier.
   /// Calls [init] internally.
   @internal
@@ -127,7 +128,7 @@ abstract class BaseNotifier<T> {
 
   @override
   String toString() {
-    return '$runtimeType(state: ${_initialized ? _state : 'uninitialized'})';
+    return '$runtimeType(label: $debugLabel, state: ${_initialized ? _state : 'uninitialized'})';
   }
 }
 
@@ -291,9 +292,6 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
 
   @override
   bool get disposed => false;
-
-  @override
-  String get debugLabel => super.debugLabel ?? runtimeType.toString();
 }
 
 /// A notifier where the state can be updated by dispatching actions
@@ -324,7 +322,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   T dispatch(
     SynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
     String? debugOrigin,
-    Object debugOriginRef = _absent,
+    LabeledReference? debugOriginRef,
   }) {
     return _dispatchWithResult<dynamic>(
       action,
@@ -340,7 +338,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   (T, R) dispatchWithResult<R>(
     ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
-    Object debugOriginRef = _absent,
+    LabeledReference? debugOriginRef,
   }) {
     return _dispatchWithResult<R>(
       action,
@@ -356,7 +354,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   R dispatchTakeResult<R>(
     ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
-    Object debugOriginRef = _absent,
+    LabeledReference? debugOriginRef,
   }) {
     return _dispatchWithResult<R>(
       action,
@@ -369,11 +367,11 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   (T, R) _dispatchWithResult<R>(
     SynchronousReduxAction<BaseReduxNotifier<T>, T, R> action, {
     required String? debugOrigin,
-    required Object debugOriginRef,
+    required LabeledReference? debugOriginRef,
   }) {
     _observer?.handleEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
-      debugOriginRef: debugOriginRef == _absent ? this : debugOriginRef,
+      debugOriginRef: debugOriginRef ?? this,
       notifier: this,
       action: action,
     ));
@@ -449,7 +447,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<T> dispatchAsync(
     AsynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
     String? debugOrigin,
-    Object debugOriginRef = _absent,
+    LabeledReference? debugOriginRef,
   }) async {
     final (state, _) = await _dispatchAsyncWithResult<dynamic>(
       action,
@@ -466,7 +464,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<(T, R)> dispatchAsyncWithResult<R>(
     AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
-    Object debugOriginRef = _absent,
+    LabeledReference? debugOriginRef,
   }) async {
     return _dispatchAsyncWithResult<R>(
       action,
@@ -482,7 +480,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<R> dispatchAsyncTakeResult<R>(
     AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
-    Object debugOriginRef = _absent,
+    LabeledReference? debugOriginRef,
   }) async {
     final (_, result) = await _dispatchAsyncWithResult<R>(
       action,
@@ -497,11 +495,11 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   Future<(T, R)> _dispatchAsyncWithResult<R>(
     AsynchronousReduxAction<BaseReduxNotifier<T>, T, R> action, {
     required String? debugOrigin,
-    required Object debugOriginRef,
+    required LabeledReference? debugOriginRef,
   }) async {
     _observer?.handleEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
-      debugOriginRef: debugOriginRef == _absent ? this : debugOriginRef,
+      debugOriginRef: debugOriginRef ?? this,
       notifier: this,
       action: action,
     ));
@@ -581,7 +579,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     throw UnsupportedError('Not allowed to set state directly');
   }
 
-  late Ref _ref;
+  Ref? _ref;
 
   /// Initializes the state of the notifier.
   /// This method is called only once and

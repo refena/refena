@@ -33,7 +33,7 @@ mixin AddonActions<N extends BaseReduxNotifier<T>, T, R>
     on BaseReduxAction<N, T, R> {
   /// Access the addon dispatcher.
   late final addon = AddonActionsDispatcher(ProxyRef(
-    internalRef,
+    internalRef!,
     debugLabel,
     this,
   ));

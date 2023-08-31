@@ -1,5 +1,6 @@
 export 'package:riverpie/src/async_value.dart';
 export 'package:riverpie/src/container.dart';
+export 'package:riverpie/src/labeled_reference.dart';
 export 'package:riverpie/src/notifier/base_notifier.dart'
     show ReduxNotifierOverrideExt, MockReducer, TestableReduxNotifier;
 export 'package:riverpie/src/notifier/base_notifier.dart'

@@ -1,9 +1,10 @@
 import 'package:meta/meta.dart';
-import 'package:riverpie/riverpie.dart';
+import 'package:riverpie/src/labeled_reference.dart';
+import 'package:riverpie/src/observer/event.dart';
 
 /// Something that can be rebuilt.
 @internal
-abstract class Rebuildable {
+abstract class Rebuildable with LabeledReference {
   /// Schedule a rebuild (in the next frame).
   /// Optionally pass the [changeEvent], or [rebuildEvent]
   /// that triggered the rebuild.
@@ -15,5 +16,6 @@ abstract class Rebuildable {
   bool get disposed;
 
   /// A debug label for this [Rebuildable].
+  @override
   String get debugLabel;
 }

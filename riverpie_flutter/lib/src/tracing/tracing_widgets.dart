@@ -92,9 +92,9 @@ class _EntryTileState extends State<_EntryTile> {
                                   event.provider.toString(),
                                 MessageEvent event => event.message,
                                 ListenerAddedEvent event =>
-                                  '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
+                                  '${event.rebuildable.debugLabel} on ${event.notifier.debugLabel}',
                                 ListenerRemovedEvent event =>
-                                  '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
+                                  '${event.rebuildable.debugLabel} on ${event.notifier.debugLabel}',
                               },
                               style: TextStyle(
                                 color: switch (widget.entry.error?.lifecycle) {
@@ -172,7 +172,7 @@ class _EntryTileState extends State<_EntryTile> {
                         error: widget.entry.error,
                         attributes: switch (widget.entry.event.event) {
                           ChangeEvent event => {
-                              'Notifier': event.notifier.customDebugLabel,
+                              'Notifier': event.notifier.debugLabel,
                               if (event.action != null)
                                 'Triggered by': event.action!.debugLabel,
                               'Prev': event.prev.toString(),
@@ -188,7 +188,7 @@ class _EntryTileState extends State<_EntryTile> {
                               : {
                                   'Notifier': event.rebuildable is BaseNotifier
                                       ? (event.rebuildable as BaseNotifier)
-                                          .customDebugLabel
+                                          .debugLabel
                                       : '',
                                   'Triggered by': event.causes
                                       .map((e) => e.stateType.toString())
@@ -203,7 +203,7 @@ class _EntryTileState extends State<_EntryTile> {
                                 },
                           ActionDispatchedEvent event => {
                               'Origin': event.debugOrigin,
-                              'Action Group': event.notifier.customDebugLabel,
+                              'Action Group': event.notifier.debugLabel,
                               'Action': event.action.toString(),
                             },
                           ActionErrorEvent _ => {},
@@ -220,11 +220,11 @@ class _EntryTileState extends State<_EntryTile> {
                             },
                           ListenerAddedEvent event => {
                               'Rebuildable': event.rebuildable.debugLabel,
-                              'Notifier': event.notifier.customDebugLabel,
+                              'Notifier': event.notifier.debugLabel,
                             },
                           ListenerRemovedEvent event => {
                               'Rebuildable': event.rebuildable.debugLabel,
-                              'Notifier': event.notifier.customDebugLabel,
+                              'Notifier': event.notifier.debugLabel,
                             },
                         },
                       ),

@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/provider/types/change_notifier_provider.dart';
 import 'package:riverpie/src/provider/types/future_family_provider.dart';
@@ -9,18 +10,20 @@ import 'package:riverpie/src/ref.dart';
 /// A "provider" is stateless.
 ///
 /// You may add a [debugLabel] for better logging.
-abstract class BaseProvider<N extends BaseNotifier<T>, T> {
-  final String? debugLabel;
+abstract class BaseProvider<N extends BaseNotifier<T>, T>
+    with LabeledReference {
+  final String? customDebugLabel;
 
-  BaseProvider({this.debugLabel});
+  @override
+  String get debugLabel => customDebugLabel ?? N.toString();
+
+  BaseProvider({String? debugLabel}) : customDebugLabel = debugLabel;
 
   @internal
   N createState(Ref ref);
 
   @override
-  String toString() {
-    return debugLabel ?? runtimeType.toString();
-  }
+  String toString() => '$runtimeType(label: $debugLabel)';
 }
 
 /// A provider with default behaviour for [WatchableRef.watch].
