@@ -1,9 +1,9 @@
-// ignore_for_file: invalid_use_of_internal_member
-
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:riverpie/riverpie.dart';
 
 // ignore: implementation_imports
 import 'package:riverpie/src/notifier/base_notifier.dart';
@@ -12,9 +12,8 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 
 // ignore: implementation_imports
-import 'package:riverpie/src/observer/tracing_observer.dart';
-import 'package:riverpie_flutter/riverpie_flutter.dart';
 import 'package:riverpie_flutter/src/element_rebuildable.dart';
+import 'package:riverpie_flutter/src/mixin.dart';
 
 part 'tracing_model.dart';
 

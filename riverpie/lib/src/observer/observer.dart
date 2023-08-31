@@ -146,7 +146,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
         final label =
             _getProviderDebugLabel(null, event.rebuildable as BaseNotifier);
         final causes =
-            ' triggered by [${event.causes.map((c) => c.toString()).join(', ')}]';
+            ' triggered by [${event.causes.map((c) => c.debugLabel).join(', ')}]';
         _line('Rebuild by [$label]$causes', intentWhenLogger: true);
         _line(
           ' - Prev: ${event.prev.toString().toSingleLine()}',
@@ -196,7 +196,7 @@ class RiverpieDebugObserver extends RiverpieObserver {
       case ActionErrorEvent event:
         final label = _getProviderDebugLabel(null, event.action.notifier);
         _line(
-          'Action error: [$label.${event.action.debugLabel}] has thrown the following error:',
+          'Action error: [$label.${event.action.debugLabel}.${event.lifecycle.name}] has thrown the following error:',
           error: event.error,
           stackTrace: event.stackTrace,
         );

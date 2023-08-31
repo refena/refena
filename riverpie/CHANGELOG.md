@@ -1,5 +1,6 @@
 ## 0.21.0
 
+- feat: add `addon` to `ReduxAction`
 - **BREAKING**: change `ref.emitMessage` to `ref.message`
 
 ## 0.20.0

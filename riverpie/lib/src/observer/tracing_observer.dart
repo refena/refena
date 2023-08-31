@@ -1,6 +1,5 @@
 import 'dart:collection';
 
-import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/types/change_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
@@ -47,12 +46,11 @@ class RiverpieTracingObserver extends RiverpieObserver {
   }
 }
 
-@internal
 final tracingProvider = ChangeNotifierProvider((ref) {
-  return _TracingNotifier();
+  return TracingNotifier();
 });
 
-class _TracingNotifier extends ChangeNotifier {
+class TracingNotifier extends ChangeNotifier {
   int _limit = 100;
   bool _initialized = false;
   final Queue<TimedRiverpieEvent> events = Queue();
@@ -80,12 +78,11 @@ class _TracingNotifier extends ChangeNotifier {
   }
 }
 
-@internal
 class TimedRiverpieEvent {
   final DateTime timestamp;
   final RiverpieEvent event;
 
-  TimedRiverpieEvent({
+  const TimedRiverpieEvent({
     required this.timestamp,
     required this.event,
   });

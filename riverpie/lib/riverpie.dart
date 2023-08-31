@@ -20,8 +20,7 @@ export 'package:riverpie/src/notifier/types/state_notifier.dart';
 export 'package:riverpie/src/observer/event.dart';
 export 'package:riverpie/src/observer/history_observer.dart';
 export 'package:riverpie/src/observer/observer.dart';
-export 'package:riverpie/src/observer/tracing_observer.dart'
-    show RiverpieTracingObserver;
+export 'package:riverpie/src/observer/tracing_observer.dart';
 export 'package:riverpie/src/provider/override.dart';
 export 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 export 'package:riverpie/src/provider/types/change_notifier_provider.dart';

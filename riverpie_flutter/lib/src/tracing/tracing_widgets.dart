@@ -135,8 +135,7 @@ class _EntryTileState extends State<_EntryTile> {
                             MessageEvent e when e.origin is Rebuildable => [
                                 const SizedBox(width: 8),
                                 _EntryBadge(
-                                  label:
-                                      'from: ${(e.origin as Rebuildable).debugLabel}',
+                                  label: 'from: ${e.origin.debugLabel}',
                                   color: _headerColor[e.internalType]!,
                                 ),
                               ],

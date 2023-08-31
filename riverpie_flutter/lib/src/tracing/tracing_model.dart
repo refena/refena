@@ -57,7 +57,7 @@ class FakeRebuildEvent implements RebuildEvent {
   String get debugLabel => throw UnimplementedError();
 
   @override
-  bool compareIdentity(LabeledReference other) => throw UnimplementedError();
+  bool compareIdentity(LabeledReference other) => _rebuildable.compareIdentity(other);
 }
 
 extension on RiverpieEvent {
