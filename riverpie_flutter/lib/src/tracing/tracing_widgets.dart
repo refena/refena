@@ -68,48 +68,71 @@ class _EntryTileState extends State<_EntryTile> {
                       setState(() => _expanded = !_expanded);
                     },
                     child: Container(
-                      padding: const EdgeInsets.all(8),
+                      padding: const EdgeInsets.only(left: 8),
                       decoration: BoxDecoration(
                         color: _backgroundColor[
                             widget.entry.event.event.internalType],
                       ),
                       child: Row(
                         children: [
-                          Text(
-                            switch (widget.entry.event.event) {
-                              ChangeEvent event => event.stateType.toString(),
-                              RebuildEvent event => widget.entry.isWidget
-                                  ? event.rebuildable.debugLabel
-                                  : event.stateType.toString(),
-                              ActionDispatchedEvent event =>
-                                '${event.action.debugLabel}${widget.depth == 0 ? ' (${event.debugOrigin})' : ''}',
-                              ActionErrorEvent _ => '',
-                              ProviderInitEvent event =>
-                                event.provider.toString(),
-                              ProviderDisposeEvent event =>
-                                event.provider.toString(),
-                              MessageEvent event => event.message,
-                              ListenerAddedEvent event =>
-                                '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
-                              ListenerRemovedEvent event =>
-                                '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
-                            },
-                            style: TextStyle(
-                              color: switch (widget.entry.error?.lifecycle) {
-                                null => null,
-                                ActionLifecycle.before => Colors.red,
-                                ActionLifecycle.reduce => Colors.red,
-                                ActionLifecycle.after => Colors.orange,
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            child: Text(
+                              switch (widget.entry.event.event) {
+                                ChangeEvent event => event.stateType.toString(),
+                                RebuildEvent event => widget.entry.isWidget
+                                    ? event.rebuildable.debugLabel
+                                    : event.stateType.toString(),
+                                ActionDispatchedEvent event =>
+                                  event.action.debugLabel,
+                                ActionErrorEvent _ => '',
+                                ProviderInitEvent event =>
+                                  event.provider.toString(),
+                                ProviderDisposeEvent event =>
+                                  event.provider.toString(),
+                                MessageEvent event => event.message,
+                                ListenerAddedEvent event =>
+                                  '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
+                                ListenerRemovedEvent event =>
+                                  '${event.rebuildable.debugLabel} on ${event.notifier.customDebugLabel}',
                               },
-                              decoration: widget.entry.superseded
-                                  ? TextDecoration.lineThrough
-                                  : null,
+                              style: TextStyle(
+                                color: switch (widget.entry.error?.lifecycle) {
+                                  null => null,
+                                  ActionLifecycle.before => Colors.red,
+                                  ActionLifecycle.reduce => Colors.red,
+                                  ActionLifecycle.after => Colors.orange,
+                                },
+                                decoration: widget.entry.superseded
+                                    ? TextDecoration.lineThrough
+                                    : null,
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            overflow: TextOverflow.ellipsis,
                           ),
+                          ...switch (widget.entry.event.event) {
+                            ActionDispatchedEvent e
+                                when e.debugOriginRef is Rebuildable =>
+                              [
+                                const SizedBox(width: 8),
+                                _EntryBadge(
+                                  label: 'from: ${e.debugOrigin}',
+                                  color: _headerColor[e.internalType]!,
+                                ),
+                              ],
+                            MessageEvent e when e.origin is Rebuildable => [
+                                const SizedBox(width: 8),
+                                _EntryBadge(
+                                  label:
+                                      'from: ${(e.origin as Rebuildable).debugLabel}',
+                                  color: _headerColor[e.internalType]!,
+                                ),
+                              ],
+                            _ => [],
+                          },
                           if (widget.entry.error != null)
                             Padding(
-                              padding: const EdgeInsets.only(left: 5),
+                              padding: const EdgeInsets.only(left: 8),
                               child: switch (widget.entry.error!.lifecycle) {
                                 ActionLifecycle.before => Icon(Icons.error,
                                     size: 16, color: Colors.red),
@@ -246,6 +269,34 @@ class _EntryCharacterBox extends StatelessWidget {
           _EventType.listenerRemoved => 'LR',
         },
         textAlign: TextAlign.center,
+      ),
+    );
+  }
+}
+
+class _EntryBadge extends StatelessWidget {
+  final String label;
+  final Color color;
+
+  const _EntryBadge({
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(5),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 12,
+          color: Colors.black,
+        ),
       ),
     );
   }
