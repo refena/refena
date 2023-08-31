@@ -78,12 +78,12 @@ class IncrementAction extends ReduxAction<Counter, int> {
 ```
 
 ```dart
-int newState = context.ref.redux(counterProvider).dispatch(IncrementAction());
+int newState = ref.redux(counterProvider).dispatch(IncrementAction());
 ```
 
 ### ➤ AsyncReduxAction
 
-This action is used when you want to perform asynchronous operations. The state is altered asynchronously.
+This action is used when you want to perform asynchronous operations.
 
 ```dart
 class IncrementAction extends AsyncReduxAction<Counter, int> {
@@ -96,7 +96,7 @@ class IncrementAction extends AsyncReduxAction<Counter, int> {
 ```
 
 ```dart
-int newState = await context.ref.redux(counterProvider).dispatchAsync(IncrementAction());
+int newState = await ref.redux(counterProvider).dispatchAsync(IncrementAction());
 ```
 
 ### ➤ ReduxActionWithResult
@@ -107,8 +107,6 @@ There are multiple plausible scenarios for this:
 
 - The feedback is not relevant to the state.
 - The feedback is too big to be saved in the state (e.g., binary data)
-
-The state is altered synchronously.
 
 ```dart
 enum IncrementResult {
@@ -130,18 +128,18 @@ class IncrementAction extends ReduxActionWithResult<Counter, int, IncrementResul
 
 ```dart
 // get new state and result
-final (newState, result) = context.ref.redux(counterProvider).dispatchWithResult(IncrementAction());
+final (newState, result) = ref.redux(counterProvider).dispatchWithResult(IncrementAction());
 
 // dispatch but only get the result
-final result = context.ref.redux(counterProvider).dispatchTakeResult(IncrementAction());
+final result = ref.redux(counterProvider).dispatchTakeResult(IncrementAction());
 ```
 
 ### ➤ AsyncReduxActionWithResult
 
-The pendant to `ReduxActionWithResult` for asynchronous actions.
+The counterpart to `ReduxActionWithResult` for asynchronous actions.
 
 ```dart
-class LoginAction extends AsyncReduxActionWithResult<AuthService, AuthState, String> {
+class LoginAction extends AsyncReduxActionWithResult<AuthService, AuthState, String?> {
   final String email;
   final String password;
 
@@ -161,7 +159,7 @@ class LoginAction extends AsyncReduxActionWithResult<AuthService, AuthState, Str
 
 ```dart
 void loginHandler() async {
-  final token = await context.ref.redux(authProvider).dispatchAsyncTakeResult(LoginAction(email, password));
+  final token = await ref.redux(authProvider).dispatchAsyncTakeResult(LoginAction(email, password));
   if (token != null) {
     // navigate to home
   } else {

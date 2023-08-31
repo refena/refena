@@ -6,7 +6,8 @@
 
 /ˈrɪvər-paɪ/
 
-A state management library for Dart and Flutter. Inspired by [Riverpod](https://pub.dev/packages/riverpod).
+A state management library for Dart and Flutter.
+Inspired by [Riverpod](https://pub.dev/packages/riverpod) and [async_redux](https://pub.dev/packages/async_redux).
 
 ## Preview
 
@@ -860,7 +861,7 @@ This might be handy if you have a `RiverpieTracingPage`.
 ref.message('Hello World');
 ```
 
-Within `ReduxAction`, this method is available as `emitMessage`.
+Inside a `ReduxAction`, this method is available as `emitMessage`.
 
 ## What to choose?
 

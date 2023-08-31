@@ -75,6 +75,12 @@ class MyPage extends StatelessWidget {
                 ),
                 FilledButton(
                   onPressed: () {
+                    context.ref.redux(notListenedProvider).dispatch(NotListenedAction());
+                  },
+                  child: Text('Action without rebuild'),
+                ),
+                FilledButton(
+                  onPressed: () {
                     context.ref.notifier(randomProvider).increment();
                   },
                   child: Text('Notifier Change'),
@@ -195,6 +201,18 @@ class RandomService extends Notifier<RandomState> {
   void increment() {
     state = RandomState(random.nextInt(5));
   }
+}
+
+final notListenedProvider = ReduxProvider((ref) => NotListenedService());
+
+class NotListenedService extends ReduxNotifier<int> {
+  @override
+  int init() => 0;
+}
+
+class NotListenedAction extends ReduxAction<NotListenedService, int> {
+  @override
+  int reduce() => state + 1;
 }
 
 class CounterVm {
