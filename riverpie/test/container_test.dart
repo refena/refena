@@ -60,6 +60,35 @@ void main() {
         ],
       );
     });
+
+    test('Provider should be alive during onDispose hook', () {
+      final ref = RiverpieContainer(observer: observer);
+      int? stateDuringDispose;
+      final notifierProvider = NotifierProvider<_DisposableNotifier, int>(
+        (ref) => _DisposableNotifier(),
+      );
+      ref.notifier(notifierProvider).onDispose = () {
+        stateDuringDispose = ref.read(notifierProvider);
+      };
+
+      expect(ref.read(notifierProvider), 20);
+
+      ref.notifier(notifierProvider).doubleIt();
+      expect(ref.read(notifierProvider), 40);
+
+      ref.dispose(notifierProvider);
+      expect(ref.read(notifierProvider), 20);
+      expect(stateDuringDispose, 40);
+
+      expect(
+        observer.history,
+        [
+          isA<ProviderInitEvent>(),
+          isA<ProviderDisposeEvent>(),
+          isA<ProviderInitEvent>(),
+        ],
+      );
+    });
   });
 
   group('emitMessage', () {
@@ -83,4 +112,21 @@ void main() {
       expect(event.origin, ref);
     });
   });
+}
+
+class _DisposableNotifier extends Notifier<int> {
+  void Function()? onDispose;
+
+  @override
+  int init() => 20;
+
+  void doubleIt() {
+    state *= 2;
+  }
+
+  @override
+  void dispose() {
+    onDispose?.call();
+    super.dispose();
+  }
 }

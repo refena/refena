@@ -3,7 +3,29 @@ import 'dart:async';
 import 'package:riverpie/riverpie.dart';
 import 'package:test/test.dart';
 
+import 'util/skip_microtasks.dart';
+
 void main() {
+  group('ensureOverrides', () {
+    test('Should return immediately if no overrides are specified', () async {
+      final ref = RiverpieContainer();
+      int? delayedValue;
+      Future.delayed(Duration.zero, () {
+        delayedValue = 10;
+      });
+      await ref.ensureOverrides();
+
+      // The next microtask should not be executed yet.
+      expect(delayedValue, null);
+
+      await skipAllMicrotasks();
+
+      expect(delayedValue, 10);
+    });
+
+    // For more tests, see Provider group.
+  });
+
   group(Provider, () {
     test('Should override with plain value', () {
       final provider = Provider((ref) => 123);

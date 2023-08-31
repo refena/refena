@@ -834,7 +834,7 @@ class _MyPageState extends State<MyPage> with Riverpie {
 }
 ```
 
-In a notifier, you can hook into the dispose process by overriding `dispose`.
+In a notifier, you can hook into the disposing process by overriding `dispose`.
 
 ```dart
 class MyNotifier extends Notifier<int> {
@@ -844,6 +844,7 @@ class MyNotifier extends Notifier<int> {
   @override
   void dispose() {
     // custom cleanup logic
+    // everything is still accessible until the end of this method
     super.dispose();
   }
 }
