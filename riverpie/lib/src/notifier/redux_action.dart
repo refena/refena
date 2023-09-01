@@ -29,7 +29,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   N get notifier => _notifier;
 
   /// Returns the current state of the notifier.
-  T get state => notifier.state;
+  T get state => _notifier.state;
 
   /// Dispatches a synchronous action and updates the state.
   /// Returns the new state.
@@ -37,7 +37,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
     SynchronousReduxAction<N, T, dynamic> action, {
     String? debugOrigin,
   }) {
-    return notifier.dispatch(
+    return _notifier.dispatch(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
       debugOriginRef: this,
@@ -50,7 +50,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
     AsynchronousReduxAction<N, T, dynamic> action, {
     String? debugOrigin,
   }) {
-    return notifier.dispatchAsync(
+    return _notifier.dispatchAsync(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
       debugOriginRef: this,
@@ -63,7 +63,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
     ReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
-    return notifier.dispatchWithResult<R2>(
+    return _notifier.dispatchWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
       debugOriginRef: this,
@@ -76,7 +76,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
     ReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
-    return notifier
+    return _notifier
         .dispatchWithResult<R2>(
           action,
           debugOrigin: debugOrigin ?? debugLabel,
@@ -91,7 +91,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
     AsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) async {
-    return notifier.dispatchAsyncWithResult<R2>(
+    return _notifier.dispatchAsyncWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
       debugOriginRef: this,
@@ -104,7 +104,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
     AsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) async {
-    final (_, result) = await notifier.dispatchAsyncWithResult<R2>(
+    final (_, result) = await _notifier.dispatchAsyncWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
       debugOriginRef: this,
