@@ -167,6 +167,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   FutureOr<(T, R)> internalWrapReduce();
 }
 
+@internal
 abstract class SynchronousReduxAction<N extends BaseReduxNotifier<T>, T, R>
     extends BaseReduxAction<N, T, R> {
   SynchronousReduxAction();
@@ -180,6 +181,7 @@ abstract class SynchronousReduxAction<N extends BaseReduxNotifier<T>, T, R>
   (T, R) internalWrapReduce();
 }
 
+@internal
 abstract class AsynchronousReduxAction<N extends BaseReduxNotifier<T>, T, R>
     extends BaseReduxAction<N, T, R> {
   AsynchronousReduxAction();
@@ -251,6 +253,12 @@ abstract class AsyncReduxAction<N extends BaseReduxNotifier<T>, T>
   }
 }
 
+/// The action that is dispatched by a [ReduxNotifier].
+///
+/// This action allows returning an additional result of type [R] that
+/// won't be stored in the state.
+///
+/// Trigger this with [dispatch], [dispatchWithResult] or [dispatchTakeResult].
 abstract class ReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
     extends SynchronousReduxAction<N, T, R> {
   /// The method that returns the new state.
@@ -269,6 +277,13 @@ abstract class ReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
   }
 }
 
+/// The asynchronous action that is dispatched by a [ReduxNotifier].
+///
+/// This action allows returning an additional result of type [R] that
+/// won't be stored in the state.
+///
+/// Trigger this with [dispatchAsync], [dispatchAsyncWithResult] or
+/// [dispatchAsyncTakeResult].
 abstract class AsyncReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
     extends AsynchronousReduxAction<N, T, R> {
   /// The method that returns the new state.

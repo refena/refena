@@ -7,7 +7,8 @@ export 'package:riverpie/src/notifier/base_notifier.dart'
     show NotifyStrategy, ViewProviderNotifier;
 export 'package:riverpie/src/notifier/dispatcher.dart';
 export 'package:riverpie/src/notifier/notifier_event.dart';
-export 'package:riverpie/src/notifier/redux_action.dart';
+export 'package:riverpie/src/notifier/redux_action.dart'
+    hide SynchronousReduxAction, AsynchronousReduxAction;
 export 'package:riverpie/src/notifier/types/async_notifier.dart';
 export 'package:riverpie/src/notifier/types/change_notifier.dart';
 export 'package:riverpie/src/notifier/types/future_family_provider_notifier.dart';
