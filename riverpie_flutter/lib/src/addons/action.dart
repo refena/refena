@@ -59,15 +59,12 @@ class AddonActionsDispatcher {
 /// Dispatches a [AddonAction].
 T _dispatch<T>(Ref ref, AddonAction<T> action) {
   switch (action) {
-    case NavigatePushAction<T> a:
+    case BaseNavigationPushAction<T> a:
       ref.redux(navigationReduxProvider).dispatchAsyncTakeResult(a);
       return null as T;
-    case NavigatePushNamedAction<T> a:
-      ref.redux(navigationReduxProvider).dispatchAsyncTakeResult(a);
-      return null as T;
-    case NavigatePopAction a:
+    case BaseNavigationPopAction a:
       return ref.redux(navigationReduxProvider).dispatch(a);
-    case ShowSnackBarAction a:
+    case BaseShowSnackBarAction a:
       return ref.redux(snackBarReduxProvider).dispatch(a);
     default:
       throw ArgumentError('Unknown action: $action');
@@ -78,9 +75,7 @@ T _dispatch<T>(Ref ref, AddonAction<T> action) {
 /// Returns the result of the action.
 Future<T?> _dispatchAsync<T>(Ref ref, AsyncAddonAction<T> action) async {
   return switch (action) {
-    NavigatePushAction<T> a =>
-      await ref.redux(navigationReduxProvider).dispatchAsyncTakeResult(a),
-    NavigatePushNamedAction<T> a =>
+    BaseNavigationPushAction<T> a =>
       await ref.redux(navigationReduxProvider).dispatchAsyncTakeResult(a),
     _ => throw ArgumentError('Unknown action: $action'),
   };

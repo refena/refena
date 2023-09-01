@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 import 'package:riverpie/riverpie.dart';
 import 'package:riverpie_flutter/src/addons/action.dart';
 
@@ -52,9 +53,9 @@ final navigationReduxProvider = ReduxProvider((ref) {
 });
 
 class NavigationReduxService extends ReduxNotifier<void> {
-  final NavigationService _service;
+  final NavigationService service;
 
-  NavigationReduxService(this._service);
+  NavigationReduxService(this.service);
 
   @override
   void init() {}
@@ -64,41 +65,55 @@ class NavigateAction {
   NavigateAction._();
 
   /// Pushes a new route onto the navigator.
-  static NavigatePushAction<T> push<T>(Widget widget) {
-    return NavigatePushAction<T>._(widget);
+  static NavigationPushAction<T> push<T>(Widget widget) {
+    return NavigationPushAction<T>._(widget);
   }
 
   /// Pushes a named route onto the navigator.
-  static NavigatePushNamedAction<T> pushNamed<T>(String routeName,
+  static NavigationPushNamedAction<T> pushNamed<T>(String routeName,
       {Object? arguments}) {
-    return NavigatePushNamedAction<T>._(routeName, arguments);
+    return NavigationPushNamedAction<T>._(routeName, arguments);
   }
 
   /// Pops the current route off the navigator.
-  static NavigatePopAction pop([Object? result]) {
-    return NavigatePopAction._(result);
+  static NavigationPopAction pop([Object? result]) {
+    return NavigationPopAction._(result);
   }
 }
 
-class NavigatePushAction<T>
+/// Extend this class to create a custom push action.
+abstract class BaseNavigationPushAction<T>
     extends AsyncReduxActionWithResult<NavigationReduxService, void, T?>
     implements AsyncAddonAction<T> {
-  final Widget _widget;
-
-  NavigatePushAction._(this._widget);
+  /// Override this method to implement your custom push action.
+  /// Access the [NavigatorState] with [notifier.service.key.currentState].
+  Future<T?> navigate();
 
   @override
+  @nonVirtual
   Future<(void, T?)> reduce() async {
-    return (null, await notifier._service.push<T>(_widget));
+    return (null, await navigate());
+  }
+}
+
+/// The default push action.
+class NavigationPushAction<T> extends BaseNavigationPushAction<T> {
+  final Widget _widget;
+
+  NavigationPushAction._(this._widget);
+
+  @override
+  Future<T?> navigate() {
+    return notifier.service.push<T>(_widget);
   }
 
   @override
-  String get debugLabel => 'NavigatePushAction(${_widget.runtimeType})';
+  String get debugLabel => 'NavigationPushAction(${_widget.runtimeType})';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is NavigatePushAction<T> &&
+      other is NavigationPushAction<T> &&
           runtimeType == other.runtimeType &&
           _widget.runtimeType == other._widget.runtimeType;
 
@@ -106,30 +121,25 @@ class NavigatePushAction<T>
   int get hashCode => _widget.hashCode;
 }
 
-class NavigatePushNamedAction<T>
-    extends AsyncReduxActionWithResult<NavigationReduxService, void, T?>
-    implements AsyncAddonAction<T> {
+class NavigationPushNamedAction<T> extends BaseNavigationPushAction<T> {
   final String _routeName;
   final Object? _arguments;
 
-  NavigatePushNamedAction._(this._routeName, this._arguments);
+  NavigationPushNamedAction._(this._routeName, this._arguments);
 
   @override
-  Future<(void, T?)> reduce() async {
-    return (
-      null,
-      await notifier._service.pushNamed<T>(_routeName, arguments: _arguments)
-    );
+  Future<T?> navigate() {
+    return notifier.service.pushNamed<T>(_routeName, arguments: _arguments);
   }
 
   @override
   String get debugLabel =>
-      'NavigatePushNamedAction($_routeName, settings: $_arguments)';
+      'NavigationPushNamedAction($_routeName, settings: $_arguments)';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is NavigatePushNamedAction<T> &&
+      other is NavigationPushNamedAction<T> &&
           runtimeType == other.runtimeType &&
           _routeName == other._routeName &&
           _arguments == other._arguments;
@@ -138,24 +148,28 @@ class NavigatePushNamedAction<T>
   int get hashCode => _routeName.hashCode ^ _arguments.hashCode;
 }
 
-class NavigatePopAction extends ReduxAction<NavigationReduxService, void>
-    implements AddonAction<void> {
+/// Extend this class to create a custom pop action.
+abstract class BaseNavigationPopAction
+    extends ReduxAction<NavigationReduxService, void>
+    implements AddonAction<void> {}
+
+class NavigationPopAction extends BaseNavigationPopAction {
   final Object? _result;
 
-  NavigatePopAction._([this._result]);
+  NavigationPopAction._([this._result]);
 
   @override
   void reduce() {
-    notifier._service.pop(_result);
+    notifier.service.pop(_result);
   }
 
   @override
-  String get debugLabel => 'NavigatePopAction($_result)';
+  String get debugLabel => 'NavigationPopAction($_result)';
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is NavigatePopAction && _result == other._result;
+      other is NavigationPopAction && _result == other._result;
 
   @override
   int get hashCode => _result.hashCode;

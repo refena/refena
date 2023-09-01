@@ -68,17 +68,22 @@ final snackBarReduxProvider = ReduxProvider((ref) {
 ///   ),
 /// );
 class SnackBarReduxService extends ReduxNotifier<void> {
-  final SnackBarService _service;
+  final SnackBarService service;
 
-  SnackBarReduxService(this._service);
+  SnackBarReduxService(this.service);
 
   @override
   void init() {}
 }
 
+/// Extend this class to create a custom snack bar action.
+/// Access the [ScaffoldMessengerState] via [notifier.service.key.currentState].
+abstract class BaseShowSnackBarAction
+    extends ReduxAction<SnackBarReduxService, void>
+    implements AddonAction<void> {}
+
 /// An action to show a [SnackBar].
-class ShowSnackBarAction extends ReduxAction<SnackBarReduxService, void>
-    implements AddonAction<void> {
+class ShowSnackBarAction extends BaseShowSnackBarAction {
   /// The message to show.
   final String message;
 
@@ -92,7 +97,7 @@ class ShowSnackBarAction extends ReduxAction<SnackBarReduxService, void>
 
   @override
   void reduce() {
-    notifier._service.showMessage(
+    notifier.service.showMessage(
       message,
       action: action,
     );

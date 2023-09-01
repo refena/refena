@@ -1,5 +1,6 @@
 ## 0.22.0
 
+- feat: make add-on actions customizable
 - **BREAKING**: events now have `millisSinceEpoch` instead of `microsSinceEpoch`
 
 ## 0.21.0

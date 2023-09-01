@@ -54,6 +54,23 @@ void main() {
 
     expect(find.text(expectedMessage), findsOneWidget);
   });
+
+  testWidgets('Should show snack bar with extended Action', (tester) async {
+    final ref = RiverpieScope(
+      child: _App(_ExtendedActionPage()),
+    );
+
+    await tester.pumpWidget(ref);
+
+    // Verify that the snackbar is not visible.
+    const expectedMessage = 'Hello from extended action!';
+    expect(find.text(expectedMessage), findsNothing);
+
+    await tester.tap(find.text('Show Snackbar'));
+    await tester.pump();
+
+    expect(find.text(expectedMessage), findsOneWidget);
+  });
 }
 
 class _App extends StatelessWidget {
@@ -120,6 +137,22 @@ class _CustomReduxPage extends StatelessWidget {
   }
 }
 
+class _ExtendedActionPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          child: const Text('Show Snackbar'),
+          onPressed: () {
+            context.ref.dispatch(_ExtendedSnackbarAction());
+          },
+        ),
+      ),
+    );
+  }
+}
+
 final _myReduxProvider = ReduxProvider((ref) => _MyReduxService());
 
 class _MyReduxService extends ReduxNotifier<int> {
@@ -133,5 +166,14 @@ class _MyReduxAction extends ReduxAction<_MyReduxService, int>
   int reduce() {
     addon.dispatch(ShowSnackBarAction(message: 'Hello within action!'));
     return state;
+  }
+}
+
+class _ExtendedSnackbarAction extends BaseShowSnackBarAction {
+  @override
+  void reduce() {
+    notifier.service.key.currentState?.showSnackBar(
+      SnackBar(content: Text('Hello from extended action!')),
+    );
   }
 }

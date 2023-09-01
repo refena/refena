@@ -1391,6 +1391,41 @@ class MyAction extends ReduxAction<Counter, int> with AddonActions {
 }
 ```
 
+You can easily customize the given add-ons by extending their respective "Base-" classes.
+
+```dart
+class CustomizedNavigationAction<T> extends BaseNavigationPushAction<T> {
+  @override
+  Future<T?> navigate() async {
+    // get the key
+    GlobalKey<NavigatorState> key = notifier.service.key;
+    
+    // navigate
+    T? result = await key.currentState!.push<T>(
+      MaterialPageRoute(
+        builder: (_) => _SecondPage(),
+      ),
+    );
+
+    return result;
+  }
+}
+```
+
+Then, you can use your customized action:
+
+```dart
+class MyAction extends ReduxAction<Counter, int> with AddonActions {
+  @override
+  int reduce() => state + 1;
+
+  @override
+  void after() {
+    addon.dispatch(CustomizedNavigationAction());
+  }
+}
+```
+
 ## Dart only
 
 You can use Riverpie without Flutter.

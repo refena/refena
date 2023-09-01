@@ -54,6 +54,39 @@ void main() {
       ),
     ]);
   });
+
+  testWidgets('Should navigate with extended ReduxAction', (tester) async {
+    final observer = RiverpieHistoryObserver.only(
+      actionDispatched: true,
+    );
+    final ref = RiverpieScope(
+      observer: observer,
+      child: _App(_ExtendedReduxPage()),
+    );
+
+    await tester.pumpWidget(ref);
+
+    // Verify that second page is not visible.
+    expect(find.text(_expectedText), findsNothing);
+
+    await tester.tap(find.text(_pushText));
+
+    await tester.pumpAndSettle();
+
+    expect(find.text(_expectedText), findsOneWidget);
+
+    // Check events
+    final navigationNotifier = ref.notifier(navigationReduxProvider);
+    expect(observer.history.length, 1);
+    expect(observer.history, [
+      ActionDispatchedEvent(
+        debugOrigin: '_ExtendedReduxPage',
+        debugOriginRef: WidgetRebuildable<_ExtendedReduxPage>(),
+        notifier: navigationNotifier,
+        action: _ExtendedNavigationAction(),
+      ),
+    ]);
+  });
 }
 
 Future<void> _testNavigation(
@@ -138,6 +171,22 @@ class _CustomReduxPage extends StatelessWidget {
   }
 }
 
+class _ExtendedReduxPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          child: const Text(_pushText),
+          onPressed: () {
+            context.ref.dispatch(_ExtendedNavigationAction());
+          },
+        ),
+      ),
+    );
+  }
+}
+
 class _SecondPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -167,6 +216,26 @@ class _MyReduxAction extends ReduxAction<_MyReduxService, int>
   @override
   bool operator ==(Object other) =>
       identical(this, other) || other is _MyReduxAction;
+
+  @override
+  int get hashCode => 0;
+}
+
+class _ExtendedNavigationAction<T> extends BaseNavigationPushAction<T> {
+  @override
+  Future<T?> navigate() async {
+    GlobalKey<NavigatorState> key = notifier.service.key;
+    T? result = await key.currentState!.push<T>(
+      MaterialPageRoute(
+        builder: (_) => _SecondPage(),
+      ),
+    );
+
+    return result;
+  }
+
+  @override
+  bool operator ==(Object other) => other is _ExtendedNavigationAction;
 
   @override
   int get hashCode => 0;
