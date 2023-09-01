@@ -35,14 +35,15 @@ The widget:
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final count = context.ref.watch(counterProvider);
+    final ref = context.ref;
+    final count = ref.watch(counterProvider);
     return Scaffold(
       body: Center(
         child: Text('$count'),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.ref.redux(counterProvider).dispatch(IncrementAction());
+          ref.redux(counterProvider).dispatch(IncrementAction());
         },
         child: Icon(Icons.add),
       ),
@@ -55,14 +56,40 @@ class MyPage extends StatelessWidget {
 
 Riverpie favors type-safety. Therefore, there are different types of `ReduxAction` that you can use.
 
-You can optionally use the returned value of `dispatch` to get the new state.
+| Action Type                  | State Change | Additional Result | Reduce method signature   |
+|------------------------------|--------------|-------------------|---------------------------|
+| `ReduxAction`                | sync         | no                | `S reduce()`              |
+| `AsyncReduxAction`           | async        | no                | `Future<S> reduce()`      |
+| `ReduxActionWithResult`      | sync         | yes               | `(S, R) reduce()`         |
+| `AsyncReduxActionWithResult` | async        | yes               | `Future<(S, R)> reduce()` |
 
-| Action Type                  | State Change | Reduce method signature   |
-|------------------------------|--------------|---------------------------|
-| `ReduxAction`                | sync         | `S reduce()`              |
-| `AsyncReduxAction`           | async        | `Future<S> reduce()`      |
-| `ReduxActionWithResult`      | sync         | `(S, R) reduce()`         |
-| `AsyncReduxActionWithResult` | async        | `Future<(S, R)> reduce()` |
+This type-system allows you to easily distinguish between synchronous and asynchronous actions.
+
+You cannot use `dispatch` to dispatch an asynchronous action. You are forced to use `dispatchAsync` instead.
+
+With the `unawaited_futures` lint, you can easily spot asynchronous actions that are not awaited.
+
+Furthermore, you are always able to obtain the new state:
+
+```dart
+// inferred as int
+final newStateA = ref.redux(counterProvider).dispatch(IncrementAction());
+
+// also inferred as int
+final newStateB = await ref.redux(counterProvider).dispatchAsync(MyAsyncIncrementAction());
+
+// compile-time error
+final newStateC = ref.redux(counterProvider).dispatch(MyAsyncIncrementAction());
+```
+
+Enjoy compile-time type-safety and type inference.
+
+| Action Type                  | Dispatch method                                                       |
+|------------------------------|-----------------------------------------------------------------------|
+| `ReduxAction`                | `dispatch`                                                            |
+| `AsyncReduxAction`           | `dispatchAsync`                                                       |
+| `ReduxActionWithResult`      | `dispatch`, `dispatchWithResult`, `dispatchTakeResult`                |
+| `AsyncReduxActionWithResult` | `dispatchAsync`, `dispatchAsyncWithResult`, `dispatchAsyncTakeResult` |
 
 ### ➤ ReduxAction
 
