@@ -64,8 +64,8 @@ List<_TracingEntry> _buildEntries(Iterable<RiverpieEvent> events) {
         final existing = _findEventWithAction(result, e.action);
         if (existing != null) {
           existing.result = e.result;
-          existing.micros =
-              event.microsSinceEpoch - existing.event.microsSinceEpoch;
+          existing.millis =
+              event.millisSinceEpoch - existing.event.millisSinceEpoch;
         }
         break;
       case ActionErrorEvent e:
@@ -142,7 +142,7 @@ void _addWidgetEntries(_TracingEntry entry, List<Rebuildable> rebuildableList) {
   for (final rebuild in rebuildableList) {
     if (rebuild is ElementRebuildable) {
       entry.children.add(_TracingEntry(
-        FakeRebuildEvent(rebuild, entry.event.microsSinceEpoch),
+        FakeRebuildEvent(rebuild, entry.event.millisSinceEpoch),
         [],
         isWidget: true,
       ));

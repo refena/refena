@@ -24,9 +24,7 @@ String _formatTimestamp(DateTime timestamp) {
 }
 
 extension on int {
-  String formatMicros() {
-    final int milliseconds = this ~/ 1000;
-    final int tenths = (this % 1000) ~/ 100;
-    return '$milliseconds.${tenths}ms';
+  String formatMillis() {
+    return '${this}ms';
   }
 }

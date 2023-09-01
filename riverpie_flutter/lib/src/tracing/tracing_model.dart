@@ -18,14 +18,14 @@ class _TracingEntry {
 
   // the execution time of the action
   // set afterwards
-  int? micros;
+  int? millis;
 
   _TracingEntry(
     this.event,
     this.children, {
     this.superseded = false,
     this.isWidget = false,
-  }) : timestamp = DateTime.fromMicrosecondsSinceEpoch(event.microsSinceEpoch);
+  }) : timestamp = DateTime.fromMillisecondsSinceEpoch(event.millisSinceEpoch);
 }
 
 enum _EventType {
@@ -43,9 +43,9 @@ class FakeRebuildEvent implements RebuildEvent {
   final Rebuildable _rebuildable;
 
   @override
-  final int microsSinceEpoch;
+  final int millisSinceEpoch;
 
-  FakeRebuildEvent(this._rebuildable, this.microsSinceEpoch);
+  FakeRebuildEvent(this._rebuildable, this.millisSinceEpoch);
 
   @override
   List<AbstractChangeEvent> get causes => throw UnimplementedError();

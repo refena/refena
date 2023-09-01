@@ -1,3 +1,7 @@
+## 0.22.0
+
+- **BREAKING**: events now have `millisSinceEpoch` instead of `microsSinceEpoch`
+
 ## 0.21.0
 
 - feat: add `addon` to `ReduxAction`

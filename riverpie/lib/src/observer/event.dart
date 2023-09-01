@@ -14,7 +14,7 @@ final _timeProvider = TimeProvider();
 sealed class RiverpieEvent with LabeledReference {
   /// The timestamp when the event was fired.
   /// We use [int] to save memory.
-  final int microsSinceEpoch = _timeProvider.getMicrosSinceEpoch();
+  final int millisSinceEpoch = _timeProvider.getMillisSinceEpoch();
 
   @override
   String get debugLabel => runtimeType.toString();

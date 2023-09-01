@@ -4,9 +4,9 @@ import 'package:meta/meta.dart';
 /// without creating [DateTime] objects.
 @internal
 class TimeProvider {
-  final _start = DateTime.now().microsecondsSinceEpoch;
+  final _start = DateTime.now().millisecondsSinceEpoch;
   final _stopwatch = Stopwatch()..start();
 
   /// Returns the current time in microseconds since epoch.
-  int getMicrosSinceEpoch() => _stopwatch.elapsedMicroseconds + _start;
+  int getMillisSinceEpoch() => _stopwatch.elapsedMilliseconds + _start;
 }

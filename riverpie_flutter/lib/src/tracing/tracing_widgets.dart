@@ -142,13 +142,13 @@ class _EntryTileState extends State<_EntryTile> {
                                       color: _headerColor[e.internalType]!,
                                     ),
                                   ),
-                                if (widget.entry.micros != null &&
-                                    widget.entry.micros! >
-                                        widget.slowExecutionThreshold * 1000)
+                                if (widget.entry.millis != null &&
+                                    widget.entry.millis! >=
+                                        widget.slowExecutionThreshold)
                                   Padding(
                                     padding: const EdgeInsets.only(left: 8),
                                     child: Text(
-                                      widget.entry.micros!.formatMicros(),
+                                      widget.entry.millis!.formatMillis(),
                                       style: TextStyle(
                                         color: Colors.orange,
                                         fontSize: 12,
@@ -228,9 +228,9 @@ class _EntryTileState extends State<_EntryTile> {
                               'Origin': event.debugOrigin,
                               'Action Group': event.notifier.debugLabel,
                               'Action': event.action.toString(),
-                              if (widget.entry.micros != null)
+                              if (widget.entry.millis != null)
                                 'Duration':
-                                    '${widget.entry.micros?.formatMicros()}',
+                                    '${widget.entry.millis?.formatMillis()}',
                               if (widget.entry.result != null)
                                 'Result': widget.entry.result.toString(),
                             },
