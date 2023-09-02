@@ -1,4 +1,4 @@
-## 0.21.0
+## 0.22.0
 
 - Checkout [Riverpie](https://pub.dev/packages/riverpie) for concrete changes.
 

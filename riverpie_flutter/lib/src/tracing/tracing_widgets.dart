@@ -91,9 +91,9 @@ class _EntryTileState extends State<_EntryTile> {
                                 ActionFinishedEvent _ => '',
                                 ActionErrorEvent _ => '',
                                 ProviderInitEvent event =>
-                                  event.provider.toString(),
+                                  event.provider.debugLabel,
                                 ProviderDisposeEvent event =>
-                                  event.provider.toString(),
+                                  event.provider.debugLabel,
                                 MessageEvent event => event.message,
                                 ListenerAddedEvent event =>
                                   '${event.rebuildable.debugLabel} on ${event.notifier.debugLabel}',
