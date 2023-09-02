@@ -43,11 +43,11 @@ class MyPage extends StatelessWidget {
                 MaterialPageRoute(
                   builder: (_) => RiverpieTracingPage(
                     errorParser: (error) {
-                      if (error is DioException) {
-                        return {
-                          'url': error.requestOptions.path,
-                        };
-                      }
+                      // if (error is DioException) {
+                      //   return {
+                      //     'url': error.requestOptions.path,
+                      //   };
+                      // }
                       return null;
                     },
                   ),
