@@ -307,10 +307,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
 /// you will lose the implicit [debugOrigin] stored in a [Ref].
 @internal
 abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
-  BaseReduxNotifier({super.debugLabel}) {
-    // Initialize right away for easier unit testing.
-    _state = init();
-  }
+  BaseReduxNotifier({super.debugLabel});
 
   /// A map of overrides for the reducers.
   Map<Type, MockReducer<T>?>? _overrides;
@@ -610,6 +607,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     _listeners = NotifierListeners<T>(this, observer);
     _notifyStrategy = container.defaultNotifyStrategy;
     _observer = observer;
+    _state = init();
     _initialized = true;
   }
 }
@@ -678,7 +676,9 @@ class TestableReduxNotifier<T> {
     T? initialState,
   }) {
     if (initialState != null) {
-      notifier._setState(initialState, null);
+      notifier._state = initialState;
+    } else {
+      notifier._state = notifier.init();
     }
   }
 
