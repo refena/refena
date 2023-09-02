@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -15,6 +16,10 @@ import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie_flutter/src/element_rebuildable.dart';
 import 'package:riverpie_flutter/src/mixin.dart';
 
+part 'tracing_error_dialog.dart';
+
+part 'tracing_error_parser.dart';
+
 part 'tracing_model.dart';
 
 part 'tracing_model_builder.dart';
@@ -23,14 +28,25 @@ part 'tracing_util.dart';
 
 part 'tracing_widgets.dart';
 
+/// Parses an error to a map.
+/// This data will be displayed in the error dialog.
+/// Return null to fallback to the default error parser provided by Riverpie.
+/// See [_parseErrorDefault] for the default error parser.
+typedef ErrorParser = Map<String, dynamic>? Function(Object error);
+
 class RiverpieTracingPage extends StatefulWidget {
   /// Time in milliseconds to consider an event as slow.
   /// The execution time will be highlighted in the UI.
   final int slowExecutionThreshold;
 
+  /// A function to parse an error to a map.
+  /// See [ErrorParser] for more details.
+  final ErrorParser? errorParser;
+
   const RiverpieTracingPage({
     super.key,
     this.slowExecutionThreshold = 500,
+    this.errorParser,
   });
 
   @override
@@ -227,6 +243,7 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
 
                   return _EntryTile(
                     slowExecutionThreshold: widget.slowExecutionThreshold,
+                    errorParser: widget.errorParser,
                     entry: entry,
                     depth: 0,
                   );

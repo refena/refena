@@ -1,7 +1,9 @@
 ## 0.22.0
 
-- fix: should emit events within `init` of a `ReduxNotifier`
 - feat: make add-on actions customizable
+- feat: add `errorParser` to `RiverpieTracingPage` to better visualize errors
+- feat: add default parser for `DioException` (without introducing a dependency to `dio`)
+- fix: should emit events within `init` of a `ReduxNotifier`
 - **BREAKING**: events now have `millisSinceEpoch` instead of `microsSinceEpoch`
 
 ## 0.21.0

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpie_flutter/riverpie_flutter.dart';
 
@@ -40,7 +41,16 @@ class MyPage extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (_) => const RiverpieTracingPage(),
+                  builder: (_) => RiverpieTracingPage(
+                    errorParser: (error) {
+                      if (error is DioException) {
+                        return {
+                          'url': error.requestOptions.path,
+                        };
+                      }
+                      return null;
+                    },
+                  ),
                 ),
               );
             },
@@ -96,6 +106,12 @@ class MyPage extends StatelessWidget {
                     context.ref.redux(counterProvider).dispatch(MessageAction());
                   },
                   child: Text('Message within Action'),
+                ),
+                FilledButton(
+                  onPressed: () {
+                    context.ref.redux(counterProvider).dispatchAsync(FailedDioAction());
+                  },
+                  child: Text('Action with failed DIO request'),
                 ),
                 FilledButton(
                   onPressed: () {
@@ -177,6 +193,15 @@ class MessageAction extends ReduxAction<CounterService, CounterState> {
   CounterState reduce() {
     emitMessage('Some Message');
     emitMessage('Another Message');
+    return state;
+  }
+}
+
+class FailedDioAction extends AsyncReduxAction<CounterService, CounterState> {
+  @override
+  Future<CounterState> reduce() async {
+    await Future.delayed(const Duration(seconds: 1));
+    await Dio().get('https://restful-booker.herokuapp.com/abc');
     return state;
   }
 }

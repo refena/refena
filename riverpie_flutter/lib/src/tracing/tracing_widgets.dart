@@ -4,11 +4,13 @@ part of 'tracing_page.dart';
 
 class _EntryTile extends StatefulWidget {
   final int slowExecutionThreshold;
+  final ErrorParser? errorParser;
   final _TracingEntry entry;
   final int depth;
 
   const _EntryTile({
     required this.slowExecutionThreshold,
+    required this.errorParser,
     required this.entry,
     required this.depth,
   });
@@ -172,100 +174,111 @@ class _EntryTileState extends State<_EntryTile> {
                 ),
               ],
             ),
-            AnimatedCrossFade(
-              crossFadeState: _expanded
-                  ? CrossFadeState.showSecond
-                  : CrossFadeState.showFirst,
-              duration: const Duration(milliseconds: 200),
-              firstChild: const SizedBox(),
-              secondChild: Row(
-                children: [
-                  const SizedBox(width: 85),
-                  SizedBox(width: (widget.depth + 1) * 40),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color:
-                            _backgroundColor[widget.entry.event.internalType],
-                      ),
-                      child: _EntryDetail(
-                        isWidget: widget.entry.isWidget,
-                        superseded: widget.entry.superseded,
-                        error: widget.entry.error,
-                        attributes: switch (widget.entry.event) {
-                          ChangeEvent event => {
-                              'Notifier': event.notifier.debugLabel,
-                              if (event.action != null)
-                                'Triggered by': event.action!.debugLabel,
-                              'Prev': event.prev.toString(),
-                              'Next': event.next.toString(),
-                              'Rebuild': event.rebuild.isEmpty
-                                  ? '<none>'
-                                  : event.rebuild
-                                      .map((r) => r.debugLabel)
-                                      .join(', '),
-                            },
-                          RebuildEvent event => widget.entry.isWidget
-                              ? {}
-                              : {
-                                  'Notifier': event.rebuildable is BaseNotifier
-                                      ? (event.rebuildable as BaseNotifier)
-                                          .debugLabel
-                                      : '',
-                                  'Triggered by': event.causes
-                                      .map((e) => e.stateType.toString())
-                                      .join(', '),
-                                  'Prev': event.prev.toString(),
-                                  'Next': event.next.toString(),
-                                  'Rebuild': event.rebuild.isEmpty
-                                      ? '<none>'
-                                      : event.rebuild
-                                          .map((r) => r.debugLabel)
-                                          .join(', '),
-                                },
-                          ActionDispatchedEvent event => {
-                              'Origin': event.debugOrigin,
-                              'Action Group': event.notifier.debugLabel,
-                              'Action': event.action.toString(),
-                              if (widget.entry.millis != null)
-                                'Duration':
-                                    '${widget.entry.millis?.formatMillis()}',
-                              if (widget.entry.result != null)
-                                'Result': widget.entry.result.toString(),
-                            },
-                          ActionFinishedEvent _ => {},
-                          ActionErrorEvent _ => {},
-                          ProviderInitEvent event => {
-                              'Provider': event.provider.toString(),
-                              'Initial': event.value.toString(),
-                              'Reason': event.cause.name.toUpperCase(),
-                            },
-                          ProviderDisposeEvent event => {
-                              'Provider': event.provider.toString(),
-                            },
-                          MessageEvent event => {
-                              'Message': event.message,
-                            },
-                          ListenerAddedEvent event => {
-                              'Rebuildable': event.rebuildable.debugLabel,
-                              'Notifier': event.notifier.debugLabel,
-                            },
-                          ListenerRemovedEvent event => {
-                              'Rebuildable': event.rebuildable.debugLabel,
-                              'Notifier': event.notifier.debugLabel,
-                            },
-                        },
-                      ),
-                    ),
-                  ),
-                ],
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              switchInCurve: Curves.easeOutExpo,
+              switchOutCurve: Curves.easeInExpo,
+              transitionBuilder: (child, animation) => FadeTransition(
+                opacity: animation,
+                child: SizeTransition(
+                  sizeFactor: animation,
+                  child: child,
+                ),
               ),
+              child: !_expanded
+                  ? null
+                  : Row(
+                      children: [
+                        const SizedBox(width: 85),
+                        SizedBox(width: (widget.depth + 1) * 40),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: _backgroundColor[
+                                  widget.entry.event.internalType],
+                            ),
+                            child: _EntryDetail(
+                              errorParser: widget.errorParser,
+                              isWidget: widget.entry.isWidget,
+                              superseded: widget.entry.superseded,
+                              error: widget.entry.error,
+                              attributes: switch (widget.entry.event) {
+                                ChangeEvent event => {
+                                    'Notifier': event.notifier.debugLabel,
+                                    if (event.action != null)
+                                      'Triggered by': event.action!.debugLabel,
+                                    'Prev': event.prev.toString(),
+                                    'Next': event.next.toString(),
+                                    'Rebuild': event.rebuild.isEmpty
+                                        ? '<none>'
+                                        : event.rebuild
+                                            .map((r) => r.debugLabel)
+                                            .join(', '),
+                                  },
+                                RebuildEvent event => widget.entry.isWidget
+                                    ? {}
+                                    : {
+                                        'Notifier':
+                                            event.rebuildable is BaseNotifier
+                                                ? (event.rebuildable
+                                                        as BaseNotifier)
+                                                    .debugLabel
+                                                : '',
+                                        'Triggered by': event.causes
+                                            .map((e) => e.stateType.toString())
+                                            .join(', '),
+                                        'Prev': event.prev.toString(),
+                                        'Next': event.next.toString(),
+                                        'Rebuild': event.rebuild.isEmpty
+                                            ? '<none>'
+                                            : event.rebuild
+                                                .map((r) => r.debugLabel)
+                                                .join(', '),
+                                      },
+                                ActionDispatchedEvent event => {
+                                    'Origin': event.debugOrigin,
+                                    'Action Group': event.notifier.debugLabel,
+                                    'Action': event.action.toString(),
+                                    if (widget.entry.millis != null)
+                                      'Duration':
+                                          '${widget.entry.millis?.formatMillis()}',
+                                    if (widget.entry.result != null)
+                                      'Result': widget.entry.result.toString(),
+                                  },
+                                ActionFinishedEvent _ => {},
+                                ActionErrorEvent _ => {},
+                                ProviderInitEvent event => {
+                                    'Provider': event.provider.toString(),
+                                    'Initial': event.value.toString(),
+                                    'Reason': event.cause.name.toUpperCase(),
+                                  },
+                                ProviderDisposeEvent event => {
+                                    'Provider': event.provider.toString(),
+                                  },
+                                MessageEvent event => {
+                                    'Message': event.message,
+                                  },
+                                ListenerAddedEvent event => {
+                                    'Rebuildable': event.rebuildable.debugLabel,
+                                    'Notifier': event.notifier.debugLabel,
+                                  },
+                                ListenerRemovedEvent event => {
+                                    'Rebuildable': event.rebuildable.debugLabel,
+                                    'Notifier': event.notifier.debugLabel,
+                                  },
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
             ),
           ],
         ),
         ...widget.entry.children.map((e) => _EntryTile(
               slowExecutionThreshold: widget.slowExecutionThreshold,
+              errorParser: widget.errorParser,
               entry: e,
               depth: widget.depth + 1,
             )),
@@ -333,12 +346,14 @@ class _EntryBadge extends StatelessWidget {
 }
 
 class _EntryDetail extends StatelessWidget {
+  final ErrorParser? errorParser;
   final bool isWidget;
   final bool superseded;
   final ActionErrorEvent? error;
   final Map<String, String> attributes;
 
   const _EntryDetail({
+    required this.errorParser,
     required this.isWidget,
     required this.superseded,
     required this.error,
@@ -423,44 +438,9 @@ class _EntryDetail extends StatelessWidget {
                 onPressed: () {
                   showDialog(
                     context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text(
-                          'Error in ${error!.action.debugLabel}.${error!.lifecycle.name}'),
-                      scrollable: true,
-                      content: Column(
-                        children: [
-                          Align(
-                            alignment: Alignment.centerLeft,
-                            child: Text(
-                              error!.error.toString(),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(error!.stackTrace.toString()),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () {
-                            final text =
-                                'Error in ${error!.action.debugLabel}.${error!.lifecycle.name}:\n${error!.error}\n\n${error!.stackTrace}';
-                            Clipboard.setData(ClipboardData(text: text));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text('Copied to clipboard'),
-                              ),
-                            );
-                            Navigator.of(context).pop();
-                          },
-                          child: Text('Copy'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                          child: const Text('Close'),
-                        ),
-                      ],
+                    builder: (_) => _TracingErrorDialog(
+                      error: error!,
+                      errorParser: errorParser,
                     ),
                   );
                 },
