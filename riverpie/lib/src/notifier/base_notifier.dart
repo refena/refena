@@ -622,9 +622,9 @@ class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
   }) {
     notifier.internalSetup(RiverpieContainer(), null);
     if (initialState != null) {
-      notifier._setState(initialState, null);
+      notifier._state = initialState;
     } else {
-      notifier._setState(notifier.init(), null);
+      notifier._state = notifier.init();
     }
   }
 
@@ -649,7 +649,7 @@ class TestableAsyncNotifier<N extends BaseAsyncNotifier<T>, T> {
     notifier.internalSetup(RiverpieContainer(), null);
     if (initialState != null) {
       notifier._futureCount++; // invalidate previous future callbacks
-      notifier._setState(initialState, null);
+      notifier._state = initialState;
     } else {
       notifier._setFutureAndListen(notifier.init());
     }
