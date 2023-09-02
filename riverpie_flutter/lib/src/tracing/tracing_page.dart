@@ -137,34 +137,47 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
       appBar: AppBar(
         title: const Text('Riverpie Tracing'),
         actions: [
-          Tooltip(
-            message: 'Refresh',
-            child: IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _show
-                  ? () {
-                      _load(loadDelay: const Duration(milliseconds: 100));
-                    }
-                  : null,
-            ),
-          ),
-          const SizedBox(width: 10),
-          Tooltip(
-            message: 'Clear',
-            child: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: _show
-                  ? () {
-                      ref.notifier(tracingProvider).clear();
-                      WidgetsBinding.instance.addPostFrameCallback((_) async {
-                        _load(
-                          loadDelay: Duration.zero,
-                          showDelay: Duration.zero,
-                        );
-                      });
-                    }
-                  : null,
-            ),
+          PopupMenuButton(
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.refresh),
+                    title: Text('Refresh'),
+                  ),
+                  value: 'refresh',
+                ),
+                PopupMenuItem(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.delete),
+                    title: Text('Clear'),
+                  ),
+                  value: 'clear',
+                ),
+              ];
+            },
+            enabled: _show,
+            onSelected: (value) async {
+              switch (value) {
+                case 'refresh':
+                  _load(loadDelay: const Duration(milliseconds: 100));
+                  break;
+                case 'clear':
+                  ref.notifier(tracingProvider).clear();
+                  WidgetsBinding.instance.addPostFrameCallback((_) async {
+                    _load(
+                      loadDelay: Duration.zero,
+                      showDelay: Duration.zero,
+                    );
+                  });
+                  break;
+              }
+            },
+            child: const Icon(Icons.more_vert),
           ),
           const SizedBox(width: 10),
         ],
