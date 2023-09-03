@@ -76,13 +76,11 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
     ReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
-    return _notifier
-        .dispatchWithResult<R2>(
-          action,
-          debugOrigin: debugOrigin ?? debugLabel,
-          debugOriginRef: this,
-        )
-        .$2;
+    return _notifier.dispatchTakeResult<R2>(
+      action,
+      debugOrigin: debugOrigin ?? debugLabel,
+      debugOriginRef: this,
+    );
   }
 
   /// Dispatches an asynchronous action and updates the state.
@@ -103,13 +101,12 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   Future<R2> dispatchAsyncTakeResult<R2>(
     AsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
-  }) async {
-    final (_, result) = await _notifier.dispatchAsyncWithResult<R2>(
+  }) {
+    return _notifier.dispatchAsyncTakeResult<R2>(
       action,
       debugOrigin: debugOrigin ?? debugLabel,
       debugOriginRef: this,
     );
-    return result;
   }
 
   /// Use this method to dispatch external actions within an action.

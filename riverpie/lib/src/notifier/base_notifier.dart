@@ -470,7 +470,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
     LabeledReference? debugOriginRef,
-  }) async {
+  }) {
     return _dispatchAsyncWithResult<R>(
       action,
       debugOrigin: debugOrigin,

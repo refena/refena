@@ -73,13 +73,11 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
     ReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
-    return notifier
-        .dispatchWithResult<R2>(
-          action,
-          debugOrigin: debugOrigin ?? this.debugOrigin,
-          debugOriginRef: debugOriginRef,
-        )
-        .$2;
+    return notifier.dispatchTakeResult<R2>(
+      action,
+      debugOrigin: debugOrigin ?? this.debugOrigin,
+      debugOriginRef: debugOriginRef,
+    );
   }
 
   /// Dispatches an asynchronous action and updates the state.
@@ -87,7 +85,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   Future<(T, R2)> dispatchAsyncWithResult<R2>(
     AsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
-  }) async {
+  }) {
     return notifier.dispatchAsyncWithResult<R2>(
       action,
       debugOrigin: debugOrigin ?? this.debugOrigin,
@@ -100,12 +98,11 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   Future<R2> dispatchAsyncTakeResult<R2>(
     AsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
-  }) async {
-    final (_, result) = await notifier.dispatchAsyncWithResult<R2>(
+  }) {
+    return notifier.dispatchAsyncTakeResult<R2>(
       action,
       debugOrigin: debugOrigin ?? this.debugOrigin,
       debugOriginRef: debugOriginRef,
     );
-    return result;
   }
 }
