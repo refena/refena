@@ -79,13 +79,17 @@ class MyPage extends StatelessWidget {
                 ),
                 FilledButton(
                   onPressed: () {
-                    context.ref.redux(counterProvider).dispatch(NestedAddAction());
+                    context.ref
+                        .redux(counterProvider)
+                        .dispatch(NestedAddAction());
                   },
                   child: Text('Nested Action'),
                 ),
                 FilledButton(
                   onPressed: () {
-                    context.ref.redux(notListenedProvider).dispatch(NotListenedAction());
+                    context.ref
+                        .redux(notListenedProvider)
+                        .dispatch(NotListenedAction());
                   },
                   child: Text('Action without rebuild'),
                 ),
@@ -103,13 +107,17 @@ class MyPage extends StatelessWidget {
                 ),
                 FilledButton(
                   onPressed: () {
-                    context.ref.redux(counterProvider).dispatch(MessageAction());
+                    context.ref
+                        .redux(counterProvider)
+                        .dispatch(MessageAction());
                   },
                   child: Text('Message within Action'),
                 ),
                 FilledButton(
-                  onPressed: () {
-                    context.ref.redux(counterProvider).dispatchAsync(FailedDioAction());
+                  onPressed: () async {
+                    await context.ref
+                        .redux(counterProvider)
+                        .dispatchAsync(FailedDioAction());
                   },
                   child: Text('Action with failed DIO request'),
                 ),
@@ -201,6 +209,7 @@ class FailedDioAction extends AsyncReduxAction<CounterService, CounterState> {
   @override
   Future<CounterState> reduce() async {
     await Future.delayed(const Duration(seconds: 1));
+    // throw 'Test Error';
     await Dio().get('https://restful-booker.herokuapp.com/abc');
     return state;
   }
@@ -215,7 +224,8 @@ class RandomState {
   String toString() => 'RandomState(number: $number)';
 }
 
-final randomProvider = NotifierProvider<RandomService, RandomState>((ref) => RandomService());
+final randomProvider =
+    NotifierProvider<RandomService, RandomState>((ref) => RandomService());
 
 class RandomService extends Notifier<RandomState> {
   final Random random = Random();
