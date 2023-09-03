@@ -15,13 +15,24 @@ abstract class ReduxNotifier<T> extends BaseReduxNotifier<T> {
   ReduxNotifier({super.debugLabel});
 
   /// Returns a debug version of the [notifier] where
-  /// you can set the state directly.
+  /// you can set the state directly and dispatch actions
+  ///
+  /// Usage:
+  /// final counter = ReduxNotifier.test(
+  ///   redux: Counter(),
+  ///   initialState: 11,
+  /// );
+  ///
+  /// expect(counter.state, 11);
+  /// counter.dispatch(IncrementAction());
   static TestableReduxNotifier<T> test<T, E extends Object>({
     required BaseReduxNotifier<T> redux,
+    bool runInitialAction = false,
     T? initialState,
   }) {
     return TestableReduxNotifier(
       notifier: redux,
+      runInitialAction: runInitialAction,
       initialState: initialState,
     );
   }
