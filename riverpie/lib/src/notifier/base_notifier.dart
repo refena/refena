@@ -34,7 +34,7 @@ enum NotifyStrategy {
 abstract class BaseNotifier<T> with LabeledReference {
   bool _initialized = false;
   RiverpieObserver? _observer;
-  final String? _debugLabel;
+  final String? customDebugLabel;
 
   late final NotifyStrategy _notifyStrategy;
 
@@ -45,7 +45,7 @@ abstract class BaseNotifier<T> with LabeledReference {
   /// A collection of listeners
   late final NotifierListeners<T> _listeners;
 
-  BaseNotifier({String? debugLabel}) : _debugLabel = debugLabel;
+  BaseNotifier({String? debugLabel}) : customDebugLabel = debugLabel;
 
   /// Gets the current state.
   @nonVirtual
@@ -110,7 +110,7 @@ abstract class BaseNotifier<T> with LabeledReference {
   }
 
   @override
-  String get debugLabel => _debugLabel ?? runtimeType.toString();
+  String get debugLabel => customDebugLabel ?? runtimeType.toString();
 
   /// Override this to provide a custom post initialization.
   /// The initial state is already set at this point.

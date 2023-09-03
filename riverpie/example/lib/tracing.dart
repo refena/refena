@@ -154,7 +154,7 @@ class MyObserver extends RiverpieObserver {
 final futureProvider = FutureProvider((ref) async {
   await Future.delayed(const Duration(seconds: 1));
   return 42;
-});
+}, debugLabel: 'My Future Provider :)');
 
 class CounterState {
   final int counter;

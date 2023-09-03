@@ -82,7 +82,9 @@ class _EntryTileState extends State<_EntryTile> {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Text(
                               switch (widget.entry.event) {
-                                ChangeEvent event => event.stateType.toString(),
+                                ChangeEvent event =>
+                                  event.notifier.customDebugLabel ??
+                                      event.stateType.toString(),
                                 RebuildEvent event => widget.entry.isWidget
                                     ? event.rebuildable.debugLabel
                                     : event.stateType.toString(),
