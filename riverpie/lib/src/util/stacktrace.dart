@@ -1,8 +1,5 @@
-Never rethrowWithNewStackTrace(Object error, StackTrace stackTrace) {
-  Error.throwWithStackTrace(
-    error,
-    StackTrace.fromString(
-      '$stackTrace===== asynchronous gap ===========================\n${StackTrace.current}',
-    ),
+StackTrace extendStackTrace(StackTrace stackTrace) {
+  return StackTrace.fromString(
+    '$stackTrace===== extended by Riverpie ===========================\n${StackTrace.current}',
   );
 }

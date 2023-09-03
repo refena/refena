@@ -540,13 +540,17 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       try {
         await action.before();
       } catch (error, stackTrace) {
+        final extendedStackTrace = extendStackTrace(stackTrace);
         _observer?.handleEvent(ActionErrorEvent(
           action: action,
           lifecycle: ActionLifecycle.before,
           error: error,
-          stackTrace: stackTrace,
+          stackTrace: extendedStackTrace,
         ));
-        rethrowWithNewStackTrace(error, stackTrace);
+        Error.throwWithStackTrace(
+          error,
+          extendedStackTrace,
+        );
       }
 
       try {
@@ -558,13 +562,17 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
         ));
         return newState;
       } catch (error, stackTrace) {
+        final extendedStackTrace = extendStackTrace(stackTrace);
         _observer?.handleEvent(ActionErrorEvent(
           action: action,
           lifecycle: ActionLifecycle.reduce,
           error: error,
-          stackTrace: stackTrace,
+          stackTrace: extendedStackTrace,
         ));
-        rethrowWithNewStackTrace(error, stackTrace);
+        Error.throwWithStackTrace(
+          error,
+          extendedStackTrace,
+        );
       }
     } catch (e) {
       rethrow;
