@@ -1,6 +1,8 @@
 ## 0.23.0
 
 - feat: throw full async stack trace when using `dispatchAsync`
+- feat: add `postInit` for notifiers
+- **BREAKING**: `ReduxNotifier`s should not dispatch actions directly anymore, override the getter `initialAction` instead
 
 ## 0.22.0
 

@@ -296,6 +296,24 @@ class IncrementAction extends ReduxAction<Counter, int> {
 }
 ```
 
+## Initial action
+
+Inside a notifier, you are not allowed to dispatch actions directly.
+
+Instead, you need to override the `initialAction` getter.
+
+This might be handy for post-initialization actions or long-running polling actions.
+
+```dart
+class Counter extends ReduxNotifier<int> {
+  @override
+  int init() => 0;
+  
+  @override
+  get initialAction => IncrementAction();
+}
+```
+
 ## Error handling
 
 You can easily handle errors like in any other Dart code.

@@ -112,6 +112,10 @@ abstract class BaseNotifier<T> with LabeledReference {
   @override
   String get debugLabel => _debugLabel ?? runtimeType.toString();
 
+  /// Override this to provide a custom post initialization.
+  /// The initial state is already set at this point.
+  void postInit() {}
+
   /// Handles the actual initialization of the notifier.
   /// Calls [init] internally.
   @internal
@@ -315,7 +319,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an action and updates the state.
   /// Returns the new state.
-  @protected
+  @internal
   @nonVirtual
   T dispatch(
     SynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
@@ -331,7 +335,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an action and updates the state.
   /// Returns the new state along with the result of the action.
-  @protected
+  @internal
   @nonVirtual
   (T, R) dispatchWithResult<R>(
     ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
@@ -347,7 +351,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an action and updates the state.
   /// Returns only the result of the action.
-  @protected
+  @internal
   @nonVirtual
   R dispatchTakeResult<R>(
     ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
@@ -448,7 +452,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state.
-  @protected
+  @internal
   @nonVirtual
   Future<T> dispatchAsync(
     AsynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
@@ -465,7 +469,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state along with the result of the action.
-  @protected
+  @internal
   @nonVirtual
   Future<(T, R)> dispatchAsyncWithResult<R>(
     AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
@@ -481,7 +485,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an asynchronous action and updates the state.
   /// Returns only the result of the action.
-  @protected
+  @internal
   @nonVirtual
   Future<R> dispatchAsyncTakeResult<R>(
     AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
@@ -496,7 +500,6 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     return result;
   }
 
-  @protected
   @nonVirtual
   Future<(T, R)> _dispatchAsyncWithResult<R>(
     AsynchronousReduxAction<BaseReduxNotifier<T>, T, R> action, {
@@ -608,6 +611,28 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// as soon as the notifier is accessed the first time.
   T init();
 
+  /// Override this to provide a custom action that will be
+  /// dispatched when the notifier is initialized.
+  BaseReduxAction<BaseReduxNotifier<T>, T, dynamic>? get initialAction => null;
+
+  @override
+  void postInit() {
+    switch (initialAction) {
+      case SynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action:
+        dispatch(action);
+        break;
+      case AsynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action:
+        dispatchAsync(action);
+        break;
+      case null:
+        break;
+      default:
+        print(
+          'Invalid initialAction type for $debugLabel: ${initialAction.runtimeType}',
+        );
+    }
+  }
+
   @override
   @internal
   @mustCallSuper
@@ -635,6 +660,7 @@ class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
     } else {
       notifier._state = notifier.init();
     }
+    notifier.postInit();
   }
 
   /// The wrapped notifier.
@@ -682,12 +708,17 @@ class TestableAsyncNotifier<N extends BaseAsyncNotifier<T>, T> {
 class TestableReduxNotifier<T> {
   TestableReduxNotifier({
     required this.notifier,
+    bool runInitialAction = false,
     T? initialState,
   }) {
     if (initialState != null) {
       notifier._state = initialState;
     } else {
       notifier._state = notifier.init();
+    }
+
+    if (runInitialAction) {
+      notifier.postInit();
     }
   }
 
@@ -710,6 +741,42 @@ class TestableReduxNotifier<T> {
     String? debugOrigin,
   }) async {
     return notifier.dispatchAsync(action, debugOrigin: debugOrigin);
+  }
+
+  /// Dispatches an action and updates the state.
+  /// Returns the new state along with the result of the action.
+  (T, R) dispatchWithResult<R>(
+    covariant ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) {
+    return notifier.dispatchWithResult(action, debugOrigin: debugOrigin);
+  }
+
+  /// Dispatches an asynchronous action and updates the state.
+  /// Returns the new state along with the result of the action.
+  Future<(T, R)> dispatchAsyncWithResult<R>(
+    covariant AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) {
+    return notifier.dispatchAsyncWithResult(action, debugOrigin: debugOrigin);
+  }
+
+  /// Dispatches an action and updates the state.
+  /// Returns only the result of the action.
+  R dispatchTakeResult<R>(
+    covariant ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) {
+    return notifier.dispatchTakeResult(action, debugOrigin: debugOrigin);
+  }
+
+  /// Dispatches an asynchronous action and updates the state.
+  /// Returns only the result of the action.
+  Future<R> dispatchAsyncTakeResult<R>(
+    covariant AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) {
+    return notifier.dispatchAsyncTakeResult(action, debugOrigin: debugOrigin);
   }
 
   /// Updates the state without dispatching an action.

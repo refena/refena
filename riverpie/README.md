@@ -678,6 +678,52 @@ A notifier holds the actual state and triggers rebuilds on widgets listening to 
 | `PureNotifier`   | For clean architectures           | `NotifierProvider`       | No            |
 | `ReduxNotifier`  | For very clean architectures      | `ReduxProvider`          | No            |
 
+### ➤ Lifecycle
+
+Inside the `init` method, you can access the `ref` to read other providers.
+
+The main goal is to return the initial state. Avoid any additional logic here.
+
+```dart
+class MyNotifier extends Notifier<int> {
+  @override
+  int init() {
+    final persistenceService = ref.read(persistenceProvider);
+    return persistenceService.getNumber();
+  }
+}
+```
+
+To do initial work, you can override `postInit`:
+
+```dart
+class MyNotifier extends Notifier<int> {
+  @override
+  int init() => 10;
+
+  @override
+  void postInit() {
+    // do some work
+  }
+}
+```
+
+When `ref.dispose(provider)` is called, you can hook into the disposing process by overriding `dispose`.
+
+```dart
+class MyNotifier extends Notifier<int> {
+  @override
+  int init() => 10;
+
+  @override
+  void dispose() {
+    // custom cleanup logic
+    // everything is still accessible until the end of this method
+    super.dispose();
+  }
+}
+```
+
 ### ➤ Notifier vs PureNotifier
 
 `Notifier` and `PureNotifier` are very similar.

@@ -122,6 +122,8 @@ class RiverpieContainer extends Ref with LabeledReference {
           cause: ProviderInitCause.override,
         ),
       );
+
+      notifier.postInit();
     }
   }
 
@@ -169,6 +171,8 @@ class RiverpieContainer extends Ref with LabeledReference {
           cause: overridden != null ? ProviderInitCause.override : cause,
         ),
       );
+
+      notifier.postInit();
     }
     return notifier;
   }
