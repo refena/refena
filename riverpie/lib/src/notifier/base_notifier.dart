@@ -14,6 +14,7 @@ import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
 import 'package:riverpie/src/ref.dart';
 import 'package:riverpie/src/util/batched_stream_controller.dart';
+import 'package:riverpie/src/util/stacktrace.dart';
 
 /// This enum controls the default behaviour of [updateShouldNotify].
 /// Keep in mind that you can override [updateShouldNotify] in your notifiers
@@ -545,7 +546,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
           error: error,
           stackTrace: stackTrace,
         ));
-        rethrow;
+        rethrowWithNewStackTrace(error, stackTrace);
       }
 
       try {
@@ -563,7 +564,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
           error: error,
           stackTrace: stackTrace,
         ));
-        rethrow;
+        rethrowWithNewStackTrace(error, stackTrace);
       }
     } catch (e) {
       rethrow;

@@ -1,3 +1,7 @@
+## 0.23.0
+
+- feat: throw full async stack trace when using `dispatchAsync`
+
 ## 0.22.0
 
 - feat: make add-on actions customizable
