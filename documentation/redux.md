@@ -300,12 +300,14 @@ class IncrementAction extends ReduxAction<Counter, int> {
 
 You can easily handle errors like in any other Dart code.
 
+The error type and the stack trace are unmodified.
+
 It is important to notice that errors thrown in `after()` are not rethrown to the caller.
 
 ```dart
 class IncrementAction extends AsyncReduxAction<Counter, int> {
   @override
-  Future<int> reduce() {
+  Future<int> reduce() async {
     try {
       await dispatchAsync(AsyncErrorAction());
     } catch (e) {
