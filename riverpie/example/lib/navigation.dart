@@ -50,7 +50,7 @@ class MyPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                ref.dispatch(
+                ref.dispatchAsync(
                   NavigateAction.push(SecondPage()),
                 );
               },
@@ -58,7 +58,7 @@ class MyPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                final result = await ref.dispatchAsync<String>(
+                final result = await ref.dispatchAsync<String?>(
                   NavigateAction.push(SecondPage()),
                 );
 
@@ -132,9 +132,9 @@ class MyReduxService extends ReduxNotifier<void> {
 }
 
 class DispatchAddonWithinAction extends AsyncReduxAction<MyReduxService, void>
-    with AddonActions {
+    with GlobalActions {
   @override
   Future<void> reduce() async {
-    await addon.dispatchAsync(NavigateAction.push(SecondPage()));
+    await global.dispatchAsync(NavigateAction.push(SecondPage()));
   }
 }

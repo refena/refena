@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/action/redux_action.dart';
 import 'package:riverpie/src/async_value.dart';
 import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/listener.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
-import 'package:riverpie/src/notifier/redux_action.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/override.dart';
@@ -338,7 +338,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @internal
   @nonVirtual
   (T, R) dispatchWithResult<R>(
-    ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    BaseReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
     LabeledReference? debugOriginRef,
   }) {
@@ -354,7 +354,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @internal
   @nonVirtual
   R dispatchTakeResult<R>(
-    ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    BaseReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
     LabeledReference? debugOriginRef,
   }) {
@@ -472,7 +472,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @internal
   @nonVirtual
   Future<(T, R)> dispatchAsyncWithResult<R>(
-    AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    BaseAsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
     LabeledReference? debugOriginRef,
   }) {
@@ -488,7 +488,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @internal
   @nonVirtual
   Future<R> dispatchAsyncTakeResult<R>(
-    AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    BaseAsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
     LabeledReference? debugOriginRef,
   }) async {
@@ -728,7 +728,7 @@ class TestableReduxNotifier<T> {
   /// Dispatches an action and updates the state.
   /// Returns the new state.
   T dispatch(
-    covariant ReduxAction<BaseReduxNotifier<T>, T> action, {
+    SynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatch(action, debugOrigin: debugOrigin);
@@ -737,7 +737,7 @@ class TestableReduxNotifier<T> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state.
   Future<T> dispatchAsync(
-    covariant AsyncReduxAction<BaseReduxNotifier<T>, T> action, {
+    AsynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic> action, {
     String? debugOrigin,
   }) async {
     return notifier.dispatchAsync(action, debugOrigin: debugOrigin);
@@ -746,34 +746,34 @@ class TestableReduxNotifier<T> {
   /// Dispatches an action and updates the state.
   /// Returns the new state along with the result of the action.
   (T, R) dispatchWithResult<R>(
-    covariant ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    BaseReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchWithResult(action, debugOrigin: debugOrigin);
   }
 
-  /// Dispatches an asynchronous action and updates the state.
-  /// Returns the new state along with the result of the action.
-  Future<(T, R)> dispatchAsyncWithResult<R>(
-    covariant AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
-    String? debugOrigin,
-  }) {
-    return notifier.dispatchAsyncWithResult(action, debugOrigin: debugOrigin);
-  }
-
   /// Dispatches an action and updates the state.
   /// Returns only the result of the action.
   R dispatchTakeResult<R>(
-    covariant ReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    BaseReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchTakeResult(action, debugOrigin: debugOrigin);
   }
 
   /// Dispatches an asynchronous action and updates the state.
+  /// Returns the new state along with the result of the action.
+  Future<(T, R)> dispatchAsyncWithResult<R>(
+    BaseAsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    String? debugOrigin,
+  }) {
+    return notifier.dispatchAsyncWithResult(action, debugOrigin: debugOrigin);
+  }
+
+  /// Dispatches an asynchronous action and updates the state.
   /// Returns only the result of the action.
   Future<R> dispatchAsyncTakeResult<R>(
-    covariant AsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
+    BaseAsyncReduxActionWithResult<BaseReduxNotifier<T>, T, R> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchAsyncTakeResult(action, debugOrigin: debugOrigin);

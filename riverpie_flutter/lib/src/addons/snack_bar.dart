@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:riverpie/riverpie.dart';
-import 'package:riverpie_flutter/src/addons/action.dart';
 
 /// The [Provider] for [SnackBarService].
 final snackBarProvider = Provider((ref) => SnackBarService());
@@ -48,39 +47,10 @@ class SnackBarService {
   }
 }
 
-/// The [Provider] for [SnackBarReduxService].
-final snackBarReduxProvider = ReduxProvider((ref) {
-  return SnackBarReduxService(ref.read(snackBarProvider));
-});
-
-/// A service to optionally dispatch [ShowSnackBarAction]s
-/// instead of simply calling [SnackBarService.showMessage].
-///
-/// Usage:
-/// MaterialApp(
-///   scaffoldMessengerKey: ref.watch(snackBarProvider).snackbarKey,
-///   ...
-/// )
-///
-/// ref.dispatch(
-///   ShowSnackBarAction(
-///     message: 'Hello World',
-///   ),
-/// );
-class SnackBarReduxService extends ReduxNotifier<void> {
-  final SnackBarService service;
-
-  SnackBarReduxService(this.service);
-
-  @override
-  void init() {}
-}
-
 /// Extend this class to create a custom snack bar action.
-/// Access the [ScaffoldMessengerState] via [notifier.service.key.currentState].
-abstract class BaseShowSnackBarAction
-    extends ReduxAction<SnackBarReduxService, void>
-    implements AddonAction<void> {}
+/// Access the [ScaffoldMessengerState] with
+/// [ref.read(snackBarProvider).key.currentState].
+abstract class BaseShowSnackBarAction extends GlobalAction {}
 
 /// An action to show a [SnackBar].
 class ShowSnackBarAction extends BaseShowSnackBarAction {
@@ -97,10 +67,10 @@ class ShowSnackBarAction extends BaseShowSnackBarAction {
 
   @override
   void reduce() {
-    notifier.service.showMessage(
-      message,
-      action: action,
-    );
+    ref.read(snackBarProvider).showMessage(
+          message,
+          action: action,
+        );
   }
 
   @override

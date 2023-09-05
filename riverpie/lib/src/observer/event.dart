@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
+import 'package:riverpie/src/action/redux_action.dart';
 import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
-import 'package:riverpie/src/notifier/redux_action.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/util/time_provider.dart';
 

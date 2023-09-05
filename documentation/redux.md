@@ -296,6 +296,68 @@ class IncrementAction extends ReduxAction<Counter, int> {
 }
 ```
 
+## Global actions
+
+Sometimes, you want to implement an action that does not belong to any notifier.
+
+You can do this by implementing a `GlobalAction`.
+
+This type of action does not belong to any notifier and therefore has no state.
+
+Inside the action, you can access `ref` to dispatch other actions or to read other providers.
+
+Do not use global actions excessively as they have no restrictions or scope.
+This means that it is hard to track all the side effects that they might cause.
+
+```dart
+class ResetAppAction extends GlobalAction {
+  @override
+  void reduce() {
+    ref.redux(authProvider).dispatch(LogoutAction());
+    ref.redux(persistenceProvider).dispatch(ClearPersistenceAction());
+  }
+}
+```
+
+You can dispatch these actions with a `ref` without specifying a notifier.
+
+```dart
+ref.dispatch(ResetAppAction());
+```
+
+Inside another action, you first need to add the `GlobalActions` mixin.
+
+Then you can dispatch global actions with `global.dispatch(action)`.
+
+```dart
+class IncrementAction extends ReduxAction<Counter, int> with GlobalActions {
+  @override
+  int reduce() {
+    global.dispatch(ResetAppAction());
+    return state + 1;
+  }
+}
+```
+
+Similar to regular actions, there are also asynchronous global actions or global actions with a result.
+
+| Action Type                   | Additional Result | Reduce method signature |
+|-------------------------------|-------------------|-------------------------|
+| `GlobalAction`                | no                | `void reduce()`         |
+| `AsyncGlobalAction`           | no                | `Future<void> reduce()` |
+| `GlobalActionWithResult`      | yes               | `R reduce()`            |
+| `AsyncGlobalActionWithResult` | yes               | `Future<R> reduce()`    |
+
+When you dispatch, there is no need to distinguish between actions with and without a result anymore.
+The return type is just `void` for actions without a result.
+
+| Action Type                   | Dispatch method | Return type    |
+|-------------------------------|-----------------|----------------|
+| `GlobalAction`                | `dispatch`      | `void`         |
+| `GlobalActionWithResult`      | `dispatch`      | `R`            |
+| `AsyncGlobalAction`           | `dispatchAsync` | `Future<void>` |
+| `AsyncGlobalActionWithResult` | `dispatchAsync` | `Future<R>`    |
+
 ## Initial action
 
 Inside a notifier, you are not allowed to dispatch actions directly.

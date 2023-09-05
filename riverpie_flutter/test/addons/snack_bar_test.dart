@@ -161,10 +161,10 @@ class _MyReduxService extends ReduxNotifier<int> {
 }
 
 class _MyReduxAction extends ReduxAction<_MyReduxService, int>
-    with AddonActions {
+    with GlobalActions {
   @override
   int reduce() {
-    addon.dispatch(ShowSnackBarAction(message: 'Hello within action!'));
+    global.dispatch(ShowSnackBarAction(message: 'Hello within action!'));
     return state;
   }
 }
@@ -172,8 +172,8 @@ class _MyReduxAction extends ReduxAction<_MyReduxService, int>
 class _ExtendedSnackbarAction extends BaseShowSnackBarAction {
   @override
   void reduce() {
-    notifier.service.key.currentState?.showSnackBar(
-      SnackBar(content: Text('Hello from extended action!')),
-    );
+    ref.read(snackBarProvider).key.currentState?.showSnackBar(
+          SnackBar(content: Text('Hello from extended action!')),
+        );
   }
 }

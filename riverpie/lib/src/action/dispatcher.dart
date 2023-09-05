@@ -2,9 +2,9 @@
 
 import 'dart:async';
 
+import 'package:riverpie/src/action/redux_action.dart';
 import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
-import 'package:riverpie/src/notifier/redux_action.dart';
 
 /// A proxy class to provide a custom [debugOrigin] for [dispatch].
 ///
@@ -57,7 +57,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   /// Dispatches an action and updates the state.
   /// Returns the new state along with the result of the action.
   (T, R2) dispatchWithResult<R2>(
-    ReduxActionWithResult<N, T, R2> action, {
+    BaseReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchWithResult<R2>(
@@ -70,7 +70,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   /// Dispatches an action and updates the state.
   /// Returns only the result of the action.
   R2 dispatchTakeResult<R2>(
-    ReduxActionWithResult<N, T, R2> action, {
+    BaseReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchTakeResult<R2>(
@@ -83,7 +83,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state along with the result of the action.
   Future<(T, R2)> dispatchAsyncWithResult<R2>(
-    AsyncReduxActionWithResult<N, T, R2> action, {
+    BaseAsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchAsyncWithResult<R2>(
@@ -96,7 +96,7 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns only the result of the action.
   Future<R2> dispatchAsyncTakeResult<R2>(
-    AsyncReduxActionWithResult<N, T, R2> action, {
+    BaseAsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
     return notifier.dispatchAsyncTakeResult<R2>(

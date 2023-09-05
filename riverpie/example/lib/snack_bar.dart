@@ -72,12 +72,12 @@ class MyReduxService extends ReduxNotifier<void> {
   int init() => 0;
 }
 
-class DispatchAddonWithinAction extends ReduxAction<MyReduxService, void> with AddonActions {
+class DispatchAddonWithinAction extends ReduxAction<MyReduxService, void> with GlobalActions {
   @override
   int reduce() => 0;
 
   @override
   void after() {
-    addon.dispatch(ShowSnackBarAction(message: 'Hello World from Mixin!'));
+    global.dispatch(ShowSnackBarAction(message: 'Hello World from Mixin!'));
   }
 }

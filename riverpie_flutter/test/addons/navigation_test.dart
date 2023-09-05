@@ -36,7 +36,7 @@ void main() {
     expect(find.text(_expectedText), findsOneWidget);
 
     // Check events
-    final navigationNotifier = ref.notifier(navigationReduxProvider);
+    final navigationNotifier = ref.notifier(globalReduxProvider);
     final notifier = ref.notifier(_myReduxProvider);
     expect(observer.history.length, 2);
     expect(observer.history, [
@@ -76,7 +76,7 @@ void main() {
     expect(find.text(_expectedText), findsOneWidget);
 
     // Check events
-    final navigationNotifier = ref.notifier(navigationReduxProvider);
+    final navigationNotifier = ref.notifier(globalReduxProvider);
     expect(observer.history.length, 1);
     expect(observer.history, [
       ActionDispatchedEvent(
@@ -147,7 +147,7 @@ class _ReduxPage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text(_pushText),
           onPressed: () {
-            context.ref.dispatch(NavigateAction.push(_SecondPage()));
+            context.ref.dispatchAsync(NavigateAction.push(_SecondPage()));
           },
         ),
       ),
@@ -179,7 +179,7 @@ class _ExtendedReduxPage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text(_pushText),
           onPressed: () {
-            context.ref.dispatch(_ExtendedNavigationAction());
+            context.ref.dispatchAsync(_ExtendedNavigationAction());
           },
         ),
       ),
@@ -206,10 +206,10 @@ class _MyReduxService extends ReduxNotifier<int> {
 }
 
 class _MyReduxAction extends ReduxAction<_MyReduxService, int>
-    with AddonActions {
+    with GlobalActions {
   @override
   int reduce() {
-    addon.dispatch(NavigateAction.push(_SecondPage()));
+    global.dispatchAsync(NavigateAction.push(_SecondPage()));
     return state;
   }
 
@@ -224,7 +224,7 @@ class _MyReduxAction extends ReduxAction<_MyReduxService, int>
 class _ExtendedNavigationAction<T> extends BaseNavigationPushAction<T> {
   @override
   Future<T?> navigate() async {
-    GlobalKey<NavigatorState> key = notifier.service.key;
+    GlobalKey<NavigatorState> key = ref.read(navigationProvider).key;
     T? result = await key.currentState!.push<T>(
       MaterialPageRoute(
         builder: (_) => _SecondPage(),

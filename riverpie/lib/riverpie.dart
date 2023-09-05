@@ -1,3 +1,11 @@
+export 'package:riverpie/src/action/dispatcher.dart';
+export 'package:riverpie/src/action/global_action_dispatcher.dart';
+export 'package:riverpie/src/action/redux_action.dart'
+    hide
+        SynchronousReduxAction,
+        AsynchronousReduxAction,
+        BaseReduxActionWithResult,
+        BaseAsyncReduxActionWithResult;
 export 'package:riverpie/src/async_value.dart';
 export 'package:riverpie/src/container.dart';
 export 'package:riverpie/src/labeled_reference.dart';
@@ -5,10 +13,7 @@ export 'package:riverpie/src/notifier/base_notifier.dart'
     show ReduxNotifierOverrideExt, MockReducer, TestableReduxNotifier;
 export 'package:riverpie/src/notifier/base_notifier.dart'
     show NotifyStrategy, ViewProviderNotifier;
-export 'package:riverpie/src/notifier/dispatcher.dart';
 export 'package:riverpie/src/notifier/notifier_event.dart';
-export 'package:riverpie/src/notifier/redux_action.dart'
-    hide SynchronousReduxAction, AsynchronousReduxAction;
 export 'package:riverpie/src/notifier/types/async_notifier.dart';
 export 'package:riverpie/src/notifier/types/change_notifier.dart';
 export 'package:riverpie/src/notifier/types/future_family_provider_notifier.dart';

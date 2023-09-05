@@ -3,12 +3,18 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/action/dispatcher.dart';
+import 'package:riverpie/src/action/global_action_dispatcher.dart';
 import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
-import 'package:riverpie/src/notifier/dispatcher.dart';
+import 'package:riverpie/src/notifier/types/redux_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
+import 'package:riverpie/src/provider/types/redux_provider.dart';
+import 'package:riverpie/src/proxy_ref.dart';
 import 'package:riverpie/src/ref.dart';
+
+part 'global_action.dart';
 
 /// The action that is dispatched by a [ReduxNotifier].
 /// You should use [ReduxAction] or [AsyncReduxAction] instead.
@@ -60,7 +66,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   /// Dispatches an action and updates the state.
   /// Returns the new state along with the result of the action.
   (T, R2) dispatchWithResult<R2>(
-    ReduxActionWithResult<N, T, R2> action, {
+    BaseReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
     return _notifier.dispatchWithResult<R2>(
@@ -73,7 +79,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   /// Dispatches an action and updates the state.
   /// Returns only the result of the action.
   R2 dispatchTakeResult<R2>(
-    ReduxActionWithResult<N, T, R2> action, {
+    BaseReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
     return _notifier.dispatchTakeResult<R2>(
@@ -86,7 +92,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state along with the result of the action.
   Future<(T, R2)> dispatchAsyncWithResult<R2>(
-    AsyncReduxActionWithResult<N, T, R2> action, {
+    BaseAsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) async {
     return _notifier.dispatchAsyncWithResult<R2>(
@@ -99,7 +105,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   /// Dispatches an asynchronous action and updates the state.
   /// Returns only the result of the action.
   Future<R2> dispatchAsyncTakeResult<R2>(
-    AsyncReduxActionWithResult<N, T, R2> action, {
+    BaseAsyncReduxActionWithResult<N, T, R2> action, {
     String? debugOrigin,
   }) {
     return _notifier.dispatchAsyncTakeResult<R2>(
@@ -142,20 +148,22 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
 
   RiverpieObserver? _observer;
 
-  Ref? _ref;
+  /// Provides access to [Ref].
+  /// This getter is used to allow dispatching global actions.
+  /// This might be null in unit tests, when used without [RiverpieContainer].
+  Ref? _originalRef;
+
+  late final _ref = ProxyRef(
+    _originalRef!,
+    debugLabel,
+    this,
+  );
 
   late N _notifier;
 
-  /// Provides access to [Ref].
-  /// To access external notifiers, you should use dependency injection.
-  /// This getter is used by addons to allow dispatching global actions.
-  /// This might be null in unit tests, when used without [RiverpieContainer].
-  @internal
-  Ref? get internalRef => _ref;
-
   @internal
   void internalSetup(Ref? ref, N notifier, RiverpieObserver? observer) {
-    _ref = ref;
+    _originalRef = ref;
     _notifier = notifier;
     _observer = observer;
   }
@@ -250,6 +258,12 @@ abstract class AsyncReduxAction<N extends BaseReduxNotifier<T>, T>
   }
 }
 
+/// A helper class in the hierarchy to allow
+/// [ReduxActionWithResult] and [GlobalActionWithResult].
+@internal
+abstract class BaseReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
+    extends SynchronousReduxAction<N, T, R> {}
+
 /// The action that is dispatched by a [ReduxNotifier].
 ///
 /// This action allows returning an additional result of type [R] that
@@ -257,7 +271,7 @@ abstract class AsyncReduxAction<N extends BaseReduxNotifier<T>, T>
 ///
 /// Trigger this with [dispatch], [dispatchWithResult] or [dispatchTakeResult].
 abstract class ReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
-    extends SynchronousReduxAction<N, T, R> {
+    extends BaseReduxActionWithResult<N, T, R> {
   /// The method that returns the new state.
   (T, R) reduce();
 
@@ -274,6 +288,12 @@ abstract class ReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
   }
 }
 
+/// A helper class in the hierarchy to allow
+/// [AsyncReduxActionWithResult] and [AsyncGlobalActionWithResult].
+@internal
+abstract class BaseAsyncReduxActionWithResult<N extends BaseReduxNotifier<T>, T,
+    R> extends AsynchronousReduxAction<N, T, R> {}
+
 /// The asynchronous action that is dispatched by a [ReduxNotifier].
 ///
 /// This action allows returning an additional result of type [R] that
@@ -282,7 +302,7 @@ abstract class ReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
 /// Trigger this with [dispatchAsync], [dispatchAsyncWithResult] or
 /// [dispatchAsyncTakeResult].
 abstract class AsyncReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
-    extends AsynchronousReduxAction<N, T, R> {
+    extends BaseAsyncReduxActionWithResult<N, T, R> {
   /// The method that returns the new state.
   Future<(T, R)> reduce();
 

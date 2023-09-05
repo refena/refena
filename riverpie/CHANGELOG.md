@@ -1,3 +1,8 @@
+## 0.24.0
+
+- feat: add `GlobalAction`, a family of actions that don't belong to any notifier
+- **BREAKING**: Change `with AddonActions` to `with GlobalActions`
+
 ## 0.23.0
 
 - feat: throw full async stack trace when using `dispatchAsync`
