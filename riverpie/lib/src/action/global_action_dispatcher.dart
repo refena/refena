@@ -2,11 +2,8 @@ import 'package:riverpie/src/action/redux_action.dart';
 import 'package:riverpie/src/ref.dart';
 
 extension GlobalActionExtension on Ref {
-  /// Dispatches a global action (sync or async).
+  /// Dispatches a global action.
   /// Returns the result of the action.
-  ///
-  /// If the action is async, null is returned.
-  /// You don't need to worry, this is type-safe.
   R dispatch<R>(GlobalActionWithResult<R> action) {
     return _dispatch(this, action);
   }

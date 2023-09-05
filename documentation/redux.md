@@ -302,7 +302,7 @@ Sometimes, you want to implement an action that does not belong to any notifier.
 
 You can do this by implementing a `GlobalAction`.
 
-This type of action does not belong to any notifier and therefore has no state.
+These actions do not belong to any notifier and therefore have no state.
 
 Inside the action, you can access `ref` to dispatch other actions or to read other providers.
 
@@ -313,19 +313,26 @@ This means that it is hard to track all the side effects that they might cause.
 class ResetAppAction extends GlobalAction {
   @override
   void reduce() {
+    // dispatch actions from other providers
     ref.redux(authProvider).dispatch(LogoutAction());
     ref.redux(persistenceProvider).dispatch(ClearPersistenceAction());
+    
+    // dispatch other global actions
+    ref.dispatch(AnotherGlobalAction());
+    
+    // read other providers
+    final theme = ref.read(themeProvider);
   }
 }
 ```
 
-You can dispatch these actions with a `ref` without specifying a notifier.
+When you have access to `Ref`, you can just call `ref.dispatch(action)`.
 
 ```dart
 ref.dispatch(ResetAppAction());
 ```
 
-Inside another action, you first need to add the `GlobalActions` mixin.
+Inside an ordinary action, you need to add the `GlobalActions` mixin first.
 
 Then you can dispatch global actions with `global.dispatch(action)`.
 
