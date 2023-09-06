@@ -52,6 +52,20 @@ class MyPage extends StatelessWidget {
 }
 ```
 
+## Table of Contents
+
+- [Action Types](#action-types)
+    - [ReduxAction](#-reduxaction)
+    - [AsyncReduxAction](#-asyncreduxaction)
+    - [ReduxActionWithResult](#-reduxactionwithresult)
+    - [AsyncReduxActionWithResult](#-asyncreduxactionwithresult)
+- [Notifier Lifecycle](#notifier-lifecycle)
+- [Action Lifecycle](#action-lifecycle)
+- [Dispatching actions from actions](#dispatching-actions-from-actions)
+- [Global Actions](#global-actions)
+- [Error Handling](#error-handling)
+- [Tracing](#tracing)
+
 ## Action Types
 
 Riverpie favors type-safety. Therefore, there are different types of `ReduxAction` that you can use.
@@ -195,7 +209,7 @@ void loginHandler() async {
 }
 ```
 
-## Notifier lifecycle
+## Notifier Lifecycle
 
 Inside a notifier, you are not allowed to dispatch actions directly.
 
@@ -219,7 +233,7 @@ class Counter extends ReduxNotifier<int> {
 }
 ```
 
-## Action lifecycle
+## Action Lifecycle
 
 The lifecycle of an action is as follows:
 
@@ -320,7 +334,7 @@ class IncrementAction extends ReduxAction<Counter, int> {
 }
 ```
 
-## Global actions
+## Global Actions
 
 Sometimes, you want to implement an action that does not belong to any notifier.
 
@@ -389,7 +403,7 @@ The return type is just `void` for actions without a result.
 | `AsyncGlobalAction`           | `dispatchAsync` | `Future<void>` |
 | `AsyncGlobalActionWithResult` | `dispatchAsync` | `Future<R>`    |
 
-## Error handling
+## Error Handling
 
 You can easily handle errors like in any other Dart code.
 

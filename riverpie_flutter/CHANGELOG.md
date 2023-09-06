@@ -1,6 +1,6 @@
-## 0.24.0
+## 0.25.0
 
-- Checkout [Riverpie](https://pub.dev/packages/riverpie) for concrete changes.
+- Checkout [Riverpie Changelog](https://pub.dev/packages/riverpie/changelog) for concrete changes.
 
 ## 0.10.0
 
