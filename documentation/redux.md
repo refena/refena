@@ -195,6 +195,30 @@ void loginHandler() async {
 }
 ```
 
+## Notifier lifecycle
+
+Inside a notifier, you are not allowed to dispatch actions directly.
+
+However, there are two actions that are dispatched during the lifecycle of a notifier:
+`initialAction` and `disposeAction`.
+
+Implement those actions for post-initialization actions, long-running polling actions, or cleanup actions.
+
+Remember: In Riverpie, notifiers are never disposed, except you call `ref.dispose(provider)` explicitly.
+
+```dart
+class Counter extends ReduxNotifier<int> {
+  @override
+  int init() => 0;
+  
+  @override
+  get initialAction => IncrementAction();
+  
+  @override
+  get disposeAction => CleanupAction();
+}
+```
+
 ## Action lifecycle
 
 The lifecycle of an action is as follows:
@@ -364,24 +388,6 @@ The return type is just `void` for actions without a result.
 | `GlobalActionWithResult`      | `dispatch`      | `R`            |
 | `AsyncGlobalAction`           | `dispatchAsync` | `Future<void>` |
 | `AsyncGlobalActionWithResult` | `dispatchAsync` | `Future<R>`    |
-
-## Initial action
-
-Inside a notifier, you are not allowed to dispatch actions directly.
-
-Instead, you need to override the `initialAction` getter.
-
-This might be handy for post-initialization actions or long-running polling actions.
-
-```dart
-class Counter extends ReduxNotifier<int> {
-  @override
-  int init() => 0;
-  
-  @override
-  get initialAction => IncrementAction();
-}
-```
 
 ## Error handling
 

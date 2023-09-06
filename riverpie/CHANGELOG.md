@@ -1,5 +1,6 @@
 ## 0.25.0
 
+- feat: add `disposeAction` getter to `ReduxNotifier`
 - feat: small improvements for `RiverpieTracingPage`
 - feat: improve `RiverpieDebugObserver` logging for dispatching actions
 - fix: correctly dispose `ViewProvider` when `ref.dispose` is called

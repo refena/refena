@@ -94,6 +94,57 @@ void main() {
       ),
     ]);
   });
+
+  test('Should dispatch dispose action', () {
+    final observer = RiverpieHistoryObserver.only(
+      providerInit: true,
+      providerDispose: true,
+      actionDispatched: true,
+      change: true,
+    );
+    final container = RiverpieContainer(
+      observer: observer,
+    );
+
+    bool onDisposeCalled = false;
+    final provider = ReduxProvider<_ReduxNotifierWithDisposeAction, int>(
+      (ref) => _ReduxNotifierWithDisposeAction(() => onDisposeCalled = true),
+    );
+
+    final notifier = container.notifier(provider);
+    expect(container.read(provider), 300);
+    expect(onDisposeCalled, false);
+
+    container.dispose(provider);
+    expect(onDisposeCalled, true);
+
+    // Check events
+    expect(observer.history, [
+      ProviderInitEvent(
+        provider: provider,
+        notifier: notifier,
+        cause: ProviderInitCause.access,
+        value: 300,
+      ),
+      ActionDispatchedEvent(
+        debugOrigin: '_ReduxNotifierWithDisposeAction',
+        debugOriginRef: notifier,
+        notifier: notifier,
+        action: _DisposeAction(() {}),
+      ),
+      ChangeEvent(
+        notifier: notifier,
+        action: _DisposeAction(() {}),
+        prev: 300,
+        next: 310,
+        rebuild: [],
+      ),
+      ProviderDisposeEvent(
+        provider: provider,
+        notifier: notifier,
+      ),
+    ]);
+  });
 }
 
 class _ReduxNotifier extends ReduxNotifier<int> {
@@ -143,6 +194,38 @@ class _AsyncInitialAction
   @override
   bool operator ==(Object other) {
     return other is _AsyncInitialAction;
+  }
+
+  @override
+  int get hashCode => 0;
+}
+
+class _ReduxNotifierWithDisposeAction extends ReduxNotifier<int> {
+  final void Function() onDispose;
+
+  _ReduxNotifierWithDisposeAction(this.onDispose);
+
+  @override
+  int init() => 300;
+
+  @override
+  get disposeAction => _DisposeAction(onDispose);
+}
+
+class _DisposeAction extends ReduxAction<_ReduxNotifierWithDisposeAction, int> {
+  final void Function() onDispose;
+
+  _DisposeAction(this.onDispose);
+
+  @override
+  int reduce() {
+    onDispose();
+    return state + 10;
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is _DisposeAction;
   }
 
   @override

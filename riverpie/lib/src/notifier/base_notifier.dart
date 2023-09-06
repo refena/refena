@@ -622,6 +622,9 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// dispatched when the notifier is initialized.
   BaseReduxAction<BaseReduxNotifier<T>, T, dynamic>? get initialAction => null;
 
+  SynchronousReduxAction<BaseReduxNotifier<T>, T, dynamic>? get disposeAction =>
+      null;
+
   @override
   void postInit() {
     switch (initialAction) {
@@ -638,6 +641,16 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
           'Invalid initialAction type for $debugLabel: ${initialAction.runtimeType}',
         );
     }
+  }
+
+  @override
+  @mustCallSuper
+  void dispose() {
+    final disposeAction = this.disposeAction;
+    if (disposeAction != null) {
+      dispatch(disposeAction);
+    }
+    super.dispose();
   }
 
   @override
