@@ -259,6 +259,7 @@ class _EntryTileState extends State<_EntryTile> {
                                     'Provider': event.provider.toString(),
                                   },
                                 MessageEvent event => {
+                                    'Origin': event.origin.debugLabel,
                                     'Message': event.message,
                                   },
                                 ListenerAddedEvent event => {
@@ -438,13 +439,24 @@ class _EntryDetail extends StatelessWidget {
                       : Colors.red,
                 ),
                 onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => _TracingErrorDialog(
-                      error: error!,
-                      errorParser: errorParser,
-                    ),
-                  );
+                  if (MediaQuery.sizeOf(context).width <= 800) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => _TracingErrorPage(
+                          error: error!,
+                          errorParser: errorParser,
+                        ),
+                      ),
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (_) => _TracingErrorDialog(
+                        error: error!,
+                        errorParser: errorParser,
+                      ),
+                    );
+                  }
                 },
                 icon: Icon(
                     error!.lifecycle == ActionLifecycle.after
