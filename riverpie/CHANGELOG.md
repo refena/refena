@@ -1,7 +1,8 @@
 ## 0.25.0
 
 - feat: small improvements for `RiverpieTracingPage`
-- feat: small improvements for `RiverpieDebugObserver`
+- feat: improve `RiverpieDebugObserver` logging for dispatching actions
+- fix: correctly dispose `ViewProvider` when `ref.dispose` is called
 - **BREAKING**: remove listener added/removed events due to excessive logging with little value
 
 ## 0.24.0

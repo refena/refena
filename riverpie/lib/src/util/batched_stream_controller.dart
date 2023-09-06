@@ -27,5 +27,10 @@ class BatchedStreamController<T> {
     });
   }
 
+  void dispose() {
+    _streamController.close();
+    _scheduledEvents = null;
+  }
+
   Stream<List<T>> get stream => _streamController.stream;
 }

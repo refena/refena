@@ -1,6 +1,8 @@
 import 'package:riverpie/riverpie.dart';
 import 'package:test/test.dart';
 
+import 'util/skip_microtasks.dart';
+
 void main() {
   group('dispose', () {
     late RiverpieHistoryObserver observer;
@@ -32,6 +34,59 @@ void main() {
           isA<ProviderInitEvent>(),
           isA<ProviderDisposeEvent>(),
           isA<ProviderInitEvent>(),
+        ],
+      );
+    });
+
+    test('Disposing a ViewProvider should dispose the listener', () async {
+      observer = RiverpieHistoryObserver.only(
+        providerInit: true,
+        providerDispose: true,
+        change: true,
+        rebuild: true,
+      );
+
+      final ref = RiverpieContainer(observer: observer);
+      final stateProvider = StateProvider((ref) => 10);
+      final viewProvider = ViewProvider<int>((ref) {
+        return ref.watch(stateProvider);
+      });
+
+      expect(ref.read(viewProvider), 10);
+
+      ref.notifier(stateProvider).setState((old) => old + 1);
+
+      await skipAllMicrotasks();
+
+      expect(ref.read(viewProvider), 11);
+
+      ref.dispose(viewProvider);
+
+      // This should not trigger a rebuild of the disposed view provider
+      ref.notifier(stateProvider).setState((old) => old + 1);
+
+      // Here it should be reinitialized again
+      expect(ref.read(viewProvider), 12);
+
+      ref.notifier(stateProvider).setState((old) => old + 1);
+
+      await skipAllMicrotasks();
+
+      // Back to normal: Rebuilds are triggered again
+      expect(ref.read(viewProvider), 13);
+
+      expect(
+        observer.history,
+        [
+          isA<ProviderInitEvent>(),
+          isA<ProviderInitEvent>(),
+          isA<ChangeEvent>(),
+          isA<RebuildEvent>(),
+          isA<ProviderDisposeEvent>(),
+          isA<ChangeEvent>(),
+          isA<ProviderInitEvent>(),
+          isA<ChangeEvent>(),
+          isA<RebuildEvent>(),
         ],
       );
     });

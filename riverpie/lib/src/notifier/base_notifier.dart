@@ -226,6 +226,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   late final WatchableRef watchableRef;
   final T Function(WatchableRef) builder;
   final _rebuildController = BatchedStreamController<AbstractChangeEvent>();
+  bool _disposed = false;
 
   @override
   T init() {
@@ -294,7 +295,15 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   }
 
   @override
-  bool get disposed => false;
+  @nonVirtual
+  void dispose() {
+    _disposed = true;
+    _rebuildController.dispose();
+    super.dispose();
+  }
+
+  @override
+  bool get disposed => _disposed;
 }
 
 /// A notifier where the state can be updated by dispatching actions
