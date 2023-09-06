@@ -13,12 +13,6 @@ class HistoryObserverConfig {
   /// Whether the observer should save [ProviderDisposeEvent]s.
   final bool saveProviderDisposeEvents;
 
-  /// Whether the observer should save [ListenerAddedEvent]s.
-  final bool saveListenerAddedEvents;
-
-  /// Whether the observer should save [ListenerRemovedEvent]s.
-  final bool saveListenerRemovedEvents;
-
   /// Whether the observer should save [ChangeEvent]s.
   final bool saveChangeEvents;
 
@@ -41,8 +35,6 @@ class HistoryObserverConfig {
     this.startImmediately = true,
     this.saveProviderInitEvents = false,
     this.saveProviderDisposeEvents = false,
-    this.saveListenerAddedEvents = false,
-    this.saveListenerRemovedEvents = false,
     this.saveChangeEvents = true,
     this.saveRebuildEvents = true,
     this.saveActionDispatchedEvents = true,
@@ -58,8 +50,6 @@ class HistoryObserverConfig {
   static const all = HistoryObserverConfig(
     saveProviderInitEvents: true,
     saveProviderDisposeEvents: true,
-    saveListenerAddedEvents: true,
-    saveListenerRemovedEvents: true,
     saveChangeEvents: true,
     saveRebuildEvents: true,
     saveActionDispatchedEvents: true,
@@ -72,8 +62,6 @@ class HistoryObserverConfig {
     bool startImmediately = true,
     bool providerInit = false,
     bool providerDispose = false,
-    bool listenerAdded = false,
-    bool listenerRemoved = false,
     bool change = false,
     bool rebuild = false,
     bool actionDispatched = false,
@@ -85,8 +73,6 @@ class HistoryObserverConfig {
       startImmediately: startImmediately,
       saveProviderInitEvents: providerInit,
       saveProviderDisposeEvents: providerDispose,
-      saveListenerAddedEvents: listenerAdded,
-      saveListenerRemovedEvents: listenerRemoved,
       saveChangeEvents: change,
       saveRebuildEvents: rebuild,
       saveActionDispatchedEvents: actionDispatched,
@@ -133,8 +119,6 @@ class RiverpieHistoryObserver extends RiverpieObserver {
       startImmediately: startImmediately,
       providerInit: providerInit,
       providerDispose: providerDispose,
-      listenerAdded: listenerAdded,
-      listenerRemoved: listenerRemoved,
       change: change,
       rebuild: rebuild,
       actionDispatched: actionDispatched,
@@ -158,16 +142,6 @@ class RiverpieHistoryObserver extends RiverpieObserver {
         break;
       case ProviderDisposeEvent():
         if (config.saveProviderDisposeEvents) {
-          history.add(event);
-        }
-        break;
-      case ListenerAddedEvent():
-        if (config.saveListenerAddedEvents) {
-          history.add(event);
-        }
-        break;
-      case ListenerRemovedEvent():
-        if (config.saveListenerRemovedEvents) {
           history.add(event);
         }
         break;

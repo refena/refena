@@ -33,10 +33,6 @@ void main() {
         cause: ProviderInitCause.access,
         value: null,
       ),
-      ListenerAddedEvent(
-        notifier: notifier,
-        rebuildable: viewNotifier,
-      ),
       ProviderInitEvent(
         provider: viewProvider,
         notifier: viewNotifier,

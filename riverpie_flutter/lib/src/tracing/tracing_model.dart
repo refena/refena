@@ -35,8 +35,6 @@ enum _EventType {
   providerInit,
   providerDispose,
   message,
-  listenerAdded,
-  listenerRemoved,
 }
 
 class FakeRebuildEvent implements RebuildEvent {
@@ -85,8 +83,6 @@ extension on RiverpieEvent {
       ProviderInitEvent() => _EventType.providerInit,
       ProviderDisposeEvent() => _EventType.providerDispose,
       MessageEvent() => _EventType.message,
-      ListenerAddedEvent() => _EventType.listenerAdded,
-      ListenerRemovedEvent() => _EventType.listenerRemoved,
     };
   }
 }

@@ -43,7 +43,7 @@ abstract class BaseNotifier<T> with LabeledReference {
   late T _state;
 
   /// A collection of listeners
-  late final NotifierListeners<T> _listeners;
+  final NotifierListeners<T> _listeners = NotifierListeners<T>();
 
   BaseNotifier({String? debugLabel}) : customDebugLabel = debugLabel;
 
@@ -150,7 +150,6 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
   @internal
   @mustCallSuper
   void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
-    _listeners = NotifierListeners<T>(this, observer);
     _notifyStrategy = container.defaultNotifyStrategy;
     _observer = observer;
     _state = init();
@@ -210,7 +209,6 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   @internal
   @mustCallSuper
   void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
-    _listeners = NotifierListeners<AsyncValue<T>>(this, observer);
     _notifyStrategy = container.defaultNotifyStrategy;
     _observer = observer;
 
@@ -638,7 +636,6 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @mustCallSuper
   void internalSetup(RiverpieContainer container, RiverpieObserver? observer) {
     _ref = container;
-    _listeners = NotifierListeners<T>(this, observer);
     _notifyStrategy = container.defaultNotifyStrategy;
     _observer = observer;
     _state = init();

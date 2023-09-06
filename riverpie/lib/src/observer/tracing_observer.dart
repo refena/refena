@@ -11,17 +11,12 @@ class RiverpieTracingObserver extends RiverpieObserver {
   /// The maximum number of events to store.
   final int limit;
 
-  /// If true, then [ListenerAddedEvent] and [ListenerRemovedEvent] are
-  /// also included in the list of events.
-  final bool includeListenerEvents;
-
   /// If the given function returns `true`, then the event
   /// won't be logged.
   final bool Function(RiverpieEvent event)? exclude;
 
   RiverpieTracingObserver({
     this.limit = 100,
-    this.includeListenerEvents = false,
     this.exclude,
   }) : assert(limit > 0, 'limit must be greater than 0');
 
@@ -33,11 +28,6 @@ class RiverpieTracingObserver extends RiverpieObserver {
 
   @override
   void handleEvent(RiverpieEvent event) {
-    if (!includeListenerEvents &&
-        (event is ListenerAddedEvent || event is ListenerRemovedEvent)) {
-      return;
-    }
-
     if (exclude != null && exclude!(event)) {
       return;
     }

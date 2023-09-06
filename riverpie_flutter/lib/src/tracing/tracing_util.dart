@@ -7,8 +7,6 @@ final Map<_EventType, Color> _baseColors = {
   _EventType.providerInit: Colors.green,
   _EventType.providerDispose: Colors.grey,
   _EventType.message: Colors.yellow,
-  _EventType.listenerAdded: Colors.cyan,
-  _EventType.listenerRemoved: Colors.cyan,
 };
 
 final Map<_EventType, Color> _headerColor = _baseColors.map((key, value) {

@@ -233,10 +233,6 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                                         _EventType.providerDispose =>
                                           'Provider Dispose',
                                         _EventType.message => 'Message',
-                                        _EventType.listenerAdded =>
-                                          'Listener Added',
-                                        _EventType.listenerRemoved =>
-                                          'Listener Removed',
                                       },
                                       style: TextStyle(
                                         color: Colors.grey,

@@ -219,63 +219,6 @@ class ProviderDisposeEvent extends RiverpieEvent {
   }
 }
 
-/// A listener is added to a notifier.
-/// This happens on ref.watch the first time the call happens within a state.
-class ListenerAddedEvent extends RiverpieEvent {
-  final BaseNotifier notifier;
-  final Rebuildable rebuildable;
-
-  ListenerAddedEvent({
-    required this.notifier,
-    required this.rebuildable,
-  });
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ListenerAddedEvent &&
-          runtimeType == other.runtimeType &&
-          notifier == other.notifier &&
-          rebuildable == other.rebuildable;
-
-  @override
-  int get hashCode => notifier.hashCode ^ rebuildable.hashCode;
-
-  @override
-  String toString() {
-    return 'ListenerAddedEvent(notifier: $notifier, rebuildable: $rebuildable)';
-  }
-}
-
-/// Listener is removed from a notifier.
-/// This usually happens when a notifier tries to notify or
-/// periodically when new listeners are added.
-class ListenerRemovedEvent extends RiverpieEvent {
-  final BaseNotifier notifier;
-  final Rebuildable rebuildable;
-
-  ListenerRemovedEvent({
-    required this.notifier,
-    required this.rebuildable,
-  });
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ListenerRemovedEvent &&
-          runtimeType == other.runtimeType &&
-          notifier == other.notifier &&
-          rebuildable == other.rebuildable;
-
-  @override
-  int get hashCode => notifier.hashCode ^ rebuildable.hashCode;
-
-  @override
-  String toString() {
-    return 'ListenerRemovedEvent(notifier: $notifier, rebuildable: $rebuildable)';
-  }
-}
-
 /// An action has been dispatched.
 /// Usually, a [ChangeEvent] directly follows this event.
 /// If the action is asynchronous, the [ChangeEvent] can be delayed.

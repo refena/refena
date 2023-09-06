@@ -92,12 +92,6 @@ List<_TracingEntry> _buildEntries(Iterable<RiverpieEvent> events) {
         }
         result.add(_TracingEntry(event, []));
         break;
-      case ListenerAddedEvent _:
-        result.add(_TracingEntry(event, []));
-        break;
-      case ListenerRemovedEvent _:
-        result.add(_TracingEntry(event, []));
-        break;
     }
   }
   return result;
@@ -170,12 +164,6 @@ bool _contains(_TracingEntry entry, String query) {
     ProviderDisposeEvent event =>
       event.provider.toString().toLowerCase().contains(query),
     MessageEvent event => event.message.toLowerCase().contains(query),
-    ListenerAddedEvent event =>
-      event.rebuildable.debugLabel.toLowerCase().contains(query) ||
-          event.notifier.debugLabel.toLowerCase().contains(query),
-    ListenerRemovedEvent event =>
-      event.rebuildable.debugLabel.toLowerCase().contains(query) ||
-          event.notifier.debugLabel.toLowerCase().contains(query),
   };
 
   if (contains) {

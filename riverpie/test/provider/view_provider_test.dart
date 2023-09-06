@@ -58,10 +58,6 @@ void main() {
         cause: ProviderInitCause.access,
         value: 0,
       ),
-      ListenerAddedEvent(
-        notifier: stateNotifier,
-        rebuildable: viewNotifier,
-      ),
       ProviderInitEvent(
         provider: viewProvider,
         notifier: viewNotifier,
@@ -149,29 +145,17 @@ void main() {
         cause: ProviderInitCause.access,
         value: 0,
       ),
-      ListenerAddedEvent(
-        notifier: numberNotifier,
-        rebuildable: viewNotifier,
-      ),
       ProviderInitEvent(
         provider: stringProvider,
         notifier: stringNotifier,
         cause: ProviderInitCause.access,
         value: 'a',
       ),
-      ListenerAddedEvent(
-        notifier: stringNotifier,
-        rebuildable: viewNotifier,
-      ),
       ProviderInitEvent(
         provider: viewProvider,
         notifier: viewNotifier,
         cause: ProviderInitCause.access,
         value: _ComplexState(0, 'a'),
-      ),
-      ListenerAddedEvent(
-        notifier: viewNotifier,
-        rebuildable: selectiveViewNotifier,
       ),
       ProviderInitEvent(
         provider: selectiveViewProvider,

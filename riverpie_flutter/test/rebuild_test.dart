@@ -189,19 +189,11 @@ void main() {
         cause: ProviderInitCause.access,
         value: 111,
       ),
-      ListenerAddedEvent(
-        notifier: notifierA,
-        rebuildable: notifier,
-      ),
       ProviderInitEvent(
         provider: _stateBProvider,
         notifier: notifierB,
         cause: ProviderInitCause.access,
         value: 999,
-      ),
-      ListenerAddedEvent(
-        notifier: notifierB,
-        rebuildable: notifier,
       ),
       ProviderInitEvent(
         provider: _viewProvider,
@@ -212,10 +204,6 @@ void main() {
           setA: (_) {},
           setB: (_) {},
         ),
-      ),
-      ListenerAddedEvent(
-        notifier: notifier,
-        rebuildable: WidgetRebuildable<_ViewModelWidget>(),
       ),
       ChangeEvent(
         notifier: notifierA,

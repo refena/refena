@@ -97,10 +97,6 @@ class _EntryTileState extends State<_EntryTile> {
                                 ProviderDisposeEvent event =>
                                   event.provider.debugLabel,
                                 MessageEvent event => event.message,
-                                ListenerAddedEvent event =>
-                                  '${event.rebuildable.debugLabel} on ${event.notifier.debugLabel}',
-                                ListenerRemovedEvent event =>
-                                  '${event.rebuildable.debugLabel} on ${event.notifier.debugLabel}',
                               },
                               style: TextStyle(
                                 color: switch (widget.entry.error?.lifecycle) {
@@ -262,14 +258,6 @@ class _EntryTileState extends State<_EntryTile> {
                                     'Origin': event.origin.debugLabel,
                                     'Message': event.message,
                                   },
-                                ListenerAddedEvent event => {
-                                    'Rebuildable': event.rebuildable.debugLabel,
-                                    'Notifier': event.notifier.debugLabel,
-                                  },
-                                ListenerRemovedEvent event => {
-                                    'Rebuildable': event.rebuildable.debugLabel,
-                                    'Notifier': event.notifier.debugLabel,
-                                  },
                               },
                             ),
                           ),
@@ -311,8 +299,6 @@ class _EntryCharacterBox extends StatelessWidget {
           _EventType.providerInit => 'I',
           _EventType.providerDispose => 'D',
           _EventType.message => 'M',
-          _EventType.listenerAdded => 'LA',
-          _EventType.listenerRemoved => 'LR',
         },
         textAlign: TextAlign.center,
       ),

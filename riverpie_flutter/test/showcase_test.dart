@@ -88,10 +88,6 @@ void main() {
         cause: ProviderInitCause.override,
         value: 0,
       ),
-      ListenerAddedEvent(
-        notifier: counterNotifier,
-        rebuildable: WidgetRebuildable<MyPage>(),
-      ),
       ChangeEvent(
         notifier: counterNotifier,
         action: null,

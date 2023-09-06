@@ -28,7 +28,7 @@ void main() {
     final doubleNotifier = ref.anyNotifier(doubleProvider);
     final viewNotifier = ref.anyNotifier(viewProvider);
 
-    expect(observer.history.length, 6);
+    expect(observer.history.length, 5);
 
     final history0 = observer.history[0] as ProviderInitEvent;
     expect(history0.provider, doubleProvider);
@@ -44,31 +44,27 @@ void main() {
     expect(history1.next, {123: AsyncValue<int>.loading()});
     expect(history1.rebuild, []);
 
-    final history2 = observer.history[2] as ListenerAddedEvent;
-    expect(history2.notifier, doubleNotifier);
-    expect(history2.rebuildable, viewNotifier);
+    final history2 = observer.history[2] as ProviderInitEvent;
+    expect(history2.provider, viewProvider);
+    expect(history2.notifier, viewNotifier);
+    expect(history2.cause, ProviderInitCause.access);
+    expect(history2.value, AsyncValue<int>.loading());
 
-    final history3 = observer.history[3] as ProviderInitEvent;
-    expect(history3.provider, viewProvider);
-    expect(history3.notifier, viewNotifier);
-    expect(history3.cause, ProviderInitCause.access);
-    expect(history3.value, AsyncValue<int>.loading());
+    final history3 =
+        observer.history[3] as ChangeEvent<Map<int, AsyncValue<int>>>;
+    expect(history3.notifier, doubleNotifier);
+    expect(history3.action, null);
+    expect(history3.prev, {123: AsyncValue<int>.loading()});
+    expect(history3.next, {123: AsyncValue.withData(246)});
+    expect(history3.rebuild, [viewNotifier]);
 
-    final history4 =
-        observer.history[4] as ChangeEvent<Map<int, AsyncValue<int>>>;
-    expect(history4.notifier, doubleNotifier);
-    expect(history4.action, null);
-    expect(history4.prev, {123: AsyncValue<int>.loading()});
-    expect(history4.next, {123: AsyncValue.withData(246)});
-    expect(history4.rebuild, [viewNotifier]);
-
-    final history5 = observer.history[5] as RebuildEvent<AsyncValue<int>>;
-    expect(history5.rebuildable, viewNotifier);
-    expect(history5.causes.length, 1);
-    expect(history5.causes[0], history4);
-    expect(history5.prev, AsyncValue<int>.loading());
-    expect(history5.next, AsyncValue.withData(246));
-    expect(history5.rebuild, []);
+    final history4 = observer.history[4] as RebuildEvent<AsyncValue<int>>;
+    expect(history4.rebuildable, viewNotifier);
+    expect(history4.causes.length, 1);
+    expect(history4.causes[0], history3);
+    expect(history4.prev, AsyncValue<int>.loading());
+    expect(history4.next, AsyncValue.withData(246));
+    expect(history4.rebuild, []);
 
     final view2Provider = ViewProvider((ref) {
       return ref.watch(doubleProvider(400));

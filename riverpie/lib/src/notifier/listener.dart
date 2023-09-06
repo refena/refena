@@ -1,10 +1,8 @@
 import 'dart:async';
 
-import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/rebuildable.dart';
 import 'package:riverpie/src/observer/event.dart';
-import 'package:riverpie/src/observer/observer.dart';
 
 typedef ListenerCallback<T> = void Function(T prev, T next);
 
@@ -23,14 +21,12 @@ class ListenerConfig<T> {
 }
 
 class NotifierListeners<T> {
-  final RiverpieObserver? _observer;
-  final BaseNotifier<T> _notifier;
+  NotifierListeners();
+
   final _listeners = <Rebuildable, ListenerConfig<T>>{};
   int _listenerAddCount = 0;
 
   final _stream = StreamController<NotifierEvent<T>>.broadcast();
-
-  NotifierListeners(this._notifier, this._observer);
 
   void notifyAll({
     required T prev,
@@ -71,10 +67,6 @@ class NotifierListeners<T> {
         _listenerAddCount = 0;
         _removeUnusedListeners();
       }
-
-      _observer?.handleEvent(
-        ListenerAddedEvent(notifier: _notifier, rebuildable: rebuildable),
-      );
     }
 
     // We still need to add the listener even if it is already added.
@@ -95,23 +87,6 @@ class NotifierListeners<T> {
 
   void _removeUnusedListeners() {
     // remove any listener that has been disposed
-    final observer = _observer;
-    if (observer != null) {
-      final removed = <Rebuildable>[];
-      _listeners.removeWhere((rebuildable, config) {
-        if (rebuildable.disposed) {
-          removed.add(rebuildable);
-          return true;
-        }
-        return false;
-      });
-      for (final r in removed) {
-        observer.handleEvent(
-          ListenerRemovedEvent(notifier: _notifier, rebuildable: r),
-        );
-      }
-    } else {
-      _listeners.removeWhere((rebuildable, config) => rebuildable.disposed);
-    }
+    _listeners.removeWhere((rebuildable, config) => rebuildable.disposed);
   }
 }
