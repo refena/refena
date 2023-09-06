@@ -7,7 +7,12 @@ import 'package:riverpie_flutter/riverpie_flutter.dart';
 void main() {
   runApp(
     RiverpieScope(
-      observer: RiverpieTracingObserver(),
+      observer: RiverpieMultiObserver(
+        observers: [
+          RiverpieDebugObserver(),
+          RiverpieTracingObserver(),
+        ],
+      ),
       child: MyApp(),
     ),
   );

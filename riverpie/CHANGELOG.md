@@ -1,3 +1,9 @@
+## 0.25.0
+
+- feat: small improvements for `RiverpieTracingPage`
+- feat: small improvements for `RiverpieDebugObserver`
+- **BREAKING**: remove listener added/removed events due to excessive logging with little value
+
 ## 0.24.0
 
 - feat: add `GlobalAction`, a family of actions that don't belong to any notifier

@@ -161,6 +161,8 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
 
   late N _notifier;
 
+  Type get notifierType => N;
+
   @internal
   void internalSetup(Ref? ref, N notifier, RiverpieObserver? observer) {
     _originalRef = ref;

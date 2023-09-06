@@ -2,16 +2,6 @@ import 'package:example/main.dart';
 import 'package:flutter/material.dart';
 import 'package:riverpie_flutter/riverpie_flutter.dart';
 
-sealed class CountEvent {}
-final class AddEvent extends CountEvent {
-  final int addedAmount;
-  AddEvent(this.addedAmount);
-}
-final class SubtractEvent extends CountEvent {
-  final int subtractedAmount;
-  SubtractEvent(this.subtractedAmount);
-}
-
 final counterProvider = ReduxProvider<ReduxCounter, int>((ref) {
   return ReduxCounter(ref.notifier(counterProviderA));
 });

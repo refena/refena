@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/action/redux_action.dart';
 import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
@@ -180,19 +181,33 @@ class RiverpieDebugObserver extends RiverpieObserver {
         onLine?.call(_b);
         break;
       case ActionDispatchedEvent event:
+        final origin = event.debugOriginRef;
+        final String originStr;
+        final String externalStr;
+        if (origin is BaseReduxAction) {
+          originStr = '${origin.notifier.hideGlobalLabel}${origin.debugLabel}';
+          externalStr = event.notifier is GlobalRedux
+              ? ' (global)'
+              : (origin.notifierType == event.action.notifierType
+                  ? ''
+                  : ' (external)');
+        } else {
+          originStr = event.debugOrigin;
+          externalStr = event.notifier is GlobalRedux ? ' (global)' : '';
+        }
         _line(
-            'Action dispatched: [${event.notifier.debugLabel}.${event.action.runtimeType}] by [${event.debugOrigin}]');
+            'Action dispatched: [$originStr] -> [${event.notifier.hideGlobalLabel}${event.action.debugLabel}]$externalStr');
         break;
       case ActionFinishedEvent event:
         final resultString = event.result == null
             ? ''
             : ' with result: [${event.result.toString().toSingleLine()}]';
         _line(
-            'Action finished: [${event.action.notifier.debugLabel}.${event.action.debugLabel}]$resultString');
+            'Action finished:   [${event.action.notifier.hideGlobalLabel}${event.action.debugLabel}]$resultString');
         break;
       case ActionErrorEvent event:
         _line(
-          'Action error: [${event.action.notifier.debugLabel}.${event.action.debugLabel}.${event.lifecycle.name}] has thrown the following error:',
+          'Action error:      [${event.action.notifier.debugLabel}.${event.action.debugLabel}.${event.lifecycle.name}] has thrown the following error:',
           error: event.error,
           stackTrace: event.stackTrace,
         );
@@ -266,4 +281,8 @@ String _getProviderDebugLabel(BaseProvider? provider, BaseNotifier? notifier) {
       provider?.debugLabel ??
       notifier?.runtimeType.toString() ??
       provider!.runtimeType.toString();
+}
+
+extension on BaseNotifier {
+  String get hideGlobalLabel => this is GlobalRedux ? '' : '$debugLabel.';
 }
