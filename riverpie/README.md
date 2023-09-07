@@ -106,7 +106,7 @@ To access `ref`, you can either add `with Riverpie` (only in `StatefulWidget`) o
 **Common super class**:\
 `WatchableRef extends Ref`.
 You can use `Ref` as parameter to implement util functions that need access to `ref`.
-These functions can be called by providers and widgets.
+These functions can be called by providers and also by widgets.
 
 **ref.watch**:\
 Only the `ViewProvider` can `watch` other providers.
@@ -131,10 +131,11 @@ you can choose the right notifier for your use case.
 The state is still bound to the `RiverpieScope` widget. This means that you can override every provider in your tests.
 
 **Type-safe**:\
-Every provider is correctly typed. Enjoy type-safe auto completions when you read them.
+Working providers and notifiers are type-safe and null-safe.
 
 **Auto register**:\
-You don't need to register any provider. They will be initialized lazily when you access them.
+Don't worry that you forget to register a provider.
+They are automatically registered when you use them.
 
 ## Getting started
 
@@ -268,16 +269,68 @@ The most important ones are `Provider` and `NotifierProvider` because they are t
 
 ### ➤ Provider
 
+The `Provider` is the most basic provider. It is simple but very powerful.
+
 Use this provider for immutable values (constants or stateless services).
 
 ```dart
-final myProvider = Provider((ref) => 42);
+final databaseProvider = Provider((ref) => DatabaseService());
 ```
 
-You may initialize this during app start.\
+To access the value:
+
+```dart
+// Everywhere
+DatabaseService a = ref.read(databaseProvider);
+
+// Inside a build method
+DatabaseService a = ref.watch(databaseProvider);
+```
+
+This type of provider can replace your entire dependency injection solution.
+
+By default, the value is initialized lazily,
+but you can also tell Riverpie to initialize it right away with the `initialProviders` parameter:
+
+```dart
+void main() {
+  runApp(
+    RiverpieScope(
+      initialProviders: [
+        databaseProvider,
+      ],
+      child: const MyApp(),
+    ),
+  );
+}
+```
+
+The provider body is called synchronously.\
+If you need to do some asynchronous work, you can use `overrideWithFuture` or `overrideWithValue`.
+
+```dart
+final persistenceProvider = Provider<PersistenceService>((ref) => throw 'Not initialized');
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final PersistenceService persistenceService = await initPersistenceService();
+
+  runApp(RiverpieScope(
+    overrides: [
+      persistenceProvider.overrideWithValue(persistenceService),
+    ],
+    child: const MyApp(),
+  ));
+}
+```
+
+You can have multiple overrides depending on each other.\
 The override order is important:
 An exception will be thrown on app start if you reference a provider that is not yet initialized.\
-If you have at least one future override, you should await the initialization with `ref.ensureOverrides()`.
+If you have at least one future override, you should await the initialization with `scope.ensureOverrides()`.
+
+`scope.ensureOverrides()` returns a Future, so you can also show a loading indicator while the app is initializing.
 
 ```dart
 final persistenceProvider = Provider<PersistenceService>((ref) => throw 'Not initialized');
@@ -294,7 +347,7 @@ void main() async {
         return PersistenceService(prefs);
       }),
       apiProvider.overrideWithFuture((ref) async {
-        final persistenceService = ref.read(persistenceProvider);
+        final persistenceService = ref.read(persistenceProvider); // <-- depends on override
         final anotherService = await initAnotherService();
         return ApiService(persistenceService, anotherService);
       }),
@@ -306,16 +359,6 @@ void main() async {
 
   runApp(scope);
 }
-```
-
-To access the value:
-
-```dart
-// Everywhere
-int a = ref.read(myProvider);
-
-// Inside a build method
-int a = ref.watch(myProvider);
 ```
 
 ### ➤ FutureProvider
@@ -815,7 +858,7 @@ Similar to `ref.watch` with `listener`, but you need to manage the subscription 
 
 The subscription will not be disposed automatically.
 
-Use this outside of a `build` method.
+Use this outside a `build` method.
 
 ```dart
 final subscription = ref.stream(myProvider).listen((value) {
@@ -1023,25 +1066,32 @@ You may also use `ref` inside `dispose` because `ref` is guaranteed to be initia
 Please note that you need `with Riverpie`.
 
 ```dart
-@override
-void initState() {
-  super.initState();
-  ensureRef((ref) {
-    ref.read(myProvider);
-  });
-  
-  // or
-  ensureRef();
+class MyPage extends StatefulWidget {
+  @override
+  State<MyPage> createState() => _MyPageState();
 }
 
-@override
-void dispose() {
-  ensureRef((ref) {
-    // This is safe now because we called `ensureRef` in `initState`
-    ref.read(myProvider);
-    ref.notifier(myNotifierProvider).doSomething();
-  });
-  super.dispose();
+class _MyPageState extends State<MyPage> with Riverpie {
+  @override
+  void initState() {
+    super.initState();
+    ensureRef((ref) {
+      ref.read(myProvider);
+    });
+
+    // or
+    ensureRef();
+  }
+
+  @override
+  void dispose() {
+    ensureRef((ref) {
+      // This is safe now because we called `ensureRef` in `initState`
+      ref.read(myProvider);
+      ref.notifier(myNotifierProvider).doSomething();
+    });
+    super.dispose();
+  }
 }
 ```
 
@@ -1055,7 +1105,7 @@ Remember that this is only for edge cases, and you should always use the accessi
 
 ```dart
 void someFunction() {
-  final ref = RiverpieScope.defaultRef;
+  Ref ref = RiverpieScope.defaultRef;
   ref.read(myProvider);
   ref.notifier(myNotifierProvider).doSomething();
 }

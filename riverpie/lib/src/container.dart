@@ -118,7 +118,7 @@ class RiverpieContainer extends Ref with LabeledReference {
         ProviderInitEvent(
           provider: provider,
           notifier: notifier,
-          value: notifier.state, // ignore: invalid_use_of_protected_member
+          value: notifier.state,
           cause: ProviderInitCause.override,
         ),
       );
@@ -167,7 +167,7 @@ class RiverpieContainer extends Ref with LabeledReference {
         ProviderInitEvent(
           provider: provider,
           notifier: notifier,
-          value: notifier.state, // ignore: invalid_use_of_protected_member
+          value: notifier.state,
           cause: overridden != null ? ProviderInitCause.override : cause,
         ),
       );
