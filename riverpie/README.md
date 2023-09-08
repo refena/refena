@@ -348,7 +348,8 @@ void main() async {
         return PersistenceService(prefs);
       }),
       apiProvider.overrideWithFuture((ref) async {
-        final persistenceService = ref.read(persistenceProvider); // <-- depends on override
+        // uses persistenceService from above
+        final persistenceService = ref.read(persistenceProvider);
         final anotherService = await initAnotherService();
         return ApiService(persistenceService, anotherService);
       }),
