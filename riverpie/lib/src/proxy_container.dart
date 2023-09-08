@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:riverpie/src/action/dispatcher.dart';
 import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/labeled_reference.dart';
@@ -6,6 +8,7 @@ import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
+import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
 
@@ -26,6 +29,11 @@ class ProxyContainer implements RiverpieContainer {
   @override
   Future<void> ensureOverrides() {
     return _container.ensureOverrides();
+  }
+
+  @override
+  FutureOr<void> set(ProviderOverride override) {
+    return _container.set(override);
   }
 
   @override
@@ -77,6 +85,9 @@ class ProxyContainer implements RiverpieContainer {
   void message(String message) {
     _container.message(message);
   }
+
+  @override
+  RiverpieContainer get container => _container;
 
   @override
   NotifyStrategy get defaultNotifyStrategy => _container.defaultNotifyStrategy;

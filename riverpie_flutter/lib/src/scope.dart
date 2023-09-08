@@ -64,6 +64,13 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
     return _container.ensureOverrides();
   }
 
+  /// Overrides a provider with a new value.
+  /// This allows for overrides happening after the container was created.
+  @override
+  FutureOr<void> set(ProviderOverride override) {
+    return _container.set(override);
+  }
+
   /// Returns the actual value of a [Provider].
   @override
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
@@ -118,6 +125,9 @@ class RiverpieScope extends InheritedWidget implements RiverpieContainer {
   void message(String message) {
     _container.message(message);
   }
+
+  @override
+  RiverpieContainer get container => _container;
 
   @internal
   @override

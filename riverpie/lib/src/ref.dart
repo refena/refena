@@ -57,6 +57,10 @@ abstract class Ref {
   /// This might be handy if you use [RiverpieTracingPage].
   void message(String message);
 
+  /// Returns the backing container.
+  /// The container exposes more advanced methods for edge cases.
+  RiverpieContainer get container;
+
   /// Returns the owner of this [Ref].
   /// Usually, this is a notifier or a widget.
   /// Used by [Ref.redux] to log the origin of the action.
@@ -118,6 +122,9 @@ class WatchableRef extends Ref {
   void message(String message) {
     _ref.observer?.handleEvent(MessageEvent(message, _rebuildable));
   }
+
+  @override
+  RiverpieContainer get container => _ref;
 
   /// Get the current value of a provider and listen to changes.
   /// The listener will be disposed automatically when the widget is disposed.

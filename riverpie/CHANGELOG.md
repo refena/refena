@@ -1,3 +1,8 @@
+## 0.26.0
+
+- feat: add `ref.container` to access low-level APIs of `RiverpieContainer`
+- feat: add `container.set` to override providers even after initialization
+
 ## 0.25.0
 
 - feat: add `disposeAction` getter to `ReduxNotifier`

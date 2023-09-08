@@ -71,6 +71,7 @@ class MyPage extends StatelessWidget {
     - [ref.redux](#-refredux)
     - [ref.dispose](#-refdispose)
     - [ref.message](#-refmessage)
+    - [ref.container](#-refcontainer)
 - [What to choose?](#what-to-choose)
 - [Performance Optimization](#performance-optimization)
 - [ensureRef](#ensureref)
@@ -359,6 +360,16 @@ void main() async {
 
   runApp(scope);
 }
+```
+
+You could also override this on demand:
+
+```dart
+// Access container for low level access
+RiverpieContainer container = ref.container;
+
+// Override the provider
+container.set(persistenceProvider.overrideWithValue(persistenceService));
 ```
 
 ### ➤ FutureProvider
@@ -951,6 +962,15 @@ ref.message('Hello World');
 ```
 
 Inside a `ReduxAction`, this method is available as `emitMessage`.
+
+### ➤ ref.container
+
+Returns the backing container.
+The container exposes more advanced methods for edge cases like post-init overrides.
+
+```dart
+RiverpieContainer container = ref.container;
+```
 
 ## What to choose?
 

@@ -16,6 +16,7 @@ void main() {
       await ref.ensureOverrides();
 
       // The next microtask should not be executed yet.
+      // Therefore, ensureOverrides finished before the delayedValue is set.
       expect(delayedValue, null);
 
       await skipAllMicrotasks();
@@ -24,6 +25,21 @@ void main() {
     });
 
     // For more tests, see Provider group.
+  });
+
+  group('setOverride', () {
+    test('Should override', () {
+      final ref = RiverpieContainer();
+      final provider = Provider((ref) => 123);
+
+      expect(ref.read(provider), 123);
+
+      ref.set(
+        provider.overrideWithValue(456),
+      );
+
+      expect(ref.read(provider), 456);
+    });
   });
 
   group(Provider, () {

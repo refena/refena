@@ -91,40 +91,46 @@ class RiverpieContainer extends Ref with LabeledReference {
 
     for (int i = 0; i < _overridesList.length; i++) {
       _overrideIndex = i;
-      final provider = _overridesList[i].provider;
-      final createState = _overridesList[i].createState;
-
-      if (_state.containsKey(provider)) {
-        // Already initialized
-        // This may happen when a provider depends on another provider and
-        // both are overridden.
-        continue;
-      }
-
-      final notifierOrFuture = ProviderOverride(
-        provider: provider,
-        createState: createState,
-      ).createState(_withProviderLabel(provider));
-
-      final BaseNotifier notifier = switch (notifierOrFuture) {
-        Future<BaseNotifier> future => await future,
-        BaseNotifier notifier => notifier,
-      };
-
-      notifier.internalSetup(_withNotifierLabel(notifier), observer);
-      _state[provider] = notifier;
-
-      observer?.handleEvent(
-        ProviderInitEvent(
-          provider: provider,
-          notifier: notifier,
-          value: notifier.state,
-          cause: ProviderInitCause.override,
-        ),
-      );
-
-      notifier.postInit();
+      await _override(_overridesList[i]);
     }
+  }
+
+  /// Initializes the state of a single provider with a predefined state.
+  /// By default, it skips already initialized providers.
+  /// If [force] is true, it will override the state of already initialized
+  /// providers.
+  Future<void> _override(
+    ProviderOverride override, {
+    bool force = false,
+  }) async {
+    final provider = override.provider;
+    if (!force && _state.containsKey(provider)) {
+      // Already initialized
+      // This may happen when a provider depends on another provider and
+      // both are overridden.
+      return;
+    }
+
+    final notifierOrFuture = override.createState(_withProviderLabel(provider));
+
+    final BaseNotifier notifier = switch (notifierOrFuture) {
+      Future<BaseNotifier> future => await future,
+      BaseNotifier notifier => notifier,
+    };
+
+    notifier.internalSetup(_withNotifierLabel(notifier), observer);
+    _state[provider] = notifier;
+
+    observer?.handleEvent(
+      ProviderInitEvent(
+        provider: provider,
+        notifier: notifier,
+        value: notifier.state,
+        cause: ProviderInitCause.override,
+      ),
+    );
+
+    notifier.postInit();
   }
 
   /// Returns the state of the provider.
@@ -175,6 +181,12 @@ class RiverpieContainer extends Ref with LabeledReference {
       notifier.postInit();
     }
     return notifier;
+  }
+
+  /// Overrides a provider with a new value.
+  /// This allows for overrides happening after the container was created.
+  FutureOr<void> set(ProviderOverride override) {
+    return _override(override, force: true);
   }
 
   /// Returns the actual value of a [Provider].
@@ -245,6 +257,9 @@ class RiverpieContainer extends Ref with LabeledReference {
   void message(String message) {
     observer?.handleEvent(MessageEvent(message, this));
   }
+
+  @override
+  RiverpieContainer get container => this;
 
   @override
   String get debugOwnerLabel => 'RiverpieContainer';
