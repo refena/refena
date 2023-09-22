@@ -324,6 +324,9 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// A map of overrides for the reducers.
   Map<Type, MockReducer<T>?>? _overrides;
 
+  /// The override for the initial state.
+  T? _overrideInitialState;
+
   /// Dispatches an action and updates the state.
   /// Returns the new state.
   @internal
@@ -600,11 +603,6 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     }
   }
 
-  /// Overrides the reducer for the given action type.
-  void _setOverrides(Map<Type, MockReducer<T>?> overrides) {
-    _overrides = overrides;
-  }
-
   @override
   @internal
   set state(T value) {
@@ -660,7 +658,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     _ref = container;
     _notifyStrategy = container.defaultNotifyStrategy;
     _observer = observer;
-    _state = init();
+    _state = _overrideInitialState ?? init();
     _initialized = true;
   }
 }
@@ -825,13 +823,30 @@ extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T>, T,
   /// );
   ProviderOverride<N, T> overrideWithReducer({
     N Function(Ref ref)? notifier,
+    T? initialState,
     required Map<Type, MockReducer<T>?> overrides,
   }) {
     return ProviderOverride<N, T>(
       provider: this,
       createState: (ref) {
         final createdNotifier = (notifier?.call(ref) ?? createState(ref));
-        createdNotifier._setOverrides(overrides);
+        createdNotifier._overrideInitialState = initialState;
+        createdNotifier._overrides = overrides;
+        return createdNotifier;
+      },
+    );
+  }
+
+  /// Overrides the initial state with the given [initialState].
+  ProviderOverride<N, T> overrideWithInitialState({
+    N Function(Ref ref)? notifier,
+    required T? initialState,
+  }) {
+    return ProviderOverride<N, T>(
+      provider: this,
+      createState: (ref) {
+        final createdNotifier = (notifier?.call(ref) ?? createState(ref));
+        createdNotifier._overrideInitialState = initialState;
         return createdNotifier;
       },
     );

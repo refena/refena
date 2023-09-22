@@ -338,7 +338,7 @@ void main() {
       expect(ref.read(provider), 457);
     });
 
-    test('Should override with enum reducer', () {
+    test('Should override with reducer', () {
       final provider =
           ReduxProvider<_ReduxNotifier, int>((ref) => _ReduxNotifier());
       final ref = RiverpieContainer(
@@ -367,6 +367,27 @@ void main() {
       // ignore: invalid_use_of_protected_member
       ref.anyNotifier(provider).dispatch(_HalfAction());
       expect(ref.read(provider), 72);
+    });
+
+    test('Should override with initial state', () {
+      final provider1 =
+          ReduxProvider<_ReduxNotifier, int>((ref) => _ReduxNotifier());
+      final provider2 =
+          ReduxProvider<_ReduxNotifier, int>((ref) => _ReduxNotifier());
+      final ref = RiverpieContainer(
+        overrides: [
+          provider1.overrideWithInitialState(
+            initialState: 555,
+          ),
+          provider2.overrideWithReducer(
+            initialState: 666,
+            overrides: {},
+          ),
+        ],
+      );
+
+      expect(ref.read(provider1), 555);
+      expect(ref.read(provider2), 666);
     });
   });
 }
