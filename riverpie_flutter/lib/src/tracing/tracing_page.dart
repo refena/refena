@@ -20,6 +20,8 @@ part 'tracing_error_dialog.dart';
 
 part 'tracing_error_parser.dart';
 
+part 'tracing_event_details_page.dart';
+
 part 'tracing_legend.dart';
 
 part 'tracing_model.dart';

@@ -254,7 +254,8 @@ class _EntryTileState extends State<_EntryTile> {
                                       'Duration':
                                           '${widget.entry.millis?.formatMillis()}',
                                     if (widget.entry.result != null)
-                                      'Result': widget.entry.result.toString(),
+                                      'Result':
+                                          _formatResult(widget.entry.result!),
                                   },
                                 ActionFinishedEvent _ => {},
                                 ActionErrorEvent _ => {},
@@ -393,7 +394,7 @@ class _EntryDetail extends StatelessWidget {
                 children: [
                   Text('${e.key} : ', style: TextStyle(color: Colors.grey)),
                   Expanded(
-                    child: Text(e.value),
+                    child: Text(e.value.split('\n').take(30).join('\n')),
                   ),
                 ],
               ),
@@ -416,59 +417,105 @@ class _EntryDetail extends StatelessWidget {
                 foregroundColor: Colors.grey,
               ),
               onPressed: () {
-                final text = attributes.entries
-                    .map((e) => '${e.key} : ${e.value}')
-                    .join('\n');
-                Clipboard.setData(ClipboardData(text: text));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text('Copied to clipboard'),
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => _TracingEventDetailsPage(
+                      attributes: attributes,
+                      error: error,
+                      errorParser: errorParser,
+                    ),
                   ),
                 );
               },
-              icon: const Icon(Icons.copy, size: 16),
-              label: const Text('Copy'),
+              icon: const Icon(Icons.open_in_new, size: 16),
+              label: const Text('Open'),
             ),
             const SizedBox(width: 10),
+            _CopyEventButton(attributes),
+            const SizedBox(width: 10),
             if (error != null)
-              TextButton.icon(
-                style: TextButton.styleFrom(
-                  foregroundColor: error!.lifecycle == ActionLifecycle.after
-                      ? Colors.orange
-                      : Colors.red,
-                ),
-                onPressed: () {
-                  if (MediaQuery.sizeOf(context).width <= 800) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => _TracingErrorPage(
-                          error: error!,
-                          errorParser: errorParser,
-                        ),
-                      ),
-                    );
-                  } else {
-                    showDialog(
-                      context: context,
-                      builder: (_) => _TracingErrorDialog(
-                        error: error!,
-                        errorParser: errorParser,
-                      ),
-                    );
-                  }
-                },
-                icon: Icon(
-                    error!.lifecycle == ActionLifecycle.after
-                        ? Icons.warning
-                        : Icons.error,
-                    size: 16),
-                label: Text(error!.lifecycle == ActionLifecycle.after
-                    ? 'Warning'
-                    : 'Error'),
+              _ErrorButton(
+                error: error!,
+                errorParser: errorParser,
               ),
           ],
         ),
       ],
+    );
+  }
+}
+
+class _CopyEventButton extends StatelessWidget {
+  final Map<String, String> attributes;
+
+  const _CopyEventButton(this.attributes);
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      style: TextButton.styleFrom(
+        foregroundColor: Colors.grey,
+      ),
+      onPressed: () {
+        final text =
+            attributes.entries.map((e) => '${e.key} : ${e.value}').join('\n');
+        Clipboard.setData(ClipboardData(text: text));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: const Text('Copied to clipboard'),
+          ),
+        );
+      },
+      icon: const Icon(Icons.copy, size: 16),
+      label: const Text('Copy'),
+    );
+  }
+}
+
+class _ErrorButton extends StatelessWidget {
+  final ActionErrorEvent error;
+  final ErrorParser? errorParser;
+
+  const _ErrorButton({
+    required this.error,
+    required this.errorParser,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton.icon(
+      style: TextButton.styleFrom(
+        foregroundColor: error.lifecycle == ActionLifecycle.after
+            ? Colors.orange
+            : Colors.red,
+      ),
+      onPressed: () {
+        if (MediaQuery.sizeOf(context).width <= 800) {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => _TracingErrorPage(
+                error: error,
+                errorParser: errorParser,
+              ),
+            ),
+          );
+        } else {
+          showDialog(
+            context: context,
+            builder: (_) => _TracingErrorDialog(
+              error: error,
+              errorParser: errorParser,
+            ),
+          );
+        }
+      },
+      icon: Icon(
+          error.lifecycle == ActionLifecycle.after
+              ? Icons.warning
+              : Icons.error,
+          size: 16),
+      label:
+          Text(error.lifecycle == ActionLifecycle.after ? 'Warning' : 'Error'),
     );
   }
 }

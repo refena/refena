@@ -103,7 +103,7 @@ class _TracingErrorContent extends StatelessWidget {
           Text('Info:', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
           _QuoteContainer(
-            JsonEncoder.withIndent('  ').convert(parsed),
+            _jsonEncoder.convert(parsed),
           ),
         ],
         const SizedBox(height: 10),
@@ -141,9 +141,8 @@ class _QuoteContainer extends StatelessWidget {
 void _copyErrorToClipboard(
     BuildContext context, ActionErrorEvent error, ErrorParser? errorParser) {
   final parsed = _parseError(error.error, errorParser);
-  final parsedJson = parsed != null
-      ? '\n\n${JsonEncoder.withIndent('  ').convert(parsed)}'
-      : '';
+  final parsedJson =
+      parsed != null ? '\n\n${_jsonEncoder.convert(parsed)}' : '';
   final text =
       'Error in ${error.action.debugLabel}.${error.lifecycle.name}:\n${error.error}$parsedJson\n\n${error.stackTrace}';
   Clipboard.setData(ClipboardData(text: text));

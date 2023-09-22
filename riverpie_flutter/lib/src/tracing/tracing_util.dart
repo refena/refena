@@ -1,5 +1,7 @@
 part of 'tracing_page.dart';
 
+final _jsonEncoder = JsonEncoder.withIndent('  ');
+
 final Map<_EventType, Color> _baseColors = {
   _EventType.change: Colors.orange,
   _EventType.rebuild: Colors.purple,
@@ -24,5 +26,18 @@ String _formatTimestamp(DateTime timestamp) {
 extension on int {
   String formatMillis() {
     return '${this}ms';
+  }
+}
+
+String _formatResult(Object result) {
+  try {
+    if (result is Map<String, dynamic>) {
+      return _jsonEncoder.convert(result);
+    }
+
+    final parsed = jsonDecode(result.toString());
+    return _jsonEncoder.convert(parsed);
+  } catch (e) {
+    return result.toString();
   }
 }

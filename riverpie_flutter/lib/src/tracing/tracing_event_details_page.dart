@@ -1,0 +1,57 @@
+part of 'tracing_page.dart';
+
+class _TracingEventDetailsPage extends StatelessWidget {
+  final Map<String, String> attributes;
+  final ActionErrorEvent? error;
+  final ErrorParser? errorParser;
+
+  const _TracingEventDetailsPage({
+    required this.attributes,
+    required this.error,
+    required this.errorParser,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Event',
+        ),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.only(
+          left: 15,
+          right: 15,
+          top: 15,
+          bottom: 50,
+        ),
+        children: [
+          ...attributes.entries.map((e) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('${e.key} : ', style: TextStyle(color: Colors.grey)),
+                    Expanded(
+                      child: SelectableText(e.value),
+                    ),
+                  ],
+                ),
+              )),
+          const SizedBox(height: 20),
+          Row(
+            children: [
+              _CopyEventButton(attributes),
+              if (error != null)
+                _ErrorButton(
+                  error: error!,
+                  errorParser: errorParser,
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
