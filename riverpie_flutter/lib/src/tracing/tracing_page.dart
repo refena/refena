@@ -45,6 +45,14 @@ class RiverpieTracingPage extends StatefulWidget {
   /// See [ErrorParser] for more details.
   final ErrorParser? errorParser;
 
+  /// If the given function returns `true`, then the event
+  /// won't be displayed.
+  final bool Function(RiverpieEvent event)? exclude;
+
+  /// If the given function returns `true`, then the event
+  /// will be displayed.
+  final bool Function(RiverpieEvent event)? include;
+
   /// Display a time column by default.
   /// This can still be toggled in the UI.
   final bool showTime;
@@ -53,8 +61,13 @@ class RiverpieTracingPage extends StatefulWidget {
     super.key,
     this.slowExecutionThreshold = 500,
     this.errorParser,
+    this.exclude,
+    this.include,
     this.showTime = false,
-  });
+  })  : assert(slowExecutionThreshold > 0,
+            'slowExecutionThreshold must be greater than 0'),
+        assert(include == null || exclude == null,
+            'include and exclude cannot be used at the same time');
 
   @override
   State<RiverpieTracingPage> createState() => _RiverpieTracingPageState();
@@ -108,7 +121,13 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
         _sampleWidgetSize = renderObject.paintBounds.size;
       }
 
-      _entries = _buildEntries(ref.notifier(tracingProvider).events);
+      Iterable<RiverpieEvent> events = ref.notifier(tracingProvider).events;
+      if (widget.exclude != null) {
+        events = events.where((e) => !widget.exclude!(e));
+      } else if (widget.include != null) {
+        events = events.where((e) => widget.include!(e));
+      }
+      _entries = _buildEntries(events);
       _filter();
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final entriesCount = _countItems(_entries);

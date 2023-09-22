@@ -26,10 +26,8 @@ class _TracingLegend extends StatelessWidget {
                         _EventType.change => 'State Change',
                         _EventType.rebuild => 'Rebuild',
                         _EventType.action => 'Action Dispatch',
-                        _EventType.providerInit =>
-                        'Provider Initialization',
-                        _EventType.providerDispose =>
-                        'Provider Dispose',
+                        _EventType.providerInit => 'Provider Initialization',
+                        _EventType.providerDispose => 'Provider Dispose',
                         _EventType.message => 'Message',
                       },
                       style: TextStyle(

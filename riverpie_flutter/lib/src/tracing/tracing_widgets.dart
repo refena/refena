@@ -195,7 +195,11 @@ class _EntryTileState extends State<_EntryTile> {
                   ? null
                   : Row(
                       children: [
-                        const SizedBox(width: 85),
+                        SizedBox(
+                          width: widget.showTime
+                              ? _EntryTile.timeColumnWidth
+                              : _EntryTile.noTimeWidth,
+                        ),
                         SizedBox(width: (widget.depth + 1) * 40),
                         Expanded(
                           child: Container(
