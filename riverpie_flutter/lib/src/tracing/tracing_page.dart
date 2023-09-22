@@ -59,6 +59,9 @@ class RiverpieTracingPage extends StatefulWidget {
   /// This can still be toggled in the UI.
   final bool showTime;
 
+  /// Initial filter query.
+  final String? query;
+
   const RiverpieTracingPage({
     super.key,
     this.slowExecutionThreshold = 500,
@@ -66,6 +69,7 @@ class RiverpieTracingPage extends StatefulWidget {
     this.exclude,
     this.include,
     this.showTime = false,
+    this.query,
   })  : assert(slowExecutionThreshold > 0,
             'slowExecutionThreshold must be greater than 0'),
         assert(include == null || exclude == null,
@@ -85,7 +89,7 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
   bool _notInitializedError = false;
   Size _sampleWidgetSize = Size(40, 32);
 
-  String _query = '';
+  late String _query = widget.query ?? '';
   late bool _showTime = widget.showTime;
 
   @override
@@ -277,7 +281,8 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
               alignment: Alignment.bottomCenter,
               child: Padding(
                 padding: const EdgeInsets.all(20),
-                child: TextField(
+                child: TextFormField(
+                  initialValue: _query,
                   style: TextStyle(color: Colors.grey.shade700),
                   decoration: InputDecoration(
                     hintText: 'Filter',
