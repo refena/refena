@@ -1,3 +1,10 @@
+## 0.27.0
+
+- feat(ReduxProvider): allow to override `initialState`
+- feat(TracingPage): hide time column by default (can be enabled via constructor)
+- feat(TracingPage): add `exclude`, `include` and `query` constructor parameters to filter events
+- feat(TracingPage): format action result as JSON if possible
+
 ## 0.26.0
 
 - feat: add `ref.container` to access low-level APIs of `RiverpieContainer`
