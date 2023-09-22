@@ -20,6 +20,8 @@ part 'tracing_error_dialog.dart';
 
 part 'tracing_error_parser.dart';
 
+part 'tracing_legend.dart';
+
 part 'tracing_model.dart';
 
 part 'tracing_model_builder.dart';
@@ -43,10 +45,15 @@ class RiverpieTracingPage extends StatefulWidget {
   /// See [ErrorParser] for more details.
   final ErrorParser? errorParser;
 
+  /// Display a time column by default.
+  /// This can still be toggled in the UI.
+  final bool showTime;
+
   const RiverpieTracingPage({
     super.key,
     this.slowExecutionThreshold = 500,
     this.errorParser,
+    this.showTime = false,
   });
 
   @override
@@ -62,7 +69,9 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
   bool _show = false;
   bool _notInitializedError = false;
   Size _sampleWidgetSize = Size(40, 32);
+
   String _query = '';
+  late bool _showTime = widget.showTime;
 
   @override
   void initState() {
@@ -153,6 +162,18 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                   padding: EdgeInsets.zero,
                   child: ListTile(
                     dense: true,
+                    leading: const Icon(Icons.access_time),
+                    trailing: _showTime
+                        ? const Icon(Icons.check)
+                        : const SizedBox.shrink(),
+                    title: Text('Time'),
+                  ),
+                  value: 'time',
+                ),
+                PopupMenuItem(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    dense: true,
                     leading: const Icon(Icons.delete),
                     title: Text('Clear'),
                   ),
@@ -165,6 +186,11 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
               switch (value) {
                 case 'refresh':
                   _load(loadDelay: const Duration(milliseconds: 100));
+                  break;
+                case 'time':
+                  setState(() {
+                    _showTime = !_showTime;
+                  });
                   break;
                 case 'clear':
                   ref.notifier(tracingProvider).clear();
@@ -198,7 +224,11 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                 itemBuilder: (context, index) {
                   if (index == 0) {
                     return Padding(
-                      padding: const EdgeInsets.only(left: 85, bottom: 10),
+                      padding: EdgeInsets.only(
+                          left: _showTime
+                              ? _EntryTile.timeColumnWidth
+                              : _EntryTile.noTimeWidth,
+                          bottom: 10),
                       child: Text(
                         'Start of history...',
                         style: TextStyle(color: Colors.grey),
@@ -207,54 +237,15 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                   }
 
                   if (index == _filteredEntries.length + 1) {
-                    // legend
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 20, left: 20),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: SizedBox(
-                          width: max(600, screenWidth - 40),
-                          child: Wrap(
-                            children: _EventType.values.map((e) {
-                              return Padding(
-                                padding: const EdgeInsets.all(8),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    _EntryCharacterBox(e),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      switch (e) {
-                                        _EventType.change => 'State Change',
-                                        _EventType.rebuild => 'Rebuild',
-                                        _EventType.action => 'Action Dispatch',
-                                        _EventType.providerInit =>
-                                          'Provider Initialization',
-                                        _EventType.providerDispose =>
-                                          'Provider Dispose',
-                                        _EventType.message => 'Message',
-                                      },
-                                      style: TextStyle(
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }).toList(),
-                          ),
-                        ),
-                      ),
-                    );
+                    return _TracingLegend();
                   }
-
-                  final entry = _filteredEntries[index - 1];
 
                   return _EntryTile(
                     slowExecutionThreshold: widget.slowExecutionThreshold,
                     errorParser: widget.errorParser,
-                    entry: entry,
+                    entry: _filteredEntries[index - 1],
                     depth: 0,
+                    showTime: _showTime,
                   );
                 },
               ),

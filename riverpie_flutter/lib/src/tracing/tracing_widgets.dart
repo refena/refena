@@ -3,16 +3,21 @@
 part of 'tracing_page.dart';
 
 class _EntryTile extends StatefulWidget {
+  static const timeColumnWidth = 85.0;
+  static const noTimeWidth = 20.0;
+
   final int slowExecutionThreshold;
   final ErrorParser? errorParser;
   final _TracingEntry entry;
   final int depth;
+  final bool showTime;
 
   const _EntryTile({
     required this.slowExecutionThreshold,
     required this.errorParser,
     required this.entry,
     required this.depth,
+    required this.showTime,
   });
 
   @override
@@ -30,19 +35,22 @@ class _EntryTileState extends State<_EntryTile> {
           children: [
             Row(
               children: [
-                ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minWidth: 85,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Text(
-                      _formatTimestamp(widget.entry.timestamp),
-                      style: TextStyle(color: Colors.grey),
-                      textAlign: TextAlign.right,
+                if (widget.showTime)
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minWidth: _EntryTile.timeColumnWidth,
                     ),
-                  ),
-                ),
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Text(
+                        _formatTimestamp(widget.entry.timestamp),
+                        style: TextStyle(color: Colors.grey),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox(width: _EntryTile.noTimeWidth),
                 if (widget.depth != 0)
                   Padding(
                     padding: EdgeInsets.only(left: (widget.depth - 1) * 40),
@@ -272,6 +280,7 @@ class _EntryTileState extends State<_EntryTile> {
               errorParser: widget.errorParser,
               entry: e,
               depth: widget.depth + 1,
+              showTime: widget.showTime,
             )),
       ],
     );
