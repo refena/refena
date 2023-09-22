@@ -45,6 +45,42 @@ class MyPage extends StatelessWidget {
 }
 ```
 
+Or in Redux style:
+
+```dart
+final counterProvider = ReduxProvider<Counter, int>((ref) => Counter());
+
+class Counter extends ReduxNotifier<int> {
+  @override
+  int init() => 10;
+}
+
+class AddAction extends ReduxAction<Counter, int> {
+  final int amount;
+  AddAction(this.amount);
+  
+  @override
+  int reduce() => state + amount;
+}
+
+class MyPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    Ref ref = context.ref;
+    int counterState = ref.watch(counterProvider);
+    return Scaffold(
+      body: Center(
+        child: Text('Counter state: $counterState'),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => ref.redux(counterProvider).dispatch(AddAction(2)),
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+```
+
 ## Table of Contents
 
 - [Riverpie vs Riverpod](#riverpie-vs-riverpod)

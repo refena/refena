@@ -1,5 +1,5 @@
 name: riverpie
-description: A state management library for Dart and Flutter. Inspired by Riverpod.
+description: A state management library for Dart and Flutter. Inspired by Riverpod and async_redux.
 version: 0.26.0
 repository: https://github.com/Tienisto/riverpie
 topics:
@@ -7,6 +7,7 @@ topics:
   - provider
   - riverpod
   - framework
+  - redux
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
