@@ -28,14 +28,15 @@ class _TracingEventDetailsPage extends StatelessWidget {
         ),
         children: [
           ...attributes.entries.map((e) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${e.key} : ', style: TextStyle(color: Colors.grey)),
-                    Expanded(
-                      child: SelectableText(e.value),
+                    Text(
+                      '${e.key}:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
+                    SelectableText(e.value),
                   ],
                 ),
               )),
