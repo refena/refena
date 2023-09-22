@@ -141,7 +141,7 @@ class WatchableRef extends Ref {
   /// Instead, you should use *Records* to combine multiple values:
   /// final (a, b) = ref.watch(provider.select((state) => state.a, state.b));
   ///
-  /// Only call [watch] during build.
+  /// Only call this method during build or inside a [ViewProvider].
   R watch<N extends BaseNotifier<T>, T, R>(
     Watchable<N, T, R> watchable, {
     ListenerCallback<T>? listener,
