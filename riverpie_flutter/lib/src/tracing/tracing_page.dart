@@ -213,7 +213,7 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                       child: Align(
                         alignment: Alignment.centerLeft,
                         child: SizedBox(
-                          width: max(800, screenWidth - 40),
+                          width: max(600, screenWidth - 40),
                           child: Wrap(
                             children: _EventType.values.map((e) {
                               return Padding(
