@@ -30,7 +30,7 @@ Use `context.ref` to access the provider:
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Ref ref = context.ref;
+    var ref = context.ref;
     int counterState = ref.watch(counterProvider);
     return Scaffold(
       body: Center(
@@ -66,7 +66,7 @@ class AddAction extends ReduxAction<Counter, int> {
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    Ref ref = context.ref;
+    var ref = context.ref;
     int counterState = ref.watch(counterProvider);
     return Scaffold(
       body: Center(
@@ -272,15 +272,15 @@ You can also use `Consumer` to access the state. This is useful to rebuild only 
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Consumer(
-      builder: (context, ref) {
-        final myValue = ref.watch(myProvider);
-        return Scaffold(
-          body: Center(
-            child: Text('The value is $myValue'),
-          ),
-        );
-      },
+    return Scaffold(
+      body: Center(
+        child: Consumer(
+          builder: (context, ref) {
+            final myValue = ref.watch(myProvider);
+            return Text('The value is $myValue');
+          }
+        ),
+      ),
     );
   }
 }
@@ -290,7 +290,7 @@ class MyPage extends StatelessWidget {
 
 There are many types of providers. Each one has its own purpose.
 
-The most important ones are `Provider` and `NotifierProvider` because they are the most flexible.
+The most important ones are `Provider`, `NotifierProvider`, and `ReduxProvider` because they are the most flexible.
 
 | Provider                 | Usage                                | Notifier API   | Can `watch` |
 |--------------------------|--------------------------------------|----------------|-------------|
@@ -301,7 +301,7 @@ The most important ones are `Provider` and `NotifierProvider` because they are t
 | `ChangeNotifierProvider` | Performance critical services        | Custom methods | No          |
 | `NotifierProvider`       | Regular services                     | Custom methods | No          |
 | `AsyncNotifierProvider`  | Services that need futures           | Custom methods | No          |
-| `ReduxProvider`          | Action based services                | Action based   | No          |
+| `ReduxProvider`          | Action based services                | Custom actions | No          |
 | `ViewProvider`           | View models                          | -              | Yes         |
 
 ### ➤ Provider
