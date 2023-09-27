@@ -1,8 +1,10 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/async_value.dart';
+import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
+import 'package:riverpie/src/proxy_ref.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// Use an [AsyncNotifierProvider] to implement a stateful provider.
@@ -12,15 +14,14 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
     extends BaseWatchableProvider<N, AsyncValue<T>>
     with ProviderSelectMixin<N, AsyncValue<T>>
     implements NotifyableProvider<N, AsyncValue<T>> {
-  @internal
-  final N Function(Ref ref) builder;
+  AsyncNotifierProvider(this._builder, {super.debugLabel});
 
-  AsyncNotifierProvider(this.builder, {super.debugLabel});
+  final N Function(Ref ref) _builder;
 
   @internal
   @override
-  N createState(Ref ref) {
-    return builder(ref);
+  N createState(ProxyRef ref) {
+    return _build(ref, _builder);
   }
 
   ProviderOverride<N, AsyncValue<T>> overrideWithNotifier(
@@ -28,7 +29,27 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
   ) {
     return ProviderOverride(
       provider: this,
-      createState: (ref) => builder(ref),
+      createState: (ref) => _build(ref, builder),
     );
   }
+}
+
+/// Builds the notifier and also registers the dependencies.
+N _build<N extends AsyncNotifier<T>, T>(
+  ProxyRef ref,
+  N Function(Ref ref) builder,
+) {
+  final dependencies = <BaseNotifier>{};
+
+  final notifier = ref.trackNotifier(
+    onAccess: (notifier) => dependencies.add(notifier),
+    run: () => builder(ref),
+  );
+
+  notifier.dependencies.addAll(dependencies);
+  for (final dependency in dependencies) {
+    dependency.dependents.add(notifier);
+  }
+
+  return notifier;
 }

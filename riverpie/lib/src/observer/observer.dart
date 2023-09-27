@@ -1,11 +1,10 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/action/redux_action.dart';
-import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
-import 'package:riverpie/src/proxy_container.dart';
+import 'package:riverpie/src/proxy_ref.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// The observer receives every [RiverpieEvent].
@@ -31,8 +30,8 @@ abstract class RiverpieObserver with LabeledReference {
   String get debugLabel => runtimeType.toString();
 
   @internal
-  void internalSetup(RiverpieContainer container) {
-    _ref = container;
+  void internalSetup(ProxyRef ref) {
+    _ref = ref;
   }
 }
 
@@ -72,10 +71,10 @@ class RiverpieMultiObserver extends RiverpieObserver {
 
   @internal
   @override
-  void internalSetup(RiverpieContainer container) {
+  void internalSetup(ProxyRef ref) {
     for (final observer in observers) {
-      observer.internalSetup(ProxyContainer(
-        container,
+      observer.internalSetup(ProxyRef(
+        ref.container,
         observer.debugLabel,
         observer,
       ));

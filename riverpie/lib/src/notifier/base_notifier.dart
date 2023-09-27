@@ -13,6 +13,7 @@ import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
+import 'package:riverpie/src/proxy_ref.dart';
 import 'package:riverpie/src/ref.dart';
 import 'package:riverpie/src/util/batched_stream_controller.dart';
 import 'package:riverpie/src/util/stacktrace.dart';
@@ -47,9 +48,12 @@ abstract class BaseNotifier<T> with LabeledReference {
   /// A collection of listeners
   final NotifierListeners<T> _listeners = NotifierListeners<T>();
 
+  /// A collection of notifiers that this notifier depends on.
+  final Set<BaseNotifier> dependencies = {};
+
   /// A collection of notifiers that depend on this notifier.
   /// They will be disposed when this notifier is disposed.
-  final Set<BaseNotifier> _dependents = {};
+  final Set<BaseNotifier> dependents = {};
 
   BaseNotifier({String? debugLabel}) : customDebugLabel = debugLabel;
 
@@ -109,7 +113,7 @@ abstract class BaseNotifier<T> with LabeledReference {
     _listeners.dispose();
 
     // Dispose dependents
-    for (final dependent in _dependents) {
+    for (final dependent in dependents) {
       dependent.dispose();
     }
 
@@ -143,7 +147,7 @@ abstract class BaseNotifier<T> with LabeledReference {
   /// Calls [init] internally.
   @internal
   void internalSetup(
-    RiverpieContainer container,
+    ProxyRef ref,
     BaseProvider? provider,
     RiverpieObserver? observer,
   );
@@ -162,6 +166,18 @@ abstract class BaseNotifier<T> with LabeledReference {
   String toString() {
     return '$runtimeType(label: $debugLabel, state: ${_initialized ? _state : 'uninitialized'})';
   }
+
+  /// Subclasses should not override this method.
+  /// It is used internally by [dependencies] and [dependents].
+  @override
+  @nonVirtual
+  bool operator ==(Object other) {
+    return identical(this, other);
+  }
+
+  @override
+  @nonVirtual
+  int get hashCode => super.hashCode;
 }
 
 @internal
@@ -177,11 +193,11 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
   @internal
   @mustCallSuper
   void internalSetup(
-    RiverpieContainer container,
+    ProxyRef ref,
     BaseProvider? provider,
     RiverpieObserver? observer,
   ) {
-    _notifyStrategy = container.defaultNotifyStrategy;
+    _notifyStrategy = ref.container.defaultNotifyStrategy;
     _provider = provider;
     _observer = observer;
     _state = init();
@@ -241,11 +257,11 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   @internal
   @mustCallSuper
   void internalSetup(
-    RiverpieContainer container,
+    ProxyRef ref,
     BaseProvider? provider,
     RiverpieObserver? observer,
   ) {
-    _notifyStrategy = container.defaultNotifyStrategy;
+    _notifyStrategy = ref.container.defaultNotifyStrategy;
     _provider = provider;
     _observer = observer;
 
@@ -258,10 +274,10 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
 
 final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
     implements Rebuildable {
-  ViewProviderNotifier(this.builder, {super.debugLabel});
+  ViewProviderNotifier(this._builder, {super.debugLabel});
 
-  late final WatchableRef watchableRef;
-  final T Function(WatchableRef) builder;
+  late final WatchableRef _watchableRef;
+  final T Function(WatchableRef) _builder;
   final _rebuildController = BatchedStreamController<AbstractChangeEvent>();
   bool _disposed = false;
 
@@ -270,11 +286,31 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
     _rebuildController.stream.listen((event) {
       // rebuild notifier state
       _setStateCustom(
-        builder(watchableRef),
+        _build(),
         event,
       );
     });
-    return builder(watchableRef);
+    return _build();
+  }
+
+  T _build() {
+    final oldDependencies = {...dependencies};
+    dependencies.clear();
+
+    final nextState = _watchableRef.trackNotifier(
+      onAccess: (notifier) {
+        dependencies.add(notifier);
+        notifier.dependents.add(this);
+      },
+      run: () => _builder(_watchableRef),
+    );
+
+    final removedDependencies = oldDependencies.difference(dependencies);
+    for (final removedDependency in removedDependencies) {
+      removedDependency.dependents.remove(this);
+    }
+
+    return nextState;
   }
 
   // See [BaseNotifier._setState] for reference.
@@ -308,15 +344,15 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   @internal
   @override
   void internalSetup(
-    RiverpieContainer container,
+    ProxyRef ref,
     BaseProvider? provider,
     RiverpieObserver? observer,
   ) {
-    watchableRef = WatchableRef(
-      ref: container,
+    _watchableRef = WatchableRef(
+      ref: ref.container,
       rebuildable: this,
     );
-    super.internalSetup(container, provider, observer);
+    super.internalSetup(ref, provider, observer);
   }
 
   @override
@@ -696,12 +732,12 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @internal
   @mustCallSuper
   void internalSetup(
-    RiverpieContainer container,
+    ProxyRef ref,
     BaseProvider? provider,
     RiverpieObserver? observer,
   ) {
-    _ref = container;
-    _notifyStrategy = container.defaultNotifyStrategy;
+    _ref = ref;
+    _notifyStrategy = ref.container.defaultNotifyStrategy;
     _provider = provider;
     _observer = observer;
     _state = _overrideInitialState ?? init();
@@ -717,7 +753,15 @@ class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
     required this.notifier,
     T? initialState,
   }) {
-    notifier.internalSetup(RiverpieContainer(), null, null);
+    notifier.internalSetup(
+      ProxyRef(
+        RiverpieContainer(),
+        'TestableNotifier',
+        LabeledReference.custom('TestableNotifier'),
+      ),
+      null,
+      null,
+    );
     if (initialState != null) {
       notifier._state = initialState;
     } else {
@@ -744,7 +788,15 @@ class TestableAsyncNotifier<N extends BaseAsyncNotifier<T>, T> {
     required this.notifier,
     AsyncValue<T>? initialState,
   }) {
-    notifier.internalSetup(RiverpieContainer(), null, null);
+    notifier.internalSetup(
+      ProxyRef(
+        RiverpieContainer(),
+        'TestableAsyncNotifier',
+        LabeledReference.custom('TestableAsyncNotifier'),
+      ),
+      null,
+      null,
+    );
     if (initialState != null) {
       notifier._futureCount++; // invalidate previous future callbacks
       notifier._state = initialState;

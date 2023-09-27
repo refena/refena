@@ -3,17 +3,43 @@ import 'package:test/test.dart';
 
 void main() {
   late RiverpieContainer ref;
-  final observer = RiverpieHistoryObserver(HistoryObserverConfig(
-    saveChangeEvents: false,
-    saveActionDispatchedEvents: true,
-    saveActionFinishedEvents: false,
-  ));
+  final observer = RiverpieHistoryObserver.only(
+    actionDispatched: true,
+  );
 
   setUp(() {
     observer.clear();
     ref = RiverpieContainer(
       observer: observer,
     );
+  });
+
+  test('Observer should use label of observer', () {
+    final historyObserver = RiverpieHistoryObserver.only(
+      message: true,
+    );
+    final customObserver = _CustomObserver();
+    final container = RiverpieContainer(
+      observer: RiverpieMultiObserver(
+        observers: [
+          historyObserver,
+          customObserver,
+        ],
+      ),
+    );
+
+    container.message('Hello');
+
+    expect(historyObserver.history, [
+      MessageEvent(
+        'Hello',
+        container,
+      ),
+      MessageEvent(
+        'Hi',
+        customObserver,
+      ),
+    ]);
   });
 
   test('Should use container label', () {
@@ -134,6 +160,19 @@ void main() {
       ),
     ]);
   });
+}
+
+class _CustomObserver extends RiverpieObserver {
+  @override
+  void handleEvent(RiverpieEvent event) {
+    // add if-statement to avoid infinite loop
+    if (event is MessageEvent && event.origin != this) {
+      ref.message('Hi');
+    }
+  }
+
+  @override
+  String get debugLabel => 'MyObserver';
 }
 
 final _reduxProviderA = ReduxProvider<_ReduxA, int>((ref) {

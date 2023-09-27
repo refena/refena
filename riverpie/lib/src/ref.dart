@@ -80,20 +80,30 @@ class WatchableRef extends Ref {
 
   @override
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _ref.read<N, T>(provider);
+    if (_onAccessNotifier == null) {
+      return _ref.read<N, T>(provider);
+    }
+
+    final notifier = _ref.anyNotifier<N, T>(provider);
+    _onAccessNotifier!(notifier);
+    return notifier.state;
   }
 
   @override
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {
-    return _ref.notifier<N, T>(provider);
+    final notifier = _ref.notifier<N, T>(provider);
+    _onAccessNotifier?.call(notifier);
+    return notifier;
   }
 
   @override
   Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
     ReduxProvider<N, T> provider,
   ) {
+    final notifier = _ref.anyNotifier(provider);
+    _onAccessNotifier?.call(notifier);
     return Dispatcher(
-      notifier: _ref.notifier(provider),
+      notifier: notifier,
       debugOrigin: debugOwnerLabel,
       debugOriginRef: _rebuildable,
     );
@@ -103,14 +113,26 @@ class WatchableRef extends Ref {
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
     BaseProvider<N, T> provider,
   ) {
-    return _ref.stream<N, T>(provider);
+    if (_onAccessNotifier == null) {
+      return _ref.stream<N, T>(provider);
+    }
+
+    final notifier = _ref.anyNotifier<N, T>(provider);
+    _onAccessNotifier!(notifier);
+    return notifier.getStream();
   }
 
   @override
   Future<T> future<N extends AsyncNotifier<T>, T>(
     AsyncNotifierProvider<N, T> provider,
   ) {
-    return _ref.future<N, T>(provider);
+    if (_onAccessNotifier == null) {
+      return _ref.future<N, T>(provider);
+    }
+
+    final notifier = _ref.anyNotifier(provider);
+    _onAccessNotifier!(notifier);
+    return notifier.future; // ignore: invalid_use_of_protected_member
   }
 
   @override
@@ -182,6 +204,8 @@ class WatchableRef extends Ref {
       }
     }
 
+    _onAccessNotifier?.call(notifier);
+
     return watchable.getSelectedState(notifier, notifier.state);
   }
 
@@ -201,12 +225,29 @@ class WatchableRef extends Ref {
       ),
     );
 
+    _onAccessNotifier?.call(notifier);
+
     // ignore: invalid_use_of_protected_member
     return ChronicleSnapshot(notifier.prev, notifier.state);
   }
 
   @override
   String get debugOwnerLabel => _rebuildable.debugLabel;
+
+  /// This function is always called when a [BaseNotifier] is accessed.
+  /// Used to determine the dependency graph.
+  void Function(BaseNotifier)? _onAccessNotifier;
+
+  /// Runs [run] and calls [onAccess] for every [BaseNotifier]
+  R trackNotifier<R>({
+    required void Function(BaseNotifier) onAccess,
+    required R Function() run,
+  }) {
+    _onAccessNotifier = onAccess;
+    final result = run();
+    _onAccessNotifier = null;
+    return result;
+  }
 }
 
 class ChronicleSnapshot<T> {

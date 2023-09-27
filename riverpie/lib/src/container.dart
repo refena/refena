@@ -12,7 +12,7 @@ import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
 import 'package:riverpie/src/provider/types/notifier_provider.dart';
 import 'package:riverpie/src/provider/types/redux_provider.dart';
-import 'package:riverpie/src/proxy_container.dart';
+import 'package:riverpie/src/proxy_ref.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// The [RiverpieContainer] holds the state of all providers.
@@ -41,7 +41,7 @@ class RiverpieContainer extends Ref with LabeledReference {
         _overridesList = overrides {
     // Initialize observer
     if (observer != null) {
-      observer!.internalSetup(ProxyContainer(
+      observer!.internalSetup(ProxyRef(
         this,
         observer!.debugLabel,
         observer!,
@@ -67,7 +67,8 @@ class RiverpieContainer extends Ref with LabeledReference {
   final NotifyStrategy defaultNotifyStrategy;
 
   /// The overrides that are used to create overridden notifiers.
-  final Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)>? _overrides;
+  final Map<BaseProvider, FutureOr<BaseNotifier> Function(ProxyRef ref)>?
+      _overrides;
 
   /// The ordered overrides.
   final List<ProviderOverride> _overridesList;
@@ -180,6 +181,7 @@ class RiverpieContainer extends Ref with LabeledReference {
 
       notifier.postInit();
     }
+
     return notifier;
   }
 
@@ -258,30 +260,32 @@ class RiverpieContainer extends Ref with LabeledReference {
   @override
   String get debugOwnerLabel => 'RiverpieContainer';
 
-  RiverpieContainer _withNotifierLabel(BaseNotifier notifier) {
-    return ProxyContainer(
+  @override
+  String get debugLabel => debugOwnerLabel;
+
+  ProxyRef _withNotifierLabel(BaseNotifier notifier) {
+    return ProxyRef(
       this,
       notifier.debugLabel,
       notifier,
     );
   }
 
-  RiverpieContainer _withProviderLabel<N extends BaseNotifier<T>, T>(
+  ProxyRef _withProviderLabel<N extends BaseNotifier<T>, T>(
     BaseProvider<N, T> provider,
   ) {
-    return ProxyContainer(
+    return ProxyRef(
       this,
       provider.debugLabel,
       provider,
     );
   }
-
-  @override
-  String get debugLabel => debugOwnerLabel;
 }
 
-Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)>? _overridesToMap(
-    List<ProviderOverride> overrides) {
+Map<BaseProvider, FutureOr<BaseNotifier> Function(ProxyRef ref)>?
+    _overridesToMap(
+  List<ProviderOverride> overrides,
+) {
   return overrides.isEmpty
       ? null
       : Map.fromEntries(
@@ -291,10 +295,10 @@ Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)>? _overridesToMap(
         );
 }
 
-extension on Map<BaseProvider, FutureOr<BaseNotifier> Function(Ref ref)> {
+extension on Map<BaseProvider, FutureOr<BaseNotifier> Function(ProxyRef ref)> {
   /// Returns the overridden notifier for the provider.
   FutureOr<N>? createState<N extends BaseNotifier<T>, T>(
-      BaseProvider<N, T> provider, Ref ref) {
+      BaseProvider<N, T> provider, ProxyRef ref) {
     return this[provider]?.call(ref) as FutureOr<N>?;
   }
 }

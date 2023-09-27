@@ -1,7 +1,9 @@
 import 'package:meta/meta.dart';
+import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/types/immutable_notifier.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
+import 'package:riverpie/src/proxy_ref.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// Use a [Provider] to implement a stateless provider.
@@ -17,11 +19,8 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
 
   @internal
   @override
-  ImmutableNotifier<T> createState(Ref ref) {
-    return ImmutableNotifier(
-      builder(ref),
-      debugLabel: customDebugLabel ?? runtimeType.toString(),
-    );
+  ImmutableNotifier<T> createState(ProxyRef ref) {
+    return _build(ref, builder);
   }
 
   /// Overrides the state of a provider with a predefined value.
@@ -43,10 +42,7 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
   ) {
     return ProviderOverride(
       provider: this,
-      createState: (ref) => ImmutableNotifier(
-        builder(ref),
-        debugLabel: customDebugLabel ?? runtimeType.toString(),
-      ),
+      createState: (ref) => _build(ref, builder),
     );
   }
 
@@ -57,10 +53,55 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
   ) {
     return ProviderOverride(
       provider: this,
-      createState: (ref) async => ImmutableNotifier(
-        await builder(ref),
-        debugLabel: customDebugLabel ?? runtimeType.toString(),
-      ),
+      createState: (ref) => _buildAsync(ref, builder),
     );
+  }
+
+  ImmutableNotifier<T> _build(
+    ProxyRef ref,
+    T Function(Ref ref) builder,
+  ) {
+    final dependencies = <BaseNotifier>{};
+
+    final initialState = ref.trackNotifier(
+      onAccess: (notifier) => dependencies.add(notifier),
+      run: () => builder(ref),
+    );
+
+    final notifier = ImmutableNotifier<T>(
+      initialState,
+      debugLabel: customDebugLabel ?? runtimeType.toString(),
+    );
+
+    notifier.dependencies.addAll(dependencies);
+    for (final dependency in dependencies) {
+      dependency.dependents.add(notifier);
+    }
+
+    return notifier;
+  }
+
+  Future<ImmutableNotifier<T>> _buildAsync(
+    ProxyRef ref,
+    Future<T> Function(Ref ref) builder,
+  ) async {
+    final dependencies = <BaseNotifier>{};
+
+    final initialState = await ref.trackNotifierAsync(
+      onAccess: (notifier) => dependencies.add(notifier),
+      run: () => builder(ref),
+    );
+
+    final notifier = ImmutableNotifier<T>(
+      initialState,
+      debugLabel: customDebugLabel ?? runtimeType.toString(),
+    );
+
+    notifier.dependencies.addAll(dependencies);
+    for (final dependency in dependencies) {
+      dependency.dependents.add(notifier);
+    }
+
+    return notifier;
   }
 }

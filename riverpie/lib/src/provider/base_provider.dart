@@ -4,6 +4,7 @@ import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/provider/types/change_notifier_provider.dart';
 import 'package:riverpie/src/provider/types/future_family_provider.dart';
 import 'package:riverpie/src/provider/watchable.dart';
+import 'package:riverpie/src/proxy_ref.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// A "provider" instructs Riverpie how to create a state.
@@ -20,10 +21,16 @@ abstract class BaseProvider<N extends BaseNotifier<T>, T>
   BaseProvider({String? debugLabel}) : customDebugLabel = debugLabel;
 
   @internal
-  N createState(Ref ref);
+  N createState(ProxyRef ref);
 
   @override
-  String toString() => '$runtimeType(label: $debugLabel)';
+  String toString() {
+    final type = runtimeType.toString();
+    if (type == debugLabel) {
+      return type;
+    }
+    return '$type(label: $debugLabel)';
+  }
 }
 
 /// A provider with default behaviour for [WatchableRef.watch].

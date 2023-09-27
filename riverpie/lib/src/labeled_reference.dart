@@ -8,4 +8,20 @@ abstract mixin class LabeledReference {
   bool compareIdentity(LabeledReference other) {
     return identical(this, other);
   }
+
+  /// Creates a custom [LabeledReference] of any object.
+  static CustomLabeledReference custom(String label) {
+    return CustomLabeledReference(label);
+  }
+}
+
+/// This class allows you to create a custom [LabeledReference]
+/// of any object.
+class CustomLabeledReference with LabeledReference {
+  final String _label;
+
+  CustomLabeledReference(this._label);
+
+  @override
+  String get debugLabel => _label;
 }

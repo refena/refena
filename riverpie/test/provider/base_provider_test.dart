@@ -6,7 +6,7 @@ void main() {
     test(Provider, () {
       expect(
         Provider((ref) => 11).toString(),
-        'Provider<int>(label: Provider<int>)',
+        'Provider<int>',
       );
 
       expect(
@@ -18,7 +18,7 @@ void main() {
     test(FutureProvider, () {
       expect(
         FutureProvider((ref) async => 22).toString(),
-        'FutureProvider<int>(label: FutureProvider<int>)',
+        'FutureProvider<int>',
       );
 
       expect(
@@ -62,7 +62,7 @@ void main() {
     test(StateProvider, () {
       expect(
         StateProvider<int>((ref) => 11).toString(),
-        'StateProvider<int>(label: StateProvider<int>)',
+        'StateProvider<int>',
       );
 
       expect(
@@ -74,7 +74,7 @@ void main() {
     test(ViewProvider, () {
       expect(
         ViewProvider<int>((ref) => 11).toString(),
-        'ViewProvider<int>(label: ViewProvider<int>)',
+        'ViewProvider<int>',
       );
 
       expect(

@@ -154,7 +154,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   Ref? _originalRef;
 
   late final _ref = ProxyRef(
-    _originalRef!,
+    _originalRef!.container,
     debugLabel,
     this,
   );

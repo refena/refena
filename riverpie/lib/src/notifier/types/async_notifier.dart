@@ -1,9 +1,9 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/async_value.dart';
-import 'package:riverpie/src/container.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
+import 'package:riverpie/src/proxy_ref.dart';
 import 'package:riverpie/src/ref.dart';
 
 /// An [AsyncNotifier] is a notifier that holds the state of an [AsyncSnapshot].
@@ -57,12 +57,12 @@ abstract class AsyncNotifier<T> extends BaseAsyncNotifier<T> {
   @internal
   @override
   void internalSetup(
-    RiverpieContainer container,
+    ProxyRef ref,
     BaseProvider? provider,
     RiverpieObserver? observer,
   ) {
-    _ref = container;
-    super.internalSetup(container, provider, observer);
+    _ref = ref;
+    super.internalSetup(ref, provider, observer);
   }
 
   /// Returns a debug version of the [notifier] where

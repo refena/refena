@@ -370,6 +370,6 @@ class MessageEvent extends RiverpieEvent {
 
   @override
   String toString() {
-    return 'MessageEvent(message: $message)';
+    return 'MessageEvent(message: $message, origin: ${origin.debugLabel})';
   }
 }
