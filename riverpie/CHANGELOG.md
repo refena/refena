@@ -1,3 +1,7 @@
+## 0.28.0
+
+- feat: notifiers expose a `provider` getter to access the corresponding provider
+
 ## 0.27.0
 
 - feat(ReduxProvider): allow to override `initialState`

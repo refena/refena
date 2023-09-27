@@ -4,6 +4,28 @@ import 'package:test/test.dart';
 import 'util/skip_microtasks.dart';
 
 void main() {
+  group('read', () {
+    late RiverpieHistoryObserver observer;
+
+    setUp(() {
+      observer = RiverpieHistoryObserver.only(
+        providerInit: true,
+      );
+    });
+
+    test('Should initialize provider lazily', () {
+      final ref = RiverpieContainer(
+        observer: observer,
+      );
+      final stateProvider = StateProvider((ref) => 10);
+
+      expect(observer.history, isEmpty);
+      expect(ref.read(stateProvider), 10);
+      expect(ref.anyNotifier(stateProvider).provider, stateProvider);
+      expect(observer.history, [isA<ProviderInitEvent>()]);
+    });
+  });
+
   group('dispose', () {
     late RiverpieHistoryObserver observer;
 

@@ -118,7 +118,7 @@ class RiverpieContainer extends Ref with LabeledReference {
       BaseNotifier notifier => notifier,
     };
 
-    notifier.internalSetup(_withNotifierLabel(notifier), observer);
+    notifier.internalSetup(_withNotifierLabel(notifier), provider, observer);
     _state[provider] = notifier;
 
     observer?.handleEvent(
@@ -166,7 +166,7 @@ class RiverpieContainer extends Ref with LabeledReference {
           provider.createState(
             _withProviderLabel(provider),
           );
-      notifier.internalSetup(_withNotifierLabel(notifier), observer);
+      notifier.internalSetup(_withNotifierLabel(notifier), provider, observer);
       _state[provider] = notifier;
 
       observer?.handleEvent(
@@ -244,12 +244,6 @@ class RiverpieContainer extends Ref with LabeledReference {
 
       // Remove the state from the container
       _state.remove(provider);
-      observer?.handleEvent(
-        ProviderDisposeEvent(
-          provider: provider,
-          notifier: notifier,
-        ),
-      );
     }
   }
 
