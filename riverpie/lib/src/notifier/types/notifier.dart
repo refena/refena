@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
-import 'package:riverpie/src/observer/observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/proxy_ref.dart';
 import 'package:riverpie/src/ref.dart';
@@ -26,10 +25,9 @@ abstract class Notifier<T> extends BaseSyncNotifier<T> {
   void internalSetup(
     ProxyRef ref,
     BaseProvider? provider,
-    RiverpieObserver? observer,
   ) {
     _ref = ref;
-    super.internalSetup(ref, provider, observer);
+    super.internalSetup(ref, provider);
   }
 
   /// Returns a debug version of the [notifier] where

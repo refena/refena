@@ -102,6 +102,37 @@ void main() {
       expect(ref.read(provider), 66);
       expect(called, true);
     });
+
+    test('Disposing a notifier should dispose its dependencies', () {
+      final ref = RiverpieContainer();
+
+      final providerA = StateProvider((ref) => 10);
+      final providerB = StateProvider((ref) {
+        return ref.read(providerA) + 1;
+      });
+
+      final notifierA = ref.notifier(providerA);
+      final notifierB = ref.notifier(providerB);
+
+      expect(ref.read(providerA), 10);
+      expect(ref.read(providerB), 11);
+
+      expect(notifierA.dependencies, isEmpty);
+      expect(notifierA.dependents, {notifierB});
+      expect(notifierB.dependencies, {notifierA});
+      expect(notifierB.dependents, isEmpty);
+
+      notifierA.setState((old) => old + 1);
+      notifierB.setState((old) => old + 10);
+
+      expect(ref.read(providerA), 11);
+      expect(ref.read(providerB), 21);
+
+      ref.dispose(providerA);
+
+      expect(ref.read(providerA), 10);
+      expect(ref.read(providerB), 11);
+    });
   });
 }
 

@@ -35,11 +35,11 @@ enum NotifyStrategy {
 @internal
 abstract class BaseNotifier<T> with LabeledReference {
   bool _initialized = false;
+  RiverpieContainer? _container;
   RiverpieObserver? _observer;
   final String? customDebugLabel;
   BaseProvider? _provider;
-
-  late final NotifyStrategy _notifyStrategy;
+  NotifyStrategy? _notifyStrategy;
 
   /// The current state of the notifier.
   /// It will be initialized by [init].
@@ -114,21 +114,14 @@ abstract class BaseNotifier<T> with LabeledReference {
 
     // Dispose dependents
     for (final dependent in dependents) {
-      dependent.dispose();
+      _container?.dispose(dependent._provider!);
     }
-
-    _observer?.handleEvent(
-      ProviderDisposeEvent(
-        provider: _provider!,
-        notifier: this,
-      ),
-    );
   }
 
   /// Override this if you want to a different kind of equality.
   @protected
   bool updateShouldNotify(T prev, T next) {
-    switch (_notifyStrategy) {
+    switch (_notifyStrategy ?? NotifyStrategy.identity) {
       case NotifyStrategy.identity:
         return !identical(prev, next);
       case NotifyStrategy.equality:
@@ -146,11 +139,16 @@ abstract class BaseNotifier<T> with LabeledReference {
   /// Handles the actual initialization of the notifier.
   /// Calls [init] internally.
   @internal
+  @mustCallSuper
   void internalSetup(
     ProxyRef ref,
     BaseProvider? provider,
-    RiverpieObserver? observer,
-  );
+  ) {
+    _container = ref.container;
+    _notifyStrategy = ref.container.defaultNotifyStrategy;
+    _provider = provider;
+    _observer = ref.container.observer;
+  }
 
   @internal
   void addListener(Rebuildable rebuildable, ListenerConfig<T> config) {
@@ -195,11 +193,8 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
   void internalSetup(
     ProxyRef ref,
     BaseProvider? provider,
-    RiverpieObserver? observer,
   ) {
-    _notifyStrategy = ref.container.defaultNotifyStrategy;
-    _provider = provider;
-    _observer = observer;
+    super.internalSetup(ref, provider);
     _state = init();
     _initialized = true;
   }
@@ -259,11 +254,8 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   void internalSetup(
     ProxyRef ref,
     BaseProvider? provider,
-    RiverpieObserver? observer,
   ) {
-    _notifyStrategy = ref.container.defaultNotifyStrategy;
-    _provider = provider;
-    _observer = observer;
+    super.internalSetup(ref, provider);
 
     // do not set future directly, as the setter may be overridden
     _setFutureAndListen(init());
@@ -346,13 +338,13 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   void internalSetup(
     ProxyRef ref,
     BaseProvider? provider,
-    RiverpieObserver? observer,
   ) {
     _watchableRef = WatchableRef(
       ref: ref.container,
       rebuildable: this,
     );
-    super.internalSetup(ref, provider, observer);
+
+    super.internalSetup(ref, provider);
   }
 
   @override
@@ -490,7 +482,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       }
     }
 
-    action.internalSetup(_ref, this, _observer);
+    action.internalSetup(_container, this, _observer);
     try {
       try {
         action.before();
@@ -624,7 +616,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       }
     }
 
-    action.internalSetup(_ref, this, _observer);
+    action.internalSetup(_container, this, _observer);
 
     try {
       try {
@@ -686,8 +678,6 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     throw UnsupportedError('Not allowed to set state directly');
   }
 
-  Ref? _ref;
-
   /// Initializes the state of the notifier.
   /// This method is called only once and
   /// as soon as the notifier is accessed the first time.
@@ -734,12 +724,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   void internalSetup(
     ProxyRef ref,
     BaseProvider? provider,
-    RiverpieObserver? observer,
   ) {
-    _ref = ref;
-    _notifyStrategy = ref.container.defaultNotifyStrategy;
-    _provider = provider;
-    _observer = observer;
+    super.internalSetup(ref, provider);
     _state = _overrideInitialState ?? init();
     _initialized = true;
   }
@@ -759,7 +745,6 @@ class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
         'TestableNotifier',
         LabeledReference.custom('TestableNotifier'),
       ),
-      null,
       null,
     );
     if (initialState != null) {
@@ -794,7 +779,6 @@ class TestableAsyncNotifier<N extends BaseAsyncNotifier<T>, T> {
         'TestableAsyncNotifier',
         LabeledReference.custom('TestableAsyncNotifier'),
       ),
-      null,
       null,
     );
     if (initialState != null) {
