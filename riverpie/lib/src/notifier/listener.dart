@@ -27,6 +27,7 @@ class NotifierListeners<T> {
   int _listenerAddCount = 0;
 
   final _stream = StreamController<NotifierEvent<T>>.broadcast();
+  bool _disposed = false;
 
   void notifyAll({
     required T prev,
@@ -34,6 +35,12 @@ class NotifierListeners<T> {
     ChangeEvent? changeEvent,
     RebuildEvent? rebuildEvent,
   }) {
+    if (_disposed) {
+      // An action might finish after the state is disposed.
+      // In this case, we don't want to add new events to the stream.
+      return;
+    }
+
     _removeUnusedListeners();
 
     _listeners.forEach((rebuildable, config) {
@@ -81,6 +88,10 @@ class NotifierListeners<T> {
 
   /// Disposes the notifier and all its listeners.
   void dispose() {
+    if (_disposed) {
+      return;
+    }
+    _disposed = true;
     _listeners.clear();
     _stream.close();
   }
