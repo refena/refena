@@ -118,16 +118,20 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   /// Use this method to dispatch external actions within an action.
   /// This ensures that the dispatched action has the correct [debugOrigin].
   ///
+  /// It does not use the exact N type because then Dart cannot infer T2 type.
+  /// This is okay because the developer
+  /// won't access N inside the dispatcher anyway.
+  ///
   /// Usage:
   /// class MyNotifier extends ReduxNotifier<int> {
   ///   final ServiceB serviceB;
   /// }
   /// // ...
   /// external(notifier.serviceB).dispatch(SubtractAction(11));
-  Dispatcher<N2, T2> external<N2 extends BaseReduxNotifier<T2>, T2>(
-    N2 notifier,
+  Dispatcher<BaseReduxNotifier<T2>, T2> external<T2>(
+    BaseReduxNotifier<T2> notifier,
   ) {
-    return Dispatcher<N2, T2>(
+    return Dispatcher<BaseReduxNotifier<T2>, T2>(
       notifier: notifier,
       debugOrigin: debugLabel,
       debugOriginRef: this,

@@ -1,6 +1,8 @@
 ## 0.28.0
 
 - feat: notifiers expose a `provider` getter to access the corresponding provider
+- fix: `ref.dispose` should also dispose dependencies
+- fix: change generics of method signature of `ReduxAction.external` to keep the state type
 
 ## 0.27.0
 
