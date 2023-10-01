@@ -43,10 +43,20 @@ class MyPage extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SecondPage()));
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const SecondPage()));
             },
             child: const Text('Open second page'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) {
+                  return const RiverpieGraphPage(showWidgets: true);
+                }),
+              );
+            },
+            child: const Text('Open graph'),
           ),
         ],
       ),

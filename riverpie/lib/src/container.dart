@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:riverpie/src/action/dispatcher.dart';
+import 'package:riverpie/src/action/redux_action.dart';
 import 'package:riverpie/src/labeled_reference.dart';
 import 'package:riverpie/src/notifier/base_notifier.dart';
 import 'package:riverpie/src/notifier/notifier_event.dart';
 import 'package:riverpie/src/notifier/types/async_notifier.dart';
 import 'package:riverpie/src/observer/event.dart';
 import 'package:riverpie/src/observer/observer.dart';
+import 'package:riverpie/src/observer/tracing_observer.dart';
 import 'package:riverpie/src/provider/base_provider.dart';
 import 'package:riverpie/src/provider/override.dart';
 import 'package:riverpie/src/provider/types/async_notifier_provider.dart';
@@ -263,6 +265,21 @@ class RiverpieContainer extends Ref with LabeledReference {
 
   @override
   RiverpieContainer get container => this;
+
+  List<BaseNotifier> getActiveNotifiers() {
+    return [
+      ..._state.values.where((n) => n is! GlobalRedux && n is! TracingNotifier)
+    ];
+  }
+
+  /// Removes disposed listeners from all notifiers.
+  /// This happens regularly, but you can call it manually if you want to
+  /// to visualize the current state.
+  void cleanupListeners() {
+    for (final notifier in _state.values) {
+      notifier.cleanupListeners();
+    }
+  }
 
   @override
   String get debugOwnerLabel => 'RiverpieContainer';

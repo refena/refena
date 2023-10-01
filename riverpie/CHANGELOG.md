@@ -1,8 +1,9 @@
 ## 0.28.0
 
+- feat: add `RiverpieGraphPage` to visualize the dependency graph of notifiers
 - feat: notifiers expose a `provider` getter to access the corresponding provider
 - fix: `ref.dispose` should also dispose dependencies
-- fix: change generics of method signature of `ReduxAction.external` to keep the state type
+- fix: change method signature generics of `ReduxAction.external` to keep the state type
 - fix: handle case when action is finished after the notifier is disposed
 
 ## 0.27.0

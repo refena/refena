@@ -113,8 +113,13 @@ abstract class BaseNotifier<T> with LabeledReference {
     _listeners.dispose();
 
     // Dispose dependents
-    for (final dependent in dependents) {
+    for (final dependent in [...dependents]) {
       _container?.dispose(dependent._provider!);
+    }
+
+    // Remove from dependency graph
+    for (final dependency in dependencies) {
+      dependency.dependents.remove(this);
     }
   }
 
@@ -148,6 +153,16 @@ abstract class BaseNotifier<T> with LabeledReference {
     _notifyStrategy = ref.container.defaultNotifyStrategy;
     _provider = provider;
     _observer = ref.container.observer;
+  }
+
+  @internal
+  List<Rebuildable> getListeners() {
+    return _listeners.getListeners();
+  }
+
+  @internal
+  void cleanupListeners() {
+    _listeners.removeUnusedListeners();
   }
 
   @internal

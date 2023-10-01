@@ -41,7 +41,7 @@ class NotifierListeners<T> {
       return;
     }
 
-    _removeUnusedListeners();
+    removeUnusedListeners();
 
     _listeners.forEach((rebuildable, config) {
       if (config.rebuildWhen != null && !config.rebuildWhen!(prev, next)) {
@@ -72,7 +72,7 @@ class NotifierListeners<T> {
         // We already clear listeners on each notify.
         // This handling is for scenarios when the state never changes.
         _listenerAddCount = 0;
-        _removeUnusedListeners();
+        removeUnusedListeners();
       }
     }
 
@@ -96,8 +96,10 @@ class NotifierListeners<T> {
     _stream.close();
   }
 
-  void _removeUnusedListeners() {
+  void removeUnusedListeners() {
     // remove any listener that has been disposed
     _listeners.removeWhere((rebuildable, config) => rebuildable.disposed);
   }
+
+  List<Rebuildable> getListeners() => _listeners.keys.toList();
 }

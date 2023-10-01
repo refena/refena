@@ -14,6 +14,7 @@ import 'package:riverpie/src/notifier/rebuildable.dart';
 
 // ignore: implementation_imports
 import 'package:riverpie_flutter/src/element_rebuildable.dart';
+import 'package:riverpie_flutter/src/graph/graph_page.dart';
 import 'package:riverpie_flutter/src/mixin.dart';
 
 part 'tracing_error_dialog.dart';
@@ -178,6 +179,15 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
                   padding: EdgeInsets.zero,
                   child: ListTile(
                     dense: true,
+                    leading: const Icon(Icons.account_tree),
+                    title: Text('Graph'),
+                  ),
+                  value: 'graph',
+                ),
+                PopupMenuItem(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    dense: true,
                     leading: const Icon(Icons.refresh),
                     title: Text('Refresh'),
                   ),
@@ -209,6 +219,13 @@ class _RiverpieTracingPageState extends State<RiverpieTracingPage>
             enabled: _show,
             onSelected: (value) async {
               switch (value) {
+                case 'graph':
+                  await Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => RiverpieGraphPage(),
+                    ),
+                  );
+                  break;
                 case 'refresh':
                   _load(loadDelay: const Duration(milliseconds: 100));
                   break;
