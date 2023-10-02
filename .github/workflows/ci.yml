@@ -23,23 +23,23 @@ jobs:
           channel: "stable"
 
       - name: Dependencies (core)
-        working-directory: riverpie
+        working-directory: refena
         run: dart pub get
       - name: Check format (core)
-        working-directory: riverpie
+        working-directory: refena
         run: dart format --set-exit-if-changed lib bin test
       - name: Analyze (core)
-        working-directory: riverpie
+        working-directory: refena
         run: flutter analyze
 
       - name: Dependencies (flutter)
-        working-directory: riverpie_flutter
+        working-directory: refena_flutter
         run: dart pub get
       - name: Check format (flutter)
-        working-directory: riverpie_flutter
+        working-directory: refena_flutter
         run: dart format --set-exit-if-changed lib bin test
       - name: Analyze (flutter)
-        working-directory: riverpie_flutter
+        working-directory: refena_flutter
         run: flutter analyze
 
   test:
@@ -54,17 +54,17 @@ jobs:
           channel: "stable"
 
       - name: Dependencies (core)
-        working-directory: riverpie
+        working-directory: refena
         run: dart pub get
       - name: Test (core)
-        working-directory: riverpie
+        working-directory: refena
         run: dart test
 
       - name: Dependencies (flutter)
-        working-directory: riverpie_flutter
+        working-directory: refena_flutter
         run: flutter pub get
       - name: Test (flutter)
-        working-directory: riverpie_flutter
+        working-directory: refena_flutter
         run: flutter test
 
   test_legacy:
@@ -79,15 +79,15 @@ jobs:
           channel: "stable"
 
       - name: Dependencies (core)
-        working-directory: riverpie
+        working-directory: refena
         run: dart pub get
       - name: Test (core)
-        working-directory: riverpie
+        working-directory: refena
         run: dart test
 
       - name: Dependencies (flutter)
-        working-directory: riverpie_flutter
+        working-directory: refena_flutter
         run: flutter pub get
       - name: Test (flutter)
-        working-directory: riverpie_flutter
+        working-directory: refena_flutter
         run: flutter test

@@ -1,0 +1,23 @@
+name: example
+description: A new Flutter project.
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  dio: 5.3.2
+  flutter:
+    sdk: flutter
+  refena_flutter: ^0.10.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  refena_inspector:
+    path: ../../refena_inspector
+
+
+flutter:
+  uses-material-design: true

@@ -1,8 +1,9 @@
-# Example test
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:refena_flutter/refena_flutter.dart';
 
-Inside the `lib` folder:
+/// The test that is shown in the README.md
 
-```dart
 final counterProvider = NotifierProvider<Counter, int>((ref) {
   return Counter();
 });
@@ -40,11 +41,7 @@ class MyPage extends StatelessWidget {
     );
   }
 }
-```
 
-Inside the `test` folder:
-
-```dart
 class MockCounter extends Counter {
   @override
   int init() => 0;
@@ -91,18 +88,16 @@ void main() {
         cause: ProviderInitCause.override,
         value: 0,
       ),
-      ListenerAddedEvent(
-        notifier: counterNotifier,
-        rebuildable: WidgetRebuildable<MyPage>(),
-      ),
       ChangeEvent(
         notifier: counterNotifier,
+        action: null,
         prev: 0,
         next: 2,
         rebuild: [WidgetRebuildable<MyPage>()],
       ),
       ChangeEvent(
         notifier: counterNotifier,
+        action: null,
         prev: 2,
         next: 4,
         rebuild: [WidgetRebuildable<MyPage>()],
@@ -110,4 +105,3 @@ void main() {
     ]);
   });
 }
-```

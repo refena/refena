@@ -1,6 +1,6 @@
 # Redux
 
-Riverpie has a wide variety of providers.
+Refena has a wide variety of providers.
 `ReduxProvider` is a provider that allows you to implement Redux architecture in your app.
 
 Its state is altered by dispatching actions. Actions are simple classes that contain all the information needed to alter the state.
@@ -68,7 +68,7 @@ class MyPage extends StatelessWidget {
 
 ## Action Types
 
-Riverpie favors type-safety. Therefore, there are different types of `ReduxAction` that you can use.
+Refena favors type-safety. Therefore, there are different types of `ReduxAction` that you can use.
 
 | Action Type                  | State Change | Additional Result | Reduce method signature   |
 |------------------------------|--------------|-------------------|---------------------------|
@@ -218,7 +218,7 @@ However, there are two actions that are dispatched during the lifecycle of a not
 
 Implement those actions for post-initialization actions, long-running polling actions, or cleanup actions.
 
-Remember: In Riverpie, notifiers are never disposed, except you call `ref.dispose(provider)` explicitly.
+Remember: In Refena, notifiers are never disposed, except you call `ref.dispose(provider)` explicitly.
 
 ```dart
 class Counter extends ReduxNotifier<int> {
@@ -444,12 +444,12 @@ void onTap() async {
 ```
 
 To safely observe all errors (e.g., to send them to a crash reporting service),
-you can implement a `RiverpieObserver`.
+you can implement a `RefenaObserver`.
 
 ```dart
-class MyObserver extends RiverpieObserver {
+class MyObserver extends RefenaObserver {
   @override
-  void handleEvent(RiverpieEvent event) {
+  void handleEvent(RefenaEvent event) {
     if (event is ActionErrorEvent) {
       BaseAction action = event.action;
       ActionLifecycle lifecycle = event.lifecycle; // before, reduce, after
@@ -468,14 +468,14 @@ class MyObserver extends RiverpieObserver {
 }
 ```
 
-Register the observer in the `RiverpieScope`:
+Register the observer in the `RefenaScope`:
 
 ```dart
 void main() {
-  runApp(RiverpieScope(
-    observer: RiverpieMultiObserver(
+  runApp(RefenaScope(
+    observer: RefenaMultiObserver(
       observers: [
-        RiverpieDebugObserver(),
+        RefenaDebugObserver(),
         MyObserver(),
       ],
     ),
@@ -486,10 +486,10 @@ void main() {
 
 ## Tracing
 
-All errors are also logged by the `RiverpieTracingObserver`.
+All errors are also logged by the `RefenaTracingObserver`.
 
-They can be shown by opening the `RiverpieTracingPage`:
+They can be shown by opening the `RefenaTracingPage`:
 
 Here is how it looks like:
 
-![tracing-ui](https://raw.githubusercontent.com/Tienisto/riverpie/main/resources/tracing-ui.png)
+![tracing-ui](https://raw.githubusercontent.com/refena/refena/main/resources/tracing-ui.png)
