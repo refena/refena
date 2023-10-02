@@ -1,0 +1,5 @@
+dependency_overrides:
+  refena:
+    path: ../refena
+  refena_inspector_client:
+    path: ../refena_inspector_client

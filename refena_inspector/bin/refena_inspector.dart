@@ -3,25 +3,13 @@ import 'dart:io';
 
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as p;
+import 'package:refena_inspector/util/logger.dart';
 
 final _logger = Logger('RefenaInspectorBoot');
-const _inspectorPath = '.refena-inspector';
+const _inspectorPath = '.refena_inspector';
 
 void main() async {
-  Logger.root.onRecord.listen((record) {
-    // ignore: avoid_print
-    print('${'[${record.level.name}]'.padLeft(9)} [${record.loggerName}] ${record.message}');
-
-    if (record.error != null) {
-      // ignore: avoid_print
-      print(record.error);
-    }
-
-    if (record.stackTrace != null) {
-      // ignore: avoid_print
-      print(record.stackTrace);
-    }
-  });
+  initLogger();
 
   final config = Platform.packageConfig;
   if (config == null) {

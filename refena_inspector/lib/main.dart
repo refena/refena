@@ -1,7 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:logging/logging.dart';
+import 'package:refena_flutter/refena_flutter.dart';
+import 'package:refena_inspector/pages/home_page.dart';
+import 'package:refena_inspector/theme.dart';
+import 'package:refena_inspector/util/logger.dart';
+
+final _refenaLogger = Logger('Refena');
 
 void main() {
-  runApp(const MyApp());
+  initLogger();
+  runApp(
+    RefenaScope(
+      observer: RefenaDebugObserver(
+        onLine: (line) => _refenaLogger.info(line),
+      ),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -10,25 +25,11 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: 'Flutter Demo',
-      home: MyPage(),
-    );
-  }
-}
-
-class MyPage extends StatelessWidget {
-  const MyPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('MyPage'),
-      ),
-      body: const Center(
-        child: Text('Refena Inspector'),
-      ),
+    return MaterialApp(
+      title: 'Refena Inspector',
+      debugShowCheckedModeBanner: false,
+      theme: getTheme(),
+      home: const HomePage(),
     );
   }
 }

@@ -11,6 +11,8 @@ dependencies:
   flutter:
     sdk: flutter
   refena_flutter: ^0.10.0
+  refena_inspector_client:
+    path: ../../refena_inspector_client
 
 dev_dependencies:
   flutter_test:
@@ -18,6 +20,11 @@ dev_dependencies:
   refena_inspector:
     path: ../../refena_inspector
 
+dependency_overrides:
+  refena_inspector:
+    path: ../../refena_inspector
+  refena_inspector_client:
+    path: ../../refena_inspector_client
 
 flutter:
   uses-material-design: true
