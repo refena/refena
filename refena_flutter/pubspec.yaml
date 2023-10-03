@@ -8,6 +8,9 @@ topics:
   - riverpod
   - framework
   - redux
+screenshots:
+  - description: The refena logo.
+    path: resources/icon.png
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

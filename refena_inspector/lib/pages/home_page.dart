@@ -39,7 +39,10 @@ class HomePage extends StatelessWidget {
             leading: Column(
               children: [
                 const SizedBox(height: 20),
-                Image.asset('assets/img/inspector-logo-512.webp', width: 200),
+                Image.asset(
+                  'assets/img/inspector-logo-512-white.webp',
+                  width: 200,
+                ),
                 const SizedBox(height: 20),
               ],
             ),
