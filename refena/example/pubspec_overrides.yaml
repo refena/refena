@@ -3,3 +3,7 @@ dependency_overrides:
     path: ..
   refena_flutter:
     path: ../../refena_flutter
+  refena_inspector:
+    path: ../../refena_inspector
+  refena_inspector_client:
+    path: ../../refena_inspector_client
