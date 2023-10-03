@@ -27,23 +27,7 @@ void main() {
   RefenaContainer(
     observer: RefenaMultiObserver(
       observers: [
-        RefenaInspectorObserver(
-          actions: {
-            'Test message': (Ref ref) => ref.message('test'),
-            'Authentication': {
-              'Register': InspectorAction(
-                params: {
-                  'name': ParamSpec.string(required: true),
-                  'age': ParamSpec.int(defaultValue: 20),
-                },
-                action: (ref, params) {
-                  ref.message('Registering ${params['name']}');
-                },
-              ),
-              'Logout': (Ref ref) => throw 'Logout error',
-            },
-          },
-        ),
+        RefenaInspectorObserver(), // <-- Add this observer
         RefenaTracingObserver(),
         RefenaDebugObserver(),
       ],
@@ -57,3 +41,31 @@ Then start the inspector after your app is running:
 ```bash
 dart run refena_inspector
 ```
+
+You can configure the observer with custom actions:
+
+```dart
+RefenaInspectorObserver(
+  actions: {
+    'Test message': (Ref ref) => ref.message('test'),
+    'Authentication': {
+      'Register': InspectorAction(
+        params: {
+          'name': ParamSpec.string(required: true),
+          'age': ParamSpec.int(defaultValue: 20),
+        },
+        action: (ref, params) {
+          ref.message('Registering ${params['name']}');
+        },
+      ),
+      'Logout': (Ref ref) => throw 'Logout error',
+    },
+  },
+);
+```
+
+As you can see, you can use nested maps to create a tree of actions.
+
+One action can be either a `void Function(Ref)` or an `InspectorAction`.
+
+You should use `InspectorAction` when you need to define parameters for the action.

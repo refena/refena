@@ -15,45 +15,4 @@ dev_dependencies:
   refena_inspector: <version>
 ```
 
-## Usage
-
-Add the `RefenaInspectorObserver` to your `RefenaContainer` or `RefenaScope`.
-
-This observer will handle the communication between your app and the inspector.
-
-```dart
-void main() {
-  // or "RefenaScope" for Flutter projects
-  RefenaContainer(
-    observer: RefenaMultiObserver(
-      observers: [
-        RefenaInspectorObserver(
-          actions: {
-            'Test message': (Ref ref) => ref.message('test'),
-            'Authentication': {
-              'Register': InspectorAction(
-                params: {
-                  'name': ParamSpec.string(required: true),
-                  'age': ParamSpec.int(defaultValue: 20),
-                },
-                action: (ref, params) {
-                  ref.message('Registering ${params['name']}');
-                },
-              ),
-              'Logout': (Ref ref) => throw 'Logout error',
-            },
-          },
-        ),
-        RefenaTracingObserver(),
-        RefenaDebugObserver(),
-      ],
-    ),
-  );
-}
-```
-
-Then start the inspector after your app is running:
-
-```bash
-dart run refena_inspector
-```
+Checkout complete documentation [here](https://pub.dev/packages/refena_inspector).
