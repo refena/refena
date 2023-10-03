@@ -15,7 +15,7 @@ void main() {
 
   testWidgets('Should use debugLabel of widget', (tester) async {
     final ref = RefenaScope(
-      observer: observer,
+      observers: [observer],
       child: MaterialApp(
         home: MyPage(),
       ),
@@ -43,7 +43,7 @@ void main() {
 
   testWidgets('Should use label of Consumer', (tester) async {
     final ref = RefenaScope(
-      observer: observer,
+      observers: [observer],
       child: MaterialApp(
         home: ConsumerPage(),
       ),

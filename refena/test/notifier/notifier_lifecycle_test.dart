@@ -8,7 +8,7 @@ void main() {
       change: true,
     );
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     final provider = NotifierProvider<_Counter, int>((ref) => _Counter());

@@ -6,7 +6,7 @@ void main() {
     test('Should observe from the beginning', () {
       final observer = RefenaHistoryObserver.all();
       final ref = RefenaContainer(
-        observer: observer,
+        observers: [observer],
       );
 
       final provider = StateProvider((ref) => 123);
@@ -37,7 +37,7 @@ void main() {
         startImmediately: false,
       ));
       final ref = RefenaContainer(
-        observer: observer,
+        observers: [observer],
       );
 
       final provider = StateProvider((ref) => 123);

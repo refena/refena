@@ -54,7 +54,7 @@ void main() {
   testWidgets('Showcase test', (tester) async {
     final observer = RefenaHistoryObserver.all();
     final scope = RefenaScope(
-      observer: observer,
+      observers: [observer],
       overrides: [
         counterProvider.overrideWithNotifier(
           (ref) => MockCounter(),

@@ -1,3 +1,7 @@
+## 0.30.0
+
+- **BREAKING**: `RefenaScope` or `RefenaContainer` now have an `observers` parameter instead of `observer`, which is a list of observers instead of a single observer
+
 ## 0.29.0
 
 - **BREAKING**: rebranding to Refena

@@ -27,13 +27,13 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     NotifyStrategy defaultNotifyStrategy = NotifyStrategy.identity,
-    RefenaObserver? observer,
+    List<RefenaObserver> observers = const [],
     required super.child,
   }) : _container = RefenaContainer(
           overrides: overrides,
           initialProviders: initialProviders,
           defaultNotifyStrategy: defaultNotifyStrategy,
-          observer: observer,
+          observers: observers,
         ) {
     defaultRef = this;
   }

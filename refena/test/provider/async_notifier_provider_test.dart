@@ -10,7 +10,7 @@ void main() {
         AsyncNotifierProvider<_AsyncCounter, int>((ref) => notifier);
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), AsyncValue<int>.loading());
@@ -70,7 +70,7 @@ void main() {
         AsyncNotifierProvider<_AsyncCounter, int>((ref) => notifier);
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), AsyncValue<int>.loading());

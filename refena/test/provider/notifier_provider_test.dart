@@ -7,7 +7,7 @@ void main() {
     final provider = NotifierProvider<_Counter, int>((ref) => notifier);
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), 123);
@@ -48,7 +48,7 @@ void main() {
     });
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(providerC), 3);

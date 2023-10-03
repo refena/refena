@@ -10,7 +10,7 @@ void main() {
   setUp(() {
     observer.clear();
     ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
   });
 
@@ -20,12 +20,10 @@ void main() {
     );
     final customObserver = _CustomObserver();
     final container = RefenaContainer(
-      observer: RefenaMultiObserver(
-        observers: [
-          historyObserver,
-          customObserver,
-        ],
-      ),
+      observers: [
+        historyObserver,
+        customObserver,
+      ],
     );
 
     container.message('Hello');

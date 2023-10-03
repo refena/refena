@@ -7,8 +7,8 @@ final myFutureNotifier = FutureProvider((ref) async {
   return 10;
 });
 
-final myNotifier = AsyncNotifierProvider<DelayedCounter, int>(
-    (ref) => DelayedCounter());
+final myNotifier =
+    AsyncNotifierProvider<DelayedCounter, int>((ref) => DelayedCounter());
 
 class DelayedCounter extends AsyncNotifier<int> {
   @override
@@ -29,7 +29,9 @@ class DelayedCounter extends AsyncNotifier<int> {
 void main() {
   runApp(
     RefenaScope(
-      observer: kDebugMode ? RefenaDebugObserver() : null,
+      observers: [
+        if (kDebugMode) RefenaDebugObserver(),
+      ],
       child: const MyApp(),
     ),
   );

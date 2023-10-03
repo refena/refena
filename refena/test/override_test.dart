@@ -81,7 +81,7 @@ void main() {
       // different order
       final observer = RefenaHistoryObserver.all();
       final ref2 = RefenaContainer(
-        observer: observer,
+        observers: [observer],
         overrides: [
           providerB.overrideWithBuilder((ref) => ref.read(providerA) + 40),
           providerA.overrideWithValue(400),
@@ -113,7 +113,7 @@ void main() {
       final providerB = Provider((ref) => ref.read(providerA) + 10);
       final observer = RefenaHistoryObserver.all();
       final ref = RefenaContainer(
-        observer: observer,
+        observers: [observer],
         overrides: [
           providerB.overrideWithBuilder((ref) => ref.read(providerA) + 200),
         ],

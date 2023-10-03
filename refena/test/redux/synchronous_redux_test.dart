@@ -11,7 +11,7 @@ void main() {
       actionDispatched: true,
     );
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), 123);

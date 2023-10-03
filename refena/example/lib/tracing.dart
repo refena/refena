@@ -7,12 +7,10 @@ import 'package:refena_flutter/refena_flutter.dart';
 void main() {
   runApp(
     RefenaScope(
-      observer: RefenaMultiObserver(
-        observers: [
-          RefenaDebugObserver(),
-          RefenaTracingObserver(),
-        ],
-      ),
+      observers: [
+        RefenaDebugObserver(),
+        RefenaTracingObserver(),
+      ],
       child: MyApp(),
     ),
   );

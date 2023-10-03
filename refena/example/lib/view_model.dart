@@ -52,7 +52,9 @@ class Counter extends Notifier<int> {
 void main() {
   runApp(
     RefenaScope(
-      observer: kDebugMode ? RefenaDebugObserver() : null,
+      observers: [
+        if (kDebugMode) RefenaDebugObserver(),
+      ],
       child: const MyApp(),
     ),
   );

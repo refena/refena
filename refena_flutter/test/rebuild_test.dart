@@ -154,7 +154,7 @@ void main() {
     final widget = _ViewModelWidget();
     final observer = RefenaHistoryObserver.all();
     final scope = RefenaScope(
-      observer: observer,
+      observers: [observer],
       child: MaterialApp(
         home: widget,
       ),

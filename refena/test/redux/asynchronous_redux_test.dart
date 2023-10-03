@@ -18,7 +18,7 @@ void main() {
     final notifier = _AsyncCounter();
     final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), 123);
@@ -111,7 +111,7 @@ void main() {
     final notifier = _AsyncCounter();
     final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), 123);
@@ -158,7 +158,7 @@ void main() {
     final notifier = _AsyncCounter();
     final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), 123);
@@ -205,7 +205,7 @@ void main() {
     final notifier = _AsyncCounter();
     final provider = ReduxProvider<_AsyncCounter, int>((ref) => notifier);
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), 123);

@@ -19,7 +19,7 @@ void main() {
       change: true,
     );
     final container = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     final provider = ReduxProvider<_ReduxNotifierWithInitialAction, int>(
@@ -58,7 +58,7 @@ void main() {
       change: true,
     );
     final container = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     final provider =
@@ -103,7 +103,7 @@ void main() {
       change: true,
     );
     final container = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     bool onDisposeCalled = false;

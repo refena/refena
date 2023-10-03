@@ -25,7 +25,9 @@ void main() {
       overrides: [
         numberProvider.overrideWithValue(999),
       ],
-      observer: kDebugMode ? RefenaDebugObserver() : null,
+      observers: [
+        if (kDebugMode) RefenaDebugObserver(),
+      ],
       child: const MyApp(),
     ),
   );

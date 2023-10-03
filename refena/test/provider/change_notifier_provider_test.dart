@@ -12,7 +12,7 @@ void main() {
     });
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.notifier(provider).value, 123);

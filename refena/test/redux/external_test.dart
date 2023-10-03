@@ -14,7 +14,7 @@ void main() {
 
   test('Should dispatch external action', () {
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(_baseProvider), 0);

@@ -6,7 +6,7 @@ void main() {
     final provider = StateProvider((ref) => 123);
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), 123);

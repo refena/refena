@@ -15,7 +15,7 @@ void main() {
 
     test('Should initialize provider lazily', () {
       final ref = RefenaContainer(
-        observer: observer,
+        observers: [observer],
       );
       final stateProvider = StateProvider((ref) => 10);
 
@@ -37,7 +37,7 @@ void main() {
     });
 
     test('Should dispose a provider', () {
-      final ref = RefenaContainer(observer: observer);
+      final ref = RefenaContainer(observers: [observer]);
       final stateProvider = StateProvider((ref) => 10);
 
       expect(ref.read(stateProvider), 10);
@@ -68,7 +68,7 @@ void main() {
         rebuild: true,
       );
 
-      final ref = RefenaContainer(observer: observer);
+      final ref = RefenaContainer(observers: [observer]);
       final stateProvider = StateProvider((ref) => 10);
       final viewProvider = ViewProvider<int>((ref) {
         return ref.watch(stateProvider);
@@ -114,7 +114,7 @@ void main() {
     });
 
     test('Should ignore calling dispose multiple times', () {
-      final ref = RefenaContainer(observer: observer);
+      final ref = RefenaContainer(observers: [observer]);
       final stateProvider = StateProvider((ref) => 10);
 
       expect(ref.read(stateProvider), 10);
@@ -139,7 +139,7 @@ void main() {
     });
 
     test('Provider should be alive during onDispose hook', () {
-      final ref = RefenaContainer(observer: observer);
+      final ref = RefenaContainer(observers: [observer]);
       int? stateDuringDispose;
       final notifierProvider = NotifierProvider<_DisposableNotifier, int>(
         (ref) => _DisposableNotifier(),
@@ -178,7 +178,7 @@ void main() {
     });
 
     test('Should emit a message', () {
-      final ref = RefenaContainer(observer: observer);
+      final ref = RefenaContainer(observers: [observer]);
 
       ref.message('Hello world!!');
 

@@ -6,11 +6,10 @@ import 'package:refena_inspector_client/refena_inspector_client.dart';
 void main() {
   runApp(
     RefenaScope(
-      observer: RefenaMultiObserver(
-        observers: [
-          RefenaInspectorObserver(
-            actions: {
-              'Show Snackbar': InspectorAction(
+      observers: [
+        RefenaInspectorObserver(
+          actions: {
+            'Show Snackbar': InspectorAction(
                 params: {
                   'message': ParamSpec.string(
                     defaultValue: 'Hello World',
@@ -19,12 +18,11 @@ void main() {
                 action: (ref, params) {
                   ref.dispatch(ShowSnackBarAction(message: params['message']));
                 }
-              ),
-            },
-          ),
-          RefenaTracingObserver(),
-        ],
-      ),
+            ),
+          },
+        ),
+        RefenaTracingObserver(),
+      ],
       child: const MyApp(),
     ),
   );

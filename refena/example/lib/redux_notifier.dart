@@ -38,7 +38,9 @@ class SubtractAction extends ReduxAction<ReduxCounter, int> {
 
 void main() {
   runApp(RefenaScope(
-    observer: RefenaDebugObserver(),
+    observers: [
+      RefenaDebugObserver(),
+    ],
     child: const MyApp(),
   ));
 }

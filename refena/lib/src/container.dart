@@ -38,9 +38,10 @@ class RefenaContainer extends Ref with LabeledReference {
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     this.defaultNotifyStrategy = NotifyStrategy.identity,
-    this.observer,
+    List<RefenaObserver> observers = const [],
   })  : _overrides = _overridesToMap(overrides),
-        _overridesList = overrides {
+        _overridesList = overrides,
+        observer = _observerListToSingleObserver(observers) {
     // Initialize observer
     if (observer != null) {
       observer!.internalSetup(ProxyRef(
@@ -317,6 +318,18 @@ Map<BaseProvider, FutureOr<BaseNotifier> Function(ProxyRef ref)>?
             (override) => MapEntry(override.provider, override.createState),
           ),
         );
+}
+
+/// Automatically converts a list of observers to a single observer by
+/// wrapping them in a [RefenaMultiObserver].
+RefenaObserver? _observerListToSingleObserver(List<RefenaObserver> observers) {
+  if (observers.isEmpty) {
+    return null;
+  } else if (observers.length == 1) {
+    return observers.first;
+  } else {
+    return RefenaMultiObserver(observers: observers);
+  }
 }
 
 extension on Map<BaseProvider, FutureOr<BaseNotifier> Function(ProxyRef ref)> {

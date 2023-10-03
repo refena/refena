@@ -8,7 +8,7 @@ void main() {
     final provider = ViewProvider((ref) => 123);
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), 123);
@@ -33,7 +33,7 @@ void main() {
     });
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(stateProvider), 0);
@@ -104,7 +104,7 @@ void main() {
 
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(viewProvider), _ComplexState(0, 'a'));

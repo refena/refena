@@ -14,7 +14,7 @@ void main() {
     });
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(viewProvider), AsyncValue<int>.loading());
@@ -96,7 +96,7 @@ void main() {
     });
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(viewProvider), AsyncValue<int>.loading());

@@ -7,7 +7,9 @@ final counter = StateProvider((ref) => 0);
 void main() {
   runApp(
     RefenaScope(
-      observer: kDebugMode ? RefenaDebugObserver() : null,
+      observers: [
+        if (kDebugMode) RefenaDebugObserver(),
+      ],
       child: const MyApp(),
     ),
   );

@@ -6,7 +6,7 @@ void main() {
     final provider = FutureProvider((ref) => Future.value(123));
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(provider), AsyncValue<int>.loading());
@@ -60,7 +60,7 @@ void main() {
     }, debugLabel: 'providerC');
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
-      observer: observer,
+      observers: [observer],
     );
 
     expect(ref.read(providerC), AsyncValue<String>.loading());

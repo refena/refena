@@ -20,7 +20,7 @@ void main() {
       actionDispatched: true,
     );
     final ref = RefenaScope(
-      observer: observer,
+      observers: [observer],
       child: _App(_CustomReduxPage()),
     );
 
@@ -60,7 +60,7 @@ void main() {
       actionDispatched: true,
     );
     final ref = RefenaScope(
-      observer: observer,
+      observers: [observer],
       child: _App(_ExtendedReduxPage()),
     );
 

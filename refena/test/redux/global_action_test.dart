@@ -13,7 +13,7 @@ void main() {
   group(GlobalAction, () {
     test('Should dispatch', () {
       final ref = RefenaContainer(
-        observer: observer,
+        observers: [observer],
       );
 
       expect(ref.read(_stateProvider), 0);
@@ -37,7 +37,7 @@ void main() {
 
     test('Should dispatch nested action', () {
       final ref = RefenaContainer(
-        observer: observer,
+        observers: [observer],
       );
 
       expect(ref.read(_stateProvider), 0);
@@ -73,7 +73,7 @@ void main() {
   group(AsyncGlobalAction, () {
     test('Should dispatch', () async {
       final ref = RefenaContainer(
-        observer: observer,
+        observers: [observer],
       );
 
       expect(ref.read(_stateProvider), 0);
@@ -99,7 +99,7 @@ void main() {
   group(GlobalActionWithResult, () {
     test('Should dispatch', () {
       final ref = RefenaContainer(
-        observer: observer,
+        observers: [observer],
       );
 
       expect(ref.read(_stateProvider), 0);
@@ -126,7 +126,7 @@ void main() {
   group(AsyncGlobalActionWithResult, () {
     test('Should dispatch', () async {
       final ref = RefenaContainer(
-        observer: observer,
+        observers: [observer],
       );
 
       expect(ref.read(_stateProvider), 0);
