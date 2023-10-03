@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:refena_inspector_client/refena_inspector_client.dart';
 
 final counterProviderA =
     NotifierProvider<Counter, int>((ref) => Counter(debugLabel: 'Counter A'));
@@ -53,7 +54,10 @@ void main() {
   runApp(
     RefenaScope(
       observers: [
-        if (kDebugMode) RefenaDebugObserver(),
+        if (kDebugMode) ...[
+          RefenaInspectorObserver(),
+          RefenaDebugObserver(),
+        ],
       ],
       child: const MyApp(),
     ),

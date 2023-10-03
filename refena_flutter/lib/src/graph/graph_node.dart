@@ -5,33 +5,11 @@ part of 'graph_page.dart';
 const horizontalPadding = 10;
 const verticalPadding = 5;
 
-class _Node {
-  final Object key;
-  final String label;
-  final Set<_Node> parents;
-  final Set<_Node> children;
-
-  /// A temporary flag to mark nodes as visited.
-  bool visited = false;
-
-  _Node({
-    required this.key,
-    required this.label,
-    required this.parents,
-    required this.children,
-  });
-
-  @override
-  String toString() {
-    return label;
-  }
-}
-
 /// A node assigned to a layer in the graph.
 /// 0 is the leftmost layer (i.e. no parents).
 /// This is an intermediate node instance.
 class _LayeredNode {
-  final _Node node;
+  final InputNode node;
   int layer;
 
   _LayeredNode({
@@ -60,7 +38,7 @@ enum _Section {
 /// A node assigned to a position in the graph.
 /// This is the final node position.
 class _PositionedNode {
-  final _Node node;
+  final InputNode node;
   final List<_PositionedNode> parents = []; // set later
   final List<_PositionedNode> children = []; // set later
   final _Section section;
@@ -99,19 +77,20 @@ class _Graph {
 }
 
 /// Builds the graph.
-_Graph _buildGraphFromNodes(List<_Node> nodes) {
+_Graph _buildGraphFromNodes(List<InputNode> nodes) {
   final widgets = nodes
-      .where((node) => node.key is ElementRebuildable)
+      .where((node) => node.type == InputNodeType.widget)
       .toList(growable: false);
 
   final viewModels = nodes.where((node) {
-    return node.key is ViewProviderNotifier &&
+    return node.type == InputNodeType.view &&
         node.children.length == 1 &&
-        node.children.first.key is ElementRebuildable;
+        node.children.first.type == InputNodeType.widget;
   }).toSet();
 
   final services = nodes
-      .where((node) => node.key is BaseNotifier && !viewModels.contains(node))
+      .where((node) =>
+          node.type != InputNodeType.widget && !viewModels.contains(node))
       .toSet();
 
   final layeredServiceNodes = _buildLayers(services);
@@ -221,7 +200,6 @@ _Graph _buildGraphFromNodes(List<_Node> nodes) {
       final childIndex = positionedNodes.indexWhere((n) => n.node == child);
       if (childIndex != -1) {
         node.children.add(positionedNodes[childIndex]);
-        continue;
       }
     }
   }
@@ -236,12 +214,14 @@ _Graph _buildGraphFromNodes(List<_Node> nodes) {
   return _Graph(
     nodes: positionedNodes,
     width: x + horizontalPadding * 2 + maxWidth,
-    height: positionedNodes
-            .reduce((value, element) =>
-                value.position.dy > element.position.dy ? value : element)
-            .position
-            .dy +
-        nodeSpacing,
+    height: positionedNodes.isEmpty
+        ? 0
+        : positionedNodes
+                .reduce((value, element) =>
+                    value.position.dy > element.position.dy ? value : element)
+                .position
+                .dy +
+            nodeSpacing,
   );
 }
 
@@ -296,7 +276,7 @@ void _optimizeGraph({
   }
 }
 
-List<_LayeredNode> _buildLayers(Set<_Node> nodes) {
+List<_LayeredNode> _buildLayers(Set<InputNode> nodes) {
   for (final node in nodes) {
     node.visited = false;
   }
@@ -305,7 +285,7 @@ List<_LayeredNode> _buildLayers(Set<_Node> nodes) {
     ...nodes.where((node) => node.children.every((c) => !nodes.contains(c))),
   ];
 
-  final queue = Queue<_Node>.from(sortedNodes);
+  final queue = Queue<InputNode>.from(sortedNodes);
   while (queue.isNotEmpty) {
     final node = queue.removeFirst();
 

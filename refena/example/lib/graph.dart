@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:refena_inspector_client/refena_inspector_client.dart';
 
 void main() {
   runApp(RefenaScope(
+    observers: [
+      RefenaInspectorObserver(),
+    ],
     child: _App(),
   ));
 }
@@ -11,6 +15,7 @@ class _App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: _GraphPlaygroundPage(),
     );
   }

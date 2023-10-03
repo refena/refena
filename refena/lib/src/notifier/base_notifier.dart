@@ -388,6 +388,9 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
 
   @override
   bool get disposed => _disposed;
+
+  @override
+  bool get isWidget => false;
 }
 
 /// A notifier where the state can be updated by dispatching actions

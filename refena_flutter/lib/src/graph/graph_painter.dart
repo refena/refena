@@ -1,5 +1,7 @@
 part of 'graph_page.dart';
 
+// ignore_for_file: invalid_use_of_internal_member
+
 class _GraphPainter extends CustomPainter {
   final _Graph _graph;
 
@@ -96,18 +98,12 @@ class _GraphPainter extends CustomPainter {
       );
       textPainter.layout();
 
-      paintNode.color = switch (node.section) {
-        _Section.services => switch (node.node.key) {
-            ViewProviderNotifier() => Colors.green,
-            ImmutableNotifier() ||
-            FutureProviderNotifier() ||
-            FutureFamilyProviderNotifier() =>
-              Colors.blue.shade800,
-            ReduxNotifier() => Colors.red.shade700,
-            _ => Colors.orange.shade700,
-          },
-        _Section.viewModels => Colors.green,
-        _Section.widgets => Colors.purple,
+      paintNode.color = switch (node.node.type) {
+        InputNodeType.view => Colors.green,
+        InputNodeType.redux => Colors.red.shade700,
+        InputNodeType.immutable || InputNodeType.future => Colors.blue.shade800,
+        InputNodeType.widget => Colors.purple,
+        InputNodeType.notifier => Colors.orange.shade700,
       };
       canvas.drawRRect(
         RRect.fromRectAndRadius(

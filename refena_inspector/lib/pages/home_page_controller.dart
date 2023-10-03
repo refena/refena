@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
 enum HomeTab {
-  tracing(Icons.manage_search),
+  tracing(Icons.list),
   graph(Icons.account_tree),
   actions(Icons.bolt);
 
@@ -78,5 +78,19 @@ class SetHomeTabAction extends ReduxAction<HomePageController, HomePageState> {
     return state.copyWith(
       currentTab: tab,
     );
+  }
+}
+
+/// Refreshes the page controller with the current tab.
+class RefreshPageController extends ReduxAction<HomePageController, HomePageState> {
+  @override
+  HomePageState reduce() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!state.pageController.hasClients) {
+        return;
+      }
+      state.pageController.jumpToPage(state.currentTab.index);
+    });
+    return state;
   }
 }

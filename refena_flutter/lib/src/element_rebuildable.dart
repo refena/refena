@@ -34,6 +34,9 @@ class ElementRebuildable extends Rebuildable {
   bool get disposed => (element.target?.mounted ?? false) == false;
 
   @override
+  bool get isWidget => true;
+
+  @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ElementRebuildable && identical(element, other.element)) ||

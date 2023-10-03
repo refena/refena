@@ -23,6 +23,9 @@ class WidgetRebuildable<W extends Widget> extends Rebuildable {
     throw UnimplementedError();
   }
 
+  @override
+  bool get isWidget => true;
+
   Type get widgetType => W;
 
   @override

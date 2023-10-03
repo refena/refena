@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:refena_inspector/pages/home_page_controller.dart';
 import 'package:refena_inspector/service/action_service.dart';
+import 'package:refena_inspector/service/graph_service.dart';
 
 // ignore: implementation_imports
 import 'package:refena_inspector_client/src/protocol.dart';
@@ -42,10 +44,14 @@ class ServerState {
 }
 
 final serverProvider = ReduxProvider<InspectorServer, ServerState>((ref) {
-  return InspectorServer();
+  return InspectorServer(ref.notifier(homePageControllerProvider));
 });
 
 class InspectorServer extends ReduxNotifier<ServerState> {
+  final HomePageController _homePageController;
+
+  InspectorServer(this._homePageController);
+
   @override
   ServerState init() {
     return ServerState(
@@ -64,9 +70,11 @@ class StartServerAction extends AsyncReduxAction<InspectorServer, ServerState> {
   Future<ServerState> reduce() async {
     var handler = webSocketHandler((WebSocketChannel webSocket) async {
       dispatch(_SetSinkAction(sink: webSocket.sink));
-      await for (final message in webSocket.stream) {
+      webSocket.stream.listen((message) {
         _handleMessage(message);
-      }
+      }, onDone: () {
+        dispatch(_ClientDisconnectedAction());
+      });
     });
 
     final server = await shelf_io.serve(handler, 'localhost', 9253);
@@ -99,6 +107,20 @@ class _ClientConnectedAction extends ReduxAction<InspectorServer, ServerState> {
       clientConnected: true,
     );
   }
+
+  @override
+  void after() {
+    external(notifier._homePageController).dispatch(RefreshPageController());
+  }
+}
+
+class _ClientDisconnectedAction extends ReduxAction<InspectorServer, ServerState> {
+  @override
+  ServerState reduce() {
+    return state.copyWith(
+      clientConnected: false,
+    );
+  }
 }
 
 /// Sends an action to the client.
@@ -126,16 +148,21 @@ class SendActionAction extends ReduxAction<InspectorServer, ServerState> {
 
 void _handleMessage(dynamic message) {
   final json = jsonDecode(message) as Map<String, dynamic>;
-  final type = InspectorClientMessageType.values
-      .firstWhere((t) => t.name == json['type']);
+  final type = InspectorClientMessageType.values.firstWhere((t) => t.name == json['type']);
   final payload = json['payload'];
 
   final ref = RefenaScope.defaultRef;
   switch (type) {
     case InspectorClientMessageType.hello:
+      final graph = payload['graph'] as List<dynamic>;
       final actions = payload['actions'] as Map<String, dynamic>;
       ref.redux(actionProvider).dispatch(SetActionsAction(actions: actions));
+      ref.redux(graphProvider).dispatch(SetGraphAction(nodes: graph));
       ref.redux(serverProvider).dispatch(_ClientConnectedAction());
+      break;
+    case InspectorClientMessageType.graph:
+      final graph = payload['graph'] as List<dynamic>;
+      ref.redux(graphProvider).dispatch(SetGraphAction(nodes: graph));
       break;
   }
 }

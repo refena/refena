@@ -18,4 +18,9 @@ abstract class Rebuildable with LabeledReference {
   /// A debug label for this [Rebuildable].
   @override
   String get debugLabel;
+
+  /// Whether this [Rebuildable] is a [ElementRebuildable].
+  /// A flag for refena_inspector_client because it does not depend
+  /// on refena_flutter.
+  bool get isWidget;
 }

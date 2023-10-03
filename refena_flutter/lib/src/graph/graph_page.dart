@@ -7,8 +7,13 @@ import 'package:flutter/material.dart';
 
 // ignore: implementation_imports
 import 'package:refena/src/notifier/base_notifier.dart';
+
+// ignore: implementation_imports
+import 'package:refena/src/tools/graph_input_model.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_flutter/src/element_rebuildable.dart';
+
+part 'graph_input_builder.dart';
 
 part 'graph_node.dart';
 
@@ -21,11 +26,20 @@ const _viewerPadding = EdgeInsets.only(
   bottom: 100,
 );
 
+typedef InputGraphBuilder = List<InputNode> Function(
+  Ref ref,
+  void Function() refresher,
+);
+
 class RefenaGraphPage extends StatefulWidget {
+  final String title;
   final bool showWidgets;
+  final InputGraphBuilder inputGraphBuilder;
 
   const RefenaGraphPage({
+    this.title = 'Refena Graph',
     this.showWidgets = false,
+    this.inputGraphBuilder = _buildInputGraphFromState,
     super.key,
   });
 
@@ -39,6 +53,7 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
 
   late bool _showWidgets = widget.showWidgets;
   final _controller = TransformationController();
+  late Size _availableSize;
   late double _scale;
 
   @override
@@ -51,80 +66,32 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
     });
   }
 
+  void _refresh(bool showWidgets, {required bool reset}) {
+    setState(() {
+      _showWidgets = showWidgets;
+      if (reset) {
+        _initialized = false;
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _buildGraph();
+      setState(() => _initialized = true);
+    });
+  }
+
   void _buildGraph() {
-    ref.container.cleanupListeners();
-    final notifiers = ref.container.getActiveNotifiers();
-
-    final inputNodes = <_Node>[];
-    final nodeMap = <BaseNotifier, _Node>{};
-    final widgetMap = <ElementRebuildable, _Node>{};
-    for (final notifier in notifiers) {
-      final node = _Node(
-        key: notifier,
-        label: switch (notifier) {
-          ViewProviderNotifier() => 'V | ${notifier.debugLabel}',
-          ReduxNotifier() => 'R | ${notifier.debugLabel}',
-          ImmutableNotifier() => 'P | ${notifier.debugLabel}',
-          FutureProviderNotifier() ||
-          FutureFamilyProviderNotifier() =>
-            'F | ${notifier.debugLabel}',
-          _ => 'N | ${notifier.debugLabel}',
-        },
-        parents: {},
-        children: {},
-      );
-      nodeMap[notifier] = node;
-      inputNodes.add(node);
-
-      // add widget nodes
-      if (_showWidgets) {
-        for (final listener in notifier.getListeners()) {
-          if (listener is! ElementRebuildable ||
-              widgetMap.containsKey(listener)) {
-            continue;
-          }
-          final widget = _Node(
-            key: listener,
-            label: 'W | ${listener.debugLabel}',
-            parents: {},
-            children: {},
-          );
-          widgetMap[listener] = widget;
-          inputNodes.add(widget);
-        }
-      }
-    }
-
-    // add edges
-    for (final notifier in notifiers) {
-      final node = nodeMap[notifier]!;
-      for (final parent in notifier.dependencies) {
-        final parentNode = nodeMap[parent]!;
-        node.parents.add(parentNode);
-      }
-
-      for (final child in notifier.dependents) {
-        final childNode = nodeMap[child]!;
-        node.children.add(childNode);
-      }
-
-      // add widget edges
-      if (_showWidgets) {
-        for (final listener in notifier.getListeners()) {
-          if (listener is! ElementRebuildable) {
-            continue;
-          }
-          final dependentNode = widgetMap[listener]!;
-          dependentNode.parents.add(node);
-          node.children.add(dependentNode);
-        }
-      }
+    var inputNodes = widget.inputGraphBuilder(
+      ref,
+      () => _refresh(_showWidgets, reset: false),
+    );
+    if (!_showWidgets) {
+      inputNodes = inputNodes.withoutWidgets();
     }
 
     _graph = _buildGraphFromNodes(inputNodes);
 
     // Widget constraints
-    final parentSize = MediaQuery.sizeOf(context);
+    final parentSize = _availableSize;
 
     final graphWidth = _graph.width + _viewerPadding.horizontal;
     final graphHeight = _graph.height + _viewerPadding.vertical;
@@ -147,7 +114,7 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Refena Graph'),
+        title: Text(widget.title),
         actions: [
           PopupMenuButton(
             itemBuilder: (context) {
@@ -172,14 +139,7 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
             onSelected: (value) async {
               switch (value) {
                 case 'widgets':
-                  setState(() {
-                    _showWidgets = !_showWidgets;
-                    _initialized = false;
-                  });
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    _buildGraph();
-                    setState(() => _initialized = true);
-                  });
+                  _refresh(!_showWidgets, reset: true);
                   break;
               }
             },
@@ -188,40 +148,43 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
           const SizedBox(width: 10),
         ],
       ),
-      body: !_initialized
-          ? Container()
-          : Builder(
-              builder: (context) {
-                final screenSize = MediaQuery.sizeOf(context);
-                final inverseScale = 1 / _scale;
-                final width = (screenSize.width - 50) * inverseScale;
-                final height = (screenSize.height - 50) * inverseScale;
-                return InteractiveViewer(
-                  constrained: false,
-                  transformationController: _controller,
-                  boundaryMargin: EdgeInsets.symmetric(
-                    horizontal: width,
-                    vertical: height,
-                  ),
-                  // does not matter, adjust boundaryMargin
-                  minScale: 0.0001,
-                  maxScale: 2,
-                  child: Padding(
-                    padding: _viewerPadding,
-                    child: SizedBox(
-                      width: _graph.width,
-                      height: _graph.height,
-                      child: Center(
-                        child: CustomPaint(
-                          size: Size(width, height),
-                          painter: _GraphPainter(_graph),
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          _availableSize = constraints.biggest;
+          if (!_initialized) {
+            return Container();
+          }
+
+          final screenSize = constraints.biggest;
+          final inverseScale = 1 / _scale;
+          final width = (screenSize.width - 50) * inverseScale;
+          final height = (screenSize.height - 50) * inverseScale;
+          return InteractiveViewer(
+            constrained: false,
+            transformationController: _controller,
+            boundaryMargin: EdgeInsets.symmetric(
+              horizontal: width,
+              vertical: height,
             ),
+            // does not matter, adjust boundaryMargin
+            minScale: 0.0001,
+            maxScale: 2,
+            child: Padding(
+              padding: _viewerPadding,
+              child: SizedBox(
+                width: _graph.width,
+                height: _graph.height,
+                child: Center(
+                  child: CustomPaint(
+                    size: Size(width, height),
+                    painter: _GraphPainter(_graph),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

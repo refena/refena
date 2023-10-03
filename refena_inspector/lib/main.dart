@@ -11,9 +11,11 @@ void main() {
   initLogger();
   runApp(
     RefenaScope(
-      observer: RefenaDebugObserver(
-        onLine: (line) => _refenaLogger.info(line),
-      ),
+      observers: [
+        RefenaDebugObserver(
+          onLine: (line) => _refenaLogger.info(line),
+        ),
+      ],
       child: const MyApp(),
     ),
   );

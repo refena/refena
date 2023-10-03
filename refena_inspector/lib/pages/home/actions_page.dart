@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector/pages/home/actions_page_vm.dart';
 import 'package:refena_inspector/service/action_service.dart';
@@ -78,11 +79,13 @@ class ActionsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final vm = context.ref.watch(actionsPageVmProvider);
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Quick Actions'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(20.0),
         children: [
-          Text('Actions', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 20),
+          if (vm.actions.isEmpty) const _ConfigureActionsTutorial(),
           ..._buildActions(vm, context, vm.actions, 0),
         ],
       ),
@@ -257,3 +260,55 @@ class _ActionDialogState extends State<_ActionDialog> {
     );
   }
 }
+
+/// Shown if there are no actions configured.
+class _ConfigureActionsTutorial extends StatelessWidget {
+  const _ConfigureActionsTutorial();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text('There are no actions configured. Here is how to configure them:', style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 20),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(5),
+            color: Colors.purple.shade50,
+          ),
+          child: SelectableText(_exampleCode),
+        ),
+        const SizedBox(height: 20),
+        TextButton(
+          onPressed: () {
+            Clipboard.setData(ClipboardData(text: _exampleCode));
+          },
+          child: const Text('Copy'),
+        ),
+      ],
+    );
+  }
+}
+
+const _exampleCode = '''
+RefenaInspectorObserver(
+  actions: {
+    'Test message': (Ref ref) => ref.message('test'),
+    'Nested actions': {
+      'Hello': (Ref ref) => ref.message('Hello'),
+      'World': (Ref ref) => ref.message('World'),
+    },
+    'Login': InspectorAction(
+      params: {
+        'name': ParamSpec.string(),
+        'password': ParamSpec.string(),
+      },
+      action: (ref, params) {
+        ref.message(
+          'Login with \${params['name']} and \${params['password']}',
+        );
+      },
+    ),
+  },
+)''';
