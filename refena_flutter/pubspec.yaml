@@ -1,7 +1,8 @@
 name: refena_flutter
 description: A state management library for Dart and Flutter. Inspired by Riverpod and async_redux.
 version: 0.29.0
-repository: https://github.com/refena/refena
+repository: https://github.com/refena/refena/tree/main/refena_flutter
+issue_tracker: https://github.com/refena/refena/issues
 topics:
   - state
   - provider
@@ -9,7 +10,7 @@ topics:
   - framework
   - redux
 screenshots:
-  - description: The refena logo.
+  - description: The Refena logo.
     path: resources/icon.png
 
 environment:
