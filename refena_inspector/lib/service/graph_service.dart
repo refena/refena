@@ -50,7 +50,7 @@ class SetGraphAction extends ReduxAction<GraphService, GraphState> {
     for (final dto in nodesDto) {
       result[dto.id] = InputNode(
         type: dto.type,
-        debugLabel: dto.debugLabel,
+        label: dto.debugLabel,
       );
     }
 

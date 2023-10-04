@@ -53,8 +53,10 @@ class _GraphPainter extends CustomPainter {
 
         final middleX = (child.position.dx +
                 node.position.dx +
+                typeCellWidth +
+                typeRightPadding +
                 node.labelWidth +
-                horizontalPadding * 2) /
+                endPadding) /
             2;
 
         final controlPoint1 = Offset(
@@ -66,8 +68,10 @@ class _GraphPainter extends CustomPainter {
         final controlPoint2 = Offset(
           middleX +
               (node.position.dx +
+                      typeCellWidth +
+                      typeRightPadding +
                       node.labelWidth +
-                      horizontalPadding * 2 -
+                      endPadding -
                       middleX) /
                   3,
           // Adjust this to change the control point's horizontal position relative to the parent
@@ -75,7 +79,11 @@ class _GraphPainter extends CustomPainter {
         );
 
         final endPoint = Offset(
-          node.position.dx + node.labelWidth + horizontalPadding * 2,
+          node.position.dx +
+              typeCellWidth +
+              typeRightPadding +
+              node.labelWidth +
+              endPadding,
           node.position.dy + node.labelHeight / 2 + verticalPadding,
         );
 
@@ -92,39 +100,88 @@ class _GraphPainter extends CustomPainter {
       }
 
       // Draw node
-      textPainter.text = TextSpan(
-        text: node.node.label,
-        style: const TextStyle(color: Colors.white, height: 1),
-      );
-      textPainter.layout();
 
-      paintNode.color = switch (node.node.type) {
+      final nodeColor = switch (node.node.type) {
         InputNodeType.view => Colors.green,
         InputNodeType.redux => Colors.red.shade700,
         InputNodeType.immutable || InputNodeType.future => Colors.blue.shade800,
         InputNodeType.widget => Colors.purple,
         InputNodeType.notifier => Colors.orange.shade700,
       };
+      final totalHeight = node.labelHeight + verticalPadding * 2;
+      paintNode.color = nodeColor;
       canvas.drawRRect(
-        RRect.fromRectAndRadius(
-          Rect.fromCenter(
-            center: Offset(
-              node.position.dx + node.labelWidth / 2 + horizontalPadding,
-              node.position.dy + textPainter.height / 2 + verticalPadding,
-            ),
-            width: node.labelWidth + horizontalPadding * 2,
-            height: textPainter.height + verticalPadding * 2,
+        RRect.fromRectAndCorners(
+          Rect.fromLTWH(
+            node.position.dx + typeCellWidth,
+            node.position.dy,
+            typeRightPadding + node.labelWidth + endPadding,
+            totalHeight,
           ),
-          Radius.circular(10),
+          topRight: const Radius.circular(10),
+          bottomRight: const Radius.circular(10),
         ),
         paintNode,
       );
 
+      paintNode.color = switch (node.node.type) {
+        InputNodeType.view => Colors.green.shade200,
+        InputNodeType.redux => Colors.red.shade200,
+        InputNodeType.immutable || InputNodeType.future => Colors.blue.shade200,
+        InputNodeType.widget => Colors.purple.shade200,
+        InputNodeType.notifier => Colors.orange.shade200,
+      };
+      canvas.drawRRect(
+        RRect.fromRectAndCorners(
+          Rect.fromLTWH(
+            node.position.dx,
+            node.position.dy,
+            typeCellWidth,
+            node.labelHeight + verticalPadding * 2,
+          ),
+          topLeft: const Radius.circular(10),
+          bottomLeft: const Radius.circular(10),
+        ),
+        paintNode,
+      );
+
+      textPainter.text = TextSpan(
+        text: switch (node.node.type) {
+          InputNodeType.view => 'V',
+          InputNodeType.redux => 'R',
+          InputNodeType.immutable => 'P',
+          InputNodeType.future => 'F',
+          InputNodeType.widget => 'W',
+          InputNodeType.notifier => 'N',
+        },
+        style: TextStyle(
+          color: nodeColor,
+          fontWeight: FontWeight.bold,
+          height: 1,
+        ),
+      );
+      textPainter.layout();
+      const leftPadding = 2;
       textPainter.paint(
         canvas,
         Offset(
-          node.position.dx + horizontalPadding,
-          node.position.dy + verticalPadding,
+          node.position.dx +
+              leftPadding +
+              (typeCellWidth - textPainter.width - leftPadding) / 2,
+          node.position.dy + (totalHeight - textPainter.height) / 2,
+        ),
+      );
+
+      textPainter.text = TextSpan(
+        text: node.node.label,
+        style: const TextStyle(color: Colors.white, height: 1),
+      );
+      textPainter.layout();
+      textPainter.paint(
+        canvas,
+        Offset(
+          node.position.dx + typeCellWidth + typeRightPadding,
+          node.position.dy + (totalHeight - textPainter.height) / 2,
         ),
       );
     }

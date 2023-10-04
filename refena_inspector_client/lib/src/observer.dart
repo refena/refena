@@ -32,7 +32,7 @@ class RefenaInspectorObserver extends RefenaObserver {
     this.host,
     this.port = 9253,
     this.minDelay = const Duration(milliseconds: 100),
-    this.maxDelay = const Duration(seconds: 1),
+    this.maxDelay = const Duration(milliseconds: 500),
     Map<String, dynamic> actions = const {},
   }) : actions = ActionsBuilder.normalizeActionMap(actions);
 

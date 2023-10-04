@@ -16,7 +16,6 @@ enum InputNodeType {
 class InputNode {
   final InputNodeType type;
   final String label;
-  final String debugLabel;
   final Set<InputNode> parents = {}; // set later
   final Set<InputNode> children = {}; // set later
 
@@ -25,17 +24,10 @@ class InputNode {
 
   InputNode({
     required this.type,
-    required this.debugLabel,
-  }) : label = switch (type) {
-          InputNodeType.view => 'V | $debugLabel',
-          InputNodeType.redux => 'R | $debugLabel',
-          InputNodeType.immutable => 'P | $debugLabel',
-          InputNodeType.future => 'F | $debugLabel',
-          InputNodeType.widget => 'W | $debugLabel',
-          InputNodeType.notifier => 'N | $debugLabel',
-        };
+    required this.label,
+  });
 
   @override
   String toString() =>
-      '$debugLabel(parents: ${parents.length}, children: ${children.length})';
+      '$label(parents: ${parents.length}, children: ${children.length})';
 }

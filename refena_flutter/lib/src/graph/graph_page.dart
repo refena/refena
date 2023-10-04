@@ -283,7 +283,7 @@ extension InputListExt on List<InputNode> {
       }
       newNodes[node] = InputNode(
         type: node.type,
-        debugLabel: node.debugLabel,
+        label: node.label,
       );
     }
 

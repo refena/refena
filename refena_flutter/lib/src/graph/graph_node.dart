@@ -2,7 +2,9 @@ part of 'graph_page.dart';
 
 // ignore_for_file: invalid_use_of_internal_member
 
-const horizontalPadding = 10;
+const typeCellWidth = 25.0;
+const typeRightPadding = 5;
+const endPadding = 5;
 const verticalPadding = 5;
 
 /// A node assigned to a layer in the graph.
@@ -109,10 +111,12 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
   double x = 0;
   int y = 0;
   double maxWidth = 0; // the maximum width of the labels in the current layer
+  const constantWidth =
+      typeCellWidth + typeRightPadding + endPadding + layerSpacing;
   for (final service in layeredServiceNodes) {
     if (service.layer > layer) {
       layer = service.layer;
-      x += maxWidth + horizontalPadding * 2 + layerSpacing;
+      x += maxWidth + constantWidth;
       maxWidth = 0;
       nodeCountPerLayer.add(y);
       y = 0;
@@ -140,7 +144,7 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
 
   if (maxWidth != 0) {
     layer++;
-    x += maxWidth + horizontalPadding * 2 + layerSpacing;
+    x += maxWidth + constantWidth;
     maxWidth = 0;
     nodeCountPerLayer.add(y);
     y = 0;
@@ -168,7 +172,7 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
 
   if (maxWidth != 0) {
     layer++;
-    x += maxWidth + horizontalPadding * 2 + layerSpacing;
+    x += maxWidth + constantWidth;
     maxWidth = 0;
     nodeCountPerLayer.add(y);
     y = 0;
@@ -217,7 +221,7 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
 
   return _Graph(
     nodes: positionedNodes,
-    width: x + horizontalPadding * 2 + maxWidth,
+    width: x + constantWidth,
     height: positionedNodes.isEmpty
         ? 0
         : positionedNodes

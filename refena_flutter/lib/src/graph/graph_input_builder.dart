@@ -39,7 +39,7 @@ class _StateGraphInputBuilder extends GraphInputBuilder {
           FutureFamilyProviderNotifier() => InputNodeType.future,
           _ => InputNodeType.notifier,
         },
-        debugLabel: notifier.debugLabel,
+        label: notifier.debugLabel,
       );
       nodeMap[notifier] = node;
       inputNodes.add(node);
@@ -52,7 +52,7 @@ class _StateGraphInputBuilder extends GraphInputBuilder {
         }
         final widget = InputNode(
           type: InputNodeType.widget,
-          debugLabel: listener.debugLabel,
+          label: listener.debugLabel,
         );
         widgetMap[listener] = widget;
         inputNodes.add(widget);
