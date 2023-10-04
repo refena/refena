@@ -44,6 +44,10 @@ class _PositionedNode {
   final _Section section;
   final int layer;
   Offset position;
+
+  /// The index of the node in the layer.
+  /// Only used for internal calculations.
+  /// Might have different resolutions (1 = 1/2 node spacing).
   int indexY;
   final double labelWidth;
   final double labelHeight;
@@ -238,37 +242,56 @@ void _optimizeGraph({
 
   final maxY = nodeCountPerLayer.reduce(max);
 
+  // These nodes have been positioned, only consider them for optimization
+  // The layer with the most nodes is already positioned
   final positionedNodes =
       nodes.where((n) => n.layer == layerOrder.first).toSet();
+
+  // We double the number of nodes per layer for better UI
+  final maxNodesPerLayer = positionedNodes.length * 2;
+  final halfNodeSpacing = nodeSpacing / 2;
+
   for (final layerIndex in layerOrder.skip(1)) {
     final layerNodes = nodes.where((n) => n.layer == layerIndex).toList();
-    final avgY = Map.fromEntries(layerNodes.map((n) {
+    final List<bool> takenY = List.filled(maxNodesPerLayer, false);
+    final List<int> leftOver = [];
+    for (int i = 0; i < layerNodes.length; i++) {
+      final node = layerNodes[i];
+      final parents = node.parents.where((p) => positionedNodes.contains(p));
+      final children = node.children.where((c) => positionedNodes.contains(c));
+
       // avg y position of parents and children that reference this node
-      final parents = n.parents.where((p) => positionedNodes.contains(p));
-      final children = n.children.where((c) => positionedNodes.contains(c));
       final avgY = switch (parents.length + children.length) {
         0 => maxY / 2,
         _ => (parents.fold(0.0, (p, c) => p + c.indexY) +
                 children.fold(0.0, (p, c) => p + c.indexY)) /
             (parents.length + children.length),
       };
-      return MapEntry(n, avgY);
-    }));
 
-    if (layerNodes.any((n) => n.node.label == 'PersistenceService')) {
-      print('AVG: $avgY');
+      final indexY = (avgY * 2).round();
+
+      if (takenY[indexY]) {
+        leftOver.add(i);
+        continue;
+      }
+
+      takenY[indexY] = true;
+      node.indexY = indexY;
+      node.position = Offset(
+        node.position.dx,
+        indexY * halfNodeSpacing,
+      );
     }
 
-    // sort by avg y position
-    layerNodes.sort((a, b) => avgY[a]!.compareTo(avgY[b]!));
-
-    // assign new y positions
-    final yPadding = ((maxY - layerNodes.length) / 2) * nodeSpacing;
-    for (var i = 0; i < layerNodes.length; i++) {
-      layerNodes[i].indexY = i;
-      layerNodes[i].position = Offset(
-        layerNodes[i].position.dx,
-        i * nodeSpacing + yPadding,
+    // Left over nodes will take the first available position
+    for (final i in leftOver) {
+      final node = layerNodes[i];
+      final freeIndex = takenY.indexWhere((b) => !b);
+      takenY[freeIndex] = true;
+      node.indexY = freeIndex;
+      node.position = Offset(
+        node.position.dx,
+        freeIndex * halfNodeSpacing,
       );
     }
 
