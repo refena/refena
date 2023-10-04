@@ -56,33 +56,42 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
   late Size _availableSize;
   late double _scale;
 
+  /// If true, then the user has manually zoomed in or out.
+  /// The zoom will not be reset when the graph is refreshed.
+  bool _customZoom = false;
+
   @override
   void initState() {
     super.initState();
 
     ensureRef((ref) {
-      _buildGraph();
+      _buildGraph(resetZoom: true);
       setState(() => _initialized = true);
     });
   }
 
-  void _refresh(bool showWidgets, {required bool reset}) {
+  void _refresh(bool showWidgets, {required bool resetZoom}) {
     setState(() {
       _showWidgets = showWidgets;
-      if (reset) {
+      if (resetZoom) {
         _initialized = false;
       }
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _buildGraph();
-      setState(() => _initialized = true);
+      _buildGraph(resetZoom: resetZoom);
+      setState(() {
+        if (resetZoom) {
+          _customZoom = false;
+        }
+        _initialized = true;
+      });
     });
   }
 
-  void _buildGraph() {
+  void _buildGraph({required bool resetZoom}) {
     var inputNodes = widget.inputGraphBuilder(
       ref,
-      () => _refresh(_showWidgets, reset: false),
+      () => _refresh(_showWidgets, resetZoom: _customZoom ? false : true),
     );
     if (!_showWidgets) {
       inputNodes = inputNodes.withoutWidgets();
@@ -90,24 +99,26 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
 
     _graph = _buildGraphFromNodes(inputNodes);
 
-    // Widget constraints
-    final parentSize = _availableSize;
+    if (resetZoom) {
+      // Widget constraints
+      final parentSize = _availableSize;
 
-    final graphWidth = _graph.width + _viewerPadding.horizontal;
-    final graphHeight = _graph.height + _viewerPadding.vertical;
+      final graphWidth = _graph.width + _viewerPadding.horizontal;
+      final graphHeight = _graph.height + _viewerPadding.vertical;
 
-    final widthFactor = parentSize.width / graphWidth;
-    final heightFactor = parentSize.height / graphHeight;
+      final widthFactor = parentSize.width / graphWidth;
+      final heightFactor = parentSize.height / graphHeight;
 
-    _scale = min(widthFactor, heightFactor);
+      _scale = min(widthFactor, heightFactor);
 
-    final w = ((graphWidth / 2) * _scale) - parentSize.width / 2;
-    final h = ((graphHeight / 2) * _scale) - parentSize.height / 2;
+      final w = ((graphWidth / 2) * _scale) - parentSize.width / 2;
+      final h = ((graphHeight / 2) * _scale) - parentSize.height / 2;
 
-    // Set the initial transform and center the canvas
-    final initialTransform =
-        Transform.translate(offset: Offset(-w, -h)).transform;
-    _controller.value = initialTransform.clone()..scale(_scale);
+      // Set the initial transform and center the canvas
+      final initialTransform =
+          Transform.translate(offset: Offset(-w, -h)).transform;
+      _controller.value = initialTransform.clone()..scale(_scale);
+    }
   }
 
   @override
@@ -139,7 +150,7 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
             onSelected: (value) async {
               switch (value) {
                 case 'widgets':
-                  _refresh(!_showWidgets, reset: true);
+                  _refresh(!_showWidgets, resetZoom: true);
                   break;
               }
             },
@@ -169,6 +180,7 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
             // does not matter, adjust boundaryMargin
             minScale: 0.0001,
             maxScale: 2,
+            onInteractionUpdate: (_) => _customZoom = true,
             child: Padding(
               padding: _viewerPadding,
               child: SizedBox(
