@@ -188,3 +188,44 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
     );
   }
 }
+
+extension InputListExt on List<InputNode> {
+  /// Returns a list of nodes without the widget nodes.
+  /// It also removes the respective edges (children).
+  List<InputNode> withoutWidgets() {
+    final newNodes = <InputNode, InputNode>{};
+    for (final node in this) {
+      if (node.type == InputNodeType.widget) {
+        continue;
+      }
+      newNodes[node] = InputNode(
+        type: node.type,
+        debugLabel: node.debugLabel,
+      );
+    }
+
+    // Assign edges
+    for (final entry in newNodes.entries) {
+      final oldNode = entry.key;
+      final newNode = entry.value;
+
+      for (final parent in oldNode.parents) {
+        final newNodeParent = newNodes[parent];
+        if (newNodeParent == null) {
+          continue;
+        }
+        newNode.parents.add(newNodeParent);
+      }
+
+      for (final child in oldNode.children) {
+        final newNodeChild = newNodes[child];
+        if (newNodeChild == null) {
+          continue;
+        }
+        newNode.children.add(newNodeChild);
+      }
+    }
+
+    return newNodes.values.toList();
+  }
+}

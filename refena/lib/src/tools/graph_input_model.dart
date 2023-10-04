@@ -39,14 +39,3 @@ class InputNode {
   String toString() =>
       '$debugLabel(parents: ${parents.length}, children: ${children.length})';
 }
-
-extension InputListExt on List<InputNode> {
-  /// Returns a list of nodes without the widget nodes.
-  /// It also removes the respective edges (children).
-  List<InputNode> withoutWidgets() {
-    return where((node) => node.type != InputNodeType.widget).map((n) {
-      n.children.removeWhere((child) => child.type == InputNodeType.widget);
-      return n;
-    }).toList();
-  }
-}
