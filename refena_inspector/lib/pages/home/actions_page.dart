@@ -80,7 +80,10 @@ class ActionsPage extends StatelessWidget {
     final vm = context.ref.watch(actionsPageVmProvider);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quick Actions'),
+        title: Align(
+          alignment: Alignment.centerLeft, // also force on macOS
+          child: const Text('Quick Actions', textAlign: TextAlign.left),
+        ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(20.0),
@@ -269,13 +272,16 @@ class _ConfigureActionsTutorial extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text('There are no actions configured. Here is how to configure them:', style: Theme.of(context).textTheme.titleMedium),
+        Text(
+          'No actions configured. Here is how to configure them:',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
         const SizedBox(height: 20),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            color: Colors.purple.shade50,
+            color: Color(0xFFf8f0f9),
           ),
           child: SelectableText(_exampleCode),
         ),
@@ -295,9 +301,8 @@ const _exampleCode = '''
 RefenaInspectorObserver(
   actions: {
     'Test message': (Ref ref) => ref.message('test'),
-    'Nested actions': {
+    'Nested action': {
       'Hello': (Ref ref) => ref.message('Hello'),
-      'World': (Ref ref) => ref.message('World'),
     },
     'Login': InspectorAction(
       params: {
@@ -305,9 +310,8 @@ RefenaInspectorObserver(
         'password': ParamSpec.string(),
       },
       action: (ref, params) {
-        ref.message(
-          'Login with \${params['name']} and \${params['password']}',
-        );
+        String name = params['name'];
+        String password = params['password'];
       },
     ),
   },
