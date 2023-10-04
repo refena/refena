@@ -4,7 +4,8 @@ import 'package:refena_flutter/refena_flutter.dart';
 enum HomeTab {
   tracing(Icons.list),
   graph(Icons.account_tree),
-  actions(Icons.bolt);
+  actions(Icons.bolt),
+  settings(Icons.settings);
 
   const HomeTab(this.icon);
 
@@ -18,6 +19,8 @@ enum HomeTab {
         return 'Graph';
       case HomeTab.actions:
         return 'Actions';
+      case HomeTab.settings:
+        return 'Settings';
     }
   }
 }

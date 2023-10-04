@@ -339,10 +339,7 @@ class _EntryBadge extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          fontSize: 12,
-          color: Colors.black,
-        ),
+        style: const TextStyle(fontSize: 12),
       ),
     );
   }

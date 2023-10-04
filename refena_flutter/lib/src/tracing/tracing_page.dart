@@ -63,6 +63,9 @@ class RefenaTracingPage extends StatefulWidget {
   /// Initial filter query.
   final String? query;
 
+  /// The title of the page.
+  final String title;
+
   const RefenaTracingPage({
     super.key,
     this.slowExecutionThreshold = 500,
@@ -71,6 +74,7 @@ class RefenaTracingPage extends StatefulWidget {
     this.include,
     this.showTime = false,
     this.query,
+    this.title = 'Refena Tracing',
   })  : assert(slowExecutionThreshold > 0,
             'slowExecutionThreshold must be greater than 0'),
         assert(include == null || exclude == null,
@@ -166,10 +170,9 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Refena Tracing'),
+        title: Text(widget.title),
         actions: [
           PopupMenuButton(
             itemBuilder: (context) {
@@ -249,106 +252,111 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
           const SizedBox(width: 10),
         ],
       ),
-      body: Stack(
-        children: [
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              width: screenWidth * 3,
-              child: ListView.builder(
-                controller: _scrollController,
-                padding: EdgeInsets.only(
-                  bottom: 100 + MediaQuery.of(context).padding.bottom,
-                  top: 20,
-                ),
-                itemCount: _filteredEntries.length + 2,
-                itemBuilder: (context, index) {
-                  if (index == 0) {
-                    return Padding(
-                      padding: EdgeInsets.only(
-                          left: _showTime
-                              ? _EntryTile.timeColumnWidth
-                              : _EntryTile.noTimeWidth,
-                          bottom: 10),
-                      child: Text(
-                        'Start of history...',
-                        style: TextStyle(color: Colors.grey),
-                      ),
-                    );
-                  }
-
-                  if (index == _filteredEntries.length + 1) {
-                    return _TracingLegend();
-                  }
-
-                  return _EntryTile(
-                    slowExecutionThreshold: widget.slowExecutionThreshold,
-                    errorParser: widget.errorParser,
-                    entry: _filteredEntries[index - 1],
-                    depth: 0,
-                    showTime: _showTime,
-                  );
-                },
-              ),
-            ),
-          ),
-          SafeArea(
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: TextFormField(
-                  initialValue: _query,
-                  style: TextStyle(color: Colors.grey.shade700),
-                  decoration: InputDecoration(
-                    hintText: 'Filter',
-                    filled: true,
-                    fillColor: Colors.white,
-                    labelStyle: TextStyle(color: Colors.grey.shade700),
-                    iconColor: Colors.grey.shade700,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final screenWidth = constraints.biggest.width;
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: screenWidth * 3,
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: EdgeInsets.only(
+                      bottom: 100 + MediaQuery.of(context).padding.bottom,
+                      top: 20,
                     ),
-                    isDense: true,
-                    prefixIcon: Icon(Icons.search),
+                    itemCount: _filteredEntries.length + 2,
+                    itemBuilder: (context, index) {
+                      if (index == 0) {
+                        return Padding(
+                          padding: EdgeInsets.only(
+                              left: _showTime
+                                  ? _EntryTile.timeColumnWidth
+                                  : _EntryTile.noTimeWidth,
+                              bottom: 10),
+                          child: Text(
+                            'Start of history...',
+                            style: TextStyle(color: Colors.grey),
+                          ),
+                        );
+                      }
+
+                      if (index == _filteredEntries.length + 1) {
+                        return _TracingLegend(screenWidth: screenWidth);
+                      }
+
+                      return _EntryTile(
+                        slowExecutionThreshold: widget.slowExecutionThreshold,
+                        errorParser: widget.errorParser,
+                        entry: _filteredEntries[index - 1],
+                        depth: 0,
+                        showTime: _showTime,
+                      );
+                    },
                   ),
-                  onChanged: (value) {
-                    setState(() {
-                      _query = value;
-                      _filter();
-                    });
-                  },
                 ),
               ),
-            ),
-          ),
-          if (!_show)
-            Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          if (_notInitializedError)
-            Container(
-              color: Theme.of(context).scaffoldBackgroundColor,
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Text(
-                  'Tracing is not initialized. Make sure you have added the RefenaTracingObserver to your RefenaScope.',
-                  textAlign: TextAlign.center,
+              SafeArea(
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: TextFormField(
+                      initialValue: _query,
+                      style: TextStyle(color: Colors.grey.shade700),
+                      decoration: InputDecoration(
+                        hintText: 'Filter',
+                        filled: true,
+                        fillColor: Colors.white,
+                        labelStyle: TextStyle(color: Colors.grey.shade700),
+                        iconColor: Colors.grey.shade700,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        isDense: true,
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _query = value;
+                          _filter();
+                        });
+                      },
+                    ),
+                  ),
                 ),
               ),
-            ),
-          Visibility(
-            key: _sampleWidgetKey,
-            visible: false,
-            maintainSize: true,
-            maintainAnimation: true,
-            maintainState: true,
-            child: _EntryCharacterBox(_EventType.action),
-          ),
-        ],
+              if (!_show)
+                Container(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
+              if (_notInitializedError)
+                Container(
+                  color: Theme.of(context).scaffoldBackgroundColor,
+                  padding: const EdgeInsets.all(20),
+                  child: Center(
+                    child: Text(
+                      'Tracing is not initialized. Make sure you have added the RefenaTracingObserver to your RefenaScope.',
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              Visibility(
+                key: _sampleWidgetKey,
+                visible: false,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: _EntryCharacterBox(_EventType.action),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

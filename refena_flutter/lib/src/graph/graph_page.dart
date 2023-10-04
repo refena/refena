@@ -141,6 +141,7 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -221,7 +222,7 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
                 child: Center(
                   child: CustomPaint(
                     size: Size(width, height),
-                    painter: _GraphPainter(_graph),
+                    painter: _GraphPainter(_graph, brightness),
                   ),
                 ),
               ),

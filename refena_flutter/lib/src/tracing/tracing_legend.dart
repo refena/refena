@@ -1,11 +1,12 @@
 part of 'tracing_page.dart';
 
 class _TracingLegend extends StatelessWidget {
-  const _TracingLegend();
+  final double screenWidth;
+
+  const _TracingLegend({required this.screenWidth});
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.sizeOf(context).width;
     return Padding(
       padding: const EdgeInsets.only(top: 20, left: 20),
       child: Align(

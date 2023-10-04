@@ -19,6 +19,11 @@ class RefenaInspectorObserver extends RefenaObserver {
   /// It can be nested.
   final Map<String, dynamic> actions;
 
+  /// The default theme of the inspector.
+  /// We must use string here because the client does not depend on Flutter.
+  /// Allowed values: 'light', 'dark', 'system'.
+  final String theme;
+
   /// The minimum delay between two messages.
   final Duration minDelay;
 
@@ -34,6 +39,7 @@ class RefenaInspectorObserver extends RefenaObserver {
     this.minDelay = const Duration(milliseconds: 100),
     this.maxDelay = const Duration(milliseconds: 500),
     Map<String, dynamic> actions = const {},
+    this.theme = 'system',
   }) : actions = ActionsBuilder.normalizeActionMap(actions);
 
   @override
@@ -72,6 +78,7 @@ class RefenaInspectorObserver extends RefenaObserver {
       sink: channel.sink,
       stream: channel.stream,
       actions: actions,
+      theme: theme,
     );
 
     await _controller?.handleMessages();

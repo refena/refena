@@ -3,15 +3,19 @@ part of 'graph_page.dart';
 // ignore_for_file: invalid_use_of_internal_member
 
 class _GraphPainter extends CustomPainter {
+  /// The graph data to be painted.
   final _Graph _graph;
 
-  _GraphPainter(this._graph);
+  /// The brightness of the app's overall theme.
+  final Brightness _brightness;
+
+  _GraphPainter(this._graph, this._brightness);
 
   @override
   void paint(Canvas canvas, Size size) {
     final paintNode = Paint()..color = Colors.blue;
     final paintEdge = Paint()
-      ..color = Colors.black
+      ..color = _brightness == Brightness.light ? Colors.black : Colors.white
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
     final textPainter = TextPainter(

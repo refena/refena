@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:meta/meta.dart';
 import 'package:refena/refena.dart';
 import 'package:refena_inspector_client/src/builder/actions_builder.dart';
 import 'package:refena_inspector_client/src/builder/graph_builder.dart';
@@ -8,11 +9,13 @@ import 'package:refena_inspector_client/src/observer.dart';
 import 'package:refena_inspector_client/src/protocol.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
+@internal
 class WebSocketController {
   final Ref ref;
   final WebSocketSink sink;
   final Stream stream;
   final Map<String, dynamic> actions;
+  final String theme;
 
   /// Last graph sent to the server serialized as JSON.
   /// If the graph is the same, then it will not be sent again.
@@ -23,6 +26,7 @@ class WebSocketController {
     required this.sink,
     required this.stream,
     required this.actions,
+    required this.theme,
   });
 
   Future<void> handleMessages() async {
@@ -69,6 +73,7 @@ class WebSocketController {
       'payload': {
         'graph': GraphBuilder.buildDto(ref),
         'actions': ActionsBuilder.convertToJson(actions),
+        'theme': theme,
       },
     }));
   }

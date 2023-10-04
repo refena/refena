@@ -1,10 +1,13 @@
 import 'dart:convert';
+import 'dart:ffi';
 
+import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector/pages/home_page_controller.dart';
 import 'package:refena_inspector/service/action_service.dart';
 import 'package:refena_inspector/service/graph_service.dart';
+import 'package:refena_inspector/service/settings_service.dart';
 
 // ignore: implementation_imports
 import 'package:refena_inspector_client/src/protocol.dart';
@@ -114,7 +117,8 @@ class _ClientConnectedAction extends ReduxAction<InspectorServer, ServerState> {
   }
 }
 
-class _ClientDisconnectedAction extends ReduxAction<InspectorServer, ServerState> {
+class _ClientDisconnectedAction
+    extends ReduxAction<InspectorServer, ServerState> {
   @override
   ServerState reduce() {
     return state.copyWith(
@@ -148,7 +152,8 @@ class SendActionAction extends ReduxAction<InspectorServer, ServerState> {
 
 void _handleMessage(dynamic message) {
   final json = jsonDecode(message) as Map<String, dynamic>;
-  final type = InspectorClientMessageType.values.firstWhere((t) => t.name == json['type']);
+  final type = InspectorClientMessageType.values
+      .firstWhere((t) => t.name == json['type']);
   final payload = json['payload'];
 
   final ref = RefenaScope.defaultRef;
@@ -156,8 +161,11 @@ void _handleMessage(dynamic message) {
     case InspectorClientMessageType.hello:
       final graph = payload['graph'] as List<dynamic>;
       final actions = payload['actions'] as Map<String, dynamic>;
+      final theme = payload['theme'] as String;
       ref.redux(actionProvider).dispatch(SetActionsAction(actions: actions));
       ref.redux(graphProvider).dispatch(SetGraphAction(nodes: graph));
+      ref.redux(settingsProvider).dispatch(SettingsThemeModeAction(
+          themeMode: ThemeMode.values.firstWhere((t) => t.name == theme)));
       ref.redux(serverProvider).dispatch(_ClientConnectedAction());
       break;
     case InspectorClientMessageType.graph:

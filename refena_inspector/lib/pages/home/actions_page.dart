@@ -82,7 +82,7 @@ class ActionsPage extends StatelessWidget {
       appBar: AppBar(
         title: Align(
           alignment: Alignment.centerLeft, // also force on macOS
-          child: const Text('Quick Actions', textAlign: TextAlign.left),
+          child: const Text('Quick Actions'),
         ),
       ),
       body: ListView(
@@ -283,7 +283,10 @@ class _ConfigureActionsTutorial extends StatelessWidget {
             borderRadius: BorderRadius.circular(5),
             color: Color(0xFFf8f0f9),
           ),
-          child: SelectableText(_exampleCode),
+          child: SelectableText(
+            _exampleCode,
+            style: TextStyle(color: Colors.black),
+          ),
         ),
         const SizedBox(height: 20),
         TextButton(

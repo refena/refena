@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector/pages/home/actions_page.dart';
 import 'package:refena_inspector/pages/home/graph_page.dart';
+import 'package:refena_inspector/pages/home/settings_page.dart';
 import 'package:refena_inspector/pages/home/tracing_page.dart';
 import 'package:refena_inspector/pages/home_page_controller.dart';
 import 'package:refena_inspector/pages/home_page_vm.dart';
@@ -61,6 +62,7 @@ class HomePage extends StatelessWidget {
                 TracingPage(),
                 GraphPage(),
                 ActionsPage(),
+                SettingsPage(),
               ],
             ),
           ),
