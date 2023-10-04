@@ -23,6 +23,7 @@ export 'package:refena/src/notifier/types/notifier.dart';
 export 'package:refena/src/notifier/types/pure_notifier.dart';
 export 'package:refena/src/notifier/types/redux_notifier.dart';
 export 'package:refena/src/notifier/types/state_notifier.dart';
+export 'package:refena/src/observer/error_parser.dart' show ErrorParser;
 export 'package:refena/src/observer/event.dart';
 export 'package:refena/src/observer/history_observer.dart';
 export 'package:refena/src/observer/observer.dart';

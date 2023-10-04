@@ -1,28 +1,30 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 part of 'tracing_page.dart';
 
 class _TracingErrorDialog extends StatelessWidget {
-  final ActionErrorEvent error;
-  final ErrorParser? errorParser;
+  final _ErrorEntry error;
 
-  _TracingErrorDialog({
-    required this.error,
-    required this.errorParser,
-  });
+  _TracingErrorDialog(this.error);
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: Text(
-        'Error in ${error.action.debugLabel}.${error.lifecycle.name}',
+        'Error in ${error.actionLabel}.${error.actionLifecycle.name}',
       ),
       scrollable: true,
       content: _TracingErrorContent(
-        error: error,
-        errorParser: errorParser,
+        error: error.error,
+        stackTrace: error.stackTrace,
+        parsedErrorData: error.parsedErrorData,
       ),
       actions: [
         TextButton(
-          onPressed: () => _copyErrorToClipboard(context, error, errorParser),
+          onPressed: () => _copyErrorToClipboard(
+            context: context,
+            error: error,
+          ),
           child: Text('Copy'),
         ),
         TextButton(
@@ -35,20 +37,16 @@ class _TracingErrorDialog extends StatelessWidget {
 }
 
 class _TracingErrorPage extends StatelessWidget {
-  final ActionErrorEvent error;
-  final ErrorParser? errorParser;
+  final _ErrorEntry error;
 
-  _TracingErrorPage({
-    required this.error,
-    required this.errorParser,
-  });
+  _TracingErrorPage(this.error);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Error in ${error.action.debugLabel}.${error.lifecycle.name}',
+          'Error in ${error.actionLabel}.${error.actionLifecycle.name}',
         ),
       ),
       body: ListView(
@@ -60,15 +58,18 @@ class _TracingErrorPage extends StatelessWidget {
         ),
         children: [
           _TracingErrorContent(
-            error: error,
-            errorParser: errorParser,
+            error: error.error,
+            stackTrace: error.stackTrace,
+            parsedErrorData: error.parsedErrorData,
           ),
           const SizedBox(height: 20),
           Align(
             alignment: Alignment.centerLeft,
             child: FilledButton(
-              onPressed: () =>
-                  _copyErrorToClipboard(context, error, errorParser),
+              onPressed: () => _copyErrorToClipboard(
+                context: context,
+                error: error,
+              ),
               child: Text('Copy'),
             ),
           ),
@@ -79,14 +80,15 @@ class _TracingErrorPage extends StatelessWidget {
 }
 
 class _TracingErrorContent extends StatelessWidget {
-  final ActionErrorEvent error;
-  final ErrorParser? errorParser;
-  final Map<String, dynamic>? parsed;
+  final String error;
+  final String stackTrace;
+  final Map<String, dynamic>? parsedErrorData;
 
   _TracingErrorContent({
     required this.error,
-    required this.errorParser,
-  }) : parsed = _parseError(error.error, errorParser);
+    required this.stackTrace,
+    required this.parsedErrorData,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -95,21 +97,19 @@ class _TracingErrorContent extends StatelessWidget {
       children: [
         Text('Error:', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 5),
-        _QuoteContainer(
-          error.error.toString(),
-        ),
-        if (parsed != null) ...[
+        _QuoteContainer(error),
+        if (parsedErrorData != null) ...[
           const SizedBox(height: 10),
           Text('Info:', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 5),
           _QuoteContainer(
-            _jsonEncoder.convert(parsed),
+            _jsonEncoder.convert(parsedErrorData),
           ),
         ],
         const SizedBox(height: 10),
         Text('Stacktrace:', style: TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 5),
-        _QuoteContainer(error.stackTrace.toString()),
+        _QuoteContainer(stackTrace),
       ],
     );
   }
@@ -138,13 +138,15 @@ class _QuoteContainer extends StatelessWidget {
   }
 }
 
-void _copyErrorToClipboard(
-    BuildContext context, ActionErrorEvent error, ErrorParser? errorParser) {
-  final parsed = _parseError(error.error, errorParser);
-  final parsedJson =
-      parsed != null ? '\n\n${_jsonEncoder.convert(parsed)}' : '';
+void _copyErrorToClipboard({
+  required BuildContext context,
+  required _ErrorEntry error,
+}) {
+  final parsedJson = error.parsedErrorData != null
+      ? '\n\n${_jsonEncoder.convert(error.parsedErrorData)}'
+      : '';
   final text =
-      'Error in ${error.action.debugLabel}.${error.lifecycle.name}:\n${error.error}$parsedJson\n\n${error.stackTrace}';
+      'Error in ${error.actionLabel}.${error.actionLifecycle.name}:\n${error.error}$parsedJson\n\n${error.stackTrace}';
   Clipboard.setData(ClipboardData(text: text));
   ScaffoldMessenger.of(context).showSnackBar(
     SnackBar(

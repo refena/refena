@@ -29,6 +29,8 @@ class _EntryTileState extends State<_EntryTile> {
 
   @override
   Widget build(BuildContext context) {
+    final e = widget.entry.event;
+    final error = widget.entry.error;
     return Column(
       children: [
         Column(
@@ -71,7 +73,7 @@ class _EntryTileState extends State<_EntryTile> {
                   onTap: () {
                     setState(() => _expanded = !_expanded);
                   },
-                  child: _EntryCharacterBox(widget.entry.event.internalType),
+                  child: _EntryCharacterBox(e.type.internalType),
                 ),
                 Expanded(
                   child: GestureDetector(
@@ -81,33 +83,29 @@ class _EntryTileState extends State<_EntryTile> {
                     child: Container(
                       padding: const EdgeInsets.only(left: 8),
                       decoration: BoxDecoration(
-                        color:
-                            _backgroundColor[widget.entry.event.internalType],
+                        color: _backgroundColor[e.type.internalType],
                       ),
                       child: Row(
                         children: [
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Text(
-                              switch (widget.entry.event) {
-                                ChangeEvent event =>
-                                  event.notifier.customDebugLabel ??
-                                      event.stateType.toString(),
-                                RebuildEvent event => widget.entry.isWidget
-                                    ? event.rebuildable.debugLabel
-                                    : event.stateType.toString(),
-                                ActionDispatchedEvent event =>
-                                  event.action.debugLabel,
-                                ActionFinishedEvent _ => '',
-                                ActionErrorEvent _ => '',
-                                ProviderInitEvent event =>
-                                  event.provider.debugLabel,
-                                ProviderDisposeEvent event =>
-                                  event.provider.debugLabel,
-                                MessageEvent event => event.message,
+                              switch (e.type) {
+                                InputEventType.change =>
+                                  e.notifierLabel ?? e.stateType!,
+                                InputEventType.rebuild => widget.entry.isWidget
+                                    ? e.rebuildableLabel!
+                                    : e.stateType!,
+                                InputEventType.actionDispatched =>
+                                  e.actionLabel!,
+                                InputEventType.actionFinished => '',
+                                InputEventType.actionError => '',
+                                InputEventType.init => e.providerLabel!,
+                                InputEventType.dispose => e.providerLabel!,
+                                InputEventType.message => e.message!,
                               },
                               style: TextStyle(
-                                color: switch (widget.entry.error?.lifecycle) {
+                                color: switch (error?.actionLifecycle) {
                                   null => null,
                                   ActionLifecycle.before => Colors.red,
                                   ActionLifecycle.reduce => Colors.red,
@@ -120,26 +118,35 @@ class _EntryTileState extends State<_EntryTile> {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          if (widget.entry.error != null)
+                          if (error?.actionLifecycle != null)
                             Padding(
                               padding: const EdgeInsets.only(left: 8),
-                              child: switch (widget.entry.error!.lifecycle) {
-                                ActionLifecycle.before => Icon(Icons.error,
-                                    size: 16, color: Colors.red),
-                                ActionLifecycle.reduce => Icon(Icons.error,
-                                    size: 16, color: Colors.red),
-                                ActionLifecycle.after => Icon(Icons.warning,
-                                    size: 16, color: Colors.orange),
+                              child: switch (error!.actionLifecycle) {
+                                ActionLifecycle.before => Icon(
+                                    Icons.error,
+                                    size: 16,
+                                    color: Colors.red,
+                                  ),
+                                ActionLifecycle.reduce => Icon(
+                                    Icons.error,
+                                    size: 16,
+                                    color: Colors.red,
+                                  ),
+                                ActionLifecycle.after => Icon(
+                                    Icons.warning,
+                                    size: 16,
+                                    color: Colors.orange,
+                                  ),
                               },
                             ),
-                          ...switch (widget.entry.event) {
-                            ActionDispatchedEvent e => [
-                                if (e.debugOriginRef is Rebuildable)
+                          ...switch (e.type) {
+                            InputEventType.actionDispatched => [
+                                if (widget.depth == 0)
                                   Padding(
                                     padding: const EdgeInsets.only(left: 8),
                                     child: _EntryBadge(
                                       label: 'from: ${e.debugOrigin}',
-                                      color: _headerColor[e.internalType]!,
+                                      color: _headerColor[e.type.internalType]!,
                                     ),
                                   ),
                                 if (widget.entry.result != null)
@@ -147,7 +154,7 @@ class _EntryTileState extends State<_EntryTile> {
                                     padding: const EdgeInsets.only(left: 8),
                                     child: _EntryBadge(
                                       label: '✓ Result',
-                                      color: _headerColor[e.internalType]!,
+                                      color: _headerColor[e.type.internalType]!,
                                     ),
                                   ),
                                 if (widget.entry.millis != null &&
@@ -164,11 +171,13 @@ class _EntryTileState extends State<_EntryTile> {
                                     ),
                                   ),
                               ],
-                            MessageEvent e when e.origin is Rebuildable => [
+                            InputEventType.message when widget.depth == 0 => [
                                 const SizedBox(width: 8),
                                 _EntryBadge(
-                                  label: 'from: ${e.origin.debugLabel}',
-                                  color: _headerColor[e.internalType]!,
+                                  label:
+                                      'from: ${widget.entry.event.debugOrigin}',
+                                  color: _headerColor[
+                                      widget.entry.event.type.internalType]!,
                                 ),
                               ],
                             _ => [],
@@ -205,51 +214,41 @@ class _EntryTileState extends State<_EntryTile> {
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
-                              color: _backgroundColor[
-                                  widget.entry.event.internalType],
+                              color: _backgroundColor[e.type.internalType],
                             ),
                             child: _EntryDetail(
                               errorParser: widget.errorParser,
                               isWidget: widget.entry.isWidget,
                               superseded: widget.entry.superseded,
                               error: widget.entry.error,
-                              attributes: switch (widget.entry.event) {
-                                ChangeEvent event => {
-                                    'Notifier': event.notifier.debugLabel,
-                                    if (event.action != null)
-                                      'Triggered by': event.action!.debugLabel,
-                                    'Prev': event.prev.toString(),
-                                    'Next': event.next.toString(),
-                                    'Rebuild': event.rebuild.isEmpty
+                              attributes: switch (e.type) {
+                                InputEventType.change => {
+                                    'Notifier': e.notifierLabel!,
+                                    if (e.actionId != null)
+                                      'Triggered by': e.actionLabel!,
+                                    'Prev': e.prevState.toString(),
+                                    'Next': e.nextState.toString(),
+                                    'Rebuild': e.rebuildWidgets == null ||
+                                            e.rebuildWidgets!.isEmpty
                                         ? '<none>'
-                                        : event.rebuild
-                                            .map((r) => r.debugLabel)
-                                            .join(', '),
+                                        : e.rebuildWidgets!.join(', '),
                                   },
-                                RebuildEvent event => widget.entry.isWidget
+                                InputEventType.rebuild => widget.entry.isWidget
                                     ? {}
                                     : {
-                                        'Notifier':
-                                            event.rebuildable is BaseNotifier
-                                                ? (event.rebuildable
-                                                        as BaseNotifier)
-                                                    .debugLabel
-                                                : '',
-                                        'Triggered by': event.causes
-                                            .map((e) => e.stateType.toString())
-                                            .join(', '),
-                                        'Prev': event.prev.toString(),
-                                        'Next': event.next.toString(),
-                                        'Rebuild': event.rebuild.isEmpty
+                                        'Notifier': e.rebuildableLabel!,
+                                        'Triggered by':
+                                            e.rebuildCausesLabels!.join(', '),
+                                        'Prev': e.prevState.toString(),
+                                        'Next': e.nextState.toString(),
+                                        'Rebuild': e.rebuildWidgets!.isEmpty
                                             ? '<none>'
-                                            : event.rebuild
-                                                .map((r) => r.debugLabel)
-                                                .join(', '),
+                                            : e.rebuildWidgets!.join(', '),
                                       },
-                                ActionDispatchedEvent event => {
-                                    'Origin': event.debugOrigin,
-                                    'Action Group': event.notifier.debugLabel,
-                                    'Action': event.action.toString(),
+                                InputEventType.actionDispatched => {
+                                    'Origin': e.debugOrigin!,
+                                    'Action Group': e.notifierLabel!,
+                                    'Action': e.actionLabel!,
                                     if (widget.entry.millis != null)
                                       'Duration':
                                           '${widget.entry.millis?.formatMillis()}',
@@ -257,19 +256,20 @@ class _EntryTileState extends State<_EntryTile> {
                                       'Result':
                                           _formatResult(widget.entry.result!),
                                   },
-                                ActionFinishedEvent _ => {},
-                                ActionErrorEvent _ => {},
-                                ProviderInitEvent event => {
-                                    'Provider': event.provider.toString(),
-                                    'Initial': event.value.toString(),
-                                    'Reason': event.cause.name.toUpperCase(),
+                                InputEventType.actionFinished => {},
+                                InputEventType.actionError => {},
+                                InputEventType.init => {
+                                    'Provider': e.providerLabel!,
+                                    'Initial': e.value.toString(),
+                                    'Reason':
+                                        e.providerInitCause!.name.toUpperCase(),
                                   },
-                                ProviderDisposeEvent event => {
-                                    'Provider': event.provider.toString(),
+                                InputEventType.dispose => {
+                                    'Provider': e.providerLabel!,
                                   },
-                                MessageEvent event => {
-                                    'Origin': event.origin.debugLabel,
-                                    'Message': event.message,
+                                InputEventType.message => {
+                                    'Origin': e.debugOrigin!,
+                                    'Message': e.message!,
                                   },
                               },
                             ),
@@ -349,7 +349,7 @@ class _EntryDetail extends StatelessWidget {
   final ErrorParser? errorParser;
   final bool isWidget;
   final bool superseded;
-  final ActionErrorEvent? error;
+  final _ErrorEntry? error;
   final Map<String, String> attributes;
 
   const _EntryDetail({
@@ -397,7 +397,7 @@ class _EntryDetail extends StatelessWidget {
               ),
             )),
         const SizedBox(height: 5),
-        if (error?.lifecycle == ActionLifecycle.after)
+        if (error?.actionLifecycle == ActionLifecycle.after)
           Padding(
             padding: const EdgeInsets.only(bottom: 10),
             child: Text(
@@ -419,7 +419,6 @@ class _EntryDetail extends StatelessWidget {
                     builder: (_) => _TracingEventDetailsPage(
                       attributes: attributes,
                       error: error,
-                      errorParser: errorParser,
                     ),
                   ),
                 );
@@ -430,11 +429,7 @@ class _EntryDetail extends StatelessWidget {
             const SizedBox(width: 10),
             _CopyEventButton(attributes),
             const SizedBox(width: 10),
-            if (error != null)
-              _ErrorButton(
-                error: error!,
-                errorParser: errorParser,
-              ),
+            if (error != null) _ErrorButton(error!),
           ],
         ),
       ],
@@ -470,19 +465,15 @@ class _CopyEventButton extends StatelessWidget {
 }
 
 class _ErrorButton extends StatelessWidget {
-  final ActionErrorEvent error;
-  final ErrorParser? errorParser;
+  final _ErrorEntry error;
 
-  const _ErrorButton({
-    required this.error,
-    required this.errorParser,
-  });
+  const _ErrorButton(this.error);
 
   @override
   Widget build(BuildContext context) {
     return TextButton.icon(
       style: TextButton.styleFrom(
-        foregroundColor: error.lifecycle == ActionLifecycle.after
+        foregroundColor: error.actionLifecycle == ActionLifecycle.after
             ? Colors.orange
             : Colors.red,
       ),
@@ -490,29 +481,24 @@ class _ErrorButton extends StatelessWidget {
         if (MediaQuery.sizeOf(context).width <= 800) {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (_) => _TracingErrorPage(
-                error: error,
-                errorParser: errorParser,
-              ),
+              builder: (_) => _TracingErrorPage(error),
             ),
           );
         } else {
           showDialog(
             context: context,
-            builder: (_) => _TracingErrorDialog(
-              error: error,
-              errorParser: errorParser,
-            ),
+            builder: (_) => _TracingErrorDialog(error),
           );
         }
       },
       icon: Icon(
-          error.lifecycle == ActionLifecycle.after
-              ? Icons.warning
-              : Icons.error,
-          size: 16),
-      label:
-          Text(error.lifecycle == ActionLifecycle.after ? 'Warning' : 'Error'),
+        error.actionLifecycle == ActionLifecycle.after
+            ? Icons.warning
+            : Icons.error,
+        size: 16,
+      ),
+      label: Text(
+          error.actionLifecycle == ActionLifecycle.after ? 'Warning' : 'Error'),
     );
   }
 }

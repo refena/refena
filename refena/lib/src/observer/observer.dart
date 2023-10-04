@@ -9,7 +9,7 @@ import 'package:refena/src/ref.dart';
 
 /// The observer receives every [RefenaEvent].
 /// It is up to the implementation of how to use it.
-abstract class RefenaObserver with LabeledReference {
+abstract class RefenaObserver implements LabeledReference {
   RefenaObserver();
 
   late Ref _ref;

@@ -146,8 +146,4 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
 
   @override
   String get debugLabel => debugOwnerLabel;
-
-  @override
-  bool compareIdentity(LabeledReference other) =>
-      _container.compareIdentity(other);
 }

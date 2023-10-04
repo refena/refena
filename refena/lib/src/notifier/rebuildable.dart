@@ -4,7 +4,7 @@ import 'package:refena/src/observer/event.dart';
 
 /// Something that can be rebuilt.
 @internal
-abstract class Rebuildable with LabeledReference {
+abstract class Rebuildable implements LabeledReference {
   /// Schedule a rebuild (in the next frame).
   /// Optionally pass the [changeEvent], or [rebuildEvent]
   /// that triggered the rebuild.
@@ -20,7 +20,6 @@ abstract class Rebuildable with LabeledReference {
   String get debugLabel;
 
   /// Whether this [Rebuildable] is a [ElementRebuildable].
-  /// A flag for refena_inspector_client because it does not depend
-  /// on refena_flutter.
+  /// [ElementRebuildable] is in refena_flutter so we cannot refer it here.
   bool get isWidget;
 }

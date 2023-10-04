@@ -26,7 +26,7 @@ import 'package:refena/src/ref.dart';
 ///
 /// You can override a provider by passing [overrides] to the constructor.
 /// In this case, the state of the provider is initialized right away.
-class RefenaContainer extends Ref with LabeledReference {
+class RefenaContainer extends Ref implements LabeledReference {
   /// Creates a [RefenaContainer].
   /// The [overrides] are used to override providers with a different value.
   /// The [initialProviders] are used to initialize providers right away.
