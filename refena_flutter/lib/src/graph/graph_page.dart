@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
 import 'dart:collection';
 import 'dart:math';
 
@@ -26,20 +27,15 @@ const _viewerPadding = EdgeInsets.only(
   bottom: 100,
 );
 
-typedef InputGraphBuilder = List<InputNode> Function(
-  Ref ref,
-  void Function() refresher,
-);
-
 class RefenaGraphPage extends StatefulWidget {
   final String title;
   final bool showWidgets;
-  final InputGraphBuilder inputGraphBuilder;
+  final GraphInputBuilder inputGraphBuilder;
 
   const RefenaGraphPage({
     this.title = 'Refena Graph',
     this.showWidgets = false,
-    this.inputGraphBuilder = _buildInputGraphFromState,
+    this.inputGraphBuilder = const _StateGraphInputBuilder(),
     super.key,
   });
 
@@ -60,6 +56,12 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
   /// The zoom will not be reset when the graph is refreshed.
   bool _customZoom = false;
 
+  StreamSubscription? _subscription;
+
+  /// If true, then the graph is not refreshed, even if a new stream event
+  /// is received.
+  bool _livePaused = false;
+
   @override
   void initState() {
     super.initState();
@@ -67,7 +69,26 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
     ensureRef((ref) {
       _buildGraph(resetZoom: true);
       setState(() => _initialized = true);
+      final stream = widget.inputGraphBuilder.refreshStream;
+      if (stream != null) {
+        _subscription = stream.listen((_) {
+          if (_livePaused) {
+            return;
+          }
+          _refreshFromStream();
+        });
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
+  }
+
+  void _refreshFromStream() {
+    _refresh(_showWidgets, resetZoom: _customZoom ? false : true);
   }
 
   void _refresh(bool showWidgets, {required bool resetZoom}) {
@@ -89,10 +110,7 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
   }
 
   void _buildGraph({required bool resetZoom}) {
-    var inputNodes = widget.inputGraphBuilder(
-      ref,
-      () => _refresh(_showWidgets, resetZoom: _customZoom ? false : true),
-    );
+    var inputNodes = widget.inputGraphBuilder.build(ref);
     if (!_showWidgets) {
       inputNodes = inputNodes.withoutWidgets();
     }
@@ -127,6 +145,20 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
+          if (_subscription != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: _LiveButton(
+                live: !_livePaused,
+                onTap: () {
+                  final oldPaused = _livePaused;
+                  setState(() => _livePaused = !_livePaused);
+                  if (oldPaused) {
+                    _refreshFromStream();
+                  }
+                },
+              ),
+            ),
           PopupMenuButton(
             itemBuilder: (context) {
               return [
@@ -196,6 +228,45 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _LiveButton extends StatelessWidget {
+  final bool live;
+  final void Function() onTap;
+
+  const _LiveButton({
+    required this.live,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      style: TextButton.styleFrom(
+        foregroundColor:
+            live ? Colors.red : Theme.of(context).colorScheme.onSurface,
+      ),
+      onPressed: onTap,
+      child: Row(
+        children: [
+          if (live)
+            // red dot
+            Container(
+              width: 10,
+              height: 10,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                shape: BoxShape.circle,
+              ),
+            )
+          else
+            const Icon(Icons.pause),
+          const SizedBox(width: 10),
+          Text(live ? 'Live' : 'Paused'),
+        ],
       ),
     );
   }

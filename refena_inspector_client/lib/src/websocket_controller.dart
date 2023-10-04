@@ -14,6 +14,10 @@ class WebSocketController {
   final Stream stream;
   final Map<String, dynamic> actions;
 
+  /// Last graph sent to the server serialized as JSON.
+  /// If the graph is the same, then it will not be sent again.
+  String? _lastGraph;
+
   WebSocketController({
     required this.ref,
     required this.sink,
@@ -46,12 +50,17 @@ class WebSocketController {
   }
 
   void sendGraph() {
-    sink.add(jsonEncode({
+    final message = jsonEncode({
       'type': InspectorClientMessageType.graph.name,
       'payload': {
         'graph': GraphBuilder.buildDto(ref),
       },
-    }));
+    });
+    if (message == _lastGraph) {
+      return;
+    }
+    _lastGraph = message;
+    sink.add(message);
   }
 
   void _sendHello() {

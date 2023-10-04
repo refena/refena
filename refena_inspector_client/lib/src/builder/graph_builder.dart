@@ -22,6 +22,9 @@ class GraphBuilder {
     ref.container.cleanupListeners();
     final notifiers = ref.container.getActiveNotifiers();
 
+    // To ensure deterministic results
+    _idProvider.reset();
+
     final inputNodes = <GraphNodeDto>[];
     final nodeMap = <BaseNotifier, GraphNodeDto>{};
     final widgetMap = <Rebuildable, GraphNodeDto>{};

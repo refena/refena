@@ -1,46 +1,37 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+// ignore: implementation_imports, depend_on_referenced_packages
+import 'package:refena/src/tools/graph_input_model.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector/service/graph_service.dart';
 
-class GraphPage extends StatefulWidget {
+class GraphPage extends StatelessWidget {
   const GraphPage({super.key});
-
-  @override
-  State<GraphPage> createState() => _GraphPageState();
-}
-
-class _GraphPageState extends State<GraphPage> with Refena {
-  late StreamSubscription<NotifierEvent<GraphState>> _subscription;
-  void Function()? _refresher;
-
-  @override
-  void initState() {
-    super.initState();
-
-    ensureRef((ref) {
-      _subscription = ref.stream(graphProvider).listen((_) {
-        _refresher?.call();
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _subscription.cancel();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     return RefenaGraphPage(
       title: 'Dependency Graph',
       showWidgets: true,
-      inputGraphBuilder: (ref, refresher) {
-        _refresher = refresher;
-        return ref.read(graphProvider).nodes;
-      },
+      inputGraphBuilder: _StateGraphInputBuilder(context.ref),
     );
+  }
+}
+
+class _StateGraphInputBuilder extends GraphInputBuilder {
+  final Stream _stream;
+  final Ref _ref;
+
+  _StateGraphInputBuilder(this._ref) : _stream = _ref.stream(graphProvider);
+
+  @override
+  Stream? get refreshStream => _stream;
+
+  @override
+  List<InputNode> build(Ref ref) {
+    return _ref.read(graphProvider).nodes;
   }
 }

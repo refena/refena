@@ -25,23 +25,23 @@ class RefenaInspectorObserver extends RefenaObserver {
   /// The maximum delay between two messages.
   final Duration maxDelay;
 
-  late ActionScheduler _scheduler;
+  late ActionScheduler _graphScheduler;
   WebSocketController? _controller;
 
   RefenaInspectorObserver({
     this.host,
     this.port = 9253,
     this.minDelay = const Duration(milliseconds: 100),
-    this.maxDelay = const Duration(seconds: 3),
+    this.maxDelay = const Duration(seconds: 1),
     Map<String, dynamic> actions = const {},
   }) : actions = ActionsBuilder.normalizeActionMap(actions);
 
   @override
   void init() async {
-    _scheduler = ActionScheduler(
+    _graphScheduler = ActionScheduler(
       minDelay: minDelay,
       maxDelay: maxDelay,
-      action: _sendState,
+      action: () => _controller?.sendGraph(),
     );
     while (true) {
       try {
@@ -55,15 +55,7 @@ class RefenaInspectorObserver extends RefenaObserver {
 
   @override
   void handleEvent(RefenaEvent event) {
-    _scheduler.scheduleAction();
-  }
-
-  void _sendState() {
-    final controller = _controller;
-    if (controller == null) {
-      return;
-    }
-    controller.sendGraph();
+    _graphScheduler.scheduleAction();
   }
 
   Future<void> runWebSocket() async {
