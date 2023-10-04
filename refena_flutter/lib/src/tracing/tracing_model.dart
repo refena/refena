@@ -4,13 +4,13 @@ part of 'tracing_page.dart';
 
 class _TracingEntry {
   final DateTime timestamp;
-  final RefenaEvent event;
+  final InputEvent event;
   final List<_TracingEntry> children;
   final bool superseded;
   final bool isWidget;
 
   // set afterwards
-  ActionErrorEvent? error;
+  _ErrorEntry? error;
 
   // the result of the action
   // set afterwards
@@ -28,6 +28,47 @@ class _TracingEntry {
   }) : timestamp = DateTime.fromMillisecondsSinceEpoch(event.millisSinceEpoch);
 }
 
+class _ErrorEntry {
+  final String actionLabel;
+  final ActionLifecycle actionLifecycle;
+  final ActionErrorEvent? originalError;
+  final String error;
+  final String stackTrace;
+  final ErrorParser? errorParser;
+
+  Map<String, dynamic>? _parsedErrorData;
+
+  /// Whether the original error has been parsed.
+  /// We need this flag because the result is nullable.
+  bool _parsed = false;
+
+  _ErrorEntry({
+    required this.actionLabel,
+    required this.actionLifecycle,
+    required this.originalError,
+    required this.error,
+    required this.stackTrace,
+    required Map<String, dynamic>? parsedErrorData,
+    required this.errorParser,
+  }) : _parsedErrorData = parsedErrorData;
+
+  /// Returns the parsed error data if available.
+  /// Otherwise, it parses the original error if available.
+  Map<String, dynamic>? get parsedErrorData {
+    print('original: $originalError');
+    if (_parsedErrorData != null) {
+      return _parsedErrorData;
+    }
+    if (!_parsed && originalError != null) {
+      // Need to switch the flag here to avoid future parsing.
+      _parsed = true;
+      _parsedErrorData = parseError(originalError!.error, errorParser);
+      return _parsedErrorData;
+    }
+    return null;
+  }
+}
+
 enum _EventType {
   change,
   rebuild,
@@ -37,52 +78,18 @@ enum _EventType {
   message,
 }
 
-class FakeRebuildEvent implements RebuildEvent {
-  final Rebuildable _rebuildable;
-
-  @override
-  final int millisSinceEpoch;
-
-  FakeRebuildEvent(this._rebuildable, this.millisSinceEpoch);
-
-  @override
-  List<AbstractChangeEvent> get causes => throw UnimplementedError();
-
-  @override
-  get next => throw UnimplementedError();
-
-  @override
-  Rebuildable get rebuildable => _rebuildable;
-
-  @override
-  get prev => throw UnimplementedError();
-
-  @override
-  List<Rebuildable> get rebuild => throw UnimplementedError();
-
-  @override
-  Type get stateType => throw UnimplementedError();
-
-  @override
-  String get debugLabel => throw UnimplementedError();
-
-  @override
-  bool compareIdentity(LabeledReference other) =>
-      _rebuildable.compareIdentity(other);
-}
-
-extension on RefenaEvent {
+extension on InputEventType {
   _EventType get internalType {
     // ActionFinishedEvent and ActionErrorEvent are merged into ActionDispatchedEvent
     return switch (this) {
-      ChangeEvent() => _EventType.change,
-      RebuildEvent() => _EventType.rebuild,
-      ActionDispatchedEvent() => _EventType.action,
-      ActionFinishedEvent() => throw UnimplementedError(),
-      ActionErrorEvent() => throw UnimplementedError(),
-      ProviderInitEvent() => _EventType.providerInit,
-      ProviderDisposeEvent() => _EventType.providerDispose,
-      MessageEvent() => _EventType.message,
+      InputEventType.change => _EventType.change,
+      InputEventType.rebuild => _EventType.rebuild,
+      InputEventType.actionDispatched => _EventType.action,
+      InputEventType.actionFinished => throw UnimplementedError(),
+      InputEventType.actionError => throw UnimplementedError(),
+      InputEventType.init => _EventType.providerInit,
+      InputEventType.dispose => _EventType.providerDispose,
+      InputEventType.message => _EventType.message,
     };
   }
 }

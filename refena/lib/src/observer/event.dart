@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/container.dart';
+import 'package:refena/src/id_reference.dart';
 import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
@@ -8,11 +9,10 @@ import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/util/time_provider.dart';
 
 const _eq = IterableEquality();
-
 final _timeProvider = TimeProvider();
 
 /// The base event.
-sealed class RefenaEvent with LabeledReference {
+sealed class RefenaEvent with IdReference implements LabeledReference {
   /// The timestamp when the event was fired.
   /// We use [int] to save memory.
   final int millisSinceEpoch = _timeProvider.getMillisSinceEpoch();
@@ -92,7 +92,7 @@ class ChangeEvent<T> extends AbstractChangeEvent<T> {
 /// there can be multiple pairs of actions and notifiers.
 class RebuildEvent<T> extends AbstractChangeEvent<T> {
   /// The view notifier that has been rebuilt.
-  final Rebuildable rebuildable;
+  final ViewProviderNotifier rebuildable;
 
   /// The causes leading to the rebuild.
   /// They are batched together to avoid unnecessary rebuilds in the same frame.

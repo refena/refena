@@ -2,95 +2,103 @@
 
 part of 'tracing_page.dart';
 
-List<_TracingEntry> _buildEntries(Iterable<RefenaEvent> events) {
+List<_TracingEntry> _buildEntries(
+  Iterable<InputEvent> events,
+  ErrorParser? errorParser,
+) {
   final result = <_TracingEntry>[];
-  for (final event in events) {
-    switch (event) {
-      case ChangeEvent e:
-        if (e.action != null) {
-          final existing = _findEventWithAction(result, e.action!);
+  for (final e in events) {
+    switch (e.type) {
+      case InputEventType.change:
+        if (e.actionId != null) {
+          final existing = _findEventWithAction(result, e.actionId!);
 
           if (existing != null) {
-            final created = _TracingEntry(
-              event,
-              [],
-            );
+            final created = _TracingEntry(e, []);
 
-            _addWidgetEntries(created, e.rebuild);
+            _addWidgetEntries(created, e.rebuildWidgets!);
 
             existing.children.add(created);
             continue;
           }
         }
 
-        final created = _TracingEntry(event, []);
-        _addWidgetEntries(created, e.rebuild);
+        final created = _TracingEntry(e, []);
+        _addWidgetEntries(created, e.rebuildWidgets!);
         result.add(created);
         break;
-      case RebuildEvent e:
-        for (int i = 0; i < e.causes.length; i++) {
+      case InputEventType.rebuild:
+        for (int i = 0; i < e.rebuildCauses!.length; i++) {
+          final causes = e.rebuildCauses!;
           final existing = <_TracingEntry>[];
-          _findEvent(result, e.causes[i], existing);
+          _findEvent(result, causes[i], existing);
 
-          final superseded = i != e.causes.length - 1;
+          final superseded = i != causes.length - 1;
           for (final entry in existing) {
             final created = _TracingEntry(
-              event,
+              e,
               [],
               superseded: superseded,
             );
 
             if (!superseded) {
-              _addWidgetEntries(created, e.rebuild);
+              _addWidgetEntries(created, e.rebuildWidgets!);
             }
 
             entry.children.add(created);
           }
         }
         break;
-      case ActionDispatchedEvent e:
-        final origin = e.debugOriginRef;
-        if (origin is BaseReduxAction) {
-          final existing = _findEventWithAction(result, origin);
+      case InputEventType.actionDispatched:
+        final originActionId = e.originActionId;
+        if (originActionId != null) {
+          final existing = _findEventWithAction(result, originActionId);
 
           if (existing != null) {
-            existing.children.add(_TracingEntry(event, []));
+            existing.children.add(_TracingEntry(e, []));
             continue;
           }
         }
-        result.add(_TracingEntry(event, []));
+        result.add(_TracingEntry(e, []));
         break;
-      case ActionFinishedEvent e:
-        final existing = _findEventWithAction(result, e.action);
+      case InputEventType.actionFinished:
+        final existing = _findEventWithAction(result, e.actionId!);
         if (existing != null) {
-          existing.result = e.result;
+          existing.result = e.actionResult;
           existing.millis =
-              event.millisSinceEpoch - existing.event.millisSinceEpoch;
+              e.millisSinceEpoch - existing.event.millisSinceEpoch;
         }
         break;
-      case ActionErrorEvent e:
-        final existing = _findEventWithAction(result, e.action);
+      case InputEventType.actionError:
+        final existing = _findEventWithAction(result, e.actionId!);
         if (existing != null) {
-          existing.error = e;
+          existing.error = _ErrorEntry(
+            actionLabel: existing.event.actionLabel!,
+            actionLifecycle: e.actionLifecycle!,
+            originalError: e.event as ActionErrorEvent?,
+            error: e.actionError!,
+            stackTrace: e.actionStackTrace!,
+            parsedErrorData: e.actionErrorData,
+            errorParser: errorParser,
+          );
         }
         break;
-      case ProviderInitEvent _:
-        result.add(_TracingEntry(event, []));
+      case InputEventType.init:
+        result.add(_TracingEntry(e, []));
         break;
-      case ProviderDisposeEvent _:
-        result.add(_TracingEntry(event, []));
+      case InputEventType.dispose:
+        result.add(_TracingEntry(e, []));
         break;
-      case MessageEvent e:
-        final origin = e.origin;
-        if (origin is BaseReduxAction) {
-          final existing = _findEventWithAction(result, origin);
+      case InputEventType.message:
+        if (e.originActionId != null) {
+          final existing = _findEventWithAction(result, e.originActionId!);
 
           if (existing != null) {
-            existing.children.add(_TracingEntry(event, []));
+            existing.children.add(_TracingEntry(e, []));
             continue;
           }
         }
-        result.add(_TracingEntry(event, []));
+        result.add(_TracingEntry(e, []));
         break;
     }
   }
@@ -98,17 +106,14 @@ List<_TracingEntry> _buildEntries(Iterable<RefenaEvent> events) {
 }
 
 // recursively find the action in the result list
-_TracingEntry? _findEventWithAction(
-    List<_TracingEntry> result, BaseReduxAction action) {
+_TracingEntry? _findEventWithAction(List<_TracingEntry> result, int actionId) {
   for (final entry in result.reversed) {
-    if (entry.event is ActionDispatchedEvent) {
-      if ((entry.event as ActionDispatchedEvent)
-          .action
-          .compareIdentity(action)) {
+    if (entry.event.type == InputEventType.actionDispatched) {
+      if (entry.event.actionId == actionId) {
         return entry;
       }
     }
-    final found = _findEventWithAction(entry.children, action);
+    final found = _findEventWithAction(entry.children, actionId);
     if (found != null) {
       return found;
     }
@@ -116,54 +121,58 @@ _TracingEntry? _findEventWithAction(
   return null;
 }
 
-// recursively find the event in the result list
-// the first item in the list is the newest event
+/// Recursively find the event in the result list
+/// and add it to the [found] list.
+/// The first item in the list is the newest event.
 void _findEvent(
   List<_TracingEntry> result,
-  RefenaEvent event,
+  int eventId,
   List<_TracingEntry> found,
 ) {
   for (final entry in result.reversed) {
-    _findEvent(entry.children, event, found);
+    _findEvent(entry.children, eventId, found);
 
-    if (entry.event.compareIdentity(event)) {
+    if (entry.event.id == eventId) {
       found.add(entry);
     }
   }
 }
 
-void _addWidgetEntries(_TracingEntry entry, List<Rebuildable> rebuildableList) {
+void _addWidgetEntries(_TracingEntry entry, List<String> rebuildableList) {
   for (final rebuild in rebuildableList) {
-    if (rebuild is ElementRebuildable) {
-      entry.children.add(_TracingEntry(
-        FakeRebuildEvent(rebuild, entry.event.millisSinceEpoch),
-        [],
-        isWidget: true,
-      ));
-      break;
-    }
+    entry.children.add(_TracingEntry(
+      InputEvent.only(
+        id: -1,
+        type: InputEventType.rebuild,
+        millisSinceEpoch: entry.timestamp.millisecondsSinceEpoch,
+        rebuildableLabel: rebuild,
+      ),
+      [],
+      isWidget: true,
+    ));
+    break;
   }
 }
 
 // query is already lower case
 bool _contains(_TracingEntry entry, String query) {
-  final contains = switch (entry.event) {
-    ChangeEvent event =>
-      event.stateType.toString().toLowerCase().contains(query),
-    RebuildEvent event =>
-      event.rebuildable.debugLabel.toLowerCase().contains(query) ||
-          (event is! FakeRebuildEvent &&
-              event.stateType.toString().toLowerCase().contains(query)),
-    ActionDispatchedEvent event =>
-      event.action.debugLabel.toLowerCase().contains(query) ||
-          event.debugOrigin.toLowerCase().contains(query),
-    ActionFinishedEvent _ => throw UnimplementedError(),
-    ActionErrorEvent _ => throw UnimplementedError(),
-    ProviderInitEvent event =>
-      event.provider.toString().toLowerCase().contains(query),
-    ProviderDisposeEvent event =>
-      event.provider.toString().toLowerCase().contains(query),
-    MessageEvent event => event.message.toLowerCase().contains(query),
+  final e = entry.event;
+  final contains = switch (e.type) {
+    InputEventType.change => e.stateType!.toLowerCase().contains(query),
+    InputEventType.rebuild =>
+      e.rebuildableLabel!.toLowerCase().contains(query) ||
+          (e.stateType != null &&
+              e.stateType.toString().toLowerCase().contains(query)),
+    InputEventType.actionDispatched =>
+      e.actionLabel!.toLowerCase().contains(query) ||
+          e.debugOrigin!.toLowerCase().contains(query),
+    InputEventType.actionFinished => throw UnimplementedError(),
+    InputEventType.actionError => throw UnimplementedError(),
+    InputEventType.init =>
+      e.providerLabel.toString().toLowerCase().contains(query),
+    InputEventType.dispose =>
+      e.providerLabel.toString().toLowerCase().contains(query),
+    InputEventType.message => e.message!.toLowerCase().contains(query),
   };
 
   if (contains) {

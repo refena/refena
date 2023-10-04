@@ -6,6 +6,7 @@ import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/action/global_action_dispatcher.dart';
 import 'package:refena/src/container.dart';
+import 'package:refena/src/id_reference.dart';
 import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/types/redux_notifier.dart';
@@ -20,7 +21,8 @@ part 'global_action.dart';
 /// The action that is dispatched by a [ReduxNotifier].
 /// You should use [ReduxAction] or [AsyncReduxAction] instead.
 abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
-    with LabeledReference {
+    with IdReference
+    implements LabeledReference {
   BaseReduxAction();
 
   /// Override this to have some logic before the action is dispatched.

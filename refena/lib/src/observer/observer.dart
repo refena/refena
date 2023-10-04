@@ -9,7 +9,7 @@ import 'package:refena/src/ref.dart';
 
 /// The observer receives every [RefenaEvent].
 /// It is up to the implementation of how to use it.
-abstract class RefenaObserver with LabeledReference {
+abstract class RefenaObserver implements LabeledReference {
   RefenaObserver();
 
   late Ref _ref;
@@ -143,8 +143,7 @@ class RefenaDebugObserver extends RefenaObserver {
         break;
       case RebuildEvent event:
         onLine?.call(_t);
-        final label =
-            _getProviderDebugLabel(null, event.rebuildable as BaseNotifier);
+        final label = _getProviderDebugLabel(null, event.rebuildable);
         final causes =
             ' triggered by [${event.causes.map((c) => c.debugLabel).join(', ')}]';
         _line('Rebuild by [$label]$causes', intentWhenLogger: true);

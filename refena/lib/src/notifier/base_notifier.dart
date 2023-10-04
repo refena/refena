@@ -33,7 +33,7 @@ enum NotifyStrategy {
 }
 
 @internal
-abstract class BaseNotifier<T> with LabeledReference {
+abstract class BaseNotifier<T> implements LabeledReference {
   bool _initialized = false;
   RefenaContainer? _container;
   RefenaObserver? _observer;

@@ -12,7 +12,7 @@ import 'package:refena/src/ref.dart';
 ///
 /// You may add a [debugLabel] for better logging.
 abstract class BaseProvider<N extends BaseNotifier<T>, T>
-    with LabeledReference {
+    implements LabeledReference {
   final String? customDebugLabel;
 
   @override

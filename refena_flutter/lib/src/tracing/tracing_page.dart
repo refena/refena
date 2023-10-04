@@ -1,27 +1,26 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'dart:convert';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:refena/refena.dart';
 
 // ignore: implementation_imports
-import 'package:refena/src/notifier/base_notifier.dart';
+import 'package:refena/src/observer/error_parser.dart';
 
 // ignore: implementation_imports
-import 'package:refena/src/notifier/rebuildable.dart';
+import 'package:refena/src/tools/tracing_input_model.dart';
 
-// ignore: implementation_imports
-import 'package:refena_flutter/src/element_rebuildable.dart';
 import 'package:refena_flutter/src/graph/graph_page.dart';
 import 'package:refena_flutter/src/mixin.dart';
 
 part 'tracing_error_dialog.dart';
 
-part 'tracing_error_parser.dart';
-
 part 'tracing_event_details_page.dart';
+
+part 'tracing_input_builder.dart';
 
 part 'tracing_legend.dart';
 
@@ -32,12 +31,6 @@ part 'tracing_model_builder.dart';
 part 'tracing_util.dart';
 
 part 'tracing_widgets.dart';
-
-/// Parses an error to a map.
-/// This data will be displayed in the error dialog.
-/// Return null to fallback to the default error parser provided by Refena.
-/// See [_parseErrorDefault] for the default error parser.
-typedef ErrorParser = Map<String, dynamic>? Function(Object error);
 
 class RefenaTracingPage extends StatefulWidget {
   /// Time in milliseconds to consider an event as slow.
@@ -66,6 +59,9 @@ class RefenaTracingPage extends StatefulWidget {
   /// The title of the page.
   final String title;
 
+  /// The builder to build the input model.
+  final TracingInputBuilder inputBuilder;
+
   const RefenaTracingPage({
     super.key,
     this.slowExecutionThreshold = 500,
@@ -75,6 +71,7 @@ class RefenaTracingPage extends StatefulWidget {
     this.showTime = false,
     this.query,
     this.title = 'Refena Tracing',
+    this.inputBuilder = const _StateTracingInputBuilder(),
   })  : assert(slowExecutionThreshold > 0,
             'slowExecutionThreshold must be greater than 0'),
         assert(include == null || exclude == null,
@@ -118,7 +115,8 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
         _show = false;
       });
       await Future.delayed(loadDelay);
-      if (!ref.notifier(tracingProvider).initialized) {
+      if (widget.inputBuilder.requireTracingProvider &&
+          !ref.notifier(tracingProvider).initialized) {
         setState(() {
           _notInitializedError = true;
         });
@@ -131,13 +129,14 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
         _sampleWidgetSize = renderObject.paintBounds.size;
       }
 
-      Iterable<RefenaEvent> events = ref.notifier(tracingProvider).events;
+      Iterable<InputEvent> events = widget.inputBuilder.build(ref);
+
       if (widget.exclude != null) {
-        events = events.where((e) => !widget.exclude!(e));
+        events = events.where((e) => !widget.exclude!(e.event!));
       } else if (widget.include != null) {
-        events = events.where((e) => widget.include!(e));
+        events = events.where((e) => widget.include!(e.event!));
       }
-      _entries = _buildEntries(events);
+      _entries = _buildEntries(events, widget.errorParser);
       _filter();
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final entriesCount = _countItems(_entries);

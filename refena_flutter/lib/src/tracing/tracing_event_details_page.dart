@@ -2,13 +2,11 @@ part of 'tracing_page.dart';
 
 class _TracingEventDetailsPage extends StatelessWidget {
   final Map<String, String> attributes;
-  final ActionErrorEvent? error;
-  final ErrorParser? errorParser;
+  final _ErrorEntry? error;
 
   const _TracingEventDetailsPage({
     required this.attributes,
     required this.error,
-    required this.errorParser,
   });
 
   @override
@@ -44,11 +42,7 @@ class _TracingEventDetailsPage extends StatelessWidget {
           Row(
             children: [
               _CopyEventButton(attributes),
-              if (error != null)
-                _ErrorButton(
-                  error: error!,
-                  errorParser: errorParser,
-                ),
+              if (error != null) _ErrorButton(error!),
             ],
           ),
         ],
