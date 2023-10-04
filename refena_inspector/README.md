@@ -25,13 +25,11 @@ This observer will handle the communication between your app and the inspector.
 void main() {
   // or "RefenaScope" for Flutter projects
   RefenaContainer(
-    observer: RefenaMultiObserver(
-      observers: [
-        RefenaInspectorObserver(), // <-- Add this observer
-        RefenaTracingObserver(),
-        RefenaDebugObserver(),
-      ],
-    ),
+    observers: [
+      RefenaInspectorObserver(), // <-- Add this observer
+      RefenaTracingObserver(),
+      RefenaDebugObserver(),
+    ],
   );
 }
 ```

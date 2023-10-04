@@ -1170,7 +1170,7 @@ void someFunction() {
 
 ## Observer
 
-The `RefenaScope` accepts an optional `observer`.
+The `RefenaScope` accepts `observers`.
 
 You can implement one yourself or just use the included `RefenaDebugObserver`.
 
@@ -1178,7 +1178,11 @@ You can implement one yourself or just use the included `RefenaDebugObserver`.
 void main() {
   runApp(
     RefenaScope(
-      observer: kDebugMode ? const RefenaDebugObserver() : null,
+      observers: [
+        if (kDebugMode) ...[
+          RefenaDebugObserver(),
+        ],
+      ],
       child: const MyApp(),
     ),
   );
@@ -1196,24 +1200,6 @@ Now you will see useful information printed into the console:
           - Prev: 10
           - Next: 11
           - Rebuild (2): [HomePage], [SecondPage]
-```
-
-In case you want to use multiple observers at once, there is a `RefenaMultiObserver` for that.
-
-```dart
-void main() {
-  runApp(
-    RefenaScope(
-      observer: RefenaMultiObserver(
-        observers: [
-          RefenaDebugObserver(),
-          MyCustomObserver(),
-        ],
-      ),
-      child: const MyApp(),
-    ),
-  );
-}
 ```
 
 Example implementation of a custom observer. Note that you also have access to `ref`.
@@ -1248,7 +1234,7 @@ First, you need to add the `RefenaTracingObserver` to the `RefenaScope`.
 void main() {
   runApp(
     RefenaScope(
-      observer: RefenaTracingObserver(),
+      observers: [RefenaTracingObserver()],
       child: const MyApp(),
     ),
   );
@@ -1407,7 +1393,7 @@ void main() {
     final observer = RefenaHistoryObserver();
     await tester.pumpWidget(
       RefenaScope(
-        observer: observer,
+        observers: [observer],
         child: const MyApp(),
       ),
     );
