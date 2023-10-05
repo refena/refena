@@ -35,7 +35,7 @@ class WebSocketController {
   Future<void> handleMessages() async {
     try {
       _sendHello();
-      ref.message('Connected to refena inspector.');
+      ref.message('Connected to Refena Inspector.');
     } catch (e) {
       print('Failed to send hello message to refena inspector server: $e');
       rethrow;

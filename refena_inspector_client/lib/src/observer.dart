@@ -91,12 +91,21 @@ class RefenaInspectorObserver extends RefenaObserver {
   }
 
   Future<void> _runLoop() async {
+    int run = 0;
     while (true) {
       try {
         await runWebSocket();
       } catch (e) {
-        print('Failed to connect to refena inspector.');
-        await Future.delayed(Duration(seconds: 3));
+        if (run == 0) {
+          ref.message('Failed to connect to Refena Inspector.');
+        }
+        await Future.delayed(Duration(seconds: switch (run) {
+          < 10 => 1,
+          < 100 => 3,
+          _ => 5,
+        }));
+      } finally {
+        run++;
       }
     }
   }

@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/observer/error_parser.dart';
 import 'package:refena/src/observer/event.dart';
+import 'package:refena/src/util/object_formatter.dart';
 
 @internal
 enum InputEventType {
@@ -189,8 +190,8 @@ class InputEvent {
         ChangeEvent() => {
             'Notifier': event.notifier.debugLabel,
             if (event.action != null) 'Triggered by': event.action!.debugLabel,
-            'Prev': event.prev.toString(),
-            'Next': event.next.toString(),
+            'Prev': formatValue(event.prev),
+            'Next': formatValue(event.next),
             'Rebuild': event.rebuild.isEmpty
                 ? '<none>'
                 : event.rebuild.map((r) => r.debugLabel).join(', '),
@@ -201,8 +202,8 @@ class InputEvent {
                 'Notifier': event.rebuildable.debugLabel,
                 'Triggered by':
                     event.causes.map((e) => e.stateType.toString()).join(', '),
-                'Prev': event.prev.toString(),
-                'Next': event.next.toString(),
+                'Prev': formatValue(event.prev),
+                'Next': formatValue(event.next),
                 'Rebuild': event.rebuild.isEmpty
                     ? '<none>'
                     : event.rebuild.map((r) => r.debugLabel).join(', '),
@@ -216,7 +217,7 @@ class InputEvent {
         ActionErrorEvent() => {},
         ProviderInitEvent() => {
             'Provider': event.provider.toString(),
-            'Initial': event.value.toString(),
+            'Initial': formatValue(event.value),
             'Reason': event.cause.name.toUpperCase(),
           },
         ProviderDisposeEvent() => {
@@ -262,7 +263,8 @@ class InputEvent {
         _ => null,
       },
       actionResult: switch (event) {
-        ActionFinishedEvent() => event.result?.toString(),
+        ActionFinishedEvent() =>
+          event.result != null ? formatValue(event.result) : null,
         _ => null,
       },
       actionLifecycle: actionLifecycle,
