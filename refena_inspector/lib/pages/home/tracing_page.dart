@@ -16,6 +16,7 @@ class TracingPage extends StatelessWidget {
       title: 'Tracing',
       inputBuilder: _InspectorTracingInputBuilder(context.ref),
       loadDelay: Duration.zero,
+      showTime: true,
     );
   }
 }
