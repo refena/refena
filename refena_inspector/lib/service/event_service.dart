@@ -1,6 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
-// ignore: implementation_imports, depend_on_referenced_packages
+// ignore: implementation_imports
 import 'package:refena/src/tools/tracing_input_model.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 

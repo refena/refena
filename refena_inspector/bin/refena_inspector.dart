@@ -36,12 +36,21 @@ void main() async {
     ));
   }
   _logger.info('RefenaInspector Path: $refenaPath');
+  _logger.info('Temp Path: $_inspectorPath');
 
-  Process.runSync(
-    'cp',
-    ['-R', refenaPath, _inspectorPath],
-    runInShell: true,
-  );
+  if (Platform.isWindows) {
+    Process.runSync(
+      'xcopy',
+      ['/e', '/k', '/h', '/i', refenaPath, _inspectorPath],
+      runInShell: true,
+    );
+  } else {
+    Process.runSync(
+      'cp',
+      ['-R', refenaPath, _inspectorPath],
+      runInShell: true,
+    );
+  }
 
   // e.g. C:\Users\MyUser\fvm\versions\3.7.12\bin\cache\dart-sdk\bin\dart.exe
   final dartPath = p.split(Platform.executable);

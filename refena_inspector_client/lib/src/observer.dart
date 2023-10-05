@@ -101,7 +101,8 @@ class RefenaInspectorObserver extends RefenaObserver {
         if (run == 0) {
           ref.message('Failed to connect to Refena Inspector.');
         }
-        await Future.delayed(Duration(seconds: switch (run) {
+        await Future.delayed(Duration(
+            seconds: switch (run) {
           < 10 => 1,
           < 100 => 3,
           _ => 5,

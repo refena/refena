@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-// ignore: implementation_imports, depend_on_referenced_packages
+// ignore: implementation_imports
 import 'package:refena/src/tools/tracing_input_model.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector/service/event_service.dart';
