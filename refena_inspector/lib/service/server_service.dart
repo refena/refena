@@ -84,7 +84,7 @@ class StartServerAction extends AsyncReduxAction<InspectorServer, ServerState> {
       });
     });
 
-    final server = await shelf_io.serve(handler, 'localhost', 9253);
+    final server = await shelf_io.serve(handler, '0.0.0.0', 9253);
     _logger.info('Serving at ws://${server.address.host}:${server.port}');
     return state.copyWith(
       running: true,

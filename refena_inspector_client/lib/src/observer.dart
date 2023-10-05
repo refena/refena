@@ -92,9 +92,11 @@ class RefenaInspectorObserver extends RefenaObserver {
 
   Future<void> _runLoop() async {
     int run = 0;
+    final hosts = host != null ? [host!] : ['localhost', '10.0.2.2'];
+    int hostIndex = 0;
     while (true) {
       try {
-        await runWebSocket();
+        await runWebSocket(hosts[hostIndex]);
       } catch (e) {
         if (run == 0) {
           ref.message('Failed to connect to Refena Inspector.');
@@ -106,12 +108,13 @@ class RefenaInspectorObserver extends RefenaObserver {
         }));
       } finally {
         run++;
+        hostIndex = (hostIndex + 1) % hosts.length;
       }
     }
   }
 
-  Future<void> runWebSocket() async {
-    final wsUrl = Uri(scheme: 'ws', host: host ?? 'localhost', port: port);
+  Future<void> runWebSocket(String host) async {
+    final wsUrl = Uri(scheme: 'ws', host: host, port: port);
     var channel = WebSocketChannel.connect(wsUrl);
 
     // https://github.com/dart-lang/web_socket_channel/issues/249
