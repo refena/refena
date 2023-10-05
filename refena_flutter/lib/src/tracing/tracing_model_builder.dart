@@ -28,8 +28,8 @@ List<_TracingEntry> _buildEntries(
         result.add(created);
         break;
       case InputEventType.rebuild:
-        for (int i = 0; i < e.rebuildCauses!.length; i++) {
-          final causes = e.rebuildCauses!;
+        for (int i = 0; i < e.parentEvents!.length; i++) {
+          final causes = e.parentEvents!;
           final existing = <_TracingEntry>[];
           _findEvent(result, causes[i], existing);
 
@@ -50,7 +50,7 @@ List<_TracingEntry> _buildEntries(
         }
         break;
       case InputEventType.actionDispatched:
-        final originActionId = e.originActionId;
+        final originActionId = e.parentAction;
         if (originActionId != null) {
           final existing = _findEventWithAction(result, originActionId);
 
@@ -72,6 +72,8 @@ List<_TracingEntry> _buildEntries(
       case InputEventType.actionError:
         final existing = _findEventWithAction(result, e.actionId!);
         if (existing != null) {
+          existing.millis =
+              e.millisSinceEpoch - existing.event.millisSinceEpoch;
           existing.error = _ErrorEntry(
             actionLabel: existing.event.actionLabel!,
             actionLifecycle: e.actionLifecycle!,
@@ -90,8 +92,8 @@ List<_TracingEntry> _buildEntries(
         result.add(_TracingEntry(e, []));
         break;
       case InputEventType.message:
-        if (e.originActionId != null) {
-          final existing = _findEventWithAction(result, e.originActionId!);
+        if (e.parentAction != null) {
+          final existing = _findEventWithAction(result, e.parentAction!);
 
           if (existing != null) {
             existing.children.add(_TracingEntry(e, []));
@@ -145,7 +147,8 @@ void _addWidgetEntries(_TracingEntry entry, List<String> rebuildableList) {
         id: -1,
         type: InputEventType.rebuild,
         millisSinceEpoch: entry.timestamp.millisecondsSinceEpoch,
-        rebuildableLabel: rebuild,
+        label: rebuild,
+        data: {},
       ),
       [],
       isWidget: true,
@@ -157,23 +160,8 @@ void _addWidgetEntries(_TracingEntry entry, List<String> rebuildableList) {
 // query is already lower case
 bool _contains(_TracingEntry entry, String query) {
   final e = entry.event;
-  final contains = switch (e.type) {
-    InputEventType.change => e.stateType!.toLowerCase().contains(query),
-    InputEventType.rebuild =>
-      e.rebuildableLabel!.toLowerCase().contains(query) ||
-          (e.stateType != null &&
-              e.stateType.toString().toLowerCase().contains(query)),
-    InputEventType.actionDispatched =>
-      e.actionLabel!.toLowerCase().contains(query) ||
-          e.debugOrigin!.toLowerCase().contains(query),
-    InputEventType.actionFinished => throw UnimplementedError(),
-    InputEventType.actionError => throw UnimplementedError(),
-    InputEventType.init =>
-      e.providerLabel.toString().toLowerCase().contains(query),
-    InputEventType.dispose =>
-      e.providerLabel.toString().toLowerCase().contains(query),
-    InputEventType.message => e.message!.toLowerCase().contains(query),
-  };
+  final contains = e.label.toLowerCase().contains(query) ||
+      e.data.toString().toLowerCase().contains(query);
 
   if (contains) {
     return true;

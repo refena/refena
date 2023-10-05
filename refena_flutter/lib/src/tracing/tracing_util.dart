@@ -28,16 +28,3 @@ extension on int {
     return '${this}ms';
   }
 }
-
-String _formatResult(Object result) {
-  try {
-    if (result is Map<String, dynamic>) {
-      return _jsonEncoder.convert(result);
-    }
-
-    final parsed = jsonDecode(result.toString());
-    return _jsonEncoder.convert(parsed);
-  } catch (e) {
-    return result.toString();
-  }
-}

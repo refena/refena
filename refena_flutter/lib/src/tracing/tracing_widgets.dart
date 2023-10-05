@@ -90,20 +90,7 @@ class _EntryTileState extends State<_EntryTile> {
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Text(
-                              switch (e.type) {
-                                InputEventType.change =>
-                                  e.notifierLabel ?? e.stateType!,
-                                InputEventType.rebuild => widget.entry.isWidget
-                                    ? e.rebuildableLabel!
-                                    : e.stateType!,
-                                InputEventType.actionDispatched =>
-                                  e.actionLabel!,
-                                InputEventType.actionFinished => '',
-                                InputEventType.actionError => '',
-                                InputEventType.init => e.providerLabel!,
-                                InputEventType.dispose => e.providerLabel!,
-                                InputEventType.message => e.message!,
-                              },
+                              e.label,
                               style: TextStyle(
                                 color: switch (error?.actionLifecycle) {
                                   null => null,
@@ -222,55 +209,15 @@ class _EntryTileState extends State<_EntryTile> {
                               superseded: widget.entry.superseded,
                               error: widget.entry.error,
                               attributes: switch (e.type) {
-                                InputEventType.change => {
-                                    'Notifier': e.notifierLabel!,
-                                    if (e.actionId != null)
-                                      'Triggered by': e.actionLabel!,
-                                    'Prev': e.prevState.toString(),
-                                    'Next': e.nextState.toString(),
-                                    'Rebuild': e.rebuildWidgets == null ||
-                                            e.rebuildWidgets!.isEmpty
-                                        ? '<none>'
-                                        : e.rebuildWidgets!.join(', '),
-                                  },
-                                InputEventType.rebuild => widget.entry.isWidget
-                                    ? {}
-                                    : {
-                                        'Notifier': e.rebuildableLabel!,
-                                        'Triggered by':
-                                            e.rebuildCausesLabels!.join(', '),
-                                        'Prev': e.prevState.toString(),
-                                        'Next': e.nextState.toString(),
-                                        'Rebuild': e.rebuildWidgets!.isEmpty
-                                            ? '<none>'
-                                            : e.rebuildWidgets!.join(', '),
-                                      },
                                 InputEventType.actionDispatched => {
-                                    'Origin': e.debugOrigin!,
-                                    'Action Group': e.notifierLabel!,
-                                    'Action': e.actionLabel!,
+                                    ...e.data,
                                     if (widget.entry.millis != null)
                                       'Duration':
                                           '${widget.entry.millis?.formatMillis()}',
                                     if (widget.entry.result != null)
-                                      'Result':
-                                          _formatResult(widget.entry.result!),
+                                      'Result': widget.entry.result!.toString(),
                                   },
-                                InputEventType.actionFinished => {},
-                                InputEventType.actionError => {},
-                                InputEventType.init => {
-                                    'Provider': e.providerLabel!,
-                                    'Initial': e.value.toString(),
-                                    'Reason':
-                                        e.providerInitCause!.name.toUpperCase(),
-                                  },
-                                InputEventType.dispose => {
-                                    'Provider': e.providerLabel!,
-                                  },
-                                InputEventType.message => {
-                                    'Origin': e.debugOrigin!,
-                                    'Message': e.message!,
-                                  },
+                                _ => e.data,
                               },
                             ),
                           ),
