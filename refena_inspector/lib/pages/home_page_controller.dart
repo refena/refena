@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
 enum HomeTab {
-  tracing(Icons.list),
-  graph(Icons.account_tree),
-  actions(Icons.bolt),
-  settings(Icons.settings);
-
-  const HomeTab(this.icon);
-
-  final IconData icon;
+  tracing,
+  graph,
+  actions,
+  settings;
 
   String get label {
     switch (this) {
@@ -85,7 +81,8 @@ class SetHomeTabAction extends ReduxAction<HomePageController, HomePageState> {
 }
 
 /// Refreshes the page controller with the current tab.
-class RefreshPageController extends ReduxAction<HomePageController, HomePageState> {
+class RefreshPageController
+    extends ReduxAction<HomePageController, HomePageState> {
   @override
   HomePageState reduce() {
     WidgetsBinding.instance.addPostFrameCallback((_) {

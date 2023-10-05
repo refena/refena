@@ -33,8 +33,14 @@ final homePageVmProvider = ViewProvider((ref) {
     currentTab: state.currentTab,
     serverRunning: serverState.running,
     clientConnected: serverState.clientConnected,
-    changeTab: (tab) => ref
-        .redux(homePageControllerProvider)
-        .dispatch(SetHomeTabAction(HomeTab.values[tab])),
+    changeTab: (tab) {
+      if (tab == state.currentTab.index) {
+        return;
+      }
+
+      ref
+          .redux(homePageControllerProvider)
+          .dispatch(SetHomeTabAction(HomeTab.values[tab]));
+    },
   );
 });

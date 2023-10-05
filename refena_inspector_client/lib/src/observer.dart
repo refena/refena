@@ -95,7 +95,7 @@ class RefenaInspectorObserver extends RefenaObserver {
       try {
         await runWebSocket();
       } catch (e) {
-        print('Failed to connect to refena inspector server.');
+        print('Failed to connect to refena inspector.');
         await Future.delayed(Duration(seconds: 3));
       }
     }
@@ -107,8 +107,6 @@ class RefenaInspectorObserver extends RefenaObserver {
 
     // https://github.com/dart-lang/web_socket_channel/issues/249
     await channel.ready;
-
-    print('Connected to refena inspector server.');
 
     _controller = WebSocketController(
       ref: ref,

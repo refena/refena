@@ -35,6 +35,7 @@ class WebSocketController {
   Future<void> handleMessages() async {
     try {
       _sendHello();
+      ref.message('Connected to refena inspector.');
     } catch (e) {
       print('Failed to send hello message to refena inspector server: $e');
       rethrow;
@@ -87,10 +88,11 @@ class WebSocketController {
     sink.add(jsonEncode({
       'type': InspectorClientMessageType.hello.name,
       'payload': {
-        'events': TracingBuilder.buildFullDto(
-          ref: ref,
-          errorParser: errorParser,
-        ),
+        if (ref.notifier(tracingProvider).initialized)
+          'events': TracingBuilder.buildFullDto(
+            ref: ref,
+            errorParser: errorParser,
+          ),
         'graph': GraphBuilder.buildDto(ref),
         'actions': ActionsBuilder.convertToJson(actions),
         'theme': theme,

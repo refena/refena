@@ -270,6 +270,7 @@ class _ConfigureActionsTutorial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final brightness = Theme.of(context).brightness;
     return Column(
       children: [
         Text(
@@ -281,12 +282,11 @@ class _ConfigureActionsTutorial extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5),
-            color: Color(0xFFf8f0f9),
+            color: Color(
+              brightness == Brightness.light ? 0xFFf8f0f9 : 0xFF2a2a2a,
+            ),
           ),
-          child: SelectableText(
-            _exampleCode,
-            style: TextStyle(color: Colors.black),
-          ),
+          child: SelectableText(_exampleCode),
         ),
         const SizedBox(height: 20),
         TextButton(

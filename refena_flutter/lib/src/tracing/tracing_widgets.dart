@@ -25,7 +25,8 @@ class _EntryTile extends StatefulWidget {
   State<_EntryTile> createState() => _EntryTileState();
 }
 
-class _EntryTileState extends State<_EntryTile> with AutomaticKeepAliveClientMixin {
+class _EntryTileState extends State<_EntryTile>
+    with AutomaticKeepAliveClientMixin {
   bool _expanded = false;
 
   @override

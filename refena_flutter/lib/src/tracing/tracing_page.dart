@@ -64,6 +64,10 @@ class RefenaTracingPage extends StatefulWidget {
   /// The builder to build the input model.
   final TracingInputBuilder inputBuilder;
 
+  /// The delay before the page is displayed.
+  /// Used for smooth page transition.
+  final Duration loadDelay;
+
   const RefenaTracingPage({
     super.key,
     this.slowExecutionThreshold = 500,
@@ -74,6 +78,7 @@ class RefenaTracingPage extends StatefulWidget {
     this.query,
     this.title = 'Refena Tracing',
     this.inputBuilder = const _StateTracingInputBuilder(),
+    this.loadDelay = const Duration(milliseconds: 300),
   })  : assert(slowExecutionThreshold > 0,
             'slowExecutionThreshold must be greater than 0'),
         assert(include == null || exclude == null,
@@ -133,7 +138,7 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
     bool hide = true,
     bool useSetState = false,
     bool animate = false,
-    Duration loadDelay = const Duration(milliseconds: 300),
+    Duration? loadDelay,
   }) async {
     if (useSetState) {
       setState(() {});
@@ -144,7 +149,10 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
           _show = false;
         });
       }
-      await Future.delayed(loadDelay);
+      await Future.delayed(loadDelay ?? widget.loadDelay);
+      if (!mounted) {
+        return;
+      }
       if (!widget.inputBuilder.hasTracingProvider(ref)) {
         setState(() {
           _notInitializedError = true;

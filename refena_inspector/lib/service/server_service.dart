@@ -5,9 +5,9 @@ import 'package:logging/logging.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector/pages/home_page_controller.dart';
 import 'package:refena_inspector/service/action_service.dart';
+import 'package:refena_inspector/service/event_service.dart';
 import 'package:refena_inspector/service/graph_service.dart';
 import 'package:refena_inspector/service/settings_service.dart';
-import 'package:refena_inspector/service/tracing_service.dart';
 
 // ignore: implementation_imports
 import 'package:refena_inspector_client/src/protocol.dart';
@@ -47,13 +47,17 @@ class ServerState {
 }
 
 final serverProvider = ReduxProvider<InspectorServer, ServerState>((ref) {
-  return InspectorServer(ref.notifier(homePageControllerProvider));
+  return InspectorServer(
+    ref.notifier(homePageControllerProvider),
+    ref.notifier(eventsProvider),
+  );
 });
 
 class InspectorServer extends ReduxNotifier<ServerState> {
   final HomePageController _homePageController;
+  final EventService _eventService;
 
-  InspectorServer(this._homePageController);
+  InspectorServer(this._homePageController, this._eventService);
 
   @override
   ServerState init() {
@@ -125,6 +129,11 @@ class _ClientDisconnectedAction
       clientConnected: false,
     );
   }
+
+  @override
+  void after() {
+    external(notifier._eventService).dispatch(ClearEventsAction());
+  }
 }
 
 /// Sends an action to the client.
@@ -164,7 +173,7 @@ void _handleMessage(dynamic message) {
       final actions = payload['actions'] as Map<String, dynamic>;
       final theme = payload['theme'] as String;
       if (events != null) {
-        ref.redux(eventsProvider).dispatch(AddEventsAction(events: events));
+        ref.redux(eventsProvider).dispatch(InitEventsAction(events: events));
       }
       ref.redux(actionProvider).dispatch(SetActionsAction(actions: actions));
       ref.redux(graphProvider).dispatch(SetGraphAction(nodes: graph));

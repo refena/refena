@@ -49,7 +49,15 @@ class HomePage extends StatelessWidget {
             ),
             destinations: HomeTab.values.map((tab) {
               return NavigationRailDestination(
-                icon: Icon(tab.icon),
+                icon: switch (tab) {
+                  HomeTab.tracing => Icon(Icons.list),
+                  HomeTab.graph => RotatedBox(
+                      quarterTurns: 2,
+                      child: Icon(Icons.share),
+                    ),
+                  HomeTab.actions => Icon(Icons.bolt),
+                  HomeTab.settings => Icon(Icons.settings),
+                },
                 label: Text(tab.label),
               );
             }).toList(),

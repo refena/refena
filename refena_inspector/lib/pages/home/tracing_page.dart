@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 // ignore: implementation_imports, depend_on_referenced_packages
 import 'package:refena/src/tools/tracing_input_model.dart';
 import 'package:refena_flutter/refena_flutter.dart';
-import 'package:refena_inspector/service/tracing_service.dart';
+import 'package:refena_inspector/service/event_service.dart';
 
 class TracingPage extends StatelessWidget {
   const TracingPage({super.key});
@@ -15,6 +15,7 @@ class TracingPage extends StatelessWidget {
     return RefenaTracingPage(
       title: 'Tracing',
       inputBuilder: _InspectorTracingInputBuilder(context.ref),
+      loadDelay: Duration.zero,
     );
   }
 }
