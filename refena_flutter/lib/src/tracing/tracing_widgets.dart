@@ -13,6 +13,7 @@ class _EntryTile extends StatefulWidget {
   final bool showTime;
 
   const _EntryTile({
+    required super.key,
     required this.slowExecutionThreshold,
     required this.errorParser,
     required this.entry,
@@ -24,11 +25,15 @@ class _EntryTile extends StatefulWidget {
   State<_EntryTile> createState() => _EntryTileState();
 }
 
-class _EntryTileState extends State<_EntryTile> {
+class _EntryTileState extends State<_EntryTile> with AutomaticKeepAliveClientMixin {
   bool _expanded = false;
 
   @override
+  bool get wantKeepAlive => true;
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     final e = widget.entry.event;
     final error = widget.entry.error;
     return Column(
@@ -228,6 +233,7 @@ class _EntryTileState extends State<_EntryTile> {
           ],
         ),
         ...widget.entry.children.map((e) => _EntryTile(
+              key: ValueKey(e.event.id),
               slowExecutionThreshold: widget.slowExecutionThreshold,
               errorParser: widget.errorParser,
               entry: e,

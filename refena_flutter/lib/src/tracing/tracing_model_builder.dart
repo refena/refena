@@ -176,13 +176,3 @@ bool _contains(_TracingEntry entry, String query) {
 
   return false;
 }
-
-/// Count the number of items in the tree
-int _countItems(List<_TracingEntry> entries) {
-  var count = 0;
-  for (final entry in entries) {
-    count++;
-    count += _countItems(entry.children);
-  }
-  return count;
-}

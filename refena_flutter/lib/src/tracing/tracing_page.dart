@@ -84,13 +84,10 @@ class RefenaTracingPage extends StatefulWidget {
 }
 
 class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
-  final _sampleWidgetKey = GlobalKey();
-  final _scrollController = ScrollController();
   List<_TracingEntry> _entries = [];
   List<_TracingEntry> _filteredEntries = [];
   bool _show = false;
   bool _notInitializedError = false;
-  Size _sampleWidgetSize = Size(40, 32);
 
   late String _query = widget.query ?? '';
   late bool _showTime = widget.showTime;
@@ -119,7 +116,6 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
 
   @override
   void dispose() {
-    _scrollController.dispose();
     _subscription?.cancel();
     super.dispose();
   }
@@ -130,7 +126,6 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
       useSetState: true,
       animate: true,
       loadDelay: Duration.zero,
-      showDelay: Duration.zero,
     );
   }
 
@@ -139,7 +134,6 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
     bool useSetState = false,
     bool animate = false,
     Duration loadDelay = const Duration(milliseconds: 300),
-    Duration showDelay = const Duration(milliseconds: 500),
   }) async {
     if (useSetState) {
       setState(() {});
@@ -158,12 +152,6 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
         return;
       }
 
-      final renderObject = _sampleWidgetKey.currentContext?.findRenderObject();
-      if (renderObject != null) {
-        // Get the size of one item for reference
-        _sampleWidgetSize = renderObject.paintBounds.size;
-      }
-
       Iterable<InputEvent> events = widget.inputBuilder.build(ref);
 
       if (widget.exclude != null) {
@@ -173,30 +161,9 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
       }
       _entries = _buildEntries(events, widget.errorParser);
       _filter();
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final entriesCount = _countItems(_filteredEntries);
-        final destination = max(
-                0,
-                330 +
-                    (entriesCount * _sampleWidgetSize.height) -
-                    MediaQuery.sizeOf(context).height)
-            .toDouble();
 
-        if (animate) {
-          await _scrollController.animateTo(
-            destination,
-            duration: const Duration(milliseconds: 500),
-            curve: Curves.easeOut,
-          );
-        } else {
-          _scrollController.jumpTo(destination);
-        }
-
-        await Future.delayed(showDelay);
-
-        setState(() {
-          _show = true;
-        });
+      setState(() {
+        _show = true;
       });
     });
   }
@@ -298,7 +265,6 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
                   WidgetsBinding.instance.addPostFrameCallback((_) async {
                     _load(
                       loadDelay: Duration.zero,
-                      showDelay: Duration.zero,
                     );
                   });
                   break;
@@ -318,40 +284,64 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
                 scrollDirection: Axis.horizontal,
                 child: SizedBox(
                   width: screenWidth * 3,
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    padding: EdgeInsets.only(
-                      bottom: 100 + MediaQuery.of(context).padding.bottom,
-                      top: 20,
-                    ),
-                    itemCount: _filteredEntries.length + 2,
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return Padding(
+                  child: CustomScrollView(
+                    reverse: true,
+                    slivers: [
+                      SliverToBoxAdapter(
+                        child: SizedBox(
+                          height: 100 + MediaQuery.of(context).padding.bottom,
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: _TracingLegend(screenWidth: screenWidth),
+                      ),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final i = _filteredEntries.length - index - 1;
+                            return _EntryTile(
+                              key: ValueKey(
+                                _filteredEntries[i].event.id,
+                              ),
+                              slowExecutionThreshold:
+                                  widget.slowExecutionThreshold,
+                              errorParser: widget.errorParser,
+                              entry: _filteredEntries[i],
+                              depth: 0,
+                              showTime: _showTime,
+                            );
+                          },
+                          childCount: _filteredEntries.length,
+                          findChildIndexCallback: (key) {
+                            final id = (key as ValueKey<int>).value;
+                            final index = _filteredEntries.indexWhere(
+                              (e) => e.event.id == id,
+                            );
+                            if (index == -1) {
+                              return null;
+                            }
+                            return _filteredEntries.length - index - 1;
+                          },
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: Padding(
                           padding: EdgeInsets.only(
-                              left: _showTime
-                                  ? _EntryTile.timeColumnWidth
-                                  : _EntryTile.noTimeWidth,
-                              bottom: 10),
+                            left: _showTime
+                                ? _EntryTile.timeColumnWidth
+                                : _EntryTile.noTimeWidth,
+                            bottom: 10,
+                          ),
                           child: Text(
                             'Start of history...',
                             style: TextStyle(color: Colors.grey),
                           ),
-                        );
-                      }
-
-                      if (index == _filteredEntries.length + 1) {
-                        return _TracingLegend(screenWidth: screenWidth);
-                      }
-
-                      return _EntryTile(
-                        slowExecutionThreshold: widget.slowExecutionThreshold,
-                        errorParser: widget.errorParser,
-                        entry: _filteredEntries[index - 1],
-                        depth: 0,
-                        showTime: _showTime,
-                      );
-                    },
+                        ),
+                      ),
+                      SliverToBoxAdapter(
+                        child: SizedBox(height: 20),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -403,14 +393,6 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
                     ),
                   ),
                 ),
-              Visibility(
-                key: _sampleWidgetKey,
-                visible: false,
-                maintainSize: true,
-                maintainAnimation: true,
-                maintainState: true,
-                child: _EntryCharacterBox(_EventType.action),
-              ),
             ],
           );
         },
