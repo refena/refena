@@ -6,6 +6,12 @@
 
 The inspector for [Refena](https://pub.dev/packages/refena).
 
+![inspector](https://raw.githubusercontent.com/refena/refena/main/resources/inspector-screenshot.webp)
+
+## Usage
+
+Add the [refena_inspector_client](https://pub.dev/packages/refena_inspector_client) and [refena_inspector](https://pub.dev/packages/refena_inspector) packages to your project.
+
 ```yaml
 # pubspec.yaml
 dependencies:
@@ -14,8 +20,6 @@ dependencies:
 dev_dependencies:
   refena_inspector: <version>
 ```
-
-## Usage
 
 Add the `RefenaInspectorObserver` to your `RefenaContainer` or `RefenaScope`.
 

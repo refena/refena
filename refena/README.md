@@ -79,6 +79,10 @@ class MyPage extends StatelessWidget {
 }
 ```
 
+With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector):
+
+![inspector](https://raw.githubusercontent.com/refena/refena/main/resources/inspector-screenshot.webp)
+
 ## Table of Contents
 
 - [Refena vs Riverpod](#refena-vs-riverpod)
