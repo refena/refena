@@ -9,6 +9,9 @@ enum InspectorClientMessageType {
   /// The server will use this information to build the inspector.
   hello,
 
+  /// The client sends to the server new events.
+  event,
+
   /// The client sends to the server an updated graph
   graph,
 }

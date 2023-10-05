@@ -4,6 +4,7 @@ import 'package:meta/meta.dart';
 import 'package:refena/refena.dart';
 import 'package:refena_inspector_client/src/builder/actions_builder.dart';
 import 'package:refena_inspector_client/src/builder/graph_builder.dart';
+import 'package:refena_inspector_client/src/builder/tracing_builder.dart';
 import 'package:refena_inspector_client/src/inspector_action.dart';
 import 'package:refena_inspector_client/src/observer.dart';
 import 'package:refena_inspector_client/src/protocol.dart';
@@ -16,6 +17,7 @@ class WebSocketController {
   final Stream stream;
   final Map<String, dynamic> actions;
   final String theme;
+  final ErrorParser? errorParser;
 
   /// Last graph sent to the server serialized as JSON.
   /// If the graph is the same, then it will not be sent again.
@@ -27,6 +29,7 @@ class WebSocketController {
     required this.stream,
     required this.actions,
     required this.theme,
+    required this.errorParser,
   });
 
   Future<void> handleMessages() async {
@@ -53,6 +56,19 @@ class WebSocketController {
     }
   }
 
+  void sendEvents(List<RefenaEvent> events) {
+    final message = jsonEncode({
+      'type': InspectorClientMessageType.event.name,
+      'payload': {
+        'events': TracingBuilder.buildEventsDto(
+          events: events,
+          errorParser: errorParser,
+        ),
+      },
+    });
+    sink.add(message);
+  }
+
   void sendGraph() {
     final message = jsonEncode({
       'type': InspectorClientMessageType.graph.name,
@@ -71,6 +87,10 @@ class WebSocketController {
     sink.add(jsonEncode({
       'type': InspectorClientMessageType.hello.name,
       'payload': {
+        'events': TracingBuilder.buildFullDto(
+          ref: ref,
+          errorParser: errorParser,
+        ),
         'graph': GraphBuilder.buildDto(ref),
         'actions': ActionsBuilder.convertToJson(actions),
         'theme': theme,

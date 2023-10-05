@@ -142,7 +142,7 @@ class WatchableRef extends Ref {
 
   @override
   void message(String message) {
-    _ref.observer?.handleEvent(MessageEvent(message, _rebuildable));
+    _ref.observer?.internalHandleEvent(MessageEvent(message, _rebuildable));
   }
 
   @override

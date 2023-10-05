@@ -49,7 +49,9 @@ class RefenaInspectorObserver extends RefenaObserver {
   /// Falls back to the default error parser.
   final ErrorParser? errorParser;
 
+  late ActionScheduler _eventsScheduler;
   late ActionScheduler _graphScheduler;
+  List<RefenaEvent> _unsentEvents = [];
   WebSocketController? _controller;
 
   RefenaInspectorObserver({
@@ -63,12 +65,32 @@ class RefenaInspectorObserver extends RefenaObserver {
   }) : actions = ActionsBuilder.normalizeActionMap(actions);
 
   @override
-  void init() async {
+  void init() {
+    _eventsScheduler = ActionScheduler(
+      minDelay: minDelay,
+      maxDelay: const Duration(hours: 999),
+      action: () {
+        final events = _unsentEvents;
+        _unsentEvents = [];
+        _controller?.sendEvents(events);
+      },
+    );
     _graphScheduler = ActionScheduler(
       minDelay: minDelay,
       maxDelay: maxDelay,
       action: () => _controller?.sendGraph(),
     );
+    _runLoop();
+  }
+
+  @override
+  void handleEvent(RefenaEvent event) {
+    _unsentEvents.add(event);
+    _eventsScheduler.scheduleAction();
+    _graphScheduler.scheduleAction();
+  }
+
+  Future<void> _runLoop() async {
     while (true) {
       try {
         await runWebSocket();
@@ -77,11 +99,6 @@ class RefenaInspectorObserver extends RefenaObserver {
         await Future.delayed(Duration(seconds: 3));
       }
     }
-  }
-
-  @override
-  void handleEvent(RefenaEvent event) {
-    _graphScheduler.scheduleAction();
   }
 
   Future<void> runWebSocket() async {
@@ -99,6 +116,7 @@ class RefenaInspectorObserver extends RefenaObserver {
       stream: channel.stream,
       actions: actions,
       theme: theme,
+      errorParser: errorParser,
     );
 
     await _controller?.handleMessages();

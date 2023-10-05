@@ -143,7 +143,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
 
   /// Emits a message to the observer.
   void emitMessage(String message) {
-    _observer?.handleEvent(
+    _observer?.internalHandleEvent(
       MessageEvent(message, this),
     );
   }

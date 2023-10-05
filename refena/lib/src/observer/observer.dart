@@ -12,6 +12,12 @@ import 'package:refena/src/ref.dart';
 abstract class RefenaObserver implements LabeledReference {
   RefenaObserver();
 
+  bool _initialized = false;
+
+  /// Whether the observer has been initialized.
+  /// The observer won't receive any events until it is initialized.
+  bool get initialized => _initialized;
+
   late Ref _ref;
 
   /// Use the [ref] to access the state.
@@ -32,6 +38,16 @@ abstract class RefenaObserver implements LabeledReference {
   @internal
   void internalSetup(ProxyRef ref) {
     _ref = ref;
+    init();
+    _initialized = true;
+  }
+
+  @internal
+  void internalHandleEvent(RefenaEvent event) {
+    if (!_initialized) {
+      return;
+    }
+    handleEvent(event);
   }
 }
 
@@ -56,16 +72,12 @@ class RefenaMultiObserver extends RefenaObserver {
   RefenaMultiObserver({required this.observers});
 
   @override
-  void init() {
-    for (final observer in observers) {
-      observer.init();
-    }
-  }
+  void init() {}
 
   @override
   void handleEvent(RefenaEvent event) {
     for (final observer in observers) {
-      observer.handleEvent(event);
+      observer.internalHandleEvent(event);
     }
   }
 
@@ -79,6 +91,7 @@ class RefenaMultiObserver extends RefenaObserver {
         observer,
       ));
     }
+    _initialized = true;
   }
 }
 

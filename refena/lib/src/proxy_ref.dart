@@ -90,7 +90,7 @@ class ProxyRef implements Ref {
 
   @override
   void message(String message) {
-    _ref.observer?.handleEvent(
+    _ref.observer?.internalHandleEvent(
       MessageEvent(message, _debugOriginRef),
     );
   }

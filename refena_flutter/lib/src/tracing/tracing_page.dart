@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:math';
 
@@ -14,6 +15,7 @@ import 'package:refena/src/observer/error_parser.dart';
 import 'package:refena/src/tools/tracing_input_model.dart';
 
 import 'package:refena_flutter/src/graph/graph_page.dart';
+import 'package:refena_flutter/src/graph/live_button.dart';
 import 'package:refena_flutter/src/mixin.dart';
 
 part 'tracing_error_dialog.dart';
@@ -93,30 +95,63 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
   late String _query = widget.query ?? '';
   late bool _showTime = widget.showTime;
 
+  StreamSubscription? _subscription;
+
+  /// If true, then the page is not refreshed, even if a new stream event
+  /// is received.
+  bool _livePaused = false;
+
   @override
   void initState() {
     super.initState();
 
     _load();
+    final stream = widget.inputBuilder.refreshStream;
+    if (stream != null) {
+      _subscription = stream.listen((_) {
+        if (_livePaused) {
+          return;
+        }
+        _refreshFromStream();
+      });
+    }
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _subscription?.cancel();
     super.dispose();
   }
 
+  void _refreshFromStream() {
+    _load(
+      hide: false,
+      useSetState: true,
+      animate: true,
+      loadDelay: Duration.zero,
+      showDelay: Duration.zero,
+    );
+  }
+
   void _load({
+    bool hide = true,
+    bool useSetState = false,
+    bool animate = false,
     Duration loadDelay = const Duration(milliseconds: 300),
     Duration showDelay = const Duration(milliseconds: 500),
   }) async {
+    if (useSetState) {
+      setState(() {});
+    }
     ensureRef((ref) async {
-      setState(() {
-        _show = false;
-      });
+      if (hide) {
+        setState(() {
+          _show = false;
+        });
+      }
       await Future.delayed(loadDelay);
-      if (widget.inputBuilder.requireTracingProvider &&
-          !ref.notifier(tracingProvider).initialized) {
+      if (!widget.inputBuilder.hasTracingProvider(ref)) {
         setState(() {
           _notInitializedError = true;
         });
@@ -139,7 +174,7 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
       _entries = _buildEntries(events, widget.errorParser);
       _filter();
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final entriesCount = _countItems(_entries);
+        final entriesCount = _countItems(_filteredEntries);
         final destination = max(
                 0,
                 330 +
@@ -147,7 +182,15 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
                     MediaQuery.sizeOf(context).height)
             .toDouble();
 
-        _scrollController.jumpTo(destination);
+        if (animate) {
+          await _scrollController.animateTo(
+            destination,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOut,
+          );
+        } else {
+          _scrollController.jumpTo(destination);
+        }
 
         await Future.delayed(showDelay);
 
@@ -173,18 +216,33 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
       appBar: AppBar(
         title: Text(widget.title),
         actions: [
+          if (_subscription != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: LiveButton(
+                live: !_livePaused,
+                onTap: () {
+                  final oldPaused = _livePaused;
+                  setState(() => _livePaused = !_livePaused);
+                  if (oldPaused) {
+                    _refreshFromStream();
+                  }
+                },
+              ),
+            ),
           PopupMenuButton(
             itemBuilder: (context) {
               return [
-                PopupMenuItem(
-                  padding: EdgeInsets.zero,
-                  child: ListTile(
-                    dense: true,
-                    leading: const Icon(Icons.account_tree),
-                    title: Text('Graph'),
+                if (_subscription == null)
+                  PopupMenuItem(
+                    padding: EdgeInsets.zero,
+                    child: ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.account_tree),
+                      title: Text('Graph'),
+                    ),
+                    value: 'graph',
                   ),
-                  value: 'graph',
-                ),
                 PopupMenuItem(
                   padding: EdgeInsets.zero,
                   child: ListTile(
@@ -236,7 +294,7 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
                   });
                   break;
                 case 'clear':
-                  ref.notifier(tracingProvider).clear();
+                  widget.inputBuilder.clearEvents(ref);
                   WidgetsBinding.instance.addPostFrameCallback((_) async {
                     _load(
                       loadDelay: Duration.zero,

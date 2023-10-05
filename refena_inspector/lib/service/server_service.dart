@@ -7,6 +7,7 @@ import 'package:refena_inspector/pages/home_page_controller.dart';
 import 'package:refena_inspector/service/action_service.dart';
 import 'package:refena_inspector/service/graph_service.dart';
 import 'package:refena_inspector/service/settings_service.dart';
+import 'package:refena_inspector/service/tracing_service.dart';
 
 // ignore: implementation_imports
 import 'package:refena_inspector_client/src/protocol.dart';
@@ -158,14 +159,22 @@ void _handleMessage(dynamic message) {
   final ref = RefenaScope.defaultRef;
   switch (type) {
     case InspectorClientMessageType.hello:
+      final events = payload['events'] as List<dynamic>?;
       final graph = payload['graph'] as List<dynamic>;
       final actions = payload['actions'] as Map<String, dynamic>;
       final theme = payload['theme'] as String;
+      if (events != null) {
+        ref.redux(eventsProvider).dispatch(AddEventsAction(events: events));
+      }
       ref.redux(actionProvider).dispatch(SetActionsAction(actions: actions));
       ref.redux(graphProvider).dispatch(SetGraphAction(nodes: graph));
       ref.redux(settingsProvider).dispatch(SettingsThemeModeAction(
           themeMode: ThemeMode.values.firstWhere((t) => t.name == theme)));
       ref.redux(serverProvider).dispatch(_ClientConnectedAction());
+      break;
+    case InspectorClientMessageType.event:
+      final events = payload['events'] as List<dynamic>;
+      ref.redux(eventsProvider).dispatch(AddEventsAction(events: events));
       break;
     case InspectorClientMessageType.graph:
       final graph = payload['graph'] as List<dynamic>;

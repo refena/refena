@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:refena_inspector_client/refena_inspector_client.dart';
 
 void main() {
   runApp(
@@ -10,6 +11,7 @@ void main() {
       observers: [
         RefenaDebugObserver(),
         RefenaTracingObserver(),
+        RefenaInspectorObserver(),
       ],
       child: MyApp(),
     ),

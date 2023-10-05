@@ -1,4 +1,6 @@
 import 'package:meta/meta.dart';
+import 'package:refena/src/action/redux_action.dart';
+import 'package:refena/src/observer/error_parser.dart';
 import 'package:refena/src/observer/event.dart';
 
 @internal
@@ -135,6 +137,142 @@ class InputEvent {
       actionError: ext['actionError'] as String?,
       actionErrorData: ext['actionErrorData'] as Map<String, dynamic>?,
       actionStackTrace: ext['actionStackTrace'] as String?,
+    );
+  }
+
+  factory InputEvent.fromEvent({
+    required RefenaEvent event,
+    required ErrorParser? errorParser,
+    required bool shouldParseError,
+  }) {
+    ActionLifecycle? actionLifecycle;
+    String? actionError;
+    String? actionStackTrace;
+    if (event is ActionErrorEvent) {
+      actionLifecycle = event.lifecycle;
+      actionError = event.error.toString();
+      actionStackTrace = event.stackTrace.toString();
+    }
+    return InputEvent(
+      id: event.id,
+      type: switch (event) {
+        ChangeEvent() => InputEventType.change,
+        RebuildEvent() => InputEventType.rebuild,
+        ProviderInitEvent() => InputEventType.init,
+        ProviderDisposeEvent() => InputEventType.dispose,
+        ActionDispatchedEvent() => InputEventType.actionDispatched,
+        ActionFinishedEvent() => InputEventType.actionFinished,
+        ActionErrorEvent() => InputEventType.actionError,
+        MessageEvent() => InputEventType.message,
+      },
+      millisSinceEpoch: event.millisSinceEpoch,
+      event: event,
+      label: switch (event) {
+        ChangeEvent() =>
+          event.notifier.customDebugLabel ?? event.stateType.toString(),
+        RebuildEvent() => event.rebuildable.isWidget
+            ? event.debugLabel
+            : event.stateType.toString(),
+        ActionDispatchedEvent() => event.action.debugLabel,
+        ActionFinishedEvent() => '',
+        ActionErrorEvent() => '',
+        ProviderInitEvent() => event.provider.debugLabel,
+        ProviderDisposeEvent() => event.provider.debugLabel,
+        MessageEvent() => event.message,
+      },
+      debugOrigin: switch (event) {
+        ActionDispatchedEvent() => event.debugOrigin,
+        MessageEvent() => event.origin.debugLabel,
+        _ => null,
+      },
+      data: switch (event) {
+        ChangeEvent() => {
+            'Notifier': event.notifier.debugLabel,
+            if (event.action != null) 'Triggered by': event.action!.debugLabel,
+            'Prev': event.prev.toString(),
+            'Next': event.next.toString(),
+            'Rebuild': event.rebuild.isEmpty
+                ? '<none>'
+                : event.rebuild.map((r) => r.debugLabel).join(', '),
+          },
+        RebuildEvent() => event.rebuildable.isWidget
+            ? {}
+            : {
+                'Notifier': event.rebuildable.debugLabel,
+                'Triggered by':
+                    event.causes.map((e) => e.stateType.toString()).join(', '),
+                'Prev': event.prev.toString(),
+                'Next': event.next.toString(),
+                'Rebuild': event.rebuild.isEmpty
+                    ? '<none>'
+                    : event.rebuild.map((r) => r.debugLabel).join(', '),
+              },
+        ActionDispatchedEvent() => {
+            'Origin': event.debugOrigin,
+            'Action Group': event.notifier.debugLabel,
+            'Action': event.action.toString(),
+          },
+        ActionFinishedEvent() => {},
+        ActionErrorEvent() => {},
+        ProviderInitEvent() => {
+            'Provider': event.provider.toString(),
+            'Initial': event.value.toString(),
+            'Reason': event.cause.name.toUpperCase(),
+          },
+        ProviderDisposeEvent() => {
+            'Provider': event.provider.toString(),
+          },
+        MessageEvent() => {
+            'Origin': event.origin.debugLabel,
+            'Message': event.message,
+          },
+      },
+      rebuildWidgets: switch (event) {
+        AbstractChangeEvent() => event.rebuild
+            .where((r) => r.isWidget)
+            .map((e) => e.debugLabel)
+            .toList(),
+        _ => null,
+      },
+      parentEvents: switch (event) {
+        RebuildEvent() => event.causes.map((e) => e.id).toList(),
+        _ => null,
+      },
+      parentAction: switch (event) {
+        ActionDispatchedEvent() => switch (event.debugOriginRef) {
+            ReduxAction a => a.id,
+            _ => null,
+          },
+        MessageEvent() => switch (event.origin) {
+            ReduxAction a => a.id,
+            _ => null,
+          },
+        _ => null,
+      },
+      actionId: switch (event) {
+        ChangeEvent() => event.action?.id,
+        ActionDispatchedEvent() => event.action.id,
+        ActionFinishedEvent() => event.action.id,
+        ActionErrorEvent() => event.action.id,
+        _ => null,
+      },
+      actionLabel: switch (event) {
+        ChangeEvent() => event.action?.debugLabel,
+        ActionDispatchedEvent() => event.action.debugLabel,
+        _ => null,
+      },
+      actionResult: switch (event) {
+        ActionFinishedEvent() => event.result?.toString(),
+        _ => null,
+      },
+      actionLifecycle: actionLifecycle,
+      actionError: actionError,
+      actionErrorData: switch (event) {
+        ActionErrorEvent() when shouldParseError =>
+          parseError(event.error, errorParser),
+        _ => null,
+      },
+      actionStackTrace: actionStackTrace,
     );
   }
 }

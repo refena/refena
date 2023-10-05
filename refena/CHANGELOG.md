@@ -1,6 +1,7 @@
 ## 0.30.0
 
 - **BREAKING**: `RefenaScope` or `RefenaContainer` now have an `observers` parameter instead of `observer`, which is a list of observers instead of a single observer
+- fix: observers should not receive events if `init` is not called
 
 ## 0.29.0
 

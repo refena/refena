@@ -13,6 +13,7 @@ import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/tools/graph_input_model.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_flutter/src/element_rebuildable.dart';
+import 'package:refena_flutter/src/graph/live_button.dart';
 
 part 'graph_input_builder.dart';
 
@@ -149,7 +150,7 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
           if (_subscription != null)
             Padding(
               padding: const EdgeInsets.only(right: 10),
-              child: _LiveButton(
+              child: LiveButton(
                 live: !_livePaused,
                 onTap: () {
                   final oldPaused = _livePaused;
@@ -229,45 +230,6 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _LiveButton extends StatelessWidget {
-  final bool live;
-  final void Function() onTap;
-
-  const _LiveButton({
-    required this.live,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return TextButton(
-      style: TextButton.styleFrom(
-        foregroundColor:
-            live ? Colors.red : Theme.of(context).colorScheme.onSurface,
-      ),
-      onPressed: onTap,
-      child: Row(
-        children: [
-          if (live)
-            // red dot
-            Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                color: Colors.red,
-                shape: BoxShape.circle,
-              ),
-            )
-          else
-            const Icon(Icons.pause),
-          const SizedBox(width: 10),
-          Text(live ? 'Live' : 'Paused'),
-        ],
       ),
     );
   }

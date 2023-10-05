@@ -49,7 +49,6 @@ class RefenaContainer extends Ref implements LabeledReference {
         observer!.debugLabel,
         observer!,
       ));
-      observer!.init();
     }
 
     _overridesFuture = _initOverrides();
@@ -125,7 +124,7 @@ class RefenaContainer extends Ref implements LabeledReference {
     notifier.internalSetup(_withNotifierLabel(notifier), provider);
     _state[provider] = notifier;
 
-    observer?.handleEvent(
+    observer?.internalHandleEvent(
       ProviderInitEvent(
         provider: provider,
         notifier: notifier,
@@ -173,7 +172,7 @@ class RefenaContainer extends Ref implements LabeledReference {
       notifier.internalSetup(_withNotifierLabel(notifier), provider);
       _state[provider] = notifier;
 
-      observer?.handleEvent(
+      observer?.internalHandleEvent(
         ProviderInitEvent(
           provider: provider,
           notifier: notifier,
@@ -250,7 +249,7 @@ class RefenaContainer extends Ref implements LabeledReference {
       // Remove the state from the container
       _state.remove(provider);
 
-      observer?.handleEvent(
+      observer?.internalHandleEvent(
         ProviderDisposeEvent(
           provider: provider,
           notifier: notifier,
@@ -261,7 +260,7 @@ class RefenaContainer extends Ref implements LabeledReference {
 
   @override
   void message(String message) {
-    observer?.handleEvent(MessageEvent(message, this));
+    observer?.internalHandleEvent(MessageEvent(message, this));
   }
 
   @override
