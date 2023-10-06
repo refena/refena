@@ -272,7 +272,7 @@ void _optimizeGraph({
             (parents.length + children.length),
       };
 
-      final indexY = (avgY * 2).round();
+      final indexY = avgY.round();
 
       if (takenY[indexY]) {
         leftOver.add(i);
