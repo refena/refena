@@ -212,6 +212,12 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
     }
   }
 
+  if (maxWidth == 0) {
+    x -= layerSpacing;
+  } else {
+    x += maxWidth;
+  }
+
   // Optimize graph
   _optimizeGraph(
     nodes: positionedNodes,
@@ -221,7 +227,7 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
 
   return _Graph(
     nodes: positionedNodes,
-    width: x + constantWidth,
+    width: x,
     height: positionedNodes.isEmpty
         ? 0
         : positionedNodes

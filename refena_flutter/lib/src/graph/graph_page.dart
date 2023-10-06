@@ -119,25 +119,29 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
     _graph = _buildGraphFromNodes(inputNodes);
 
     if (resetZoom) {
-      // Widget constraints
-      final parentSize = _availableSize;
-
-      final graphWidth = _graph.width + _viewerPadding.horizontal;
-      final graphHeight = _graph.height + _viewerPadding.vertical;
-
-      final widthFactor = parentSize.width / graphWidth;
-      final heightFactor = parentSize.height / graphHeight;
-
-      _scale = min(widthFactor, heightFactor);
-
-      final w = ((graphWidth / 2) * _scale) - parentSize.width / 2;
-      final h = ((graphHeight / 2) * _scale) - parentSize.height / 2;
-
-      // Set the initial transform and center the canvas
-      final initialTransform =
-          Transform.translate(offset: Offset(-w, -h)).transform;
-      _controller.value = initialTransform.clone()..scale(_scale);
+      _rescaleGraph();
     }
+  }
+
+  void _rescaleGraph() {
+    // Widget constraints
+    final parentSize = _availableSize;
+
+    final graphWidth = _graph.width + _viewerPadding.horizontal;
+    final graphHeight = _graph.height + _viewerPadding.vertical;
+
+    final widthFactor = parentSize.width / graphWidth;
+    final heightFactor = parentSize.height / graphHeight;
+
+    _scale = min(widthFactor, heightFactor);
+
+    final w = ((graphWidth / 2) * _scale) - parentSize.width / 2;
+    final h = ((graphHeight / 2) * _scale) - parentSize.height / 2;
+
+    // Set the initial transform and center the canvas
+    final initialTransform =
+        Transform.translate(offset: Offset(-w, -h)).transform;
+    _controller.value = initialTransform.clone()..scale(_scale);
   }
 
   @override
@@ -198,6 +202,10 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
           _availableSize = constraints.biggest;
           if (!_initialized) {
             return Container();
+          }
+
+          if (!_customZoom) {
+            _rescaleGraph();
           }
 
           final screenSize = constraints.biggest;
