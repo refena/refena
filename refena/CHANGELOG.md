@@ -1,4 +1,10 @@
+## 0.31.0
+
+- fix(tracing): correctly assign the parent action of an action
+
 ## 0.30.0
+
+**Announcing refena_inspector:** a new package to visualize the dependency graph and events in real-time. See [refena_inspector](https://pub.dev/packages/refena_inspector) for more details.
 
 - **BREAKING**: `RefenaScope` or `RefenaContainer` now have an `observers` parameter instead of `observer`, which is a list of observers instead of a single observer
 - fix: observers should not receive events if `init` is not called

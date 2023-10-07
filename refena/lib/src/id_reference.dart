@@ -11,4 +11,7 @@ abstract mixin class IdReference {
 
   /// Returns true, if the other reference has the same id.
   bool compareIdentity(IdReference other) => id == other.id;
+
+  /// Resets the id to 0.
+  static void reset() => _idProvider.reset();
 }

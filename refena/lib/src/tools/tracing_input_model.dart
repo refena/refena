@@ -241,11 +241,11 @@ class InputEvent {
       },
       parentAction: switch (event) {
         ActionDispatchedEvent() => switch (event.debugOriginRef) {
-            ReduxAction a => a.id,
+            BaseReduxAction a => a.id,
             _ => null,
           },
         MessageEvent() => switch (event.origin) {
-            ReduxAction a => a.id,
+            BaseReduxAction a => a.id,
             _ => null,
           },
         _ => null,
