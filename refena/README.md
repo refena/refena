@@ -1225,6 +1225,11 @@ class MyObserver extends RefenaObserver {
       StackTrace stackTrace = event.stackTrace;
 
       ref.read(crashReporterProvider).report(error, stackTrace);
+
+      if (error is ConnectionException) {
+        // show snackbar
+        ref.dispatch(ShowSnackBarAction(message: 'No internet connection'));
+      }
     }
   }
 }
