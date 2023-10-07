@@ -21,22 +21,22 @@ part 'graph_node.dart';
 
 part 'graph_painter.dart';
 
-const _viewerPadding = EdgeInsets.only(
-  top: 160,
-  left: 100,
-  right: 100,
-  bottom: 100,
-);
-
 class RefenaGraphPage extends StatefulWidget {
   final String title;
   final bool showWidgets;
   final GraphInputBuilder inputGraphBuilder;
+  final EdgeInsets padding;
 
   const RefenaGraphPage({
     this.title = 'Refena Graph',
     this.showWidgets = false,
     this.inputGraphBuilder = const _StateGraphInputBuilder(),
+    this.padding = const EdgeInsets.only(
+      top: 160,
+      left: 100,
+      right: 100,
+      bottom: 100,
+    ),
     super.key,
   });
 
@@ -44,12 +44,16 @@ class RefenaGraphPage extends StatefulWidget {
   State<RefenaGraphPage> createState() => _RefenaGraphPageState();
 }
 
-class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
+class _RefenaGraphPageState extends State<RefenaGraphPage>
+    with SingleTickerProviderStateMixin, Refena {
   late _Graph _graph;
   bool _initialized = false;
 
   late bool _showWidgets = widget.showWidgets;
   final _controller = TransformationController();
+  late AnimationController _animationController;
+  late Animation<double> _headerAnimation;
+  late Animation<double> _zoomAnimation;
   late Size _availableSize;
   late double _scale;
 
@@ -80,11 +84,31 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
         });
       }
     });
+
+    _animationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    )..forward();
+    _headerAnimation = CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(0.7, 1),
+    );
+    _zoomAnimation = Tween<double>(
+      begin: min(widget.padding.horizontal, widget.padding.vertical),
+      end: 0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Interval(0, 0.8, curve: Curves.easeOutCubic),
+    ));
+    _animationController.addListener(() {
+      _rescaleGraph(animation: _zoomAnimation.value);
+    });
   }
 
   @override
   void dispose() {
     _subscription?.cancel();
+    _animationController.dispose();
     super.dispose();
   }
 
@@ -119,16 +143,20 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
     _graph = _buildGraphFromNodes(inputNodes);
 
     if (resetZoom) {
-      _rescaleGraph();
+      _rescaleGraph(animation: _zoomAnimation.value);
     }
   }
 
-  void _rescaleGraph() {
+  void _rescaleGraph({double animation = 0}) {
+    if (!_initialized) {
+      return;
+    }
+
     // Widget constraints
     final parentSize = _availableSize;
 
-    final graphWidth = _graph.width + _viewerPadding.horizontal;
-    final graphHeight = _graph.height + _viewerPadding.vertical;
+    final graphWidth = _graph.width + widget.padding.horizontal - animation;
+    final graphHeight = _graph.height + widget.padding.vertical - animation;
 
     final widthFactor = parentSize.width / graphWidth;
     final heightFactor = parentSize.height / graphHeight;
@@ -204,37 +232,51 @@ class _RefenaGraphPageState extends State<RefenaGraphPage> with Refena {
             return Container();
           }
 
-          if (!_customZoom) {
+          if (!_customZoom && !_animationController.isAnimating) {
             _rescaleGraph();
           }
 
           final screenSize = constraints.biggest;
           final inverseScale = 1 / _scale;
-          final width = (screenSize.width - 50) * inverseScale;
-          final height = (screenSize.height - 50) * inverseScale;
+          final virtualWidth = screenSize.width * inverseScale;
+          final virtualHeight = screenSize.height * inverseScale;
           return InteractiveViewer(
             constrained: false,
             transformationController: _controller,
             boundaryMargin: EdgeInsets.symmetric(
-              horizontal: width,
-              vertical: height,
+              horizontal: virtualWidth,
+              vertical: virtualHeight,
             ),
             // does not matter, adjust boundaryMargin
             minScale: 0.0001,
             maxScale: 2,
             onInteractionUpdate: (_) => _customZoom = true,
-            child: Padding(
-              padding: _viewerPadding,
-              child: SizedBox(
-                width: _graph.width,
-                height: _graph.height,
-                child: Center(
-                  child: CustomPaint(
-                    size: Size(width, height),
-                    painter: _GraphPainter(_graph, brightness),
+            child: AnimatedBuilder(
+              animation: _animationController,
+              builder: (context, _) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                    top: widget.padding.top - _zoomAnimation.value / 2,
+                    left: widget.padding.left - _zoomAnimation.value / 2,
+                    right: widget.padding.right - _zoomAnimation.value / 2,
+                    bottom: widget.padding.bottom - _zoomAnimation.value / 2,
                   ),
-                ),
-              ),
+                  child: SizedBox(
+                    width: _graph.width,
+                    height: _graph.height,
+                    child: Center(
+                      child: CustomPaint(
+                        size: Size(virtualWidth, virtualHeight),
+                        painter: _GraphPainter(
+                          graph: _graph,
+                          brightness: brightness,
+                          headerAnimation: _headerAnimation.value,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           );
         },

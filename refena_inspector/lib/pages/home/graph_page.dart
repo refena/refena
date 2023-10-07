@@ -17,6 +17,12 @@ class GraphPage extends StatelessWidget {
       title: 'Dependency Graph',
       showWidgets: true,
       inputGraphBuilder: _StateGraphInputBuilder(context.ref),
+      padding: const EdgeInsets.only(
+        top: 110,
+        left: 50,
+        right: 50,
+        bottom: 50,
+      ),
     );
   }
 }

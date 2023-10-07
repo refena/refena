@@ -51,10 +51,7 @@ class HomePage extends StatelessWidget {
               return NavigationRailDestination(
                 icon: switch (tab) {
                   HomeTab.tracing => Icon(Icons.list),
-                  HomeTab.graph => RotatedBox(
-                      quarterTurns: 2,
-                      child: Icon(Icons.share),
-                    ),
+                  HomeTab.graph => Icon(Icons.share),
                   HomeTab.actions => Icon(Icons.bolt),
                   HomeTab.settings => Icon(Icons.settings),
                 },

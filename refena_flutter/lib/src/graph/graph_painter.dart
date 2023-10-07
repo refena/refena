@@ -9,7 +9,16 @@ class _GraphPainter extends CustomPainter {
   /// The brightness of the app's overall theme.
   final Brightness _brightness;
 
-  _GraphPainter(this._graph, this._brightness);
+  /// The animation value of the header.
+  final double _headerAnimation;
+
+  _GraphPainter({
+    required _Graph graph,
+    required Brightness brightness,
+    required double headerAnimation,
+  })  : _graph = graph,
+        _brightness = brightness,
+        _headerAnimation = headerAnimation;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -22,19 +31,35 @@ class _GraphPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     );
 
+    // Number of layers of the services section
+    final serviceLayerCount = 1 +
+        _graph.nodes
+            .where((n) => n.section == _Section.services)
+            .map((n) => n.layer)
+            .reduce(max);
+
+    final serviceLabel =
+        serviceLayerCount == 1 ? 'Services' : 'Services & Controllers';
+    const viewModelsLabel = 'View Models';
+    const widgetsLabel = 'Widgets';
+
     _Section? section;
 
     for (final node in _graph.nodes) {
       // Draw section header
       if (section != node.section) {
         section = node.section;
+        final label = switch (section) {
+          _Section.services => serviceLabel,
+          _Section.viewModels => viewModelsLabel,
+          _Section.widgets => widgetsLabel,
+        };
         textPainter.text = TextSpan(
-          text: switch (section) {
-            _Section.services => 'Services',
-            _Section.viewModels => 'View Models',
-            _Section.widgets => 'Widgets',
-          },
-          style: const TextStyle(fontSize: 24, color: Colors.grey, height: 1),
+          text: label.substring(
+            0,
+            max(0, (_headerAnimation * label.length).ceil()),
+          ),
+          style: const TextStyle(fontSize: 24, color: Colors.grey, height: 1.2),
         );
         textPainter.layout();
 
@@ -42,7 +67,7 @@ class _GraphPainter extends CustomPainter {
           canvas,
           Offset(
             node.position.dx,
-            -50,
+            -textPainter.height - 20,
           ),
         );
       }
@@ -52,43 +77,43 @@ class _GraphPainter extends CustomPainter {
         final path = Path();
         path.moveTo(
           child.position.dx,
-          child.position.dy + child.labelHeight / 2 + verticalPadding,
+          child.position.dy + child.labelHeight / 2 + _verticalPadding,
         );
 
         final middleX = (child.position.dx +
                 node.position.dx +
-                typeCellWidth +
-                typeRightPadding +
+                _typeCellWidth +
+                _typeRightPadding +
                 node.labelWidth +
-                endPadding) /
+                _endPadding) /
             2;
 
         final controlPoint1 = Offset(
           middleX - (middleX - child.position.dx) / 3,
           // Adjust this to change the control point's horizontal position relative to the child
-          child.position.dy + child.labelHeight / 2 + verticalPadding,
+          child.position.dy + child.labelHeight / 2 + _verticalPadding,
         );
 
         final controlPoint2 = Offset(
           middleX +
               (node.position.dx +
-                      typeCellWidth +
-                      typeRightPadding +
+                      _typeCellWidth +
+                      _typeRightPadding +
                       node.labelWidth +
-                      endPadding -
+                      _endPadding -
                       middleX) /
                   3,
           // Adjust this to change the control point's horizontal position relative to the parent
-          node.position.dy + node.labelHeight / 2 + verticalPadding,
+          node.position.dy + node.labelHeight / 2 + _verticalPadding,
         );
 
         final endPoint = Offset(
           node.position.dx +
-              typeCellWidth +
-              typeRightPadding +
+              _typeCellWidth +
+              _typeRightPadding +
               node.labelWidth +
-              endPadding,
-          node.position.dy + node.labelHeight / 2 + verticalPadding,
+              _endPadding,
+          node.position.dy + node.labelHeight / 2 + _verticalPadding,
         );
 
         path.cubicTo(
@@ -112,14 +137,14 @@ class _GraphPainter extends CustomPainter {
         InputNodeType.widget => Colors.purple,
         InputNodeType.notifier => Colors.orange.shade700,
       };
-      final totalHeight = node.labelHeight + verticalPadding * 2;
+      final totalHeight = node.labelHeight + _verticalPadding * 2;
       paintNode.color = nodeColor;
       canvas.drawRRect(
         RRect.fromRectAndCorners(
           Rect.fromLTWH(
-            node.position.dx + typeCellWidth,
+            node.position.dx + _typeCellWidth,
             node.position.dy,
-            typeRightPadding + node.labelWidth + endPadding,
+            _typeRightPadding + node.labelWidth + _endPadding,
             totalHeight,
           ),
           topRight: const Radius.circular(10),
@@ -140,8 +165,8 @@ class _GraphPainter extends CustomPainter {
           Rect.fromLTWH(
             node.position.dx,
             node.position.dy,
-            typeCellWidth,
-            node.labelHeight + verticalPadding * 2,
+            _typeCellWidth,
+            node.labelHeight + _verticalPadding * 2,
           ),
           topLeft: const Radius.circular(10),
           bottomLeft: const Radius.circular(10),
@@ -171,7 +196,7 @@ class _GraphPainter extends CustomPainter {
         Offset(
           node.position.dx +
               leftPadding +
-              (typeCellWidth - textPainter.width - leftPadding) / 2,
+              (_typeCellWidth - textPainter.width - leftPadding) / 2,
           node.position.dy + (totalHeight - textPainter.height) / 2,
         ),
       );
@@ -184,7 +209,7 @@ class _GraphPainter extends CustomPainter {
       textPainter.paint(
         canvas,
         Offset(
-          node.position.dx + typeCellWidth + typeRightPadding,
+          node.position.dx + _typeCellWidth + _typeRightPadding,
           node.position.dy + (totalHeight - textPainter.height) / 2,
         ),
       );
@@ -192,5 +217,8 @@ class _GraphPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(_GraphPainter oldDelegate) {
+    return oldDelegate._graph != _graph ||
+        oldDelegate._headerAnimation != _headerAnimation;
+  }
 }

@@ -2,10 +2,12 @@ part of 'graph_page.dart';
 
 // ignore_for_file: invalid_use_of_internal_member
 
-const typeCellWidth = 25.0;
-const typeRightPadding = 5;
-const endPadding = 5;
-const verticalPadding = 5;
+const _typeCellWidth = 25.0;
+const _typeRightPadding = 5;
+const _endPadding = 5;
+const _verticalPadding = 5;
+const _layerSpacing = 100.0;
+const _nodeSpacing = 100.0;
 
 /// A node assigned to a layer in the graph.
 /// 0 is the leftmost layer (i.e. no parents).
@@ -101,8 +103,6 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
 
   final layeredServiceNodes = _buildLayers(services);
 
-  const layerSpacing = 100.0;
-  const nodeSpacing = 100.0;
   final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
   final positionedNodes = <_PositionedNode>[];
@@ -112,7 +112,7 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
   int y = 0;
   double maxWidth = 0; // the maximum width of the labels in the current layer
   const constantWidth =
-      typeCellWidth + typeRightPadding + endPadding + layerSpacing;
+      _typeCellWidth + _typeRightPadding + _endPadding + _layerSpacing;
   for (final service in layeredServiceNodes) {
     if (service.layer > layer) {
       layer = service.layer;
@@ -133,7 +133,7 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
       node: service.node,
       section: _Section.services,
       layer: layer,
-      position: Offset(x, y * nodeSpacing),
+      position: Offset(x, y * _nodeSpacing),
       indexY: y,
       labelWidth: textPainter.width,
       labelHeight: textPainter.height,
@@ -161,7 +161,7 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
       node: viewModel,
       section: _Section.viewModels,
       layer: layer,
-      position: Offset(x, y * nodeSpacing),
+      position: Offset(x, y * _nodeSpacing),
       indexY: y,
       labelWidth: textPainter.width,
       labelHeight: textPainter.height,
@@ -189,7 +189,7 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
       node: widget,
       section: _Section.widgets,
       layer: layer,
-      position: Offset(x, y * nodeSpacing),
+      position: Offset(x, y * _nodeSpacing),
       indexY: y,
       labelWidth: textPainter.width,
       labelHeight: textPainter.height,
@@ -213,16 +213,16 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
   }
 
   if (maxWidth == 0) {
-    x -= layerSpacing;
+    x -= _layerSpacing;
   } else {
-    x += maxWidth;
+    x += maxWidth + _typeCellWidth + _typeRightPadding + _endPadding;
   }
 
   // Optimize graph
   _optimizeGraph(
     nodes: positionedNodes,
     nodeCountPerLayer: nodeCountPerLayer,
-    nodeSpacing: nodeSpacing,
+    nodeSpacing: _nodeSpacing,
   );
 
   return _Graph(
@@ -235,7 +235,7 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
                     value.position.dy > element.position.dy ? value : element)
                 .position
                 .dy +
-            nodeSpacing,
+            _nodeSpacing,
   );
 }
 
