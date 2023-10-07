@@ -115,7 +115,10 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
 - [ensureRef](#ensureref)
 - [defaultRef](#defaultref)
 - [Observer](#observer)
-- [Tracing UI](#tracing-ui)
+- [Tools](#tools)
+  - [Event Tracing](#-event-tracing)
+  - [Dependency Graph](#-dependency-graph)
+  - [Inspector](#-inspector)
 - [Testing](#testing)
   - [Override providers](#-override-providers)
   - [Testing without Flutter](#-testing-without-flutter)
@@ -1227,7 +1230,9 @@ class MyObserver extends RefenaObserver {
 }
 ```
 
-## Tracing UI
+## Tools
+
+### ➤ Event Tracing
 
 Refena includes a ready-to-use UI to trace the state changes.
 
@@ -1276,6 +1281,42 @@ Side note:
 The `RefenaTracingObserver` itself is quite performant as events are added and removed with `O(1)` complexity.
 To build the tree, it uses `O(n^2)` complexity, where `n` is the number of events.
 That's why you see a loading indicator when you open the tracing UI.
+
+### ➤ Dependency Graph
+
+You can open the `RefenaGraphPage` to see the dependency graph. It requires no setup.
+
+```dart
+class MyPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const RefenaGraphPage(),
+              ),
+            );
+          },
+          child: const Text('Show graph'),
+        ),
+      ),
+    );
+  }
+}
+```
+
+Here is how it looks like:
+
+![graph-ui](https://raw.githubusercontent.com/refena/refena/main/resources/graph-ui.webp)
+
+### ➤ Inspector
+
+Both the `RefenaTracingPage` and the `RefenaGraphPage` are included in the [Refena Inspector](https://pub.dev/packages/refena_inspector).
+
+![inspector](https://raw.githubusercontent.com/refena/refena/main/resources/inspector-screenshot.webp)
 
 ## Testing
 
