@@ -1,5 +1,6 @@
 ## 0.31.0
 
+- feat(graph): add animation
 - fix(tracing): correctly assign the parent action of an action
 - **BREAKING**: `defaultNotifyStrategy` is now `NotifyStrategy.equality` instead of `NotifyStrategy.identity`
 
