@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
-import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/observer/event.dart';
+import 'package:refena/src/reference.dart';
 
 /// Something that can be rebuilt.
 @internal

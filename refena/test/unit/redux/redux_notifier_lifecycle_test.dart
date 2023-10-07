@@ -1,7 +1,7 @@
 import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
-import '../util/skip_microtasks.dart';
+import '../../util/skip_microtasks.dart';
 
 void main() {
   test('Should initialize with initial state', () {

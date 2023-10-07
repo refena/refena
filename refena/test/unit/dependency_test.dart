@@ -1,7 +1,7 @@
 import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
-import 'util/skip_microtasks.dart';
+import '../util/skip_microtasks.dart';
 
 /// This file tests if the dependency tree is built correctly.
 void main() {

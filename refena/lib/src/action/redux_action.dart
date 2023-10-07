@@ -6,8 +6,6 @@ import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/action/global_action_dispatcher.dart';
 import 'package:refena/src/container.dart';
-import 'package:refena/src/id_reference.dart';
-import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/types/redux_notifier.dart';
 import 'package:refena/src/observer/event.dart';
@@ -15,6 +13,7 @@ import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
+import 'package:refena/src/reference.dart';
 
 part 'global_action.dart';
 

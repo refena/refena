@@ -1,11 +1,10 @@
 import 'package:collection/collection.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/container.dart';
-import 'package:refena/src/id_reference.dart';
-import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
 import 'package:refena/src/provider/base_provider.dart';
+import 'package:refena/src/reference.dart';
 import 'package:refena/src/util/time_provider.dart';
 
 const _eq = IterableEquality();

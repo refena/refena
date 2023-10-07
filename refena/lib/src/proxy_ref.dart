@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/container.dart';
-import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/types/async_notifier.dart';
@@ -10,6 +9,7 @@ import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
 import 'package:refena/src/ref.dart';
+import 'package:refena/src/reference.dart';
 
 /// A ref that proxies all calls to another [Ref].
 /// Used to have a custom [debugOwnerLabel] for [Ref.redux].

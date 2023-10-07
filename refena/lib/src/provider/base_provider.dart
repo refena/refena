@@ -1,11 +1,11 @@
 import 'package:meta/meta.dart';
-import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/provider/types/change_notifier_provider.dart';
 import 'package:refena/src/provider/types/future_family_provider.dart';
 import 'package:refena/src/provider/watchable.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
+import 'package:refena/src/reference.dart';
 
 /// A "provider" instructs Refena how to create a state.
 /// A "provider" is stateless.

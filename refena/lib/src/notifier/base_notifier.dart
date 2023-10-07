@@ -4,7 +4,6 @@ import 'package:meta/meta.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/async_value.dart';
 import 'package:refena/src/container.dart';
-import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/listener.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
@@ -15,6 +14,7 @@ import 'package:refena/src/provider/override.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
+import 'package:refena/src/reference.dart';
 import 'package:refena/src/util/batched_stream_controller.dart';
 import 'package:refena/src/util/stacktrace.dart';
 

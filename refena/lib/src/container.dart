@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/action/redux_action.dart';
-import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/types/async_notifier.dart';
@@ -16,6 +15,7 @@ import 'package:refena/src/provider/types/notifier_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
+import 'package:refena/src/reference.dart';
 
 /// The [RefenaContainer] holds the state of all providers.
 /// Every provider state is initialized lazily and only once.

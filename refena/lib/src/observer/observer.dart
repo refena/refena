@@ -1,11 +1,11 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/action/redux_action.dart';
-import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
+import 'package:refena/src/reference.dart';
 
 /// The observer receives every [RefenaEvent].
 /// It is up to the implementation of how to use it.

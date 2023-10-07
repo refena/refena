@@ -3,8 +3,8 @@
 import 'dart:async';
 
 import 'package:refena/src/action/redux_action.dart';
-import 'package:refena/src/labeled_reference.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
+import 'package:refena/src/reference.dart';
 
 /// A proxy class to provide a custom [debugOrigin] for [dispatch].
 ///
