@@ -4,6 +4,52 @@ import 'package:test/test.dart';
 import 'util/skip_microtasks.dart';
 
 void main() {
+  group('defaultNotifyStrategy', () {
+    test('Should rebuild on identity change', () async {
+      final stateProvider = StateProvider((ref) => _DummyClass(0));
+      final observer = RefenaHistoryObserver.all();
+      final ref = RefenaContainer(
+        observers: [observer],
+        defaultNotifyStrategy: NotifyStrategy.identity,
+      );
+
+      ref.read(stateProvider);
+      ref.notifier(stateProvider).setState((old) => _DummyClass(0));
+
+      await skipAllMicrotasks();
+      expect(observer.history, [
+        isA<ProviderInitEvent>(),
+        isA<ChangeEvent>(),
+      ]);
+    });
+
+    test('Should rebuild on equality change', () async {
+      final stateProvider = StateProvider((ref) => _DummyClass(0));
+      final observer = RefenaHistoryObserver.all();
+      final ref = RefenaContainer(
+        observers: [observer],
+        defaultNotifyStrategy: NotifyStrategy.equality,
+      );
+
+      ref.read(stateProvider);
+
+      ref.notifier(stateProvider).setState((old) => _DummyClass(0));
+
+      await skipAllMicrotasks();
+      expect(observer.history, [
+        isA<ProviderInitEvent>(),
+      ]);
+
+      ref.notifier(stateProvider).setState((old) => _DummyClass(1));
+
+      await skipAllMicrotasks();
+      expect(observer.history, [
+        isA<ProviderInitEvent>(),
+        isA<ChangeEvent>(),
+      ]);
+    });
+  });
+
   group('read', () {
     late RefenaHistoryObserver observer;
 
@@ -189,6 +235,22 @@ void main() {
       expect(event.origin, ref);
     });
   });
+}
+
+class _DummyClass {
+  final int value;
+
+  _DummyClass(this.value);
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is _DummyClass && other.value == value;
+  }
+
+  @override
+  int get hashCode => value.hashCode;
 }
 
 class _DisposableNotifier extends Notifier<int> {

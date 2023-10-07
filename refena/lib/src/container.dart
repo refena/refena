@@ -37,7 +37,7 @@ class RefenaContainer extends Ref implements LabeledReference {
   RefenaContainer({
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
-    this.defaultNotifyStrategy = NotifyStrategy.identity,
+    this.defaultNotifyStrategy = NotifyStrategy.equality,
     List<RefenaObserver> observers = const [],
   })  : _overrides = _overridesToMap(overrides),
         _overridesList = overrides,

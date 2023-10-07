@@ -23,12 +23,12 @@ import 'package:refena/src/util/stacktrace.dart';
 /// to implement a custom behaviour.
 enum NotifyStrategy {
   /// Notify and rebuild whenever we have a new instance.
-  /// This is the default behaviour to avoid comparing deeply
-  /// nested objects.
+  /// Use this to avoid comparing deeply nested objects.
   identity,
 
   /// Notify and rebuild whenever the state in terms of equality (==) changes.
   /// This may result in less rebuilds.
+  /// This is used as default.
   equality,
 }
 
@@ -126,7 +126,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
   /// Override this if you want to a different kind of equality.
   @protected
   bool updateShouldNotify(T prev, T next) {
-    switch (_notifyStrategy ?? NotifyStrategy.identity) {
+    switch (_notifyStrategy ?? NotifyStrategy.equality) {
       case NotifyStrategy.identity:
         return !identical(prev, next);
       case NotifyStrategy.equality:

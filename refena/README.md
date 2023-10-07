@@ -1088,17 +1088,16 @@ build(BuildContext context) {
 
 A more global approach than `select` is to set a `defaultNotifyStrategy`.
 
-By default, `NotifyStrategy.identity` is used.
-This means that the rebuild is triggered whenever a new instance is assigned.
-This avoids comparing deeply nested objects.
+By default, `NotifyStrategy.equality` is used to reduce rebuilds.
 
-If you think that your `==` overrides are fast enough, you can use `NotifyStrategy.equality` instead.
+You can change it to `NotifyStrategy.identity` to use `identical` instead of `==`.
+This avoids comparing deeply nested objects.
 
 ```dart
 void main() {
   runApp(
     RefenaScope(
-      defaultNotifyStrategy: NotifyStrategy.equality,
+      defaultNotifyStrategy: NotifyStrategy.identity,
       child: const MyApp(),
     ),
   );

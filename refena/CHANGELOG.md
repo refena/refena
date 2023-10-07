@@ -1,6 +1,7 @@
 ## 0.31.0
 
 - fix(tracing): correctly assign the parent action of an action
+- **BREAKING**: `defaultNotifyStrategy` is now `NotifyStrategy.equality` instead of `NotifyStrategy.identity`
 
 ## 0.30.0
 

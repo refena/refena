@@ -129,13 +129,6 @@ void main() {
         notifier: notifier,
         action: null,
         prev: AsyncValue<int>.loading(),
-        next: AsyncValue<int>.loading(),
-        rebuild: [],
-      ),
-      ChangeEvent(
-        notifier: notifier,
-        action: null,
-        prev: AsyncValue<int>.loading(),
         next: AsyncValue.withData(12),
         rebuild: [],
       ),
