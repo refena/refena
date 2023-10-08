@@ -66,6 +66,7 @@ void main() {
         if (kDebugMode) ...[
           RefenaInspectorObserver(),
           RefenaDebugObserver(),
+          RefenaTracingObserver(),
         ],
       ],
       child: const MyApp(),

@@ -6,34 +6,30 @@ import 'package:path/path.dart' as p;
 import 'package:refena_inspector/util/logger.dart';
 
 final _logger = Logger('RefenaInspectorBoot');
-const _compilePath = '.refena_inspector/compile';
-const _appPath = '.refena_inspector/app';
+const _inspectorPath = '.refena_inspector';
+const _compilePath = 'compile';
+const _appPath = 'app';
+
+enum _Platform {
+  windows,
+  macos,
+  linux,
+}
 
 void main() async {
   initLogger();
 
+  final platform = Platform.isWindows
+      ? _Platform.windows
+      : Platform.isMacOS
+          ? _Platform.macos
+          : _Platform.linux;
+
   // Run compiled app if exists
-  if (Directory(_appPath).existsSync()) {
+  if (Directory('$_inspectorPath${Platform.pathSeparator}$_appPath')
+      .existsSync()) {
     _logger.info('Detected compiled app. Running...');
-    if (Platform.isWindows) {
-      Process.runSync(
-        '$_appPath\\refena_inspector.exe',
-        [],
-        runInShell: true,
-      );
-    } else if (Platform.isMacOS) {
-      Process.runSync(
-        'open',
-        ['$_appPath/refena_inspector.app'],
-        runInShell: true,
-      );
-    } else {
-      Process.runSync(
-        '$_appPath/refena_inspector',
-        [],
-        runInShell: true,
-      );
-    }
+    await _runApp(platform);
     return;
   }
 
@@ -67,29 +63,48 @@ void main() async {
   if (Platform.isWindows) {
     Process.runSync(
       'mkdir',
-      [_compilePath],
+      ['$_inspectorPath\\$_compilePath'],
       runInShell: true,
     );
   } else {
     Process.runSync(
       'mkdir',
-      ['-p', _compilePath],
+      ['-p', '$_inspectorPath/$_compilePath'],
       runInShell: true,
     );
   }
 
-  if (Platform.isWindows) {
-    Process.runSync(
-      'xcopy',
-      ['/e', '/k', '/h', '/i', refenaPath, _compilePath],
-      runInShell: true,
-    );
-  } else {
-    Process.runSync(
-      'cp',
-      ['-R', '$refenaPath/', _compilePath],
-      runInShell: true,
-    );
+  switch (platform) {
+    case _Platform.windows:
+      Process.runSync(
+        'xcopy',
+        [
+          '/e',
+          '/k',
+          '/h',
+          '/i',
+          '/y',
+          refenaPath,
+          '$_inspectorPath\\$_compilePath',
+        ],
+        runInShell: true,
+      );
+      break;
+    case _Platform.macos:
+      Process.runSync(
+        'cp',
+        ['-R', '$refenaPath/', '$_inspectorPath/$_compilePath'],
+        runInShell: true,
+      );
+      break;
+    case _Platform.linux:
+      print('Running cp -R $refenaPath/* $_inspectorPath/$_compilePath');
+      Process.runSync(
+        'cp',
+        ['-R', '$refenaPath/.', '$_inspectorPath/$_compilePath'],
+        runInShell: true,
+      );
+      break;
   }
 
   // e.g. C:\Users\MyUser\fvm\versions\3.7.12\bin\cache\dart-sdk\bin\dart.exe
@@ -113,62 +128,70 @@ void main() async {
     flutterPath,
     ['build', device],
     mode: ProcessStartMode.inheritStdio,
-    workingDirectory: _compilePath,
+    workingDirectory: '$_inspectorPath${Platform.pathSeparator}$_compilePath',
     runInShell: true,
   );
   await process.exitCode;
 
   // Create app path
-  _logger.info('Creating app in $_appPath');
+  _logger.info('Creating app folder in $_inspectorPath/$_appPath');
   if (Platform.isWindows) {
     Process.runSync(
       'mkdir',
-      [_appPath],
+      ['$_inspectorPath\\$_appPath'],
       runInShell: true,
     );
   } else {
     Process.runSync(
       'mkdir',
-      ['-p', _appPath],
+      ['-p', '$_inspectorPath/$_appPath'],
       runInShell: true,
     );
   }
 
   // Copy to app path
-  _logger.info('Copying app to $_appPath');
-  if (Platform.isWindows) {
-    Process.runSync(
-      'xcopy',
-      [
-        '/e',
-        '/k',
-        '/h',
-        '/i',
-        '$_compilePath\\build\\$device\\runner\\Release',
-        _appPath,
-      ],
-      runInShell: true,
-    );
-  } else if (Platform.isMacOS) {
-    Process.runSync(
-      'cp',
-      [
-        '-R',
-        '$_compilePath/build/macos/Build/Products/Release/refena_inspector.app',
-        _appPath,
-      ],
-      runInShell: true,
-    );
-  } else {
-    Process.runSync(
-      'cp',
-      [
-        '-R',
-        '$_compilePath/build/$device/release/bundle/libexec/refena_inspector',
-        _appPath,
-      ],
-      runInShell: true,
-    );
+  _logger.info('Copying to $_appPath');
+  switch (platform) {
+    case _Platform.windows:
+      Process.runSync(
+        'xcopy',
+        [
+          '/e',
+          '/k',
+          '/h',
+          '/i',
+          '/y',
+          '$_compilePath\\build\\$device\\runner\\Release',
+          _appPath,
+        ],
+        workingDirectory: _inspectorPath,
+        runInShell: true,
+      );
+      break;
+    case _Platform.macos:
+      Process.runSync(
+        'cp',
+        [
+          '-R',
+          '$_compilePath/build/macos/Build/Products/Release/refena_inspector.app',
+          _appPath,
+        ],
+        workingDirectory: _inspectorPath,
+        runInShell: true,
+      );
+      break;
+    case _Platform.linux:
+      Process.runSync(
+        'cp',
+        [
+          '-R',
+          '$_compilePath/build/linux/x64/release/bundle/.',
+          _appPath,
+        ],
+        workingDirectory: _inspectorPath,
+        runInShell: true,
+      );
+      break;
   }
 
   // Remove compile path
@@ -177,35 +200,48 @@ void main() async {
     Process.runSync(
       'rmdir',
       ['/s', '/q', _compilePath],
+      workingDirectory: _inspectorPath,
       runInShell: true,
     );
   } else {
     Process.runSync(
       'rm',
       ['-rf', _compilePath],
+      workingDirectory: _inspectorPath,
       runInShell: true,
     );
   }
 
   // Run
   _logger.info('Running app');
-  if (Platform.isWindows) {
-    Process.runSync(
-      '$_appPath\\refena_inspector.exe',
-      [],
-      runInShell: true,
-    );
-  } else if (Platform.isMacOS) {
-    Process.runSync(
-      'open',
-      ['$_appPath/refena_inspector.app'],
-      runInShell: true,
-    );
-  } else {
-    Process.runSync(
-      '$_appPath/refena_inspector',
-      [],
-      runInShell: true,
-    );
+  await _runApp(platform);
+}
+
+Future<void> _runApp(_Platform platform) async {
+  switch (platform) {
+    case _Platform.windows:
+      await Process.start(
+        '$_inspectorPath\\$_appPath\\refena_inspector.exe',
+        [],
+        mode: ProcessStartMode.inheritStdio,
+        runInShell: true,
+      );
+      break;
+    case _Platform.macos:
+      await Process.start(
+        'open',
+        ['$_inspectorPath/$_appPath/refena_inspector.app'],
+        mode: ProcessStartMode.inheritStdio,
+        runInShell: true,
+      );
+      break;
+    case _Platform.linux:
+      await Process.start(
+        '$_inspectorPath/$_appPath/refena_inspector',
+        [],
+        mode: ProcessStartMode.inheritStdio,
+        runInShell: true,
+      );
+      break;
   }
 }
