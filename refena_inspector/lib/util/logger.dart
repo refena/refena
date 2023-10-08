@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
 
+/// Initializes the logger.
 void initLogger() {
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print

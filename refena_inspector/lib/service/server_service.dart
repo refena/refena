@@ -17,6 +17,7 @@ import 'package:web_socket_channel/web_socket_channel.dart';
 
 final _logger = Logger('InspectorServer');
 
+/// The state of the server.
 class ServerState {
   final bool running;
   final bool clientConnected;
@@ -92,6 +93,7 @@ class StartServerAction extends AsyncReduxAction<InspectorServer, ServerState> {
   }
 }
 
+/// Sets the [sink] of the server.
 class _SetSinkAction extends ReduxAction<InspectorServer, ServerState> {
   final WebSocketSink sink;
 
@@ -121,6 +123,8 @@ class _ClientConnectedAction extends ReduxAction<InspectorServer, ServerState> {
   }
 }
 
+/// Marks the client as disconnected.
+/// Also clears the list of events.
 class _ClientDisconnectedAction
     extends ReduxAction<InspectorServer, ServerState> {
   @override

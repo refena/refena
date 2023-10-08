@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
+/// The state of the settings.
 class SettingsState {
   final ThemeMode themeMode;
 

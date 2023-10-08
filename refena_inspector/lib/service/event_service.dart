@@ -4,6 +4,8 @@
 import 'package:refena/src/tools/tracing_input_model.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
+/// The state of the event tracing.
+/// [hasTracing] is true if tracing is enabled.
 class EventState {
   final List<InputEvent> events;
   final bool hasTracing;

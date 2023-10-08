@@ -13,6 +13,7 @@ class ActionEntry {
   });
 }
 
+/// The state of the actions.
 class ActionState {
   /// A nested map of [ActionEntry]s.
   final Map<String, dynamic> actions;
@@ -35,6 +36,8 @@ class ActionService extends ReduxNotifier<ActionState> {
   ActionState init() => ActionState(actions: {});
 }
 
+/// Initializes the [actions].
+/// [actions] is a nested map of [ActionEntry]s as JSON.
 class SetActionsAction extends ReduxAction<ActionService, ActionState> {
   final Map<String, dynamic> actions;
 

@@ -6,6 +6,7 @@ import 'package:refena_flutter/refena_flutter.dart';
 // ignore: implementation_imports
 import 'package:refena_inspector_client/src/protocol.dart';
 
+/// The state of the graph.
 class GraphState {
   final List<InputNode> nodes;
 
@@ -36,6 +37,7 @@ class GraphService extends ReduxNotifier<GraphState> {
   GraphState init() => GraphState(nodes: []);
 }
 
+/// Sets the [nodes] of the graph.
 class SetGraphAction extends ReduxAction<GraphService, GraphState> {
   final List<dynamic> nodes;
 
