@@ -212,6 +212,93 @@ void main() {
         ],
       );
     });
+
+    test('Should dispose dependent providers', () async {
+      final ref = RefenaContainer(observers: [observer]);
+      final stateProvider = StateProvider((ref) => 10);
+      final c1Provider = ViewProvider((ref) {
+        return ref.watch(stateProvider);
+      });
+      final c2Provider = ViewProvider((ref) {
+        return ref.watch(stateProvider);
+      });
+      final c3Provider = ViewProvider((ref) {
+        return ref.watch(c1Provider) + ref.watch(c2Provider);
+      });
+      final c4Provider = ViewProvider((ref) {
+        return ref.watch(c3Provider);
+      });
+
+      expect(ref.read(stateProvider), 10);
+      expect(ref.read(c1Provider), 10);
+      expect(ref.read(c2Provider), 10);
+      expect(ref.read(c3Provider), 20);
+      expect(ref.read(c4Provider), 20);
+
+      ref.notifier(stateProvider).setState((old) => old + 1);
+      await skipAllMicrotasks();
+
+      expect(ref.read(stateProvider), 11);
+      expect(ref.read(c1Provider), 11);
+      expect(ref.read(c2Provider), 11);
+      expect(ref.read(c3Provider), 22);
+      expect(ref.read(c4Provider), 22);
+
+      ref.dispose(stateProvider);
+
+      expect(
+        observer.history,
+        [
+          isA<ProviderInitEvent>(),
+          isA<ProviderInitEvent>(),
+          isA<ProviderInitEvent>(),
+          isA<ProviderInitEvent>(),
+          isA<ProviderInitEvent>(),
+          isA<ProviderDisposeEvent>(),
+          isA<ProviderDisposeEvent>(),
+          isA<ProviderDisposeEvent>(),
+          isA<ProviderDisposeEvent>(),
+          isA<ProviderDisposeEvent>(),
+        ],
+      );
+      expect(
+        (observer.history[5] as ProviderDisposeEvent).provider,
+        stateProvider,
+      );
+      expect(
+        (observer.history[6] as ProviderDisposeEvent).provider,
+        c1Provider,
+      );
+      expect(
+        (observer.history[7] as ProviderDisposeEvent).provider,
+        c2Provider,
+      );
+      expect(
+        (observer.history[8] as ProviderDisposeEvent).provider,
+        c3Provider,
+      );
+      expect(
+        (observer.history[9] as ProviderDisposeEvent).provider,
+        c4Provider,
+      );
+      expect((observer.history[5] as ProviderDisposeEvent).debugOrigin, ref);
+      expect(
+        (observer.history[6] as ProviderDisposeEvent).debugOrigin,
+        observer.history[5],
+      );
+      expect(
+        (observer.history[7] as ProviderDisposeEvent).debugOrigin,
+        observer.history[5],
+      );
+      expect(
+        (observer.history[8] as ProviderDisposeEvent).debugOrigin,
+        observer.history[6],
+      );
+      expect(
+        (observer.history[9] as ProviderDisposeEvent).debugOrigin,
+        observer.history[8],
+      );
+    });
   });
 
   group('emitMessage', () {
