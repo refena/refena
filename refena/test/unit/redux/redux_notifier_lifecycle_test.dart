@@ -140,6 +140,7 @@ void main() {
         rebuild: [],
       ),
       ProviderDisposeEvent(
+        debugOrigin: container,
         provider: provider,
         notifier: notifier,
       ),

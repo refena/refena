@@ -266,6 +266,5 @@ class _DisposableNotifier extends Notifier<int> {
   @override
   void dispose() {
     onDispose?.call();
-    super.dispose();
   }
 }

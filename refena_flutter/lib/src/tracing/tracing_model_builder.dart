@@ -28,13 +28,11 @@ List<_TracingEntry> _buildEntries(
         result.add(created);
         break;
       case InputEventType.rebuild:
-        for (int i = 0; i < e.parentEvents!.length; i++) {
-          final causes = e.parentEvents!;
-          final existing = <_TracingEntry>[];
-          _findEvent(result, causes[i], existing);
-
-          final superseded = i != causes.length - 1;
-          for (final entry in existing) {
+        final causes = e.parentEvents!;
+        for (int i = 0; i < causes.length; i++) {
+          final existing = _findEvent(result, causes[i]);
+          if (existing != null) {
+            final superseded = i != causes.length - 1;
             final created = _TracingEntry(
               e,
               [],
@@ -45,7 +43,7 @@ List<_TracingEntry> _buildEntries(
               _addWidgetEntries(created, e.rebuildWidgets!);
             }
 
-            entry.children.add(created);
+            existing.children.add(created);
           }
         }
         break;
@@ -89,6 +87,15 @@ List<_TracingEntry> _buildEntries(
         result.add(_TracingEntry(e, []));
         break;
       case InputEventType.dispose:
+        final parentEvent = e.parentEvents?.firstOrNull;
+        if (parentEvent != null) {
+          final existing = _findEvent(result, parentEvent);
+
+          if (existing != null) {
+            existing.children.add(_TracingEntry(e, []));
+            break;
+          }
+        }
         result.add(_TracingEntry(e, []));
         break;
       case InputEventType.message:
@@ -123,21 +130,23 @@ _TracingEntry? _findEventWithAction(List<_TracingEntry> result, int actionId) {
   return null;
 }
 
-/// Recursively find the event in the result list
-/// and add it to the [found] list.
-/// The first item in the list is the newest event.
-void _findEvent(
+/// Recursively find the event in the result list.
+_TracingEntry? _findEvent(
   List<_TracingEntry> result,
   int eventId,
-  List<_TracingEntry> found,
 ) {
   for (final entry in result.reversed) {
-    _findEvent(entry.children, eventId, found);
-
     if (entry.event.id == eventId) {
-      found.add(entry);
+      return entry;
+    }
+
+    final found = _findEvent(entry.children, eventId);
+    if (found != null) {
+      return found;
     }
   }
+
+  return null;
 }
 
 void _addWidgetEntries(_TracingEntry entry, List<String> rebuildableList) {

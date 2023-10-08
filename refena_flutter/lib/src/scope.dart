@@ -130,6 +130,14 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
   RefenaContainer get container => _container;
 
   @override
+  void internalDispose<N extends BaseNotifier<T>, T>(
+    BaseProvider<N, T> provider,
+    LabeledReference debugOrigin,
+  ) {
+    _container.internalDispose(provider, debugOrigin);
+  }
+
+  @override
   List<BaseNotifier> getActiveNotifiers() => _container.getActiveNotifiers();
 
   @override

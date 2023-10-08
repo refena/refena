@@ -182,6 +182,7 @@ class InputEvent {
         MessageEvent() => event.message,
       },
       debugOrigin: switch (event) {
+        ProviderDisposeEvent() => event.debugOrigin.debugLabel,
         ActionDispatchedEvent() => event.debugOrigin,
         MessageEvent() => event.origin.debugLabel,
         _ => null,
@@ -221,6 +222,10 @@ class InputEvent {
             'Reason': event.cause.name.toUpperCase(),
           },
         ProviderDisposeEvent() => {
+            'Origin': switch (event.debugOrigin) {
+              ProviderDisposeEvent e => e.provider.debugLabel,
+              _ => event.debugOrigin.debugLabel,
+            },
             'Provider': event.provider.toString(),
           },
         MessageEvent() => {
@@ -237,6 +242,10 @@ class InputEvent {
       },
       parentEvents: switch (event) {
         RebuildEvent() => event.causes.map((e) => e.id).toList(),
+        ProviderDisposeEvent() => switch (event.debugOrigin) {
+            ProviderDisposeEvent e => [e.id],
+            _ => null,
+          },
         _ => null,
       },
       parentAction: switch (event) {

@@ -137,7 +137,7 @@ class WatchableRef extends Ref {
 
   @override
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    _ref.dispose<N, T>(provider);
+    _ref.internalDispose<N, T>(provider, _rebuildable);
   }
 
   @override

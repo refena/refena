@@ -192,6 +192,11 @@ class ProviderInitEvent extends RefenaEvent {
 /// This does not happen automatically but only when
 /// ref.dispose(provider) is called.
 class ProviderDisposeEvent extends RefenaEvent {
+  /// The reference to the origin.
+  /// This may be the notifier, the action, the rebuildable, or another
+  /// [ProviderDisposeEvent].
+  final LabeledReference debugOrigin;
+
   /// The provider that has been disposed.
   final BaseProvider provider;
 
@@ -199,6 +204,7 @@ class ProviderDisposeEvent extends RefenaEvent {
   final BaseNotifier notifier;
 
   ProviderDisposeEvent({
+    required this.debugOrigin,
     required this.provider,
     required this.notifier,
   });
@@ -207,6 +213,7 @@ class ProviderDisposeEvent extends RefenaEvent {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ProviderDisposeEvent &&
+          debugOrigin == other.debugOrigin &&
           provider == other.provider &&
           notifier == other.notifier;
 

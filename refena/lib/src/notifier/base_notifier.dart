@@ -108,20 +108,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
   /// This is called on [Ref.dispose].
   /// You can override this method to dispose resources.
   @protected
-  @mustCallSuper
-  void dispose() {
-    _listeners.dispose();
-
-    // Dispose dependents
-    for (final dependent in [...dependents]) {
-      _container?.dispose(dependent._provider!);
-    }
-
-    // Remove from dependency graph
-    for (final dependency in dependencies) {
-      dependency.dependents.remove(this);
-    }
-  }
+  void dispose() {}
 
   /// Override this if you want to a different kind of equality.
   @protected
@@ -153,6 +140,23 @@ abstract class BaseNotifier<T> implements LabeledReference {
     _notifyStrategy = ref.container.defaultNotifyStrategy;
     _provider = provider;
     _observer = ref.container.observer;
+  }
+
+  /// Disposes the notifier.
+  /// Returns a list of dependents that should be disposed as well.
+  @internal
+  @nonVirtual
+  Set<BaseNotifier> internalDispose() {
+    dispose();
+
+    _listeners.dispose();
+
+    // Remove from dependency graph
+    for (final dependency in dependencies) {
+      dependency.dependents.remove(this);
+    }
+
+    return dependents;
   }
 
   @internal

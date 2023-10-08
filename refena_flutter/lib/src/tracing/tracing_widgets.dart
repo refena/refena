@@ -132,16 +132,16 @@ class _EntryTileState extends State<_EntryTile>
                                   ),
                               },
                             ),
+                          if (e.debugOrigin != null && widget.depth == 0)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: _EntryBadge(
+                                label: 'from: ${e.debugOrigin}',
+                                color: _headerColor[e.type.internalType]!,
+                              ),
+                            ),
                           ...switch (e.type) {
                             InputEventType.actionDispatched => [
-                                if (widget.depth == 0)
-                                  Padding(
-                                    padding: const EdgeInsets.only(left: 8),
-                                    child: _EntryBadge(
-                                      label: 'from: ${e.debugOrigin}',
-                                      color: _headerColor[e.type.internalType]!,
-                                    ),
-                                  ),
                                 if (widget.entry.result != null)
                                   Padding(
                                     padding: const EdgeInsets.only(left: 8),
@@ -163,15 +163,6 @@ class _EntryTileState extends State<_EntryTile>
                                       ),
                                     ),
                                   ),
-                              ],
-                            InputEventType.message when widget.depth == 0 => [
-                                const SizedBox(width: 8),
-                                _EntryBadge(
-                                  label:
-                                      'from: ${widget.entry.event.debugOrigin}',
-                                  color: _headerColor[
-                                      widget.entry.event.type.internalType]!,
-                                ),
                               ],
                             _ => [],
                           },

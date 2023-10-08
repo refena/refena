@@ -166,6 +166,5 @@ class _DisposableCounter extends Notifier<int> {
   @override
   void dispose() {
     onDispose();
-    super.dispose();
   }
 }

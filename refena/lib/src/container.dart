@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:collection';
 
+import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
@@ -239,23 +241,10 @@ class RefenaContainer extends Ref implements LabeledReference {
   }
 
   @override
-  void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    final notifier = _state[provider];
-    if (notifier != null) {
-      // Call dispose on the notifier
-      // The state is not removed YET.
-      notifier.dispose(); // ignore: invalid_use_of_protected_member
-
-      // Remove the state from the container
-      _state.remove(provider);
-
-      observer?.internalHandleEvent(
-        ProviderDisposeEvent(
-          provider: provider,
-          notifier: notifier,
-        ),
-      );
-    }
+  void dispose<N extends BaseNotifier<T>, T>(
+    BaseProvider<N, T> provider,
+  ) {
+    internalDispose(provider, this);
   }
 
   @override
@@ -265,6 +254,57 @@ class RefenaContainer extends Ref implements LabeledReference {
 
   @override
   RefenaContainer get container => this;
+
+  @internal
+  void internalDispose<N extends BaseNotifier<T>, T>(
+    BaseProvider<N, T> provider,
+    LabeledReference debugOrigin,
+  ) {
+    final notifier = _state[provider];
+    if (notifier == null) {
+      return;
+    }
+
+    final queue = Queue<BaseNotifier>();
+    final originMap = <BaseNotifier, ProviderDisposeEvent?>{};
+    final observer = this.observer;
+    queue.add(notifier);
+    do {
+      // Call dispose on the notifier
+      // The state is not removed YET.
+      final current = queue.removeFirst();
+
+      final dependents = current.internalDispose();
+
+      // Remove the state from the container
+      // The state is removed AFTER the remove call.
+      final provider = current.provider!;
+      _state.remove(provider);
+
+      if (observer != null) {
+        final event = ProviderDisposeEvent(
+          debugOrigin: originMap[current] ?? debugOrigin,
+          provider: provider,
+          notifier: current,
+        );
+        observer.internalHandleEvent(event);
+
+        for (final dependent in dependents) {
+          if (!originMap.containsKey(dependent)) {
+            originMap[dependent] = event;
+            queue.add(dependent);
+          }
+        }
+      } else {
+        for (final dependent in dependents) {
+          if (!originMap.containsKey(dependent)) {
+            originMap[dependent] = null;
+            queue.add(dependent);
+          }
+        }
+      }
+    } while (queue.isNotEmpty);
+  }
 
   List<BaseNotifier> getActiveNotifiers() {
     return [

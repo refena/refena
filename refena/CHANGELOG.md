@@ -1,3 +1,7 @@
+## 0.32.0
+
+- feat: add `debugOrigin` to `ProviderDisposeEvent` and trace it in `RefenaTracingPage`
+
 ## 0.31.0
 
 - feat(graph): add animation
