@@ -200,13 +200,9 @@ class ProviderDisposeEvent extends RefenaEvent {
   /// The provider that has been disposed.
   final BaseProvider provider;
 
-  /// The notifier that is associated with the provider.
-  final BaseNotifier notifier;
-
   ProviderDisposeEvent({
     required this.debugOrigin,
     required this.provider,
-    required this.notifier,
   });
 
   @override
@@ -214,15 +210,14 @@ class ProviderDisposeEvent extends RefenaEvent {
       identical(this, other) ||
       other is ProviderDisposeEvent &&
           debugOrigin == other.debugOrigin &&
-          provider == other.provider &&
-          notifier == other.notifier;
+          provider == other.provider;
 
   @override
-  int get hashCode => provider.hashCode ^ notifier.hashCode;
+  int get hashCode => debugOrigin.hashCode ^ provider.hashCode;
 
   @override
   String toString() {
-    return 'ProviderDisposeEvent(provider: $provider, notifier: $notifier)';
+    return 'ProviderDisposeEvent(provider: $provider)';
   }
 }
 

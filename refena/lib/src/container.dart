@@ -285,7 +285,6 @@ class RefenaContainer extends Ref implements LabeledReference {
         final event = ProviderDisposeEvent(
           debugOrigin: originMap[current] ?? debugOrigin,
           provider: provider,
-          notifier: current,
         );
         observer.internalHandleEvent(event);
 

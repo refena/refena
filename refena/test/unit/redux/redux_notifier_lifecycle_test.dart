@@ -142,7 +142,6 @@ void main() {
       ProviderDisposeEvent(
         debugOrigin: container,
         provider: provider,
-        notifier: notifier,
       ),
     ]);
   });

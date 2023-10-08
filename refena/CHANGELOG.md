@@ -1,6 +1,7 @@
 ## 0.32.0
 
 - feat: add `debugOrigin` to `ProviderDisposeEvent` and trace it in `RefenaTracingPage`
+- **BREAKING**: `ProviderDisposeEvent` do not have a `notifier` attribute anymore
 
 ## 0.31.0
 

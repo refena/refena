@@ -187,7 +187,7 @@ class RefenaDebugObserver extends RefenaObserver {
         break;
       case ProviderDisposeEvent event:
         onLine?.call(_t);
-        final label = _getProviderDebugLabel(event.provider, event.notifier);
+        final label = _getProviderDebugLabel(event.provider, null);
         _line('Provider disposed: [$label]');
         onLine?.call(_b);
         break;
