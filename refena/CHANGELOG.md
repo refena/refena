@@ -1,3 +1,7 @@
+## 0.32.1
+
+- fix(tracing): should format maps with custom types correctly
+
 ## 0.32.0
 
 - feat: add `debugOrigin` to `ProviderDisposeEvent` and trace it in `RefenaTracingPage`

@@ -21,6 +21,17 @@ void main() {
 }''');
   });
 
+  test('Should format map with custom types', () {
+    final s = formatValue({
+      'a': 1,
+      'b': {
+        'c': DateTime.utc(2023, 10, 9),
+      },
+    });
+
+    expect(s, '{a: 1, b: {c: 2023-10-09 00:00:00.000Z}}');
+  });
+
   test('Should format json string', () {
     final s = formatValue('{"a": 1, "b": {"c": 2}}');
     expect(s, '''

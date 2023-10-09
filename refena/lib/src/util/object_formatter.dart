@@ -18,7 +18,9 @@ String formatValue(Object? o) {
   }
 
   if (o is Map<String, dynamic>) {
-    return _jsonEncoder.convert(o);
+    try {
+      return _jsonEncoder.convert(o);
+    } catch (_) {}
   }
 
   final s = o.toString();
