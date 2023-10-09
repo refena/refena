@@ -45,11 +45,13 @@ void main() {
 }
 ```
 
-Then start the inspector after your app is running:
+Then start the inspector **before** your app is running:
 
 ```bash
 dart run refena_inspector
 ```
+
+Running the inspector afterwards also works, but it takes longer to connect.
 
 You can configure the observer with custom actions:
 
