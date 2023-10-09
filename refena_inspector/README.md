@@ -21,6 +21,13 @@ dev_dependencies:
   refena_inspector: <version>
 ```
 
+Also add `.refena_inspector` to your `.gitignore` file.
+
+```gitignore
+# .gitignore
+.refena_inspector/
+```
+
 Add the `RefenaInspectorObserver` to your `RefenaContainer` or `RefenaScope`.
 
 This observer will handle the communication between your app and the inspector.
