@@ -817,7 +817,6 @@ class MyNotifier extends Notifier<int> {
   void dispose() {
     // custom cleanup logic
     // everything is still accessible until the end of this method
-    super.dispose();
   }
 }
 ```
@@ -990,7 +989,6 @@ class MyNotifier extends Notifier<int> {
   void dispose() {
     // custom cleanup logic
     // everything is still accessible until the end of this method
-    super.dispose();
   }
 }
 ```
