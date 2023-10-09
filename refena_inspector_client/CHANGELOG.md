@@ -1,3 +1,7 @@
+## 0.3.0
+
+- Bump refena to 0.32.0
+
 ## 0.2.0
 
 - Bump refena to 0.31.0
