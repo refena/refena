@@ -67,6 +67,13 @@ jobs:
         working-directory: refena_flutter
         run: flutter test
 
+      - name: Dependencies (inspector)
+        working-directory: refena_inspector
+        run: flutter pub get
+      - name: Test (inspector)
+        working-directory: refena_inspector
+        run: flutter test
+
   test_legacy:
     name: Test (oldest Flutter version)
     runs-on: ubuntu-latest
