@@ -19,6 +19,29 @@ import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
 import 'package:refena/src/reference.dart';
 
+enum PlatformHint {
+  /// The platform is Android.
+  android,
+
+  /// The platform is iOS.
+  iOS,
+
+  /// The platform is windows
+  windows,
+
+  /// The platform is macOS
+  macOS,
+
+  /// The platform is linux
+  linux,
+
+  /// The platform is web.
+  web,
+
+  /// Unknown platform
+  unknown,
+}
+
 /// The [RefenaContainer] holds the state of all providers.
 /// Every provider state is initialized lazily and only once.
 ///
@@ -37,11 +60,13 @@ class RefenaContainer extends Ref implements LabeledReference {
   /// are notified to rebuild.
   /// The [observer] is used to observe events.
   RefenaContainer({
+    PlatformHint platformHint = PlatformHint.unknown,
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     this.defaultNotifyStrategy = NotifyStrategy.equality,
     List<RefenaObserver> observers = const [],
-  })  : _overrides = _overridesToMap(overrides),
+  })  : _platformHint = platformHint,
+        _overrides = _overridesToMap(overrides),
         _overridesList = overrides,
         observer = _observerListToSingleObserver(observers) {
     // Initialize observer
@@ -60,6 +85,12 @@ class RefenaContainer extends Ref implements LabeledReference {
       _getState(provider, ProviderInitCause.initial);
     }
   }
+
+  final PlatformHint _platformHint;
+
+  /// The platform hint.
+  /// This is used by the inspector_client to determine the host IP.
+  PlatformHint get platformHint => _platformHint;
 
   /// Holds all provider states
   final _state = <BaseProvider, BaseNotifier>{};

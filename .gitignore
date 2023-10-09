@@ -1,6 +1,7 @@
 .fvm/flutter_sdk
 .refena_inspector/
 refena_inspector/pubspec_overrides.yaml
+refena/example/pubspec_overrides.yaml
 
 # Miscellaneous
 *.class

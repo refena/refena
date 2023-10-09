@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:refena/refena.dart';
@@ -24,12 +25,14 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
   /// The [child] is the widget tree that is wrapped by the [RefenaScope].
   RefenaScope({
     super.key,
+    PlatformHint? platformHint,
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     NotifyStrategy defaultNotifyStrategy = NotifyStrategy.identity,
     List<RefenaObserver> observers = const [],
     required super.child,
   }) : _container = RefenaContainer(
+          platformHint: platformHint ?? _getPlatformHint(),
           overrides: overrides,
           initialProviders: initialProviders,
           defaultNotifyStrategy: defaultNotifyStrategy,
@@ -48,6 +51,10 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
 
   /// Holds all provider states
   final RefenaContainer _container;
+
+  /// The platform hint.
+  @override
+  PlatformHint get platformHint => _container.platformHint;
 
   /// The default notify strategy
   @override
@@ -154,4 +161,19 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
 
   @override
   String get debugLabel => debugOwnerLabel;
+}
+
+PlatformHint _getPlatformHint() {
+  if (kIsWeb) {
+    return PlatformHint.web;
+  }
+
+  return switch (defaultTargetPlatform) {
+    TargetPlatform.android => PlatformHint.android,
+    TargetPlatform.iOS => PlatformHint.iOS,
+    TargetPlatform.windows => PlatformHint.windows,
+    TargetPlatform.macOS => PlatformHint.macOS,
+    TargetPlatform.linux => PlatformHint.linux,
+    _ => PlatformHint.unknown,
+  };
 }

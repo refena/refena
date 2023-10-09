@@ -91,46 +91,72 @@ class RefenaInspectorObserver extends RefenaObserver {
   }
 
   Future<void> _runLoop() async {
+    await Future.delayed(Duration(seconds: 1));
+
     int run = 0;
-    final hosts = host != null ? [host!] : ['localhost', '10.0.2.2'];
+    final List<String> hosts;
+    if (host != null) {
+      hosts = [host!];
+      ref.message('Connecting to Refena Inspector at $host:$port...');
+    } else {
+      hosts = [
+        'localhost',
+        if (ref.container.platformHint == PlatformHint.android) '10.0.2.2',
+      ];
+      ref.message(
+          'Refena Inspector Port <$port>, IP ${hosts.map((e) => '<$e>').join(', ')}');
+    }
+
     int hostIndex = 0;
     while (true) {
-      try {
-        await runWebSocket(hosts[hostIndex]);
-      } catch (e) {
-        if (run == 0) {
-          ref.message('Failed to connect to Refena Inspector.');
-        }
-        await Future.delayed(Duration(
-            seconds: switch (run) {
-          < 10 => 1,
-          < 100 => 3,
-          _ => 5,
-        }));
-      } finally {
+      final result = await runWebSocket(hosts[hostIndex]);
+      if (result) {
+        run = 1;
+      } else {
         run++;
-        hostIndex = (hostIndex + 1) % hosts.length;
       }
+
+      if (run == 1) {
+        ref.message('Failed to connect to Refena Inspector.');
+      }
+      final sleepSeconds = switch (run) {
+        < 10 => 1,
+        < 100 => 3,
+        _ => 5,
+      };
+      await Future.delayed(Duration(seconds: sleepSeconds));
+
+      hostIndex = (hostIndex + 1) % hosts.length;
     }
   }
 
-  Future<void> runWebSocket(String host) async {
-    final wsUrl = Uri(scheme: 'ws', host: host, port: port);
-    var channel = WebSocketChannel.connect(wsUrl);
+  /// Connects to the inspector server.
+  /// Returns true if the closed connection was successful.
+  /// Returns false if the connection failed.
+  Future<bool> runWebSocket(String host) async {
+    try {
+      final wsUrl = Uri(scheme: 'ws', host: host, port: port);
+      var channel = WebSocketChannel.connect(wsUrl);
 
-    // https://github.com/dart-lang/web_socket_channel/issues/249
-    await channel.ready;
+      // https://github.com/dart-lang/web_socket_channel/issues/249
+      await channel.ready;
 
-    _controller = WebSocketController(
-      ref: ref,
-      sink: channel.sink,
-      stream: channel.stream,
-      actions: actions,
-      theme: theme,
-      errorParser: errorParser,
-    );
+      _controller = WebSocketController(
+        ref: ref,
+        sink: channel.sink,
+        stream: channel.stream,
+        actions: actions,
+        theme: theme,
+        errorParser: errorParser,
+      );
 
-    await _controller?.handleMessages();
+      await _controller?.handleMessages();
+      return true;
+    } catch (e) {
+      return false;
+    } finally {
+      _controller = null;
+    }
   }
 }
 
