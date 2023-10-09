@@ -32,14 +32,14 @@ class _GraphPainter extends CustomPainter {
     );
 
     // Number of layers of the services section
-    final serviceLayerCount = 1 +
-        _graph.nodes
-            .where((n) => n.section == _Section.services)
-            .map((n) => n.layer)
-            .reduce(max);
+    final serviceLayerNodes =
+        _graph.nodes.where((n) => n.section == _Section.services).toList();
+    final serviceLayerCount = serviceLayerNodes.isEmpty
+        ? 0
+        : 1 + serviceLayerNodes.map((n) => n.layer).reduce(max);
 
     final serviceLabel =
-        serviceLayerCount == 1 ? 'Services' : 'Services & Controllers';
+        serviceLayerCount <= 1 ? 'Services' : 'Services & Controllers';
     const viewModelsLabel = 'View Models';
     const widgetsLabel = 'Widgets';
 
