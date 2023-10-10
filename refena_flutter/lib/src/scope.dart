@@ -21,7 +21,7 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
   /// Otherwise, the providers are initialized lazily when they are accessed.
   /// The [defaultNotifyStrategy] defines when widgets and providers
   /// are notified to rebuild.
-  /// The [observer] is used to observe events.
+  /// The [observers] are used to observe events.
   /// The [child] is the widget tree that is wrapped by the [RefenaScope].
   RefenaScope({
     super.key,
@@ -30,6 +30,7 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
     List<BaseProvider> initialProviders = const [],
     NotifyStrategy defaultNotifyStrategy = NotifyStrategy.identity,
     List<RefenaObserver> observers = const [],
+    bool defaultRef = true,
     required super.child,
   }) : _container = RefenaContainer(
           platformHint: platformHint ?? _getPlatformHint(),
@@ -38,7 +39,9 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
           defaultNotifyStrategy: defaultNotifyStrategy,
           observers: observers,
         ) {
-    defaultRef = this;
+    if (defaultRef) {
+      RefenaScope.defaultRef = this;
+    }
   }
 
   /// If you are unable to access the [ref] for whatever reason,

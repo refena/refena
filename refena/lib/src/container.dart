@@ -58,7 +58,7 @@ class RefenaContainer extends Ref implements LabeledReference {
   /// Otherwise, the providers are initialized lazily when they are accessed.
   /// The [defaultNotifyStrategy] defines when widgets and providers
   /// are notified to rebuild.
-  /// The [observer] is used to observe events.
+  /// The [observers] is used to observe events.
   RefenaContainer({
     PlatformHint platformHint = PlatformHint.unknown,
     List<ProviderOverride> overrides = const [],

@@ -42,6 +42,7 @@ class RefenaGraphPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RefenaScope(
+      defaultRef: false,
       child: _RefenaGraphPage(
         outerRef: context.ref,
         title: title,
@@ -205,166 +206,164 @@ class _RefenaGraphPageState extends State<_RefenaGraphPage>
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
     final state = ref.watch(graphPageProvider);
-    return RefenaScope(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          actions: [
-            if (_subscription != null)
-              Padding(
-                padding: const EdgeInsets.only(right: 10),
-                child: LiveButton(
-                  live: !_livePaused,
-                  onTap: () {
-                    final oldPaused = _livePaused;
-                    setState(() => _livePaused = !_livePaused);
-                    if (oldPaused) {
-                      _refreshFromStream();
-                    }
-                  },
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.title),
+        actions: [
+          if (_subscription != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: LiveButton(
+                live: !_livePaused,
+                onTap: () {
+                  final oldPaused = _livePaused;
+                  setState(() => _livePaused = !_livePaused);
+                  if (oldPaused) {
+                    _refreshFromStream();
+                  }
+                },
               ),
-            PopupMenuButton(
-              itemBuilder: (context) {
-                return [
-                  PopupMenuItem(
-                    padding: EdgeInsets.zero,
-                    child: ListTile(
-                      dense: true,
-                      leading: const Icon(Icons.refresh),
-                      title: Text('Reset'),
-                    ),
-                    value: 'reset',
-                  ),
-                  PopupMenuItem(
-                    padding: EdgeInsets.zero,
-                    child: ListTile(
-                      dense: true,
-                      leading: const Icon(Icons.widgets),
-                      trailing: _showWidgets
-                          ? const Icon(Icons.check)
-                          : const SizedBox.shrink(),
-                      title: SizedBox(
-                        width: 70,
-                        child: Text('Widgets', softWrap: false),
-                      ),
-                    ),
-                    value: 'widgets',
-                  ),
-                ];
-              },
-              onSelected: (value) async {
-                switch (value) {
-                  case 'reset':
-                    _refresh(_showWidgets, resetZoom: true);
-                    break;
-                  case 'widgets':
-                    _refresh(!_showWidgets, resetZoom: true);
-                    break;
-                }
-              },
-              child: const Icon(Icons.more_vert),
             ),
-            const SizedBox(width: 10),
-          ],
-        ),
-        body: LayoutBuilder(
-          builder: (context, constraints) {
-            _availableSize = constraints.biggest;
-            if (!_initialized) {
-              return Container();
-            }
-
-            if (!_customZoom && !_animationController.isAnimating) {
-              _rescaleGraph();
-            }
-
-            final screenSize = constraints.biggest;
-            final inverseScale = 1 / _scale;
-            final virtualWidth = screenSize.width * inverseScale;
-            final virtualHeight = screenSize.height * inverseScale;
-            return Stack(
-              children: [
-                InteractiveViewer(
-                  constrained: false,
-                  transformationController: _controller,
-                  boundaryMargin: EdgeInsets.symmetric(
-                    horizontal: virtualWidth,
-                    vertical: virtualHeight,
+          PopupMenuButton(
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.refresh),
+                    title: Text('Reset'),
                   ),
-                  // does not matter, adjust boundaryMargin
-                  minScale: 0.0001,
-                  maxScale: 2,
-                  onInteractionUpdate: (_) => _customZoom = true,
-                  child: AnimatedBuilder(
-                    animation: _animationController,
-                    builder: (context, _) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          top: widget.padding.top - _zoomAnimation.value / 2,
-                          left: widget.padding.left - _zoomAnimation.value / 2,
-                          right:
-                              widget.padding.right - _zoomAnimation.value / 2,
-                          bottom:
-                              widget.padding.bottom - _zoomAnimation.value / 2,
-                        ),
-                        child: SizedBox(
-                          width: _graph.width,
-                          height: _graph.height,
-                          child: Center(
-                            child: CustomPaint(
-                              size: Size(virtualWidth, virtualHeight),
-                              painter: GraphPainter(
-                                graph: _graph,
-                                brightness: brightness,
-                                headerAnimation: _headerAnimation.value,
-                              ),
+                  value: 'reset',
+                ),
+                PopupMenuItem(
+                  padding: EdgeInsets.zero,
+                  child: ListTile(
+                    dense: true,
+                    leading: const Icon(Icons.widgets),
+                    trailing: _showWidgets
+                        ? const Icon(Icons.check)
+                        : const SizedBox.shrink(),
+                    title: SizedBox(
+                      width: 70,
+                      child: Text('Widgets', softWrap: false),
+                    ),
+                  ),
+                  value: 'widgets',
+                ),
+              ];
+            },
+            onSelected: (value) async {
+              switch (value) {
+                case 'reset':
+                  _refresh(_showWidgets, resetZoom: true);
+                  break;
+                case 'widgets':
+                  _refresh(!_showWidgets, resetZoom: true);
+                  break;
+              }
+            },
+            child: const Icon(Icons.more_vert),
+          ),
+          const SizedBox(width: 10),
+        ],
+      ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          _availableSize = constraints.biggest;
+          if (!_initialized) {
+            return Container();
+          }
+
+          if (!_customZoom && !_animationController.isAnimating) {
+            _rescaleGraph();
+          }
+
+          final screenSize = constraints.biggest;
+          final inverseScale = 1 / _scale;
+          final virtualWidth = screenSize.width * inverseScale;
+          final virtualHeight = screenSize.height * inverseScale;
+          return Stack(
+            children: [
+              InteractiveViewer(
+                constrained: false,
+                transformationController: _controller,
+                boundaryMargin: EdgeInsets.symmetric(
+                  horizontal: virtualWidth,
+                  vertical: virtualHeight,
+                ),
+                // does not matter, adjust boundaryMargin
+                minScale: 0.0001,
+                maxScale: 2,
+                onInteractionUpdate: (_) => _customZoom = true,
+                child: AnimatedBuilder(
+                  animation: _animationController,
+                  builder: (context, _) {
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        top: widget.padding.top - _zoomAnimation.value / 2,
+                        left: widget.padding.left - _zoomAnimation.value / 2,
+                        right:
+                            widget.padding.right - _zoomAnimation.value / 2,
+                        bottom:
+                            widget.padding.bottom - _zoomAnimation.value / 2,
+                      ),
+                      child: SizedBox(
+                        width: _graph.width,
+                        height: _graph.height,
+                        child: Center(
+                          child: CustomPaint(
+                            size: Size(virtualWidth, virtualHeight),
+                            painter: GraphPainter(
+                              graph: _graph,
+                              brightness: brightness,
+                              headerAnimation: _headerAnimation.value,
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ),
-                Positioned.fill(
-                  child: GestureDetector(
-                    onPanStart: (details) {
-                      state.selectedNode?.selected = true;
-                      setState(() {});
-                    },
-                    onPanUpdate: (details) {
-                      final scale = _controller.value[0];
-                      final inverseScale = 1 / scale;
-                      state.selectedNode?.draggedY +=
-                          (details.delta.dy * inverseScale);
-                      setState(() {});
-                    },
-                    onPanEnd: (details) async {
-                      state.selectedNode?.selected = false;
-                      setState(() {});
-                    },
-                    child: CustomPaint(
-                      painter: GraphPainterHitTest(
-                        graph: _graph,
-                        transformationController: _controller,
-                        graphPadding: widget.padding,
-                        onNodeSelected: (node) {
-                          if (state.selectedNode?.selected == true) {
-                            return;
-                          }
-
-                          if (state.selectedNode != node) {
-                            ref.notifier(graphPageProvider).selectNode(node);
-                          }
-                        },
                       ),
+                    );
+                  },
+                ),
+              ),
+              Positioned.fill(
+                child: GestureDetector(
+                  onPanStart: (details) {
+                    state.selectedNode?.selected = true;
+                    setState(() {});
+                  },
+                  onPanUpdate: (details) {
+                    final scale = _controller.value[0];
+                    final inverseScale = 1 / scale;
+                    state.selectedNode?.draggedY +=
+                        (details.delta.dy * inverseScale);
+                    setState(() {});
+                  },
+                  onPanEnd: (details) async {
+                    state.selectedNode?.selected = false;
+                    setState(() {});
+                  },
+                  child: CustomPaint(
+                    painter: GraphPainterHitTest(
+                      graph: _graph,
+                      transformationController: _controller,
+                      graphPadding: widget.padding,
+                      onNodeSelected: (node) {
+                        if (state.selectedNode?.selected == true) {
+                          return;
+                        }
+
+                        if (state.selectedNode != node) {
+                          ref.notifier(graphPageProvider).selectNode(node);
+                        }
+                      },
                     ),
                   ),
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }
