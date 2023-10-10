@@ -303,8 +303,7 @@ class _RefenaGraphPageState extends State<_RefenaGraphPage>
                       padding: EdgeInsets.only(
                         top: widget.padding.top - _zoomAnimation.value / 2,
                         left: widget.padding.left - _zoomAnimation.value / 2,
-                        right:
-                            widget.padding.right - _zoomAnimation.value / 2,
+                        right: widget.padding.right - _zoomAnimation.value / 2,
                         bottom:
                             widget.padding.bottom - _zoomAnimation.value / 2,
                       ),
