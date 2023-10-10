@@ -1,3 +1,7 @@
+## 0.6.0
+
+- deps: bump refena to 0.34.0
+
 ## 0.5.0
 
 - fix: missing permissions on macOS

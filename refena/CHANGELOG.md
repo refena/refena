@@ -1,3 +1,7 @@
+## 0.34.0
+
+- fix(graph): should not change defaultRef
+
 ## 0.33.0
 
 - feat(graph): highlight and move around nodes
