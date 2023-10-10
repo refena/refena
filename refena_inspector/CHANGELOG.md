@@ -1,3 +1,7 @@
+## 0.4.0
+
+- deps: bump refena to 0.33.0
+
 ## 0.3.0
 
 - feat: cache compiled app

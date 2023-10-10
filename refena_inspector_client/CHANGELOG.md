@@ -1,10 +1,14 @@
+## 0.4.0
+
+- deps: bump refena to 0.33.0
+
 ## 0.3.0
 
-- Bump refena to 0.32.0
+- deps: bump refena to 0.32.0
 
 ## 0.2.0
 
-- Bump refena to 0.31.0
+- deps: bump refena to 0.31.0
 
 ## 0.1.0
 

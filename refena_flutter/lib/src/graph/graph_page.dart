@@ -135,6 +135,7 @@ class _RefenaGraphPageState extends State<_RefenaGraphPage>
 
   @override
   void dispose() {
+    _controller.dispose();
     _subscription?.cancel();
     _animationController.dispose();
     super.dispose();
@@ -230,6 +231,15 @@ class _RefenaGraphPageState extends State<_RefenaGraphPage>
                     padding: EdgeInsets.zero,
                     child: ListTile(
                       dense: true,
+                      leading: const Icon(Icons.refresh),
+                      title: Text('Reset'),
+                    ),
+                    value: 'reset',
+                  ),
+                  PopupMenuItem(
+                    padding: EdgeInsets.zero,
+                    child: ListTile(
+                      dense: true,
                       leading: const Icon(Icons.widgets),
                       trailing: _showWidgets
                           ? const Icon(Icons.check)
@@ -245,6 +255,9 @@ class _RefenaGraphPageState extends State<_RefenaGraphPage>
               },
               onSelected: (value) async {
                 switch (value) {
+                  case 'reset':
+                    _refresh(_showWidgets, resetZoom: true);
+                    break;
                   case 'widgets':
                     _refresh(!_showWidgets, resetZoom: true);
                     break;

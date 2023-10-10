@@ -1,3 +1,7 @@
+## 0.33.0
+
+- feat(graph): highlight and move around nodes
+
 ## 0.32.1
 
 - fix(tracing): should format maps with custom types correctly
