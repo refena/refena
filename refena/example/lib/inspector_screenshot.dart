@@ -115,6 +115,13 @@ class _HomePageState extends State<HomePage> with Refena {
             },
             child: const Text('Open second page'),
           ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const RefenaGraphPage(showWidgets: true)));
+            },
+            child: const Text('Open Graph'),
+          ),
         ],
       ),
     );

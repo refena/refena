@@ -1,13 +1,11 @@
-part of 'graph_page.dart';
-
 // ignore_for_file: invalid_use_of_internal_member
+import 'dart:collection';
+import 'dart:math';
 
-const _typeCellWidth = 25.0;
-const _typeRightPadding = 5;
-const _endPadding = 5;
-const _verticalPadding = 5;
-const _layerSpacing = 100.0;
-const _nodeSpacing = 100.0;
+import 'package:flutter/material.dart';
+// ignore: implementation_imports
+import 'package:refena/src/tools/graph_input_model.dart';
+import 'package:refena_flutter/src/graph/graph_paint_constants.dart';
 
 /// A node assigned to a layer in the graph.
 /// 0 is the leftmost layer (i.e. no parents).
@@ -27,7 +25,7 @@ class _LayeredNode {
   }
 }
 
-enum _Section {
+enum Section {
   /// Any node that does not fit into the other sections.
   services,
 
@@ -41,11 +39,11 @@ enum _Section {
 
 /// A node assigned to a position in the graph.
 /// This is the final node position.
-class _PositionedNode {
+class PositionedNode {
   final InputNode node;
-  final List<_PositionedNode> parents = []; // set later
-  final List<_PositionedNode> children = []; // set later
-  final _Section section;
+  final List<PositionedNode> parents = []; // set later
+  final List<PositionedNode> children = []; // set later
+  final Section section;
   final int layer;
   Offset position;
 
@@ -56,7 +54,15 @@ class _PositionedNode {
   final double labelWidth;
   final double labelHeight;
 
-  _PositionedNode({
+  /// The user can drag the node around.
+  /// This is the delta value of the drag.
+  double draggedY = 0;
+
+  /// The node is selected.
+  /// This node and its parents and children are highlighted.
+  bool selected = false;
+
+  PositionedNode({
     required this.node,
     required this.section,
     required this.layer,
@@ -72,12 +78,12 @@ class _PositionedNode {
   }
 }
 
-class _Graph {
-  final List<_PositionedNode> nodes;
+class Graph {
+  final List<PositionedNode> nodes;
   final double width;
   final double height;
 
-  _Graph({
+  Graph({
     required this.nodes,
     required this.width,
     required this.height,
@@ -85,7 +91,7 @@ class _Graph {
 }
 
 /// Builds the graph.
-_Graph _buildGraphFromNodes(List<InputNode> nodes) {
+Graph buildGraphFromNodes(List<InputNode> nodes) {
   final widgets = nodes
       .where((node) => node.type == InputNodeType.widget)
       .toList(growable: false);
@@ -105,14 +111,16 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
 
   final textPainter = TextPainter(textDirection: TextDirection.ltr);
 
-  final positionedNodes = <_PositionedNode>[];
+  final positionedNodes = <PositionedNode>[];
   final nodeCountPerLayer = <int>[];
   int layer = 0;
   double x = 0;
   int y = 0;
   double maxWidth = 0; // the maximum width of the labels in the current layer
-  const constantWidth =
-      _typeCellWidth + _typeRightPadding + _endPadding + _layerSpacing;
+  const constantWidth = GraphPaintConstants.typeCellWidth +
+      GraphPaintConstants.typeRightPadding +
+      GraphPaintConstants.endPadding +
+      GraphPaintConstants.layerSpacing;
   for (final service in layeredServiceNodes) {
     if (service.layer > layer) {
       layer = service.layer;
@@ -129,11 +137,11 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
 
     maxWidth = max(maxWidth, textPainter.width);
 
-    positionedNodes.add(_PositionedNode(
+    positionedNodes.add(PositionedNode(
       node: service.node,
-      section: _Section.services,
+      section: Section.services,
       layer: layer,
-      position: Offset(x, y * _nodeSpacing),
+      position: Offset(x, y * GraphPaintConstants.nodeSpacing),
       indexY: y,
       labelWidth: textPainter.width,
       labelHeight: textPainter.height,
@@ -157,11 +165,11 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
 
     maxWidth = max(maxWidth, textPainter.width);
 
-    positionedNodes.add(_PositionedNode(
+    positionedNodes.add(PositionedNode(
       node: viewModel,
-      section: _Section.viewModels,
+      section: Section.viewModels,
       layer: layer,
-      position: Offset(x, y * _nodeSpacing),
+      position: Offset(x, y * GraphPaintConstants.nodeSpacing),
       indexY: y,
       labelWidth: textPainter.width,
       labelHeight: textPainter.height,
@@ -185,11 +193,11 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
 
     maxWidth = max(maxWidth, textPainter.width);
 
-    positionedNodes.add(_PositionedNode(
+    positionedNodes.add(PositionedNode(
       node: widget,
-      section: _Section.widgets,
+      section: Section.widgets,
       layer: layer,
-      position: Offset(x, y * _nodeSpacing),
+      position: Offset(x, y * GraphPaintConstants.nodeSpacing),
       indexY: y,
       labelWidth: textPainter.width,
       labelHeight: textPainter.height,
@@ -213,19 +221,22 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
   }
 
   if (maxWidth == 0) {
-    x -= _layerSpacing;
+    x -= GraphPaintConstants.layerSpacing;
   } else {
-    x += maxWidth + _typeCellWidth + _typeRightPadding + _endPadding;
+    x += maxWidth +
+        GraphPaintConstants.typeCellWidth +
+        GraphPaintConstants.typeRightPadding +
+        GraphPaintConstants.endPadding;
   }
 
   // Optimize graph
   _optimizeGraph(
     nodes: positionedNodes,
     nodeCountPerLayer: nodeCountPerLayer,
-    nodeSpacing: _nodeSpacing,
+    nodeSpacing: GraphPaintConstants.nodeSpacing,
   );
 
-  return _Graph(
+  return Graph(
     nodes: positionedNodes,
     width: x,
     height: positionedNodes.isEmpty
@@ -235,13 +246,13 @@ _Graph _buildGraphFromNodes(List<InputNode> nodes) {
                     value.position.dy > element.position.dy ? value : element)
                 .position
                 .dy +
-            _nodeSpacing,
+            GraphPaintConstants.nodeSpacing,
   );
 }
 
 /// Minimizes edge crossings.
 void _optimizeGraph({
-  required List<_PositionedNode> nodes,
+  required List<PositionedNode> nodes,
   required List<int> nodeCountPerLayer,
   required double nodeSpacing,
 }) {

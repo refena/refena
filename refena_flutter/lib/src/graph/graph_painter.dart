@@ -1,10 +1,16 @@
-part of 'graph_page.dart';
-
 // ignore_for_file: invalid_use_of_internal_member
 
-class _GraphPainter extends CustomPainter {
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+// ignore: implementation_imports
+import 'package:refena/src/tools/graph_input_model.dart';
+import 'package:refena_flutter/src/graph/graph_node.dart';
+import 'package:refena_flutter/src/graph/graph_paint_constants.dart';
+
+class GraphPainter extends CustomPainter {
   /// The graph data to be painted.
-  final _Graph _graph;
+  final Graph _graph;
 
   /// The brightness of the app's overall theme.
   final Brightness _brightness;
@@ -12,8 +18,8 @@ class _GraphPainter extends CustomPainter {
   /// The animation value of the header.
   final double _headerAnimation;
 
-  _GraphPainter({
-    required _Graph graph,
+  GraphPainter({
+    required Graph graph,
     required Brightness brightness,
     required double headerAnimation,
   })  : _graph = graph,
@@ -21,10 +27,16 @@ class _GraphPainter extends CustomPainter {
         _headerAnimation = headerAnimation;
 
   @override
+  bool? hitTest(Offset position) {
+    // improve performance by not checking hit test
+    return false;
+  }
+
+  @override
   void paint(Canvas canvas, Size size) {
     final paintNode = Paint()..color = Colors.blue;
     final paintEdge = Paint()
-      ..color = _brightness == Brightness.light ? Colors.black : Colors.white
+      ..color = Colors.transparent
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.0;
     final textPainter = TextPainter(
@@ -33,7 +45,7 @@ class _GraphPainter extends CustomPainter {
 
     // Number of layers of the services section
     final serviceLayerNodes =
-        _graph.nodes.where((n) => n.section == _Section.services).toList();
+        _graph.nodes.where((n) => n.section == Section.services).toList();
     final serviceLayerCount = serviceLayerNodes.isEmpty
         ? 0
         : 1 + serviceLayerNodes.map((n) => n.layer).reduce(max);
@@ -43,16 +55,18 @@ class _GraphPainter extends CustomPainter {
     const viewModelsLabel = 'View Models';
     const widgetsLabel = 'Widgets';
 
-    _Section? section;
+    Section? section;
 
     for (final node in _graph.nodes) {
+      final nodeY = node.position.dy + node.draggedY;
+
       // Draw section header
       if (section != node.section) {
         section = node.section;
         final label = switch (section) {
-          _Section.services => serviceLabel,
-          _Section.viewModels => viewModelsLabel,
-          _Section.widgets => widgetsLabel,
+          Section.services => serviceLabel,
+          Section.viewModels => viewModelsLabel,
+          Section.widgets => widgetsLabel,
         };
         textPainter.text = TextSpan(
           text: label.substring(
@@ -74,46 +88,48 @@ class _GraphPainter extends CustomPainter {
 
       // Draw edges
       for (final child in node.children) {
+        final childY = child.position.dy + child.draggedY;
+
         final path = Path();
         path.moveTo(
           child.position.dx,
-          child.position.dy + child.labelHeight / 2 + _verticalPadding,
+          childY + child.labelHeight / 2 + GraphPaintConstants.verticalPadding,
         );
 
         final middleX = (child.position.dx +
                 node.position.dx +
-                _typeCellWidth +
-                _typeRightPadding +
+                GraphPaintConstants.typeCellWidth +
+                GraphPaintConstants.typeRightPadding +
                 node.labelWidth +
-                _endPadding) /
+                GraphPaintConstants.endPadding) /
             2;
 
         final controlPoint1 = Offset(
           middleX - (middleX - child.position.dx) / 3,
           // Adjust this to change the control point's horizontal position relative to the child
-          child.position.dy + child.labelHeight / 2 + _verticalPadding,
+          childY + child.labelHeight / 2 + GraphPaintConstants.verticalPadding,
         );
 
         final controlPoint2 = Offset(
           middleX +
               (node.position.dx +
-                      _typeCellWidth +
-                      _typeRightPadding +
+                      GraphPaintConstants.typeCellWidth +
+                      GraphPaintConstants.typeRightPadding +
                       node.labelWidth +
-                      _endPadding -
+                      GraphPaintConstants.endPadding -
                       middleX) /
                   3,
           // Adjust this to change the control point's horizontal position relative to the parent
-          node.position.dy + node.labelHeight / 2 + _verticalPadding,
+          nodeY + node.labelHeight / 2 + GraphPaintConstants.verticalPadding,
         );
 
         final endPoint = Offset(
           node.position.dx +
-              _typeCellWidth +
-              _typeRightPadding +
+              GraphPaintConstants.typeCellWidth +
+              GraphPaintConstants.typeRightPadding +
               node.labelWidth +
-              _endPadding,
-          node.position.dy + node.labelHeight / 2 + _verticalPadding,
+              GraphPaintConstants.endPadding,
+          nodeY + node.labelHeight / 2 + GraphPaintConstants.verticalPadding,
         );
 
         path.cubicTo(
@@ -125,10 +141,42 @@ class _GraphPainter extends CustomPainter {
           endPoint.dy,
         );
 
+        paintEdge.color = switch (node.selected || child.selected) {
+          true => Colors.red,
+          false =>
+            _brightness == Brightness.light ? Colors.black : Colors.white,
+        };
         canvas.drawPath(path, paintEdge);
       }
 
       // Draw node
+
+      if (node.selected ||
+          node.parents.any((p) => p.selected) ||
+          node.children.any((c) => c.selected)) {
+        // draw red border
+        paintNode.color = Colors.red;
+
+        const borderWidth = 2.0;
+        canvas.drawRRect(
+          RRect.fromRectAndRadius(
+            Rect.fromLTWH(
+              node.position.dx - borderWidth,
+              nodeY - borderWidth,
+              GraphPaintConstants.typeCellWidth +
+                  GraphPaintConstants.typeRightPadding +
+                  node.labelWidth +
+                  GraphPaintConstants.endPadding +
+                  borderWidth * 2,
+              node.labelHeight +
+                  GraphPaintConstants.verticalPadding * 2 +
+                  borderWidth * 2,
+            ),
+            const Radius.circular(12),
+          ),
+          paintNode,
+        );
+      }
 
       final nodeColor = switch (node.node.type) {
         InputNodeType.view => Colors.green,
@@ -137,14 +185,17 @@ class _GraphPainter extends CustomPainter {
         InputNodeType.widget => Colors.purple,
         InputNodeType.notifier => Colors.orange.shade700,
       };
-      final totalHeight = node.labelHeight + _verticalPadding * 2;
+      final totalHeight =
+          node.labelHeight + GraphPaintConstants.verticalPadding * 2;
       paintNode.color = nodeColor;
       canvas.drawRRect(
         RRect.fromRectAndCorners(
           Rect.fromLTWH(
-            node.position.dx + _typeCellWidth,
-            node.position.dy,
-            _typeRightPadding + node.labelWidth + _endPadding,
+            node.position.dx + GraphPaintConstants.typeCellWidth,
+            nodeY,
+            GraphPaintConstants.typeRightPadding +
+                node.labelWidth +
+                GraphPaintConstants.endPadding,
             totalHeight,
           ),
           topRight: const Radius.circular(10),
@@ -164,9 +215,9 @@ class _GraphPainter extends CustomPainter {
         RRect.fromRectAndCorners(
           Rect.fromLTWH(
             node.position.dx,
-            node.position.dy,
-            _typeCellWidth,
-            node.labelHeight + _verticalPadding * 2,
+            nodeY,
+            GraphPaintConstants.typeCellWidth,
+            node.labelHeight + GraphPaintConstants.verticalPadding * 2,
           ),
           topLeft: const Radius.circular(10),
           bottomLeft: const Radius.circular(10),
@@ -196,8 +247,11 @@ class _GraphPainter extends CustomPainter {
         Offset(
           node.position.dx +
               leftPadding +
-              (_typeCellWidth - textPainter.width - leftPadding) / 2,
-          node.position.dy + (totalHeight - textPainter.height) / 2,
+              (GraphPaintConstants.typeCellWidth -
+                      textPainter.width -
+                      leftPadding) /
+                  2,
+          nodeY + (totalHeight - textPainter.height) / 2,
         ),
       );
 
@@ -209,15 +263,17 @@ class _GraphPainter extends CustomPainter {
       textPainter.paint(
         canvas,
         Offset(
-          node.position.dx + _typeCellWidth + _typeRightPadding,
-          node.position.dy + (totalHeight - textPainter.height) / 2,
+          node.position.dx +
+              GraphPaintConstants.typeCellWidth +
+              GraphPaintConstants.typeRightPadding,
+          nodeY + (totalHeight - textPainter.height) / 2,
         ),
       );
     }
   }
 
   @override
-  bool shouldRepaint(_GraphPainter oldDelegate) {
+  bool shouldRepaint(GraphPainter oldDelegate) {
     return oldDelegate._graph != _graph ||
         oldDelegate._headerAnimation != _headerAnimation;
   }
