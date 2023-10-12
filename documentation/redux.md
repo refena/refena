@@ -63,6 +63,7 @@ class MyPage extends StatelessWidget {
 - [Action Lifecycle](#action-lifecycle)
 - [Dispatching actions from actions](#dispatching-actions-from-actions)
 - [Global Actions](#global-actions)
+- [Refresh Actions](#refresh-actions)
 - [Error Handling](#error-handling)
 - [Tracing](#tracing)
 
@@ -336,16 +337,13 @@ class IncrementAction extends ReduxAction<Counter, int> {
 
 ## Global Actions
 
-Sometimes, you want to implement an action that does not belong to any notifier.
-
-You can do this by implementing a `GlobalAction`.
-
-These actions do not belong to any notifier and therefore have no state.
+A global action is an action not bound to any notifier and therefore has no state.
 
 Inside the action, you can access `ref` to dispatch other actions or to read other providers.
 
+A global action is like an overpowered action where you can do everything.
+
 Do not use global actions excessively as they have no restrictions or scope.
-This means that it is hard to track all the side effects that they might cause.
 
 ```dart
 class ResetAppAction extends GlobalAction {
@@ -364,7 +362,7 @@ class ResetAppAction extends GlobalAction {
 }
 ```
 
-When you have access to `Ref`, you can just call `ref.dispatch(action)`.
+When you have access to `Ref`, you can dispatch a global action with `ref.dispatch(action)`.
 
 ```dart
 ref.dispatch(ResetAppAction());
@@ -393,15 +391,50 @@ Similar to regular actions, there are also asynchronous global actions or global
 | `GlobalActionWithResult`      | yes               | `R reduce()`            |
 | `AsyncGlobalActionWithResult` | yes               | `Future<R> reduce()`    |
 
-When you dispatch, there is no need to distinguish between actions with and without a result anymore.
-The return type is just `void` for actions without a result.
+## Refresh Actions
 
-| Action Type                   | Dispatch method | Return type    |
-|-------------------------------|-----------------|----------------|
-| `GlobalAction`                | `dispatch`      | `void`         |
-| `GlobalActionWithResult`      | `dispatch`      | `R`            |
-| `AsyncGlobalAction`           | `dispatchAsync` | `Future<void>` |
-| `AsyncGlobalActionWithResult` | `dispatchAsync` | `Future<R>`    |
+To reduce boilerplate code when you want to implement a refresh action, you can use `RefreshAction`.
+
+Your notifier must have the data type `AsyncValue<T>`.
+
+```dart
+final counterProvider = ReduxProvider<Counter, AsyncValue<int>>((ref) {
+  return Counter();
+});
+
+class Counter extends ReduxNotifier<AsyncValue<int>> {
+  @override
+  AsyncValue<int> init() => AsyncValue.withData(0);
+}
+```
+
+Then you can implement a refresh action like this:
+
+```dart
+class MyRefreshAction extends RefreshAction<Counter, int> {
+  @override
+  Future<int> refresh() async {
+    await Future.delayed(Duration(seconds: 1));
+    return state.data! + 1;
+  }
+}
+```
+
+The `RefreshAction` will automatically update the state to `AsyncValue.loading` before calling `refresh()`.
+
+It will also catch any errors thrown by `refresh()` and update the state to `AsyncValue.withError`.
+
+Consuming `AsyncValue` is easy:
+
+```dart
+final counterAsync = ref.watch(counterProvider);
+
+final widget = counterAsync.when(
+  data: (state) => Text('State: $state'),
+  loading: () => const CircularProgressIndicator(),
+  error: (error, stackTrace) => Text('Error: $error'),
+);
+```
 
 ## Error Handling
 
