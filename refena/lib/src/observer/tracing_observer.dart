@@ -15,6 +15,11 @@ class RefenaTracingObserver extends RefenaObserver {
   /// won't be logged.
   final bool Function(RefenaEvent event)? exclude;
 
+  /// Additional listeners.
+  /// For example, the [RefenaInspectorObserver] uses this to send
+  /// the (filtered) events to the inspector.
+  final List<void Function(RefenaEvent event)> listeners = [];
+
   RefenaTracingObserver({
     this.limit = 100,
     this.exclude,
@@ -33,6 +38,10 @@ class RefenaTracingObserver extends RefenaObserver {
     }
 
     ref.notifier(tracingProvider)._addEvent(event);
+
+    for (final listener in listeners) {
+      listener(event);
+    }
   }
 }
 

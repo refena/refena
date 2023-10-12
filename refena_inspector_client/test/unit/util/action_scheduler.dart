@@ -15,6 +15,25 @@ void main() {
     expect(called, 1);
   });
 
+  test('Should not run any actions before maxDelay', () async {
+    int called = 0;
+    ActionScheduler(
+      minDelay: const Duration(milliseconds: 100),
+      maxDelay: const Duration(milliseconds: 500),
+      action: () => called++,
+    );
+
+    expect(called, 0);
+
+    await _sleepAsync(100);
+
+    expect(called, 0);
+
+    await _sleepAsync(500);
+
+    expect(called, 1);
+  });
+
   test('Should schedule action if called multiple times', () async {
     int called = 0;
     final scheduler = ActionScheduler(
@@ -113,6 +132,47 @@ void main() {
     scheduler.scheduleAction();
     expect(called, 1);
     await _sleepAsync(650);
+    expect(called, 2);
+  });
+
+  test('Should drop scheduled actions after reset', () async {
+    int called = 0;
+    final scheduler = ActionScheduler(
+      minDelay: const Duration(milliseconds: 100),
+      maxDelay: const Duration(milliseconds: 500),
+      action: () => called++,
+    );
+
+    scheduler.scheduleAction();
+    scheduler.scheduleAction();
+    scheduler.scheduleAction();
+    expect(called, 1);
+
+    scheduler.reset();
+    await _sleepAsync(400);
+    expect(called, 1);
+  });
+
+  test('Should run the first action right after reset', () async {
+    int called = 0;
+    final scheduler = ActionScheduler(
+      minDelay: const Duration(milliseconds: 100),
+      maxDelay: const Duration(milliseconds: 500),
+      action: () => called++,
+    );
+
+    scheduler.scheduleAction();
+    scheduler.scheduleAction();
+    scheduler.scheduleAction();
+    expect(called, 1);
+
+    scheduler.reset();
+    expect(called, 1);
+
+    scheduler.scheduleAction();
+    expect(called, 2);
+
+    await _sleepAsync(400);
     expect(called, 2);
   });
 }

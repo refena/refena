@@ -68,6 +68,11 @@ class ActionScheduler {
     action();
   }
 
+  void reset() {
+    _lastActionTime = 0;
+    _delayedTimestamp = 0;
+  }
+
   void dispose() {
     _timer.cancel();
   }

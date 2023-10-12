@@ -1,3 +1,7 @@
+## 0.35.0
+
+- fix(inspector): should use filtered events from `RefenaTracingObserver`
+
 ## 0.34.0
 
 - fix(graph): should not change defaultRef

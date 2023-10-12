@@ -374,4 +374,7 @@ class MessageEvent extends RefenaEvent {
   String toString() {
     return 'MessageEvent(message: $message, origin: ${origin.debugLabel})';
   }
+
+  @override
+  String get debugLabel => message;
 }

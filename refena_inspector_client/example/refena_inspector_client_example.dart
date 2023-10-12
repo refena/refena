@@ -4,9 +4,9 @@ import 'package:refena_inspector_client/refena_inspector_client.dart';
 /// Run this main function,
 /// then run the inspector server with the following command:
 /// `dart run refena_inspector`
-void main() {
+void main() async {
   // or "RefenaScope" for Flutter projects
-  RefenaContainer(
+  final ref = RefenaContainer(
     observers: [
       RefenaInspectorObserver(
         host: 'localhost',
@@ -47,8 +47,19 @@ void main() {
           },
         },
       ),
-      RefenaTracingObserver(),
+      RefenaTracingObserver(
+        exclude: (e) {
+          return e.debugLabel.endsWith('5');
+        },
+      ),
       RefenaDebugObserver(),
     ],
   );
+
+  int i = 0;
+  while (true) {
+    await Future.delayed(Duration(seconds: 1));
+    ref.message('Hello! $i');
+    i++;
+  }
 }

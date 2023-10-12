@@ -75,6 +75,13 @@ class RefenaInspectorObserver extends RefenaObserver {
         _controller?.sendEvents(events);
       },
     );
+
+    final tracingObserver = _findTracingObserver(ref.container.observer);
+    tracingObserver?.listeners.add((event) {
+      _unsentEvents.add(event);
+      _eventsScheduler.scheduleAction();
+    });
+
     _graphScheduler = ActionScheduler(
       minDelay: minDelay,
       maxDelay: maxDelay,
@@ -85,8 +92,6 @@ class RefenaInspectorObserver extends RefenaObserver {
 
   @override
   void handleEvent(RefenaEvent event) {
-    _unsentEvents.add(event);
-    _eventsScheduler.scheduleAction();
     _graphScheduler.scheduleAction();
   }
 
@@ -150,6 +155,10 @@ class RefenaInspectorObserver extends RefenaObserver {
         errorParser: errorParser,
       );
 
+      // drop events scheduled before the connection was established
+      _unsentEvents.clear();
+      _eventsScheduler.reset();
+
       await _controller?.handleMessages();
       return true;
     } catch (e) {
@@ -158,6 +167,24 @@ class RefenaInspectorObserver extends RefenaObserver {
       _controller = null;
     }
   }
+}
+
+/// Recursively finds the [RefenaTracingObserver] in the given [observer].
+RefenaTracingObserver? _findTracingObserver(RefenaObserver? observer) {
+  if (observer is RefenaTracingObserver) {
+    return observer;
+  }
+
+  if (observer is RefenaMultiObserver) {
+    for (final o in observer.observers) {
+      final result = _findTracingObserver(o);
+      if (result != null) {
+        return result;
+      }
+    }
+  }
+
+  return null;
 }
 
 /// A global action that is dispatched by the [RefenaInspectorObserver]
