@@ -88,12 +88,11 @@ sealed class AsyncValue<T> {
         other is AsyncValue<T> &&
             runtimeType == other.runtimeType &&
             data == other.data &&
-            error == other.error &&
-            stackTrace == other.stackTrace;
+            error == other.error;
   }
 
   @override
-  int get hashCode => data.hashCode ^ error.hashCode ^ stackTrace.hashCode;
+  int get hashCode => data.hashCode ^ error.hashCode;
 }
 
 /// The data of an [AsyncValue].

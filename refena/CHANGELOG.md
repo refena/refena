@@ -1,3 +1,7 @@
+## 0.36.0
+
+- feat: add `RefreshAction`, a new class of action that reduces the boilerplate when refreshing `ReduxNotifier`s with data type `AsyncValue`
+
 ## 0.35.0
 
 - fix(inspector): should use filtered events from `RefenaTracingObserver`
