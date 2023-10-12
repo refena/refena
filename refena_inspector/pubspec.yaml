@@ -18,8 +18,8 @@ dependencies:
     sdk: flutter
   logging: ^1.1.0
   path: ^1.8.0
-  refena: ^0.35.0
-  refena_flutter: ^0.35.0
+  refena: '>=0.35.0 <1.0.0'
+  refena_flutter: '>=0.35.0 <1.0.0'
   refena_inspector_client: ^0.7.0
   shelf: ^1.4.1
   shelf_web_socket: ^1.0.4
