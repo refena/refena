@@ -73,13 +73,14 @@ class InspectorServer extends ReduxNotifier<ServerState> {
   get initialAction => StartServerAction();
 }
 
-class StartServerAction extends AsyncReduxAction<InspectorServer, ServerState> {
+class StartServerAction extends AsyncReduxAction<InspectorServer, ServerState>
+    with GlobalActions {
   @override
   Future<ServerState> reduce() async {
     var handler = webSocketHandler((WebSocketChannel webSocket) async {
       dispatch(_SetSinkAction(sink: webSocket.sink));
       webSocket.stream.listen((message) {
-        _handleMessage(message);
+        global.dispatch(_HandleClientMessageAction(message: message));
       }, onDone: () {
         dispatch(_ClientDisconnectedAction());
       });
@@ -163,35 +164,43 @@ class SendActionAction extends ReduxAction<InspectorServer, ServerState> {
   }
 }
 
-void _handleMessage(dynamic message) {
-  final json = jsonDecode(message) as Map<String, dynamic>;
-  final type = InspectorClientMessageType.values
-      .firstWhere((t) => t.name == json['type']);
-  final payload = json['payload'];
+class _HandleClientMessageAction extends GlobalAction {
+  final dynamic message;
 
-  final ref = RefenaScope.defaultRef;
-  switch (type) {
-    case InspectorClientMessageType.hello:
-      final events = payload['events'] as List<dynamic>?;
-      final graph = payload['graph'] as List<dynamic>;
-      final actions = payload['actions'] as Map<String, dynamic>;
-      final theme = payload['theme'] as String;
-      if (events != null) {
-        ref.redux(eventsProvider).dispatch(InitEventsAction(events: events));
-      }
-      ref.redux(actionProvider).dispatch(SetActionsAction(actions: actions));
-      ref.redux(graphProvider).dispatch(SetGraphAction(nodes: graph));
-      ref.redux(settingsProvider).dispatch(SettingsThemeModeAction(
-          themeMode: ThemeMode.values.firstWhere((t) => t.name == theme)));
-      ref.redux(serverProvider).dispatch(_ClientConnectedAction());
-      break;
-    case InspectorClientMessageType.event:
-      final events = payload['events'] as List<dynamic>;
-      ref.redux(eventsProvider).dispatch(AddEventsAction(events: events));
-      break;
-    case InspectorClientMessageType.graph:
-      final graph = payload['graph'] as List<dynamic>;
-      ref.redux(graphProvider).dispatch(SetGraphAction(nodes: graph));
-      break;
+  _HandleClientMessageAction({
+    required this.message,
+  });
+
+  @override
+  void reduce() {
+    final json = jsonDecode(message) as Map<String, dynamic>;
+    final type = InspectorClientMessageType.values
+        .firstWhere((t) => t.name == json['type']);
+    final payload = json['payload'];
+
+    switch (type) {
+      case InspectorClientMessageType.hello:
+        final events = payload['events'] as List<dynamic>?;
+        final graph = payload['graph'] as List<dynamic>;
+        final actions = payload['actions'] as Map<String, dynamic>;
+        final theme = payload['theme'] as String;
+        if (events != null) {
+          ref.redux(eventsProvider).dispatch(InitEventsAction(events: events));
+        }
+        ref.redux(actionProvider).dispatch(SetActionsAction(actions: actions));
+        ref.redux(graphProvider).dispatch(SetGraphAction(nodes: graph));
+        ref.redux(settingsProvider).dispatch(SettingsThemeModeAction(
+            themeMode: ThemeMode.values.firstWhere((t) => t.name == theme)));
+        ref.redux(serverProvider).dispatch(_ClientConnectedAction());
+        break;
+      case InspectorClientMessageType.event:
+        final events = payload['events'] as List<dynamic>;
+        ref.redux(eventsProvider).dispatch(AddEventsAction(events: events));
+        break;
+      case InspectorClientMessageType.graph:
+        final graph = payload['graph'] as List<dynamic>;
+        ref.redux(graphProvider).dispatch(SetGraphAction(nodes: graph));
+        break;
+    }
   }
 }
