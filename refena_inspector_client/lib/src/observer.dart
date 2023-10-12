@@ -109,7 +109,7 @@ class RefenaInspectorObserver extends RefenaObserver {
         if (ref.container.platformHint == PlatformHint.android) '10.0.2.2',
       ];
       ref.message(
-          'Refena Inspector Port <$port>, IP ${hosts.map((e) => '<$e>').join(', ')}');
+          'Connecting to Refena Inspector at ${hosts.map((h) => h).join('|')}:$port...');
     }
 
     int hostIndex = 0;
