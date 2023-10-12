@@ -67,8 +67,7 @@ class RefreshSetErrorAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
 
   @override
   bool operator ==(Object other) {
-    return other is RefreshSetErrorAction &&
-        other.error == error;
+    return other is RefreshSetErrorAction && other.error == error;
   }
 
   @override
