@@ -88,6 +88,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
 - [Refena vs Riverpod](#refena-vs-riverpod)
   - [Key differences](#-key-differences)
   - [Similarities](#-similarities)
+- [Refena vs async_redux](#refena-vs-asyncredux)
 - [Getting Started](#getting-started)
 - [Access the state](#access-the-state)
 - [Providers](#providers)
@@ -134,7 +135,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
 
 ## Refena vs Riverpod
 
-Refena is aimed to be more pragmatic and more notifier focused than Riverpod.
+Refena is aimed to be more notifier focused than Riverpod.
 
 Refena also includes a comprehensive [Redux](https://github.com/refena/refena/blob/main/documentation/redux.md) implementation
 that can be used for crucial parts of your app.
@@ -170,15 +171,27 @@ you can choose the right notifier for your use case.
 ### ➤ Similarities
 
 **Testable**:\
-The state is still bound to the `RefenScope` widget.
+The state is still bound to the `RefenaScope` widget.
 This means that you can override every provider in your tests.
 
 **Type-safe**:\
-Working providers and notifiers are type-safe and null-safe.
+Working with providers and notifiers are type-safe and null-safe.
 
 **Auto register**:\
 Don't worry that you forget to register a provider.
 They are automatically registered when you use them.
+
+## Refena vs async_redux
+
+Compared to [async_redux](https://pub.dev/packages/async_redux),
+Refena encourages you to split the state into multiple notifiers.
+
+This makes it easier to implement isolated features,
+so you not only have separation of concerns between UI and business logic,
+but also between different features.
+
+Refena uses dependency injection to allow you to use other notifiers.
+Dependency injection enables the creation of the [dependency graph](#-dependency-graph).
 
 ## Getting started
 
@@ -1029,8 +1042,9 @@ Be aware that you will need to write more boilerplate code.
 |------------------------------------------------|---------------------------------|-------------|
 | `Provider`, `StateProvider`                    |                                 | Low         |
 | `Provider`, `NotifierProvider`                 | notifiers                       | Medium      |
-| `Provider`, `ViewProvider`, `NotifierProvider` | notifiers, view models          | High        |
-| `Provider`, `ViewProvider`, `ReduxProvider`    | notifiers, view models, actions | Very high   |
+| `Provider`, `ReduxProvider`                    | notifiers, actions              | High        |
+| `Provider`, `ViewProvider`, `NotifierProvider` | notifiers, view models          | Very high   |
+| `Provider`, `ViewProvider`, `ReduxProvider`    | notifiers, view models, actions | Maximum     |
 
 ### ➤ Can I use different providers & notifiers together?
 
@@ -1038,7 +1052,33 @@ Yes. You can use any combination of providers and notifiers.
 
 The cool thing about notifiers is that they are self-contained.
 
-It is actually pragmatic to use `Notifier` and `ReduxNotifier` together, as each has its own strengths.
+Usually, you don't need to create a view model for each page.
+This refactoring can be done later when your page gets too complex.
+
+### ➤ What layers should an app have?
+
+Let's start from the UI (Widgets):
+
+- **Widgets:** The UI layer. This is where you build your UI. It should not contain any business logic.
+- **View Models:** This layer provides the data for the UI. It should not contain any business logic. Use `ViewProvider` for this layer.
+- **Controllers:** This layer contains the business logic for one specific view (page). It should not contain any business logic shared between multiple views. Possible providers: `NotifierProvider`, `ReduxProvider`.
+- **Services:** This layer contains the business logic that is shared between multiple views. A "service" is essentially a "feature" of your app. Possible providers: `NotifierProvider`, `ReduxProvider`.
+
+As always, you don't need to use all layers. It depends on the complexity of your app.
+
+- Create widgets and services first.
+- If you notice that your widgets get too complex, you can add controllers or view models to avoid `StatefulWidget`s.
+
+Simple `StatefulWidget`s are fine because they are still self-contained.
+The problem starts when you want to test them.
+View models makes it easier to test the UI.
+
+This is a very pragmatic approach. You can also write the full architecture from the beginning.
+
+Additional types like "repositories" can be added if you need them.
+Usually, they can be treated as services (but more specialized) in this model.
+
+You can open the [dependency graph](#-dependency-graph) to see how the layers are connected.
 
 ## Performance Optimization
 
@@ -1288,6 +1328,9 @@ That's why you see a loading indicator when you open the tracing UI.
 ### ➤ Dependency Graph
 
 You can open the `RefenaGraphPage` to see the dependency graph. It requires no setup.
+
+Be aware that Refena only tracks dependencies during the build phase of a notifier,
+hence, always prefer dependency injection!
 
 ```dart
 class MyPage extends StatelessWidget {
