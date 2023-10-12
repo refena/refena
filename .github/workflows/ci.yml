@@ -85,6 +85,9 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION_OLDEST }}
           channel: "stable"
 
+      - name: Downgrade (core)
+        working-directory: refena
+        run: dart pub downgrade
       - name: Dependencies (core)
         working-directory: refena
         run: dart pub get
@@ -92,6 +95,9 @@ jobs:
         working-directory: refena
         run: dart test
 
+      - name: Downgrade (flutter)
+        working-directory: refena_flutter
+        run: flutter pub downgrade
       - name: Dependencies (flutter)
         working-directory: refena_flutter
         run: flutter pub get
