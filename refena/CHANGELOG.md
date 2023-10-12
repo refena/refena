@@ -1,6 +1,7 @@
 ## 0.35.0
 
 - fix(inspector): should use filtered events from `RefenaTracingObserver`
+- fix(graph): dragging nodes on Android buggy
 
 ## 0.34.0
 

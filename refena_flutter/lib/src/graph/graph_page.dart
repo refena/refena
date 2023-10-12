@@ -328,8 +328,11 @@ class _RefenaGraphPageState extends State<_RefenaGraphPage>
               Positioned.fill(
                 child: GestureDetector(
                   onPanStart: (details) {
-                    state.selectedNode?.selected = true;
-                    setState(() {});
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      final state = ref.read(graphPageProvider);
+                      state.selectedNode?.selected = true;
+                      setState(() {});
+                    });
                   },
                   onPanUpdate: (details) {
                     final scale = _controller.value[0];
