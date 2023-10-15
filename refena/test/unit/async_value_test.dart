@@ -133,9 +133,9 @@ void main() {
       final joined = (
         AsyncValue.data(1),
         AsyncValue.data('a'),
-      ).join((data) {
-        final int a0 = data.$1;
-        final String a1 = data.$2;
+      ).join((a0, a1) {
+        expect(a0, isA<int>());
+        expect(a1, isA<String>());
         return '$a0:$a1';
       });
 
@@ -147,10 +147,10 @@ void main() {
         AsyncValue.data(1),
         AsyncValue.data('a'),
         AsyncValue.data(true),
-      ).join((data) {
-        final int a0 = data.$1;
-        final String a1 = data.$2;
-        final bool a2 = data.$3;
+      ).join((a0, a1, a2) {
+        expect(a0, isA<int>());
+        expect(a1, isA<String>());
+        expect(a2, isA<bool>());
         return '$a0:$a1:$a2';
       });
 
@@ -163,11 +163,11 @@ void main() {
         AsyncValue.data('a'),
         AsyncValue.data(true),
         AsyncValue.data(2.0),
-      ).join((data) {
-        final int a0 = data.$1;
-        final String a1 = data.$2;
-        final bool a2 = data.$3;
-        final double a3 = data.$4;
+      ).join((a0, a1, a2, a3) {
+        expect(a0, isA<int>());
+        expect(a1, isA<String>());
+        expect(a2, isA<bool>());
+        expect(a3, isA<double>());
         return '$a0:$a1:$a2:$a3';
       });
 
@@ -181,12 +181,12 @@ void main() {
         AsyncValue.data(true),
         AsyncValue.data(2.0),
         AsyncValue.data(3),
-      ).join((data) {
-        final int a0 = data.$1;
-        final String a1 = data.$2;
-        final bool a2 = data.$3;
-        final double a3 = data.$4;
-        final int a4 = data.$5;
+      ).join((a0, a1, a2, a3, a4) {
+        expect(a0, isA<int>());
+        expect(a1, isA<String>());
+        expect(a2, isA<bool>());
+        expect(a3, isA<double>());
+        expect(a4, isA<int>());
         return '$a0:$a1:$a2:$a3:$a4';
       });
 
@@ -197,9 +197,7 @@ void main() {
       final joined = (
         AsyncValue.data(1),
         AsyncValue.loading('a'),
-      ).join((data) {
-        final int a0 = data.$1;
-        final String a1 = data.$2;
+      ).join((a0, a1) {
         return '$a0:$a1';
       });
 
@@ -210,9 +208,7 @@ void main() {
       final joined = (
         AsyncValue.data(1),
         AsyncValue.error('e', StackTrace.empty, 'a'),
-      ).join((data) {
-        final int a0 = data.$1;
-        final String a1 = data.$2;
+      ).join((a0, a1) {
         return '$a0:$a1';
       });
 
@@ -223,9 +219,7 @@ void main() {
       final joined = (
         AsyncValue.loading(1),
         AsyncValue.error('e', StackTrace.empty, 'a'),
-      ).join((data) {
-        final int a0 = data.$1;
-        final String a1 = data.$2;
+      ).join((a0, a1) {
         return '$a0:$a1';
       });
 
@@ -242,9 +236,7 @@ void main() {
           final joined = (
             AsyncValue<int>.loading(withA0 ? a0 : null),
             AsyncValue<String>.loading(withA1 ? a1 : null),
-          ).join((data) {
-            final int a0 = data.$1;
-            final String a1 = data.$2;
+          ).join((a0, a1) {
             return '$a0:$a1';
           });
 
@@ -261,27 +253,24 @@ void main() {
     test('Should join 3 AsyncValue with all loading data combinations', () {
       final a0 = 1;
       final a1 = 'a';
-      final a3 = true;
+      final a2 = true;
       final combinations = [true, false];
 
       for (final withA0 in combinations) {
         for (final withA1 in combinations) {
-          for (final withA3 in combinations) {
+          for (final withA2 in combinations) {
             final joined = (
               AsyncValue<int>.loading(withA0 ? a0 : null),
               AsyncValue<String>.loading(withA1 ? a1 : null),
-              AsyncValue<bool>.loading(withA3 ? a3 : null),
-            ).join((data) {
-              final int a0 = data.$1;
-              final String a1 = data.$2;
-              final bool a3 = data.$3;
-              return '$a0:$a1:$a3';
+              AsyncValue<bool>.loading(withA2 ? a2 : null),
+            ).join((a0, a1, a2) {
+              return '$a0:$a1:$a2';
             });
 
             expect(
               joined,
-              withA0 && withA1 && withA3
-                  ? AsyncValue<String>.loading('$a0:$a1:$a3')
+              withA0 && withA1 && withA2
+                  ? AsyncValue<String>.loading('$a0:$a1:$a2')
                   : AsyncValue<String>.loading(null),
             );
           }

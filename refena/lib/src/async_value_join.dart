@@ -7,16 +7,16 @@ extension AsyncValueRecord2Join<T1, T2> on (AsyncValue<T1>, AsyncValue<T2>) {
   /// - [AsyncValue.data] if both are [AsyncValue.data].
   /// - [AsyncValue.error] if one of them is [AsyncValue.error].
   /// - [AsyncValue.loading] if one of them is [AsyncValue.loading].
-  AsyncValue<R> join<R>(R Function((T1, T2) data) mapper) {
+  AsyncValue<R> join<R>(R Function(T1, T2) mapper) {
     if ($1 is AsyncData && $2 is AsyncData) {
-      return AsyncValue<R>.data(mapper((
+      return AsyncValue<R>.data(mapper(
         ($1 as AsyncData<T1>).data,
         ($2 as AsyncData<T2>).data,
-      )));
+      ));
     }
 
     final data = $1.data != null && $2.data != null
-        ? mapper(($1.data!, $2.data!))
+        ? mapper($1.data as T1, $2.data as T2)
         : null;
 
     if ($1 is AsyncError || $2 is AsyncError) {
@@ -46,17 +46,17 @@ extension AsyncValueRecord3Join<T1, T2, T3> on (
   /// - [AsyncValue.data] if all are [AsyncValue.data].
   /// - [AsyncValue.error] if one of them is [AsyncValue.error].
   /// - [AsyncValue.loading] if one of them is [AsyncValue.loading].
-  AsyncValue<R> join<R>(R Function((T1, T2, T3) data) mapper) {
+  AsyncValue<R> join<R>(R Function(T1, T2, T3) mapper) {
     if ($1 is AsyncData && $2 is AsyncData && $3 is AsyncData) {
-      return AsyncValue<R>.data(mapper((
+      return AsyncValue<R>.data(mapper(
         ($1 as AsyncData<T1>).data,
         ($2 as AsyncData<T2>).data,
         ($3 as AsyncData<T3>).data,
-      )));
+      ));
     }
 
     final data = $1.data != null && $2.data != null && $3.data != null
-        ? mapper(($1.data!, $2.data!, $3.data!))
+        ? mapper($1.data as T1, $2.data as T2, $3.data as T3)
         : null;
 
     if ($1 is AsyncError || $2 is AsyncError || $3 is AsyncError) {
@@ -91,22 +91,22 @@ extension AsyncValueRecord4Join<T1, T2, T3, T4> on (
   /// - [AsyncValue.data] if all are [AsyncValue.data].
   /// - [AsyncValue.error] if one of them is [AsyncValue.error].
   /// - [AsyncValue.loading] if one of them is [AsyncValue.loading].
-  AsyncValue<R> join<R>(R Function((T1, T2, T3, T4) data) mapper) {
+  AsyncValue<R> join<R>(R Function(T1, T2, T3, T4) mapper) {
     if ($1 is AsyncData &&
         $2 is AsyncData &&
         $3 is AsyncData &&
         $4 is AsyncData) {
-      return AsyncValue<R>.data(mapper((
+      return AsyncValue<R>.data(mapper(
         ($1 as AsyncData<T1>).data,
         ($2 as AsyncData<T2>).data,
         ($3 as AsyncData<T3>).data,
         ($4 as AsyncData<T4>).data,
-      )));
+      ));
     }
 
     final data =
         $1.data != null && $2.data != null && $3.data != null && $4.data != null
-            ? mapper(($1.data!, $2.data!, $3.data!, $4.data!))
+            ? mapper($1.data as T1, $2.data as T2, $3.data as T3, $4.data as T4)
             : null;
 
     if ($1 is AsyncError ||
@@ -147,19 +147,19 @@ extension AsyncValueRecord5Join<T1, T2, T3, T4, T5> on (
   /// - [AsyncValue.data] if all are [AsyncValue.data].
   /// - [AsyncValue.error] if one of them is [AsyncValue.error].
   /// - [AsyncValue.loading] if one of them is [AsyncValue.loading].
-  AsyncValue<R> join<R>(R Function((T1, T2, T3, T4, T5) data) mapper) {
+  AsyncValue<R> join<R>(R Function(T1, T2, T3, T4, T5) mapper) {
     if ($1 is AsyncData &&
         $2 is AsyncData &&
         $3 is AsyncData &&
         $4 is AsyncData &&
         $5 is AsyncData) {
-      return AsyncValue<R>.data(mapper((
+      return AsyncValue<R>.data(mapper(
         ($1 as AsyncData<T1>).data,
         ($2 as AsyncData<T2>).data,
         ($3 as AsyncData<T3>).data,
         ($4 as AsyncData<T4>).data,
         ($5 as AsyncData<T5>).data,
-      )));
+      ));
     }
 
     final data = $1.data != null &&
@@ -167,7 +167,13 @@ extension AsyncValueRecord5Join<T1, T2, T3, T4, T5> on (
             $3.data != null &&
             $4.data != null &&
             $5.data != null
-        ? mapper(($1.data!, $2.data!, $3.data!, $4.data!, $5.data!))
+        ? mapper(
+            $1.data as T1,
+            $2.data as T2,
+            $3.data as T3,
+            $4.data as T4,
+            $5.data as T5,
+          )
         : null;
 
     if ($1 is AsyncError ||

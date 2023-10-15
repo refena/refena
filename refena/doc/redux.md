@@ -424,6 +424,10 @@ The `RefreshAction` will automatically update the state to `AsyncValue.loading` 
 
 It will also catch any errors thrown by `refresh()` and update the state to `AsyncValue.withError`.
 
+Additionally,
+it stores the previous value into `AsyncValue.loading` and `AsyncValue.error`,
+so you can still show the previous value while loading or while an error occurred.
+
 Consuming `AsyncValue` is easy:
 
 ```dart
@@ -523,6 +527,6 @@ All errors are also logged by the `RefenaTracingObserver`.
 
 They can be shown by opening the `RefenaTracingPage`:
 
-Here is how it looks like:
+Here is what it looks like:
 
 ![tracing-ui](https://raw.githubusercontent.com/refena/refena/main/resources/tracing-ui.png)
