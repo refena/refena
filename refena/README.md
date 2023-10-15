@@ -137,7 +137,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
 
 Refena is aimed to be more notifier focused than Riverpod.
 
-Refena also includes a comprehensive [Redux](https://github.com/refena/refena/blob/main/documentation/redux.md) implementation
+Refena also includes a comprehensive [Redux](https://github.com/refena/refena/blob/main/refena/doc/redux.md) implementation
 that can be used for crucial parts of your app.
 
 ### ➤ Key differences
@@ -620,7 +620,7 @@ AsyncSnapshot<int> curr = counterState.curr; // might be AsyncSnapshot.waiting()
 
 ### ➤ ReduxProvider
 
-[Redux full documentation](https://github.com/refena/refena/blob/main/documentation/redux.md).
+[Redux full documentation](https://github.com/refena/refena/blob/main/refena/doc/redux.md).
 
 The `ReduxProvider` is the strictest option. The `state` is solely altered by actions.
 
@@ -719,7 +719,7 @@ Here is how the console output could look like with `RefenaDebugObserver`:
 You can additionally override `before`, `after`, and `wrapReduce` in a `ReduxAction` to add custom logic.
 
 The redux feature is quite complex.
-You can read more about it [here](https://github.com/refena/refena/blob/main/documentation/redux.md).
+You can read more about it [here](https://github.com/refena/refena/blob/main/refena/doc/redux.md).
 
 ### ➤ ViewProvider
 
@@ -1512,7 +1512,7 @@ void main() {
 
 There is an example test that shows how to test a counter app.
 
-[See the example test](https://github.com/refena/refena/blob/main/documentation/testing.md).
+[See the example test](https://github.com/refena/refena/blob/main/refena/doc/testing.md).
 
 ## Add-ons
 
@@ -1613,7 +1613,7 @@ So you can dispatch them from anywhere.
 ref.dispatch(ShowSnackBarAction(message: 'Hello World from Action!'));
 ```
 
-Please read the full documentation about global actions [here](https://github.com/refena/refena/blob/main/documentation/redux.md#global-actions).
+Please read the full documentation about global actions [here](https://github.com/refena/refena/blob/main/refena/doc/redux.md#global-actions).
 
 You can easily customize the given add-ons by extending their respective "Base-" classes.
 
