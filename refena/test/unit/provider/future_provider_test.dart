@@ -13,7 +13,7 @@ void main() {
     expect(await ref.future(provider), 123);
     expect(
       ref.read(provider),
-      AsyncValue.withData(123),
+      AsyncValue.data(123),
     );
 
     // Check events
@@ -32,7 +32,7 @@ void main() {
         notifier: notifier,
         action: null,
         prev: AsyncValue<int>.loading(),
-        next: AsyncValue.withData(123),
+        next: AsyncValue.data(123),
         rebuild: [],
       ),
     ]);
@@ -67,7 +67,7 @@ void main() {
     expect(await ref.future(providerC), 'AAA BBB CCC');
     expect(
       ref.read(providerC),
-      AsyncValue.withData('AAA BBB CCC'),
+      AsyncValue.data('AAA BBB CCC'),
     );
 
     // Check events
@@ -103,7 +103,7 @@ void main() {
         notifier: notifierA,
         action: null,
         prev: AsyncValue<String>.loading(),
-        next: AsyncValue.withData('AAA'),
+        next: AsyncValue.data('AAA'),
         rebuild: [],
       ),
       ProviderInitEvent(
@@ -116,14 +116,14 @@ void main() {
         notifier: notifierB,
         action: null,
         prev: AsyncValue<String>.loading(),
-        next: AsyncValue.withData('BBB'),
+        next: AsyncValue.data('BBB'),
         rebuild: [],
       ),
       ChangeEvent(
         notifier: notifierC,
         action: null,
         prev: AsyncValue<String>.loading(),
-        next: AsyncValue.withData('AAA BBB CCC'),
+        next: AsyncValue.data('AAA BBB CCC'),
         rebuild: [],
       ),
     ]);

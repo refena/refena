@@ -2,6 +2,7 @@
 
 - feat: add `RefreshAction`, a new class of action that reduces the boilerplate when refreshing `ReduxNotifier`s with data type `AsyncValue`
 - **BREAKING**: remove `ref.watchWithPrev`, `AsyncValue` already contains the previous value
+- **BREAKING**: shorten `AsyncValue` constructors to `AsyncValue.data` and `AsyncValue.error`
 
 ## 0.35.0
 

@@ -290,7 +290,7 @@ void main() {
 
       expect(ref.read(provider), AsyncValue<int>.loading());
       expect(await ref.future(provider), 456);
-      expect(ref.read(provider), AsyncValue.withData(456));
+      expect(ref.read(provider), AsyncValue.data(456));
       expect(ref.notifier(provider).s, 'b');
     });
   });

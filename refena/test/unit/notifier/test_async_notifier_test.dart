@@ -11,28 +11,28 @@ void main() {
 
     await skipAllMicrotasks();
 
-    expect(tester.state, AsyncValue.withData(50));
+    expect(tester.state, AsyncValue.data(50));
 
-    tester.setState(AsyncValue.withData(51));
-    expect(tester.state, AsyncValue.withData(51));
+    tester.setState(AsyncValue.data(51));
+    expect(tester.state, AsyncValue.data(51));
 
     tester.notifier.increment();
     await skipAllMicrotasks();
-    expect(tester.state, AsyncValue.withData(52));
+    expect(tester.state, AsyncValue.data(52));
   });
 
   test('Should set initial state', () async {
     final tester = AsyncNotifier.test<_Counter, int>(
       notifier: _Counter(),
-      initialState: AsyncValue.withData(11),
+      initialState: AsyncValue.data(11),
     );
 
     await skipAllMicrotasks();
-    expect(tester.state, AsyncValue.withData(11));
+    expect(tester.state, AsyncValue.data(11));
 
     tester.notifier.increment();
     await skipAllMicrotasks();
-    expect(tester.state, AsyncValue.withData(12));
+    expect(tester.state, AsyncValue.data(12));
   });
 
   test('Should access state', () async {
@@ -41,7 +41,7 @@ void main() {
     );
 
     await skipAllMicrotasks();
-    expect(tester.state, AsyncValue.withData(50));
+    expect(tester.state, AsyncValue.data(50));
     expect(tester.notifier.accessState(), 20);
   });
 }

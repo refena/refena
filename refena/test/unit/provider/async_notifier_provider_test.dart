@@ -17,7 +17,7 @@ void main() {
     expect(await ref.future(provider), 123);
     expect(
       ref.read(provider),
-      AsyncValue.withData(123),
+      AsyncValue.data(123),
     );
 
     ref.notifier(provider).increment();
@@ -44,13 +44,13 @@ void main() {
         notifier: notifier,
         action: null,
         prev: AsyncValue<int>.loading(),
-        next: AsyncValue.withData(123),
+        next: AsyncValue.data(123),
         rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
         action: null,
-        prev: AsyncValue.withData(123),
+        prev: AsyncValue.data(123),
         next: AsyncValue<int>.loading(123),
         rebuild: [],
       ),
@@ -58,7 +58,7 @@ void main() {
         notifier: notifier,
         action: null,
         prev: AsyncValue<int>.loading(123),
-        next: AsyncValue.withData(124),
+        next: AsyncValue.data(124),
         rebuild: [],
       ),
     ]);
@@ -77,7 +77,7 @@ void main() {
     expect(await ref.future(provider), 123);
     expect(
       ref.read(provider),
-      AsyncValue.withData(123),
+      AsyncValue.data(123),
     );
 
     ref.notifier(provider).setDelayed(11, const Duration(milliseconds: 50));
@@ -115,13 +115,13 @@ void main() {
         notifier: notifier,
         action: null,
         prev: AsyncValue<int>.loading(),
-        next: AsyncValue.withData(123),
+        next: AsyncValue.data(123),
         rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
         action: null,
-        prev: AsyncValue.withData(123),
+        prev: AsyncValue.data(123),
         next: AsyncValue<int>.loading(123),
         rebuild: [],
       ),
@@ -129,7 +129,7 @@ void main() {
         notifier: notifier,
         action: null,
         prev: AsyncValue<int>.loading(123),
-        next: AsyncValue.withData(12),
+        next: AsyncValue.data(12),
         rebuild: [],
       ),
     ]);

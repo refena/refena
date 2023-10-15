@@ -28,7 +28,7 @@ abstract class RefreshAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
     final prev = state.data;
     dispatch(RefreshSetLoadingAction<N, T>(prev));
     try {
-      return AsyncValue<T>.withData(await refresh());
+      return AsyncValue<T>.data(await refresh());
     } catch (error, stackTrace) {
       dispatch(RefreshSetErrorAction<N, T>(
         error: error,
@@ -77,7 +77,7 @@ class RefreshSetErrorAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
 
   @override
   AsyncValue<T> reduce() {
-    return AsyncValue<T>.withError(error, stackTrace, previousData);
+    return AsyncValue<T>.error(error, stackTrace, previousData);
   }
 
   @override

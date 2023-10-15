@@ -2,7 +2,7 @@ sealed class AsyncValue<T> {
   const AsyncValue();
 
   /// The data of an [AsyncValue].
-  /// Is always [T] if the state is [AsyncData].
+  /// Is always [T] (non-null) if the state is [AsyncData].
   T? get data => null;
 
   /// The error of an [AsyncValue].
@@ -23,6 +23,11 @@ sealed class AsyncValue<T> {
   bool get isLoading => this is AsyncLoading<T>;
 
   /// Syntactic sugar for [AsyncValue].
+  /// If [skipLoading] is true and there is previous data,
+  /// the result of [data] will be returned instead of [loading].
+  /// If [skipError] is true and there is previous data,
+  /// the result of [data] will be returned instead of [error].
+  ///
   ///
   /// Usage:
   /// final futureProvider = FutureProvider((ref) async {
@@ -81,13 +86,13 @@ sealed class AsyncValue<T> {
   }
 
   /// Constructs an [AsyncValue].
-  const factory AsyncValue.withData(T data) = AsyncData<T>._;
+  const factory AsyncValue.data(T data) = AsyncData<T>._;
 
   /// Constructs an [AsyncLoading].
   const factory AsyncValue.loading([T? prev]) = AsyncLoading<T>._;
 
   /// Constructs an [AsyncError].
-  const factory AsyncValue.withError(
+  const factory AsyncValue.error(
     Object error,
     StackTrace stackTrace, [
     T? prev,
@@ -141,6 +146,7 @@ final class AsyncError<T> extends AsyncValue<T> {
   @override
   final StackTrace stackTrace;
 
+  /// Represents the previous data before the error.
   @override
   final T? data;
 

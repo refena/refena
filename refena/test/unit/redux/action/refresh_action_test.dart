@@ -24,7 +24,7 @@ void main() {
 
     await ref.redux(provider).dispatchAsync(_RefreshAction(2));
 
-    expect(ref.read(provider), AsyncValue.withData(2));
+    expect(ref.read(provider), AsyncValue.data(2));
 
     // Check events
     final notifier = ref.notifier(provider);
@@ -44,7 +44,7 @@ void main() {
       ChangeEvent(
         notifier: ref.notifier(provider),
         action: RefreshSetLoadingAction<_ReduxNotifier, int>(0),
-        prev: AsyncValue.withData(0),
+        prev: AsyncValue.data(0),
         next: AsyncValue<int>.loading(0),
         rebuild: [],
       ),
@@ -52,7 +52,7 @@ void main() {
         notifier: ref.notifier(provider),
         action: _RefreshAction(2),
         prev: AsyncValue<int>.loading(0),
-        next: AsyncValue.withData(2),
+        next: AsyncValue.data(2),
         rebuild: [],
       ),
     ]);
@@ -74,7 +74,7 @@ void main() {
 
     expect(
       ref.read(provider),
-      AsyncValue<int>.withError('error', StackTrace.fromString(''), 0),
+      AsyncValue<int>.error('error', StackTrace.fromString(''), 0),
     );
 
     // Check events
@@ -95,7 +95,7 @@ void main() {
       ChangeEvent(
         notifier: ref.notifier(provider),
         action: RefreshSetLoadingAction<_ReduxNotifier, int>(0),
-        prev: AsyncValue.withData(0),
+        prev: AsyncValue.data(0),
         next: AsyncValue<int>.loading(0),
         rebuild: [],
       ),
@@ -117,7 +117,7 @@ void main() {
           previousData: 0,
         ),
         prev: AsyncValue<int>.loading(0),
-        next: AsyncValue<int>.withError('error', StackTrace.fromString(''), 0),
+        next: AsyncValue<int>.error('error', StackTrace.fromString(''), 0),
         rebuild: [],
       ),
     ]);
@@ -135,7 +135,7 @@ void main() {
     expect(ref.read(provider).data, 0);
 
     await ref.redux(provider).dispatchAsync(_RefreshAction(2));
-    expect(ref.read(provider), AsyncValue.withData(2));
+    expect(ref.read(provider), AsyncValue.data(2));
     expect(ref.read(provider).data, 2);
 
     var future = ref.redux(provider).dispatchAsync(_RefreshAction(3));
@@ -143,7 +143,7 @@ void main() {
     expect(ref.read(provider), AsyncValue.loading(2));
     expect(ref.read(provider).data, 2);
     await future;
-    expect(ref.read(provider), AsyncValue.withData(3));
+    expect(ref.read(provider), AsyncValue.data(3));
     expect(ref.read(provider).data, 3);
 
     future = ref.redux(provider).dispatchAsync(_RefreshErrorAction());
@@ -153,7 +153,7 @@ void main() {
     await expectLater(future, throwsA('error'));
     expect(
       ref.read(provider),
-      AsyncValue<int>.withError('error', StackTrace.fromString(''), 3),
+      AsyncValue<int>.error('error', StackTrace.fromString(''), 3),
     );
     expect(ref.read(provider).data, 3);
   });
@@ -161,7 +161,7 @@ void main() {
 
 class _ReduxNotifier extends ReduxNotifier<AsyncValue<int>> {
   @override
-  AsyncValue<int> init() => AsyncValue.withData(0);
+  AsyncValue<int> init() => AsyncValue.data(0);
 }
 
 class _RefreshAction extends RefreshAction<_ReduxNotifier, int> {

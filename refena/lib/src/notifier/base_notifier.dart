@@ -257,14 +257,14 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
         // The future has been changed in the meantime.
         return;
       }
-      state = AsyncValue.withData(value);
+      state = AsyncValue.data(value);
       _prev = value; // drop the previous state
     } catch (error, stackTrace) {
       if (currentCount != _futureCount) {
         // The future has been changed in the meantime.
         return;
       }
-      state = AsyncValue<T>.withError(error, stackTrace, _prev);
+      state = AsyncValue<T>.error(error, stackTrace, _prev);
     }
   }
 

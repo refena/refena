@@ -29,12 +29,12 @@ final class FutureFamilyProviderNotifier<T, P>
       final value = await _future(ref, param);
       state = {
         ...state,
-        param: AsyncValue<T>.withData(value),
+        param: AsyncValue<T>.data(value),
       };
     } catch (error, stackTrace) {
       state = {
         ...state,
-        param: AsyncValue<T>.withError(error, stackTrace),
+        param: AsyncValue<T>.error(error, stackTrace),
       };
     }
   }

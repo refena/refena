@@ -21,7 +21,7 @@ void main() {
     await Future.delayed(Duration(milliseconds: 100));
     expect(
       ref.read(viewProvider),
-      AsyncValue.withData(246),
+      AsyncValue.data(246),
     );
 
     // Check events
@@ -55,7 +55,7 @@ void main() {
     expect(history3.notifier, doubleNotifier);
     expect(history3.action, null);
     expect(history3.prev, {123: AsyncValue<int>.loading()});
-    expect(history3.next, {123: AsyncValue.withData(246)});
+    expect(history3.next, {123: AsyncValue.data(246)});
     expect(history3.rebuild, [viewNotifier]);
 
     final history4 = observer.history[4] as RebuildEvent<AsyncValue<int>>;
@@ -63,7 +63,7 @@ void main() {
     expect(history4.causes.length, 1);
     expect(history4.causes[0], history3);
     expect(history4.prev, AsyncValue<int>.loading());
-    expect(history4.next, AsyncValue.withData(246));
+    expect(history4.next, AsyncValue.data(246));
     expect(history4.rebuild, []);
 
     final view2Provider = ViewProvider((ref) {
@@ -73,11 +73,11 @@ void main() {
     await Future.delayed(Duration(milliseconds: 100));
     expect(
       ref.read(viewProvider),
-      AsyncValue.withData(246),
+      AsyncValue.data(246),
     );
     expect(
       ref.read(view2Provider),
-      AsyncValue.withData(800),
+      AsyncValue.data(800),
     );
   });
 
@@ -103,7 +103,7 @@ void main() {
     await Future.delayed(Duration(milliseconds: 100));
     expect(
       ref.read(viewProvider),
-      AsyncValue.withData(246),
+      AsyncValue.data(246),
     );
 
     ref.notifier(stateProvider).setState((old) => 100);
@@ -111,17 +111,17 @@ void main() {
     expect(ref.read(viewProvider), AsyncValue<int>.loading());
     expect(
       ref.read(view2Provider),
-      AsyncValue.withData(246),
+      AsyncValue.data(246),
     );
 
     await Future.delayed(Duration(milliseconds: 100));
     expect(
       ref.read(viewProvider),
-      AsyncValue.withData(200),
+      AsyncValue.data(200),
     );
     expect(
       ref.read(view2Provider),
-      AsyncValue.withData(246),
+      AsyncValue.data(246),
     );
 
     // Check events
