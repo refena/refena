@@ -8,6 +8,7 @@ export 'package:refena/src/action/redux_action.dart'
         BaseAsyncReduxActionWithResult;
 export 'package:refena/src/action/refresh_action.dart';
 export 'package:refena/src/async_value.dart';
+export 'package:refena/src/async_value_join.dart';
 export 'package:refena/src/container.dart';
 export 'package:refena/src/notifier/base_notifier.dart'
     show ReduxNotifierOverrideExt, MockReducer, TestableReduxNotifier;

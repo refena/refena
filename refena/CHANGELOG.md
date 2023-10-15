@@ -1,6 +1,8 @@
 ## 0.36.0
 
 - feat: add `RefreshAction`, a new class of action that reduces the boilerplate when refreshing `ReduxNotifier`s with data type `AsyncValue`
+- feat: add `AsyncValue.map` to map the data type of `AsyncValue` while keeping the error / loading state
+- feat: add `(AsyncValue<T1>, ..., AsyncValue<TN>).join` to join multiple `AsyncValue`s into one
 - **BREAKING**: remove `ref.watchWithPrev`, `AsyncValue` already contains the previous value
 - **BREAKING**: shorten `AsyncValue` constructors to `AsyncValue.data` and `AsyncValue.error`
 

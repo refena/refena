@@ -14,13 +14,26 @@ sealed class AsyncValue<T> {
   StackTrace? get stackTrace => null;
 
   /// Whether the state is [AsyncData].
-  bool get hasData => this is AsyncData<T>;
+  bool get hasData => data != null;
 
   /// Whether the state is [AsyncError].
   bool get hasError => this is AsyncError<T>;
 
   /// Whether the state is [AsyncLoading].
   bool get isLoading => this is AsyncLoading<T>;
+
+  /// Maps the data type of this [AsyncValue] to [R] while
+  /// preserving the loading and error state.
+  /// This can be used to add additional data to the [AsyncValue].
+  AsyncValue<R> map<R>(R Function(T data) mapper) {
+    return switch (this) {
+      AsyncData<T> curr => AsyncData<R>._(mapper(curr.data)),
+      AsyncLoading<T> curr =>
+        AsyncLoading<R>._(curr.data != null ? mapper(curr.data as T) : null),
+      AsyncError<T> curr => AsyncError<R>._(curr.error, curr.stackTrace,
+          curr.data != null ? mapper(curr.data as T) : null),
+    };
+  }
 
   /// Syntactic sugar for [AsyncValue].
   /// If [skipLoading] is true and there is previous data,
