@@ -231,13 +231,25 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
 
   @protected
   set future(Future<T> value) {
+    if (savePrev && state.data != null) {
+      _prev = state.data;
+    }
     _setFutureAndListen(value);
   }
+
+  T? _prev;
+
+  /// The last valid state.
+  T? get prev => _prev;
+
+  /// Whether the previous state should be saved.
+  /// Override this, if you don't want to save the previous state.
+  bool get savePrev => true;
 
   void _setFutureAndListen(Future<T> value) async {
     _future = value;
     _futureCount++;
-    state = AsyncValue<T>.loading();
+    state = AsyncValue<T>.loading(_prev);
     final currentCount = _futureCount; // after the setter, as it may change
     try {
       final value = await _future;
@@ -246,12 +258,13 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
         return;
       }
       state = AsyncValue.withData(value);
+      _prev = value; // drop the previous state
     } catch (error, stackTrace) {
       if (currentCount != _futureCount) {
         // The future has been changed in the meantime.
         return;
       }
-      state = AsyncValue<T>.withError(error, stackTrace);
+      state = AsyncValue<T>.withError(error, stackTrace, _prev);
     }
   }
 

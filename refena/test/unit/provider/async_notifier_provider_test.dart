@@ -25,10 +25,10 @@ void main() {
     // wait for the microtasks to be executed
     await skipAllMicrotasks();
 
-    expect(ref.read(provider), AsyncValue<int>.loading());
+    expect(ref.read(provider), AsyncValue<int>.loading(123));
     expect(
       ref.notifier(provider).prev,
-      AsyncValue.withData(123),
+      123,
     );
     expect(await ref.future(provider), 124);
 
@@ -51,13 +51,13 @@ void main() {
         notifier: notifier,
         action: null,
         prev: AsyncValue.withData(123),
-        next: AsyncValue<int>.loading(),
+        next: AsyncValue<int>.loading(123),
         rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
         action: null,
-        prev: AsyncValue<int>.loading(),
+        prev: AsyncValue<int>.loading(123),
         next: AsyncValue.withData(124),
         rebuild: [],
       ),
@@ -84,10 +84,10 @@ void main() {
 
     await skipAllMicrotasks();
 
-    expect(ref.read(provider), AsyncValue<int>.loading());
+    expect(ref.read(provider), AsyncValue<int>.loading(123));
     expect(
       ref.notifier(provider).prev,
-      AsyncValue.withData(123),
+      123,
     );
 
     // Set it again, it should cancel the previous future
@@ -95,10 +95,10 @@ void main() {
 
     await skipAllMicrotasks();
 
-    expect(ref.read(provider), AsyncValue<int>.loading());
+    expect(ref.read(provider), AsyncValue<int>.loading(123));
     expect(
       ref.notifier(provider).prev,
-      AsyncValue<int>.loading(),
+      123,
     );
 
     expect(await ref.future(provider), 12);
@@ -122,13 +122,13 @@ void main() {
         notifier: notifier,
         action: null,
         prev: AsyncValue.withData(123),
-        next: AsyncValue<int>.loading(),
+        next: AsyncValue<int>.loading(123),
         rebuild: [],
       ),
       ChangeEvent(
         notifier: notifier,
         action: null,
-        prev: AsyncValue<int>.loading(),
+        prev: AsyncValue<int>.loading(123),
         next: AsyncValue.withData(12),
         rebuild: [],
       ),

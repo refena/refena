@@ -25,11 +25,16 @@ abstract class RefreshAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
 
   @override
   Future<AsyncValue<T>> reduce() async {
-    dispatch(RefreshSetLoadingAction<N, T>());
+    final prev = state.data;
+    dispatch(RefreshSetLoadingAction<N, T>(prev));
     try {
       return AsyncValue<T>.withData(await refresh());
     } catch (error, stackTrace) {
-      dispatch(RefreshSetErrorAction<N, T>(error, stackTrace));
+      dispatch(RefreshSetErrorAction<N, T>(
+        error: error,
+        stackTrace: stackTrace,
+        previousData: prev,
+      ));
       rethrow;
     }
   }
@@ -38,14 +43,19 @@ abstract class RefreshAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
 /// Sets the state of a [ReduxNotifier] to [AsyncValue.loading].
 class RefreshSetLoadingAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
     extends ReduxAction<N, AsyncValue<T>> {
+  final T? previousData;
+
+  RefreshSetLoadingAction(this.previousData);
+
   @override
   AsyncValue<T> reduce() {
-    return AsyncValue<T>.loading();
+    return AsyncValue<T>.loading(previousData);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is RefreshSetLoadingAction;
+    return other is RefreshSetLoadingAction &&
+        other.previousData == previousData;
   }
 
   @override
@@ -57,17 +67,24 @@ class RefreshSetErrorAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
     extends ReduxAction<N, AsyncValue<T>> {
   final Object error;
   final StackTrace stackTrace;
+  final T? previousData;
 
-  RefreshSetErrorAction(this.error, this.stackTrace);
+  RefreshSetErrorAction({
+    required this.error,
+    required this.stackTrace,
+    this.previousData,
+  });
 
   @override
   AsyncValue<T> reduce() {
-    return AsyncValue<T>.withError(error, stackTrace);
+    return AsyncValue<T>.withError(error, stackTrace, previousData);
   }
 
   @override
   bool operator ==(Object other) {
-    return other is RefreshSetErrorAction && other.error == error;
+    return other is RefreshSetErrorAction &&
+        other.error == error &&
+        other.previousData == previousData;
   }
 
   @override

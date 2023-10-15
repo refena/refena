@@ -39,19 +39,19 @@ void main() {
         debugOrigin: '_RefreshAction',
         debugOriginRef: _RefreshAction(2),
         notifier: notifier,
-        action: RefreshSetLoadingAction(),
+        action: RefreshSetLoadingAction<_ReduxNotifier, int>(0),
       ),
       ChangeEvent(
         notifier: ref.notifier(provider),
-        action: RefreshSetLoadingAction(),
+        action: RefreshSetLoadingAction<_ReduxNotifier, int>(0),
         prev: AsyncValue.withData(0),
-        next: AsyncValue<int>.loading(),
+        next: AsyncValue<int>.loading(0),
         rebuild: [],
       ),
       ChangeEvent(
         notifier: ref.notifier(provider),
         action: _RefreshAction(2),
-        prev: AsyncValue<int>.loading(),
+        prev: AsyncValue<int>.loading(0),
         next: AsyncValue.withData(2),
         rebuild: [],
       ),
@@ -74,7 +74,7 @@ void main() {
 
     expect(
       ref.read(provider),
-      AsyncValue<int>.withError('error', StackTrace.fromString('')),
+      AsyncValue<int>.withError('error', StackTrace.fromString(''), 0),
     );
 
     // Check events
@@ -90,29 +90,72 @@ void main() {
         debugOrigin: '_RefreshErrorAction',
         debugOriginRef: _RefreshErrorAction(),
         notifier: notifier,
-        action: RefreshSetLoadingAction(),
+        action: RefreshSetLoadingAction<_ReduxNotifier, int>(0),
       ),
       ChangeEvent(
         notifier: ref.notifier(provider),
-        action: RefreshSetLoadingAction(),
+        action: RefreshSetLoadingAction<_ReduxNotifier, int>(0),
         prev: AsyncValue.withData(0),
-        next: AsyncValue<int>.loading(),
+        next: AsyncValue<int>.loading(0),
         rebuild: [],
       ),
       ActionDispatchedEvent(
         debugOrigin: '_RefreshErrorAction',
         debugOriginRef: _RefreshErrorAction(),
         notifier: notifier,
-        action: RefreshSetErrorAction('error', StackTrace.fromString('')),
+        action: RefreshSetErrorAction<_ReduxNotifier, int>(
+          error: 'error',
+          stackTrace: StackTrace.fromString(''),
+          previousData: 0,
+        ),
       ),
       ChangeEvent(
         notifier: ref.notifier(provider),
-        action: RefreshSetErrorAction('error', StackTrace.fromString('')),
-        prev: AsyncValue<int>.loading(),
-        next: AsyncValue<int>.withError('error', StackTrace.fromString('')),
+        action: RefreshSetErrorAction<_ReduxNotifier, int>(
+          error: 'error',
+          stackTrace: StackTrace.fromString(''),
+          previousData: 0,
+        ),
+        prev: AsyncValue<int>.loading(0),
+        next: AsyncValue<int>.withError('error', StackTrace.fromString(''), 0),
         rebuild: [],
       ),
     ]);
+  });
+
+  test('Should correctly keep previous state', () async {
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    final provider = ReduxProvider<_ReduxNotifier, AsyncValue<int>>(
+      (ref) => _ReduxNotifier(),
+    );
+
+    expect(ref.read(provider).data, 0);
+
+    await ref.redux(provider).dispatchAsync(_RefreshAction(2));
+    expect(ref.read(provider), AsyncValue.withData(2));
+    expect(ref.read(provider).data, 2);
+
+    var future = ref.redux(provider).dispatchAsync(_RefreshAction(3));
+    await skipAllMicrotasks();
+    expect(ref.read(provider), AsyncValue.loading(2));
+    expect(ref.read(provider).data, 2);
+    await future;
+    expect(ref.read(provider), AsyncValue.withData(3));
+    expect(ref.read(provider).data, 3);
+
+    future = ref.redux(provider).dispatchAsync(_RefreshErrorAction());
+    await skipAllMicrotasks();
+    expect(ref.read(provider), AsyncValue.loading(3));
+    expect(ref.read(provider).data, 3);
+    await expectLater(future, throwsA('error'));
+    expect(
+      ref.read(provider),
+      AsyncValue<int>.withError('error', StackTrace.fromString(''), 3),
+    );
+    expect(ref.read(provider).data, 3);
   });
 }
 

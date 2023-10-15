@@ -97,20 +97,22 @@ class MySecondPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final snapshot = context.ref.watchWithPrev(myNotifier);
+    final state = context.ref.watch(myNotifier);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Second page'),
       ),
       body: Column(
         children: [
-          Text('The counter is ${snapshot.prev} -> ${snapshot.curr}'),
+          Text('The counter is ${state.data}'),
           ElevatedButton(
             onPressed: () {
               context.ref.notifier(myNotifier).increment();
             },
             child: const Text('+ 1'),
           ),
+          if (state.isLoading)
+            const CircularProgressIndicator(),
         ],
       ),
     );

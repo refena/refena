@@ -43,15 +43,23 @@ sealed class AsyncValue<T> {
     required R Function(T data) data,
     required R Function() loading,
     required R Function(Object error, StackTrace stackTrace) error,
+    bool skipLoading = true,
+    bool skipError = false,
   }) {
     return switch (this) {
-      AsyncData curr => data(curr.data),
-      AsyncError curr => error(curr.error, curr.stackTrace),
-      AsyncLoading _ => loading(),
+      AsyncData<T> curr => data(curr.data),
+      AsyncLoading<T> curr => switch (curr.data) {
+          T t when skipLoading => data(t),
+          _ => loading()
+        },
+      AsyncError<T> curr => switch (curr.data) {
+          T t when skipError => data(t),
+          _ => error(curr.error, curr.stackTrace),
+        },
     };
   }
 
-  /// Syntactic sugar for [AsyncSnapshot].
+  /// Syntactic sugar for [AsyncValue].
   ///
   /// final futureState = ref.watch(futureProvider);
   /// futureState.maybeWhen(
@@ -60,27 +68,30 @@ sealed class AsyncValue<T> {
   /// );
   R maybeWhen<R>({
     R Function(T data)? data,
-    R Function(Object error, StackTrace stackTrace)? error,
     R Function()? loading,
+    R Function(Object error, StackTrace stackTrace)? error,
     required R Function() orElse,
   }) {
     return switch (this) {
-      AsyncData curr => data != null ? data(curr.data) : orElse(),
-      AsyncError curr =>
+      AsyncData<T> curr => data != null ? data(curr.data) : orElse(),
+      AsyncLoading<T> _ => loading != null ? loading() : orElse(),
+      AsyncError<T> curr =>
         error != null ? error(curr.error, curr.stackTrace) : orElse(),
-      AsyncLoading _ => loading != null ? loading() : orElse(),
     };
   }
 
   /// Constructs an [AsyncValue].
   const factory AsyncValue.withData(T data) = AsyncData<T>._;
 
-  /// Constructs an [AsyncError].
-  const factory AsyncValue.withError(Object error, StackTrace stackTrace) =
-      AsyncError<T>._;
-
   /// Constructs an [AsyncLoading].
-  const factory AsyncValue.loading() = AsyncLoading<T>._;
+  const factory AsyncValue.loading([T? prev]) = AsyncLoading<T>._;
+
+  /// Constructs an [AsyncError].
+  const factory AsyncValue.withError(
+    Object error,
+    StackTrace stackTrace, [
+    T? prev,
+  ]) = AsyncError<T>._;
 
   @override
   bool operator ==(Object other) {
@@ -108,6 +119,20 @@ final class AsyncData<T> extends AsyncValue<T> {
   }
 }
 
+/// The loading state of an [AsyncValue].
+final class AsyncLoading<T> extends AsyncValue<T> {
+  /// Represents the previous data before loading.
+  @override
+  final T? data;
+
+  const AsyncLoading._([this.data]);
+
+  @override
+  String toString() {
+    return 'AsyncLoading<$T>';
+  }
+}
+
 /// The error of an [AsyncValue].
 final class AsyncError<T> extends AsyncValue<T> {
   @override
@@ -116,20 +141,13 @@ final class AsyncError<T> extends AsyncValue<T> {
   @override
   final StackTrace stackTrace;
 
-  const AsyncError._(this.error, this.stackTrace);
+  @override
+  final T? data;
+
+  const AsyncError._(this.error, this.stackTrace, [this.data]);
 
   @override
   String toString() {
     return 'AsyncError<$T>($error)';
-  }
-}
-
-/// The loading state of an [AsyncValue].
-final class AsyncLoading<T> extends AsyncValue<T> {
-  const AsyncLoading._();
-
-  @override
-  String toString() {
-    return 'AsyncLoading<$T>';
   }
 }

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:refena/src/action/dispatcher.dart';
-import 'package:refena/src/async_value.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/listener.dart';
@@ -209,28 +208,6 @@ class WatchableRef extends Ref {
     return watchable.getSelectedState(notifier, notifier.state);
   }
 
-  /// Similar to [watch] but also returns the previous value.
-  /// Only works with [AsyncNotifierProvider].
-  ChronicleSnapshot<T> watchWithPrev<N extends AsyncNotifier<T>, T>(
-    AsyncNotifierProvider<N, T> provider, {
-    ListenerCallback<AsyncValue<T>>? listener,
-    bool Function(AsyncValue<T> prev, AsyncValue<T> next)? rebuildWhen,
-  }) {
-    final notifier = _ref.anyNotifier(provider);
-    notifier.addListener(
-      _rebuildable,
-      ListenerConfig(
-        callback: listener,
-        rebuildWhen: rebuildWhen,
-      ),
-    );
-
-    _onAccessNotifier?.call(notifier);
-
-    // ignore: invalid_use_of_protected_member
-    return ChronicleSnapshot(notifier.prev, notifier.state);
-  }
-
   @override
   String get debugOwnerLabel => _rebuildable.debugLabel;
 
@@ -248,16 +225,4 @@ class WatchableRef extends Ref {
     _onAccessNotifier = null;
     return result;
   }
-}
-
-class ChronicleSnapshot<T> {
-  /// The state of the notifier before the latest [future] was set.
-  /// This is null if [AsyncNotifier.savePrev] is false
-  /// or the future has never changed.
-  final AsyncValue<T>? prev;
-
-  /// The current state of the notifier.
-  final AsyncValue<T> curr;
-
-  ChronicleSnapshot(this.prev, this.curr);
 }

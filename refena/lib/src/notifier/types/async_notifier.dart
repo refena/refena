@@ -15,24 +15,6 @@ abstract class AsyncNotifier<T> extends BaseAsyncNotifier<T> {
   @protected
   Ref get ref => _ref;
 
-  AsyncValue<T>? _prev;
-
-  /// The state of this notifier before the latest [future] was set.
-  AsyncValue<T>? get prev => _prev;
-
-  /// Whether the previous state should be saved.
-  /// Override this, if you don't want to save the previous state.
-  bool get savePrev => true;
-
-  @override
-  @protected
-  set future(Future<T> value) {
-    if (savePrev) {
-      _prev = state;
-    }
-    super.future = value;
-  }
-
   /// A helper method to set the state of the notifier.
   ///
   /// Usage:
