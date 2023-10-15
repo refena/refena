@@ -1,3 +1,7 @@
+## 0.8.0
+
+- deps: bump refena to 0.36.0
+
 ## 0.7.0
 
 - fix: should use filtered events from `RefenaTracingObserver`
