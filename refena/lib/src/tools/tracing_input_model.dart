@@ -169,8 +169,19 @@ class InputEvent {
       millisSinceEpoch: event.millisSinceEpoch,
       event: event,
       label: switch (event) {
-        ChangeEvent() =>
-          event.notifier.customDebugLabel ?? event.stateType.toString(),
+        ChangeEvent() => event.notifier.customDebugLabel ??
+            switch (event.stateType.toString()) {
+              'bool' ||
+              'bool?' ||
+              'int' ||
+              'int?' ||
+              'double' ||
+              'double?' ||
+              'String' ||
+              'String?' =>
+                event.notifier.debugLabel, // avoid primitive types
+              _ => event.stateType.toString(), // use the type
+            },
         RebuildEvent() => event.rebuildable.isWidget
             ? event.debugLabel
             : event.stateType.toString(),

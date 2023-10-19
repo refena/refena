@@ -1,3 +1,9 @@
+## 0.37.0
+
+**Announcing refena_riverpod_extension:** a new package to ease migration from Riverpod. See [refena_riverpod_extension](https://pub.dev/packages/refena_riverpod_extension) for more details.
+
+- feat(tracing): improve label text of `ChangeEvent`s
+
 ## 0.36.0
 
 - feat: add `RefreshAction`, a new class of action that reduces the boilerplate when refreshing `ReduxNotifier`s with data type `AsyncValue`

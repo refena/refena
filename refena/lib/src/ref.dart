@@ -98,7 +98,7 @@ class WatchableRefImpl implements WatchableRef {
   WatchableRefImpl({
     required RefenaContainer ref,
     required this.rebuildable,
-  })  : _ref = ref;
+  }) : _ref = ref;
 
   final RefenaContainer _ref;
   final Rebuildable rebuildable;

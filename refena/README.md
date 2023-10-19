@@ -181,6 +181,19 @@ Working with providers and notifiers are type-safe and null-safe.
 Don't worry that you forget to register a provider.
 They are automatically registered when you use them.
 
+### ➤ Migration
+
+Use [refena_riverpod_extension](https://pub.dev/packages/refena_riverpod_extension)
+to use Riverpod and Refena at the same time.
+
+```dart
+// Riverpod -> Refena
+ref.refena.read(myRefenaProvider);
+
+// Refena -> Riverpod
+ref.riverpod.read(myRiverpodProvider);
+```
+
 ## Refena vs async_redux
 
 Compared to [async_redux](https://pub.dev/packages/async_redux),

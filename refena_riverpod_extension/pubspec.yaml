@@ -17,8 +17,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod: ^2.0.0
-  refena: ^0.36.0
-  refena_flutter: ^0.36.0
+  refena: ^0.37.0
+  refena_flutter: ^0.37.0
 
 dev_dependencies:
   flutter_test:
