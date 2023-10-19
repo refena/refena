@@ -73,6 +73,13 @@ class MyPage extends StatelessWidget {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const ReduxPage()));
+            },
+            child: const Text('Open redux page'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) {
                   return const RefenaTracingPage();
                 }),
@@ -146,6 +153,36 @@ class _SecondPageState extends State<SecondPage> with Refena {
                 }),
               ],
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class ReduxPage extends riverpod.ConsumerWidget {
+  const ReduxPage({super.key});
+
+  @override
+  Widget build(BuildContext context, riverpod.WidgetRef ref) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Redux page'),
+      ),
+      body: Column(
+        children: [
+          Text('State: ${context.ref.watch(refenaReduxCounter)}'),
+          ElevatedButton(
+            onPressed: () {
+              ref.read(riverpodNotifierProvider.notifier).dispatch();
+            },
+            child: const Text('Increment from Riverpod'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              context.ref.redux(refenaReduxCounter).dispatch(IncrementAction());
+            },
+            child: const Text('Increment from Refena'),
           ),
         ],
       ),

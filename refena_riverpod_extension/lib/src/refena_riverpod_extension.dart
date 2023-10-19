@@ -1,5 +1,10 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
+
+// ignore: implementation_imports
+import 'package:refena/src/proxy_ref.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_riverpod_extension/src/riverpod_proxy.dart';
 
@@ -28,7 +33,11 @@ class RefenaRiverpodExtensionScope extends riverpod.ConsumerWidget {
     final refenaRef = context.ref.container;
     final riverpodRef = refenaRef.read(_riverpodProvider)._ref;
     if (riverpodRef == null) {
-      ref.read(_refenaProvider).setRef(refenaRef);
+      ref.read(_refenaProvider).setRef(ProxyRef(
+            refenaRef,
+            _bridgeName,
+            LabeledReference.custom(_bridgeName),
+          ));
       refenaRef.read(_riverpodProvider).setRef(RiverpodProxy(
             refenaRef: refenaRef,
             riverpodRef:
@@ -39,9 +48,11 @@ class RefenaRiverpodExtensionScope extends riverpod.ConsumerWidget {
   }
 }
 
+const _bridgeName = 'RiverpodBridge';
+
 final _riverpodProvider = Provider<_RiverpodContainer>((ref) {
   return _RiverpodContainer();
-}, debugLabel: 'RiverpodBridge');
+}, debugLabel: _bridgeName);
 
 class _RiverpodContainer {
   RiverpodProxy? _ref;
@@ -61,7 +72,7 @@ class _RefenaContainer {
 
   // We don't want to update the state to avoid riverpod exceptions.
   // This is okay as the _refenaProvider is never watched.
-  void setRef(Ref ref) {
+  void setRef(ProxyRef ref) {
     _ref = ref;
   }
 }
