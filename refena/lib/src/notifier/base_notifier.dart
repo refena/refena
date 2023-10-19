@@ -321,7 +321,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
     final oldDependencies = {...dependencies};
     dependencies.clear();
 
-    final nextState = _watchableRef.trackNotifier(
+    final nextState = (_watchableRef as WatchableRefImpl).trackNotifier(
       onAccess: (notifier) {
         dependencies.add(notifier);
         notifier.dependents.add(this);
@@ -371,7 +371,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
     ProxyRef ref,
     BaseProvider? provider,
   ) {
-    _watchableRef = WatchableRef(
+    _watchableRef = WatchableRefImpl(
       ref: ref.container,
       rebuildable: this,
     );

@@ -1,0 +1,9 @@
+dependency_overrides:
+  refena:
+    path: ../../refena
+  refena_flutter:
+    path: ../../refena_flutter
+  refena_inspector_client:
+    path: ../../refena_inspector_client
+  refena_riverpod_extension:
+    path: ..

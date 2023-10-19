@@ -19,7 +19,7 @@ import 'package:refena/src/provider/watchable.dart';
 /// These methods can be called anywhere.
 /// Even within dispose methods.
 /// The primary difficulty is to get the [Ref] in the first place.
-abstract class Ref {
+abstract interface class Ref {
   /// Get the current value of a provider without listening to changes.
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider);
 
@@ -67,15 +67,41 @@ abstract class Ref {
 }
 
 /// The ref available in a [State] with the mixin or in a [ViewProvider].
-class WatchableRef extends Ref {
-  WatchableRef({
+abstract interface class WatchableRef implements Ref {
+  /// Get the current value of a provider and listen to changes.
+  /// The listener will be disposed automatically when the widget is disposed.
+  ///
+  /// Optionally, you can pass a [rebuildWhen] function to control when the
+  /// widget should rebuild.
+  ///
+  /// Instead of `ref.watch(provider)`, you can also
+  /// use `ref.watch(provider.select((state) => state.attribute))` to
+  /// select a part of the state and only rebuild when this part changes.
+  ///
+  /// Do NOT execute this method multiple times as only the last one
+  /// will be used for the rebuild condition.
+  /// Instead, you should use *Records* to combine multiple values:
+  /// final (a, b) = ref.watch(provider.select((state) => state.a, state.b));
+  ///
+  /// Only call this method during build or inside a [ViewProvider].
+  R watch<N extends BaseNotifier<T>, T, R>(
+    Watchable<N, T, R> watchable, {
+    ListenerCallback<T>? listener,
+    bool Function(T prev, T next)? rebuildWhen,
+  });
+}
+
+/// The actual implementation of [WatchableRef].
+/// This decoupling is used to discourage access to [rebuildable]
+/// and [trackNotifier].
+class WatchableRefImpl implements WatchableRef {
+  WatchableRefImpl({
     required RefenaContainer ref,
-    required Rebuildable rebuildable,
-  })  : _ref = ref,
-        _rebuildable = rebuildable;
+    required this.rebuildable,
+  })  : _ref = ref;
 
   final RefenaContainer _ref;
-  final Rebuildable _rebuildable;
+  final Rebuildable rebuildable;
 
   @override
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
@@ -104,7 +130,7 @@ class WatchableRef extends Ref {
     return Dispatcher(
       notifier: notifier,
       debugOrigin: debugOwnerLabel,
-      debugOriginRef: _rebuildable,
+      debugOriginRef: rebuildable,
     );
   }
 
@@ -136,33 +162,18 @@ class WatchableRef extends Ref {
 
   @override
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    _ref.internalDispose<N, T>(provider, _rebuildable);
+    _ref.internalDispose<N, T>(provider, rebuildable);
   }
 
   @override
   void message(String message) {
-    _ref.observer?.internalHandleEvent(MessageEvent(message, _rebuildable));
+    _ref.observer?.internalHandleEvent(MessageEvent(message, rebuildable));
   }
 
   @override
   RefenaContainer get container => _ref;
 
-  /// Get the current value of a provider and listen to changes.
-  /// The listener will be disposed automatically when the widget is disposed.
-  ///
-  /// Optionally, you can pass a [rebuildWhen] function to control when the
-  /// widget should rebuild.
-  ///
-  /// Instead of `ref.watch(provider)`, you can also
-  /// use `ref.watch(provider.select((state) => state.attribute))` to
-  /// select a part of the state and only rebuild when this part changes.
-  ///
-  /// Do NOT execute this method multiple times as only the last one
-  /// will be used for the rebuild condition.
-  /// Instead, you should use *Records* to combine multiple values:
-  /// final (a, b) = ref.watch(provider.select((state) => state.a, state.b));
-  ///
-  /// Only call this method during build or inside a [ViewProvider].
+  @override
   R watch<N extends BaseNotifier<T>, T, R>(
     Watchable<N, T, R> watchable, {
     ListenerCallback<T>? listener,
@@ -180,7 +191,7 @@ class WatchableRef extends Ref {
           familyNotifier.startFuture(familyWatchable.param);
         }
         notifier.addListener(
-          _rebuildable,
+          rebuildable,
           ListenerConfig<T>(
             callback: listener,
             rebuildWhen: (prev, next) {
@@ -194,7 +205,7 @@ class WatchableRef extends Ref {
         );
       } else {
         notifier.addListener(
-          _rebuildable,
+          rebuildable,
           ListenerConfig<T>(
             callback: listener,
             rebuildWhen: rebuildWhen,
@@ -209,7 +220,7 @@ class WatchableRef extends Ref {
   }
 
   @override
-  String get debugOwnerLabel => _rebuildable.debugLabel;
+  String get debugOwnerLabel => rebuildable.debugLabel;
 
   /// This function is always called when a [BaseNotifier] is accessed.
   /// Used to determine the dependency graph.

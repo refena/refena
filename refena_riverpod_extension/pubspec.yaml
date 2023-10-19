@@ -1,0 +1,28 @@
+name: refena_riverpod_extension
+description: Provides extension getters to use Riverpod and Refena together. Makes migration from Riverpod to Refena easier.
+version: 0.1.0
+repository: https://github.com/refena/refena/tree/main/refena_riverpod_extension
+issue_tracker: https://github.com/refena/refena/issues
+topics:
+  - refena
+screenshots:
+  - description: The Refena logo.
+    path: resources/icon.png
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: ">=3.10.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^2.0.0
+  refena: ^0.36.0
+  refena_flutter: ^0.36.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^2.0.0
+
+flutter:

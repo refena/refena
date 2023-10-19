@@ -8,7 +8,7 @@ extension ContextRefExt on BuildContext {
 
   /// Access the [Ref] using this [BuildContext].
   WatchableRef get ref {
-    return _refCollection[this] ??= WatchableRef(
+    return _refCollection[this] ??= WatchableRefImpl(
       ref: getScope(this),
       rebuildable: ElementRebuildable(this as Element),
     );

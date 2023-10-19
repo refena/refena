@@ -3,6 +3,8 @@ import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/reference.dart';
 
 /// Something that can be rebuilt.
+/// It might be a [Widget] or a [ViewProvider].
+/// A [Ref] holds a [Rebuildable] to make [ref.watch] work.
 @internal
 abstract class Rebuildable implements LabeledReference {
   /// Schedule a rebuild (in the next frame).
@@ -19,7 +21,8 @@ abstract class Rebuildable implements LabeledReference {
   @override
   String get debugLabel;
 
-  /// Whether this [Rebuildable] is a [ElementRebuildable].
+  /// Whether this [Rebuildable] is an [ElementRebuildable].
+  /// This is a workaround for the fact that
   /// [ElementRebuildable] is in refena_flutter so we cannot refer it here.
   bool get isWidget;
 }
