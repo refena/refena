@@ -1,6 +1,6 @@
 name: refena_riverpod_extension
 description: Provides extension getters to use Riverpod and Refena together. Makes migration from Riverpod to Refena easier.
-version: 0.1.0
+version: 0.2.0
 repository: https://github.com/refena/refena/tree/main/refena_riverpod_extension
 issue_tracker: https://github.com/refena/refena/issues
 topics:
