@@ -49,7 +49,7 @@ void main() {
     final widget = _ViewModelWidget();
     final scope = riverpod.ProviderScope(
       child: refena.RefenaScope(
-        child: RefenaRiverpodExtensionScope(
+        child: RefenaRiverpodScope(
           child: MaterialApp(
             home: widget,
           ),
@@ -82,7 +82,7 @@ void main() {
     final widget = _ViewModelWidget();
     final scope = refena.RefenaScope(
       child: riverpod.ProviderScope(
-        child: RefenaRiverpodExtensionScope(
+        child: RefenaRiverpodScope(
           child: MaterialApp(
             home: widget,
           ),

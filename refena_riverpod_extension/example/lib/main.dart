@@ -35,7 +35,7 @@ void main() {
                 RefenaInspectorObserver(),
               ]
             : [],
-        child: RefenaRiverpodExtensionScope(
+        child: RefenaRiverpodScope(
           child: const MyApp(),
         ),
       ),

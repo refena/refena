@@ -15,15 +15,15 @@ import 'package:refena_riverpod_extension/src/riverpod_proxy.dart';
 /// Example:
 /// ProviderScope(
 ///   child: RefenaScope(
-///     child: RefenaRiverpodExtensionScope(
+///     child: RefenaRiverpodScope(
 ///       child: MyApp(),
 ///     ),
 ///   ),
 /// ),
-class RefenaRiverpodExtensionScope extends riverpod.ConsumerWidget {
+class RefenaRiverpodScope extends riverpod.ConsumerWidget {
   final Widget child;
 
-  const RefenaRiverpodExtensionScope({
+  const RefenaRiverpodScope({
     required this.child,
     super.key,
   });
@@ -109,7 +109,7 @@ extension RiverpodToRefenaExt on riverpod.Ref {
   Ref get refena {
     final ref = read(_refenaProvider)._ref;
     if (ref == null) {
-      throw StateError('Wrap your widget with a RefenaRiverpodExtensionScope');
+      throw StateError('Wrap your widget with a RefenaRiverpodScope');
     }
     return ref;
   }
@@ -118,7 +118,7 @@ extension RiverpodToRefenaExt on riverpod.Ref {
 RiverpodProxy _getRiverpodProxy(Ref ref) {
   final proxy = ref.read(_riverpodProvider)._ref;
   if (proxy == null) {
-    throw StateError('Wrap your widget with a RefenaRiverpodExtensionScope');
+    throw StateError('Wrap your widget with a RefenaRiverpodScope');
   }
   return proxy;
 }
