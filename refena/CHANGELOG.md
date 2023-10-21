@@ -1,3 +1,7 @@
+## 0.38.0
+
+- fix: should expose `WatchableRef` instead of `WatchableRefImpl` in the `Refena` mixin
+
 ## 0.37.0
 
 **Announcing refena_riverpod_extension:** a new package to ease migration from Riverpod. See [refena_riverpod_extension](https://pub.dev/packages/refena_riverpod_extension) for more details.
