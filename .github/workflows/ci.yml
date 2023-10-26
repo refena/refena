@@ -74,6 +74,13 @@ jobs:
         working-directory: refena_inspector
         run: flutter test
 
+      - name: Dependencies (riverpod extension)
+        working-directory: refena_riverpod_extension
+        run: flutter pub get
+      - name: Test (riverpod extension)
+        working-directory: refena_riverpod_extension
+        run: flutter test
+
   test_legacy:
     name: Test (oldest Flutter version)
     runs-on: ubuntu-latest
