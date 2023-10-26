@@ -6,6 +6,20 @@
 
 Provides extension getters to use [Riverpod](https://pub.dev/packages/riverpod) and [Refena](https://pub.dev/packages/refena) together.
 
+```dart
+// Riverpod -> Refena
+ref.refena.read(myRefenaProvider);
+
+// Refena -> Riverpod
+ref.riverpod.read(myRiverpodProvider);
+```
+
+## Usage
+
+### ➤ Setup
+
+Add the following dependencies to your `pubspec.yaml`:
+
 ```yaml
 # pubspec.yaml
 dependencies:
@@ -13,10 +27,6 @@ dependencies:
   refena_flutter: <version>
   refena_riverpod_extension: <version>
 ```
-
-## Usage
-
-### ➤ Setup
 
 Wrap your app with `RefenaRiverpodExtension` (below `RefenaScope` and `ProviderScope`):
 
