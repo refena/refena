@@ -4,7 +4,7 @@
 ![ci](https://github.com/refena/refena/actions/workflows/ci.yml/badge.svg)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Provides extension getters to use [Riverpod](https://pub.dev/packages/riverpod) and [Refena](https://pub.dev/packages/refena) together.
+Provides extension getters to use [Riverpod](https://pub.dev/packages/riverpod) and [Refena](https://pub.dev/packages/refena) at the same time.
 
 ```dart
 // Riverpod -> Refena
