@@ -6,9 +6,10 @@ import 'package:refena_flutter/src/scope.dart';
 /// Returns the nearest [RefenaScope].
 @internal
 RefenaContainer getScope(BuildContext context) {
-  final scope = context.dependOnInheritedWidgetOfExactType<RefenaScope>();
+  final scope =
+      context.dependOnInheritedWidgetOfExactType<RefenaInheritedWidget>();
   if (scope == null) {
     throw StateError('Wrap your app with RefenaScope');
   }
-  return scope;
+  return scope.container;
 }

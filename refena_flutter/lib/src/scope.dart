@@ -14,7 +14,19 @@ import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/provider/base_provider.dart';
 
 /// A wrapper widget around [RefenaContainer].
-class RefenaScope extends InheritedWidget implements RefenaContainer {
+class RefenaScope extends StatefulWidget implements RefenaContainer {
+  RefenaScope._({
+    super.key,
+    required RefenaContainer container,
+    required this.ownsContainer,
+    required bool defaultRef,
+    required this.child,
+  }) : _container = container {
+    if (defaultRef) {
+      RefenaScope.defaultRef = this;
+    }
+  }
+
   /// Creates a [RefenaScope].
   /// The [overrides] are used to override providers with a different value.
   /// The [initialProviders] are used to initialize providers right away.
@@ -24,24 +36,46 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
   /// The [observers] are used to observe events.
   /// The [child] is the widget tree that is wrapped by the [RefenaScope].
   RefenaScope({
-    super.key,
+    Key? key,
     PlatformHint? platformHint,
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     NotifyStrategy defaultNotifyStrategy = NotifyStrategy.identity,
     List<RefenaObserver> observers = const [],
     bool defaultRef = true,
-    required super.child,
-  }) : _container = RefenaContainer(
-          platformHint: platformHint ?? _getPlatformHint(),
-          overrides: overrides,
-          initialProviders: initialProviders,
-          defaultNotifyStrategy: defaultNotifyStrategy,
-          observers: observers,
-        ) {
-    if (defaultRef) {
-      RefenaScope.defaultRef = this;
-    }
+    required Widget child,
+  }) : this._(
+          key: key,
+          container: RefenaContainer(
+            platformHint: platformHint ?? _getPlatformHint(),
+            overrides: overrides,
+            initialProviders: initialProviders,
+            defaultNotifyStrategy: defaultNotifyStrategy,
+            observers: observers,
+          ),
+          ownsContainer: true,
+          defaultRef: defaultRef,
+          child: child,
+        );
+
+  /// Creates a [RefenaScope] that uses an existing [RefenaContainer].
+  /// By default, the [RefenaScope] will dispose the [RefenaContainer]
+  /// when the [RefenaScope] is disposed.
+  /// To prevent this, set [ownsContainer] to false.
+  factory RefenaScope.withContainer({
+    Key? key,
+    required RefenaContainer container,
+    bool ownsContainer = true,
+    bool defaultRef = true,
+    required Widget child,
+  }) {
+    return RefenaScope._(
+      key: key,
+      container: container,
+      ownsContainer: ownsContainer,
+      defaultRef: defaultRef,
+      child: child,
+    );
   }
 
   /// If you are unable to access the [ref] for whatever reason,
@@ -55,17 +89,28 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
   /// Holds all provider states
   final RefenaContainer _container;
 
+  /// Has ownership of the [RefenaContainer].
+  /// This is used to dispose the [RefenaContainer] when the widget is disposed.
+  final bool ownsContainer;
+
+  /// The child widget
+  final Widget child;
+
   /// The platform hint.
   @override
   PlatformHint get platformHint => _container.platformHint;
+
+  /// The provided observer (e.g. for logging)
+  @override
+  RefenaObserver? get observer => _container.observer;
 
   /// The default notify strategy
   @override
   NotifyStrategy get defaultNotifyStrategy => _container.defaultNotifyStrategy;
 
-  /// The provided observer (e.g. for logging)
+  /// Whether the container has been disposed.
   @override
-  RefenaObserver? get observer => _container.observer;
+  bool get disposed => _container.disposed;
 
   /// Awaiting this future will ensure that all overrides are initialized.
   /// Calling it multiple times is safe.
@@ -153,17 +198,51 @@ class RefenaScope extends InheritedWidget implements RefenaContainer {
   @override
   void cleanupListeners() => _container.cleanupListeners();
 
-  @internal
   @override
-  bool updateShouldNotify(RefenaScope oldWidget) {
-    return false;
-  }
+  void disposeContainer() => _container.disposeContainer();
 
   @override
   String get debugOwnerLabel => 'RefenaScope';
 
   @override
   String get debugLabel => debugOwnerLabel;
+
+  @override
+  State<RefenaScope> createState() => _RefenaScopeState();
+}
+
+class _RefenaScopeState extends State<RefenaScope> {
+  @override
+  void dispose() {
+    if (widget.ownsContainer) {
+      widget.container.disposeContainer();
+    }
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return RefenaInheritedWidget(
+      container: widget.container,
+      child: widget.child,
+    );
+  }
+}
+
+@internal
+class RefenaInheritedWidget extends InheritedWidget {
+  final RefenaContainer container;
+
+  RefenaInheritedWidget({
+    super.key,
+    required this.container,
+    required super.child,
+  });
+
+  @override
+  bool updateShouldNotify(RefenaInheritedWidget oldWidget) {
+    return false;
+  }
 }
 
 PlatformHint _getPlatformHint() {

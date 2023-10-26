@@ -12,6 +12,7 @@ import 'package:refena/src/reference.dart';
 abstract class RefenaObserver implements LabeledReference {
   RefenaObserver();
 
+  @nonVirtual
   bool _initialized = false;
 
   /// Whether the observer has been initialized.
@@ -26,6 +27,10 @@ abstract class RefenaObserver implements LabeledReference {
   /// Override this method to have additional initialization logic.
   /// You can use [ref] at this point.
   void init() {}
+
+  /// Override this method to have additional dispose logic.
+  /// Observers only get disposed when the [RefenaContainer] is disposed.
+  void dispose() {}
 
   /// Called when an event occurs.
   /// Override this method to handle the event.
@@ -73,6 +78,13 @@ class RefenaMultiObserver extends RefenaObserver {
 
   @override
   void init() {}
+
+  @override
+  void dispose() {
+    for (final observer in observers) {
+      observer.dispose();
+    }
+  }
 
   @override
   void handleEvent(RefenaEvent event) {

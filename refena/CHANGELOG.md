@@ -1,5 +1,6 @@
 ## 0.38.0
 
+- feat: add `RefenaScope.withContainer` constructor to use an existing `RefenaContainer`
 - fix: should expose `WatchableRef` instead of `WatchableRefImpl` in the `Refena` mixin
 
 ## 0.37.0

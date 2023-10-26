@@ -322,6 +322,53 @@ void main() {
       expect(event.origin, ref);
     });
   });
+
+  group('disposeContainer', () {
+    test('Should dispose all providers', () {
+      final ref = RefenaContainer();
+      bool disposedCalledA = false;
+      final notifierProviderA = NotifierProvider<_DisposableNotifier, int>(
+        (ref) => _DisposableNotifier(),
+      );
+      ref.notifier(notifierProviderA).onDispose = () {
+        disposedCalledA = true;
+      };
+
+      bool disposedCalledB = false;
+      final notifierProviderB = NotifierProvider<_DisposableNotifier, int>(
+        (ref) => _DisposableNotifier(),
+      );
+      ref.notifier(notifierProviderB).onDispose = () {
+        disposedCalledB = true;
+      };
+
+      expect(ref.read(notifierProviderA), 20);
+      expect(ref.read(notifierProviderB), 20);
+
+      ref.disposeContainer();
+
+      expect(ref.disposed, true);
+      expect(disposedCalledA, true);
+      expect(disposedCalledB, true);
+    });
+
+    test('Should dispose all observers', () {
+      final observerA = _DisposableObserver();
+      final observerB = _DisposableObserver();
+      final ref = RefenaContainer(
+        observers: [observerA, observerB],
+      );
+
+      expect(observerA._disposed, false);
+      expect(observerB._disposed, false);
+
+      ref.disposeContainer();
+
+      expect(ref.disposed, true);
+      expect(observerA._disposed, true);
+      expect(observerB._disposed, true);
+    });
+  });
 }
 
 class _DummyClass {
@@ -353,5 +400,17 @@ class _DisposableNotifier extends Notifier<int> {
   @override
   void dispose() {
     onDispose?.call();
+  }
+}
+
+class _DisposableObserver extends RefenaObserver {
+  bool _disposed = false;
+
+  @override
+  void handleEvent(RefenaEvent event) {}
+
+  @override
+  void dispose() {
+    _disposed = true;
   }
 }

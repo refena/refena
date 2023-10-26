@@ -101,6 +101,11 @@ class RefenaContainer implements Ref, LabeledReference {
   /// The default notify strategy
   final NotifyStrategy defaultNotifyStrategy;
 
+  bool _disposed = false;
+
+  /// Whether the container has been disposed.
+  bool get disposed => _disposed;
+
   /// The overrides that are used to create overridden notifiers.
   final Map<BaseProvider, FutureOr<BaseNotifier> Function(ProxyRef ref)>?
       _overrides;
@@ -349,6 +354,18 @@ class RefenaContainer implements Ref, LabeledReference {
     for (final notifier in _state.values) {
       notifier.cleanupListeners();
     }
+  }
+
+  /// Disposes the container itself.
+  /// It will also dispose all providers.
+  /// After calling this method, the container should not be used anymore.
+  void disposeContainer() {
+    for (final provider in [..._state.keys]) {
+      internalDispose(provider, this);
+    }
+
+    observer?.dispose();
+    _disposed = true;
   }
 
   @override
