@@ -22,13 +22,17 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
     required this.ownsContainer,
     required bool defaultRef,
     required this.child,
-  }) : _container = container {
-    if (defaultRef) {
-      RefenaScope.defaultRef = this;
-    }
-  }
+  })  : _container = container,
+        _defaultRef = defaultRef;
 
   /// Creates a [RefenaScope].
+  /// It will create an implicit [RefenaContainer] that will be disposed
+  /// when the [RefenaScope] is disposed.
+  ///
+  /// The [platformHint] gives the container a hint about the platform.
+  /// This abstraction is used by the inspector that does not depend on
+  /// Flutter.
+  ///
   /// The [overrides] are used to override providers with a different value.
   /// The [initialProviders] are used to initialize providers right away.
   /// Otherwise, the providers are initialized lazily when they are accessed.
@@ -102,6 +106,8 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
 
   /// The child widget
   final Widget child;
+
+  final bool _defaultRef;
 
   /// Initializes the [RefenaContainer].
   @override
@@ -237,6 +243,10 @@ class _RefenaScopeState extends State<RefenaScope> {
     _container = widget._container;
     if (widget.implicitContainer) {
       _container.init();
+    }
+
+    if (widget._defaultRef) {
+      RefenaScope.defaultRef = _container;
     }
   }
 

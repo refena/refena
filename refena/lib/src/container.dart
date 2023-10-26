@@ -53,6 +53,10 @@ enum PlatformHint {
 /// In this case, the state of the provider is initialized right away.
 class RefenaContainer implements Ref, LabeledReference {
   /// Creates a [RefenaContainer].
+  ///
+  /// The [platformHint] gives the container a hint about the platform.
+  /// This abstraction is used by the inspector that does not depend on
+  /// Flutter.
   /// The [overrides] are used to override providers with a different value.
   /// The [initialProviders] are used to initialize providers right away.
   /// Otherwise, the providers are initialized lazily when they are accessed.
@@ -62,14 +66,13 @@ class RefenaContainer implements Ref, LabeledReference {
   /// The [initImmediately] defines whether the container should be initialized
   /// right away.
   RefenaContainer({
-    PlatformHint platformHint = PlatformHint.unknown,
+    this.platformHint = PlatformHint.unknown,
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     this.defaultNotifyStrategy = NotifyStrategy.equality,
     List<RefenaObserver> observers = const [],
     bool initImmediately = true,
-  })  : _platformHint = platformHint,
-        _overrides = _overridesToMap(overrides),
+  })  : _overrides = _overridesToMap(overrides),
         _overridesList = overrides,
         _initialProviders = initialProviders,
         observer = _observerListToSingleObserver(observers) {
@@ -101,11 +104,9 @@ class RefenaContainer implements Ref, LabeledReference {
 
   final List<BaseProvider> _initialProviders;
 
-  final PlatformHint _platformHint;
-
   /// The platform hint.
   /// This is used by the inspector_client to determine the host IP.
-  PlatformHint get platformHint => _platformHint;
+  final PlatformHint platformHint;
 
   /// Holds all provider states
   final _state = <BaseProvider, BaseNotifier>{};
