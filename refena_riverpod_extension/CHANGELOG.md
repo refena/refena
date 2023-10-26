@@ -1,3 +1,7 @@
+## 0.4.0
+
+- **BREAKING**: rename `RefenaRiverpodScope` to `RefenaRiverpodExtension`
+
 ## 0.3.0
 
 - **BREAKING**: shorten widget name to `RefenaRiverpodScope`

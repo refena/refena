@@ -18,14 +18,14 @@ dependencies:
 
 ### ➤ Setup
 
-Wrap your app with `RefenaRiverpodScope` (below `RefenaScope` and `ProviderScope`):
+Wrap your app with `RefenaRiverpodExtension` (below `RefenaScope` and `ProviderScope`):
 
 ```dart
 void main() {
   runApp(
     ProviderScope(
       child: RefenaScope(
-        child: RefenaRiverpodScope(
+        child: RefenaRiverpodExtension(
           child: MyApp(),
         ),
       ),
