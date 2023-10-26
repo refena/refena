@@ -18,6 +18,7 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   RefenaScope._({
     super.key,
     required RefenaContainer container,
+    required this.implicitContainer,
     required this.ownsContainer,
     required bool defaultRef,
     required this.child,
@@ -52,7 +53,9 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
             initialProviders: initialProviders,
             defaultNotifyStrategy: defaultNotifyStrategy,
             observers: observers,
+            initImmediately: false,
           ),
+          implicitContainer: true,
           ownsContainer: true,
           defaultRef: defaultRef,
           child: child,
@@ -72,6 +75,7 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
     return RefenaScope._(
       key: key,
       container: container,
+      implicitContainer: false,
       ownsContainer: ownsContainer,
       defaultRef: defaultRef,
       child: child,
@@ -86,8 +90,11 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   /// RefenaScope.defaultRef.read(myProvider);
   static late Ref defaultRef;
 
-  /// Holds all provider states
+  /// The [RefenaContainer] that is used by this [RefenaScope].
   final RefenaContainer _container;
+
+  /// Whether this [RefenaScope] created its own [RefenaContainer].
+  final bool implicitContainer;
 
   /// Has ownership of the [RefenaContainer].
   /// This is used to dispose the [RefenaContainer] when the widget is disposed.
@@ -95,6 +102,15 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
 
   /// The child widget
   final Widget child;
+
+  /// Initializes the [RefenaContainer].
+  @override
+  void init() {
+    if (implicitContainer) {
+      throw UnsupportedError('init() is managed by RefenaScope');
+    }
+    _container.init();
+  }
 
   /// The platform hint.
   @override
@@ -212,10 +228,22 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
 }
 
 class _RefenaScopeState extends State<RefenaScope> {
+  late RefenaContainer _container;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _container = widget._container;
+    if (widget.implicitContainer) {
+      _container.init();
+    }
+  }
+
   @override
   void dispose() {
     if (widget.ownsContainer) {
-      widget.container.disposeContainer();
+      _container.disposeContainer();
     }
     super.dispose();
   }
@@ -223,7 +251,7 @@ class _RefenaScopeState extends State<RefenaScope> {
   @override
   Widget build(BuildContext context) {
     return RefenaInheritedWidget(
-      container: widget.container,
+      container: _container,
       child: widget.child,
     );
   }

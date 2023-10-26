@@ -59,32 +59,47 @@ class RefenaContainer implements Ref, LabeledReference {
   /// The [defaultNotifyStrategy] defines when widgets and providers
   /// are notified to rebuild.
   /// The [observers] is used to observe events.
+  /// The [initImmediately] defines whether the container should be initialized
+  /// right away.
   RefenaContainer({
     PlatformHint platformHint = PlatformHint.unknown,
     List<ProviderOverride> overrides = const [],
     List<BaseProvider> initialProviders = const [],
     this.defaultNotifyStrategy = NotifyStrategy.equality,
     List<RefenaObserver> observers = const [],
+    bool initImmediately = true,
   })  : _platformHint = platformHint,
         _overrides = _overridesToMap(overrides),
         _overridesList = overrides,
+        _initialProviders = initialProviders,
         observer = _observerListToSingleObserver(observers) {
+    if (initImmediately) {
+      init();
+    }
+  }
+
+  /// Initializes the container.
+  void init() {
     // Initialize observer
+    final observer = this.observer;
     if (observer != null) {
-      observer!.internalSetup(ProxyRef(
+      observer.internalSetup(ProxyRef(
         this,
-        observer!.debugLabel,
-        observer!,
+        observer.debugLabel,
+        observer,
       ));
     }
 
+    // Initialize overrides
     _overridesFuture = _initOverrides();
 
-    // initialize all specified providers right away
-    for (final provider in initialProviders) {
+    // Initialize all specified providers right away
+    for (final provider in _initialProviders) {
       _getState(provider, ProviderInitCause.initial);
     }
   }
+
+  final List<BaseProvider> _initialProviders;
 
   final PlatformHint _platformHint;
 
