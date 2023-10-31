@@ -13,7 +13,9 @@ export 'package:refena/src/container.dart';
 export 'package:refena/src/notifier/base_notifier.dart'
     show
         ReduxNotifierOverrideExt,
+        GlobalReduxNotifierOverrideExt,
         MockReducer,
+        MockGlobalReducer,
         NotifierTester,
         AsyncNotifierTester,
         ReduxNotifierTester;

@@ -345,7 +345,7 @@ void main() {
         overrides: [
           provider.overrideWithReducer(
             notifier: (ref) => _ReduxNotifier(),
-            overrides: {
+            reducer: {
               _IncAction: (state) => state + 21,
               _DecAction: null,
             },
@@ -381,13 +381,60 @@ void main() {
           ),
           provider2.overrideWithReducer(
             initialState: 666,
-            overrides: {},
+            reducer: {},
           ),
         ],
       );
 
       expect(ref.read(provider1), 555);
       expect(ref.read(provider2), 666);
+    });
+
+    test('Should override global reducer', () {
+      final observer = RefenaHistoryObserver.only(
+        actionDispatched: true,
+        message: true,
+      );
+      final ref = RefenaContainer(
+        observers: [observer],
+        overrides: [
+          globalReduxProvider.overrideWithGlobalReducer(
+            reducer: {
+              _GlobalAction1: (ref) => ref.message('overridden!'),
+              _GlobalAction2: null,
+            },
+          ),
+        ],
+      );
+
+      // Should use the overridden reducer
+      ref.dispatch(_GlobalAction1());
+
+      // Should do nothing
+      ref.dispatch(_GlobalAction2());
+
+      // Should not be overridden
+      ref.dispatch(_GlobalAction3());
+
+      expect(observer.history.length, 5);
+
+      expect(observer.history[0], isA<ActionDispatchedEvent>());
+      expect((observer.history[0] as ActionDispatchedEvent).action,
+          isA<_GlobalAction1>());
+
+      expect(observer.history[1], isA<MessageEvent>());
+      expect((observer.history[1] as MessageEvent).message, 'overridden!');
+
+      expect(observer.history[2], isA<ActionDispatchedEvent>());
+      expect((observer.history[2] as ActionDispatchedEvent).action,
+          isA<_GlobalAction2>());
+
+      expect(observer.history[3], isA<ActionDispatchedEvent>());
+      expect((observer.history[3] as ActionDispatchedEvent).action,
+          isA<_GlobalAction3>());
+
+      expect(observer.history[4], isA<MessageEvent>());
+      expect((observer.history[4] as MessageEvent).message, 'original 3');
     });
   });
 }
@@ -454,4 +501,25 @@ class _HalfAction extends ReduxAction<_ReduxNotifier, int> {
 class _OverrideReduxNotifier extends _ReduxNotifier {
   @override
   int init() => 456;
+}
+
+class _GlobalAction1 extends GlobalAction {
+  @override
+  void reduce() {
+    ref.message('original 1');
+  }
+}
+
+class _GlobalAction2 extends GlobalAction {
+  @override
+  void reduce() {
+    ref.message('original 2');
+  }
+}
+
+class _GlobalAction3 extends GlobalAction {
+  @override
+  void reduce() {
+    ref.message('original 3');
+  }
 }

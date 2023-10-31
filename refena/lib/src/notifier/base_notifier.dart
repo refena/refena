@@ -925,17 +925,21 @@ class ReduxNotifierTester<T> {
   T get state => notifier.state;
 }
 
+/// Function type for a mocked reducer.
 typedef MockReducer<T> = Object? Function(T state);
 
-extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T>, T,
-    E extends Object> on ReduxProvider<N, T> {
+/// Function type for a mocked global reducer.
+typedef MockGlobalReducer = void Function(Ref ref);
+
+extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T>, T>
+    on ReduxProvider<N, T> {
   /// Overrides the reducer with the given [overrides].
   ///
   /// Usage:
   /// final ref = RefenaContainer(
   ///   overrides: [
   ///     notifierProvider.overrideWithReducer(
-  ///       overrides: {
+  ///       reducer: {
   ///         MyAction: (state) => state + 1,
   ///         MyAnotherAction: null, // empty reducer
   ///         ...
@@ -946,14 +950,14 @@ extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T>, T,
   ProviderOverride<N, T> overrideWithReducer({
     N Function(Ref ref)? notifier,
     T? initialState,
-    required Map<Type, MockReducer<T>?> overrides,
+    required Map<Type, MockReducer<T>?> reducer,
   }) {
     return ProviderOverride<N, T>(
       provider: this,
       createState: (ref) {
         final createdNotifier = (notifier?.call(ref) ?? createState(ref));
         createdNotifier._overrideInitialState = initialState;
-        createdNotifier._overrides = overrides;
+        createdNotifier._overrides = reducer;
         return createdNotifier;
       },
     );
@@ -969,6 +973,43 @@ extension ReduxNotifierOverrideExt<N extends BaseReduxNotifier<T>, T,
       createState: (ref) {
         final createdNotifier = (notifier?.call(ref) ?? createState(ref));
         createdNotifier._overrideInitialState = initialState;
+        return createdNotifier;
+      },
+    );
+  }
+}
+
+extension GlobalReduxNotifierOverrideExt on ReduxProvider<GlobalRedux, void> {
+  /// A special override for global actions.
+  ///
+  /// Usage:
+  /// final ref = RefenaContainer(
+  ///   overrides: [
+  ///     globalReduxProvider.overrideWithGlobalReducer(
+  ///       reducer: {
+  ///         MyAction: (ref) => ref.read(myProvider).increment(),
+  ///         MyAnotherAction: null, // empty reducer
+  ///         ...
+  ///       },
+  ///     ),
+  ///   ],
+  /// );
+  ProviderOverride<GlobalRedux, void> overrideWithGlobalReducer({
+    required Map<Type, MockGlobalReducer?> reducer,
+  }) {
+    return ProviderOverride<GlobalRedux, void>(
+      provider: this,
+      createState: (ref) {
+        final createdNotifier = GlobalRedux();
+        createdNotifier._overrides = {
+          for (final entry in reducer.entries)
+            entry.key: entry.value == null
+                ? null
+                : (state) {
+                    entry.value!(ref);
+                    return null;
+                  },
+        };
         return createdNotifier;
       },
     );
