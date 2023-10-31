@@ -11,6 +11,8 @@ import 'package:refena/src/notifier/base_notifier.dart';
 ///
 /// Dispatching from the notifier itself is also possible but
 /// you will lose the implicit [debugOrigin] stored in a [Ref].
+///
+/// {@category Redux}
 abstract class ReduxNotifier<T> extends BaseReduxNotifier<T> {
   ReduxNotifier({super.debugLabel});
 

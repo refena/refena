@@ -19,6 +19,8 @@ import 'package:refena/src/provider/watchable.dart';
 /// These methods can be called anywhere.
 /// Even within dispose methods.
 /// The primary difficulty is to get the [Ref] in the first place.
+///
+/// {@category Introduction}
 abstract interface class Ref {
   /// Get the current value of a provider without listening to changes.
   T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider);

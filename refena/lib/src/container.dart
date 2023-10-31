@@ -51,6 +51,8 @@ enum PlatformHint {
 ///
 /// You can override a provider by passing [overrides] to the constructor.
 /// In this case, the state of the provider is initialized right away.
+///
+/// {@category Introduction}
 class RefenaContainer implements Ref, LabeledReference {
   /// Creates a [RefenaContainer].
   ///

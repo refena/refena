@@ -6,6 +6,8 @@ import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
 
 /// Holds a [ReduxNotifier]
+///
+/// {@category Redux}
 class ReduxProvider<N extends BaseReduxNotifier<T>, T>
     extends BaseWatchableProvider<N, T>
     with ProviderSelectMixin<N, T>

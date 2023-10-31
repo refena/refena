@@ -86,6 +86,8 @@ class HistoryObserverConfig {
 
 /// An observer that stores every event in a list.
 /// This is useful for testing to keep track of the events.
+///
+/// {@category Testing}
 class RefenaHistoryObserver extends RefenaObserver {
   /// The history of events.
   final List<RefenaEvent> history = [];

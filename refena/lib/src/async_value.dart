@@ -1,3 +1,4 @@
+/// {@category Async Value}
 sealed class AsyncValue<T> {
   const AsyncValue();
 
@@ -132,6 +133,8 @@ sealed class AsyncValue<T> {
 }
 
 /// The data of an [AsyncValue].
+///
+/// {@category Async Value}
 final class AsyncData<T> extends AsyncValue<T> {
   @override
   final T data;
@@ -145,6 +148,8 @@ final class AsyncData<T> extends AsyncValue<T> {
 }
 
 /// The loading state of an [AsyncValue].
+///
+/// {@category Async Value}
 final class AsyncLoading<T> extends AsyncValue<T> {
   /// Represents the previous data before loading.
   @override
@@ -159,6 +164,8 @@ final class AsyncLoading<T> extends AsyncValue<T> {
 }
 
 /// The error of an [AsyncValue].
+///
+/// {@category Async Value}
 final class AsyncError<T> extends AsyncValue<T> {
   @override
   final Object error;

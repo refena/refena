@@ -1,6 +1,8 @@
 part of 'redux_action.dart';
 
 /// The global redux provider.
+///
+/// {@category Redux}
 final globalReduxProvider = ReduxProvider<GlobalRedux, void>((_) {
   return GlobalRedux();
 });
@@ -20,12 +22,18 @@ mixin GlobalActions<N extends BaseReduxNotifier<T>, T, R>
 }
 
 /// A synchronous global action without a result.
+///
+/// {@category Redux}
 abstract class GlobalAction extends GlobalActionWithResult<void> {}
 
 /// An asynchronous global action without a result.
+///
+/// {@category Redux}
 abstract class AsyncGlobalAction extends AsyncGlobalActionWithResult<void> {}
 
 /// A synchronous global action with a result.
+///
+/// {@category Redux}
 abstract class GlobalActionWithResult<R>
     extends BaseReduxActionWithResult<GlobalRedux, void, R> {
   /// Access the [Ref].
@@ -48,6 +56,8 @@ abstract class GlobalActionWithResult<R>
 }
 
 /// An asynchronous global action with a result.
+///
+/// {@category Redux}
 abstract class AsyncGlobalActionWithResult<R>
     extends BaseAsyncReduxActionWithResult<GlobalRedux, void, R> {
   /// Access the [Ref].

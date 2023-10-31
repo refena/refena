@@ -5,7 +5,7 @@ Refena has a wide variety of providers.
 
 Its state is altered by dispatching actions. Actions are simple classes that contain all the information needed to alter the state.
 
-Actions are dispatched to the notifier using the `ref.redux(notifier).dispatch(action)` method.
+Actions are dispatched by calling `ref.redux(notifier).dispatch(action)`.
 
 The anatomy of an action is inspired by [async_redux](https://pub.dev/packages/async_redux).
 

@@ -210,6 +210,8 @@ abstract class AsynchronousReduxAction<N extends BaseReduxNotifier<T>, T, R>
 
 /// The action that is dispatched by a [ReduxNotifier].
 /// Trigger this with [dispatch].
+///
+/// {@category Redux}
 abstract class ReduxAction<N extends BaseReduxNotifier<T>, T>
     extends SynchronousReduxAction<N, T, void> {
   ReduxAction();
@@ -240,6 +242,8 @@ abstract class ReduxAction<N extends BaseReduxNotifier<T>, T>
 
 /// The asynchronous action that is dispatched by a [ReduxNotifier].
 /// Trigger this with [dispatchAsync].
+///
+/// {@category Redux}
 abstract class AsyncReduxAction<N extends BaseReduxNotifier<T>, T>
     extends AsynchronousReduxAction<N, T, void> {
   /// The method that returns the new state.
@@ -278,6 +282,8 @@ abstract class BaseReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
 /// won't be stored in the state.
 ///
 /// Trigger this with [dispatch], [dispatchWithResult] or [dispatchTakeResult].
+///
+/// {@category Redux}
 abstract class ReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
     extends BaseReduxActionWithResult<N, T, R> {
   /// The method that returns the new state.
@@ -309,6 +315,8 @@ abstract class BaseAsyncReduxActionWithResult<N extends BaseReduxNotifier<T>, T,
 ///
 /// Trigger this with [dispatchAsync], [dispatchAsyncWithResult] or
 /// [dispatchAsyncTakeResult].
+///
+/// {@category Redux}
 abstract class AsyncReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
     extends BaseAsyncReduxActionWithResult<N, T, R> {
   /// The method that returns the new state.
