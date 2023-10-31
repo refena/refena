@@ -103,5 +103,12 @@ void main() {
         rebuild: [WidgetRebuildable<MyPage>()],
       ),
     ]);
+
+    // or check type only
+    expect(observer.history, [
+      isA<ProviderInitEvent>(),
+      isA<ChangeEvent>(),
+      isA<ChangeEvent>(),
+    ]);
   });
 }

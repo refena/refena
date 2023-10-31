@@ -1,3 +1,4 @@
+import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';
 
@@ -88,6 +89,11 @@ class HistoryObserverConfig {
 class RefenaHistoryObserver extends RefenaObserver {
   /// The history of events.
   final List<RefenaEvent> history = [];
+
+  /// Dispatched actions.
+  /// Make sure that [HistoryObserverConfig.saveActionDispatchedEvents] is true.
+  List<BaseReduxAction> get dispatchedActions =>
+      history.whereType<ActionDispatchedEvent>().map((e) => e.action).toList();
 
   /// The configuration of the observer.
   final HistoryObserverConfig config;

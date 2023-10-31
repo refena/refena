@@ -108,6 +108,29 @@ void main() {
         rebuild: [WidgetRebuildable<MyPage>()],
       ),
     ]);
+
+    // or check type only
+    expect(observer.history, [
+      isA<ProviderInitEvent>(),
+      isA<ChangeEvent>(),
+      isA<ChangeEvent>(),
+    ]);
   });
 }
+```
+
+To test Redux, you can access `RefenaHistoryObserver.dispatchedActions`:
+
+```dart
+final observer = RefenaHistoryObserver.only(
+  actionDispatched: true,
+);
+
+// ...
+
+expect(observer.dispatchedActions.length, 2);
+expect(observer.dispatchedActions, [
+  isA<IncrementAction>(),
+  isA<DecrementAction>(),
+]);
 ```

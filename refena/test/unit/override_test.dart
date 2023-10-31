@@ -416,6 +416,13 @@ void main() {
       // Should not be overridden
       ref.dispatch(_GlobalAction3());
 
+      expect(observer.dispatchedActions.length, 3);
+      expect(observer.dispatchedActions, [
+        isA<_GlobalAction1>(),
+        isA<_GlobalAction2>(),
+        isA<_GlobalAction3>(),
+      ]);
+
       expect(observer.history.length, 5);
 
       expect(observer.history[0], isA<ActionDispatchedEvent>());

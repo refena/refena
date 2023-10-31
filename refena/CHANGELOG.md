@@ -2,6 +2,7 @@
 
 - feat: `AsyncValue.maybeWhen` should also use the previous value during loading to match the behavior of `AsyncValue.when`
 - feat: add `globalReduxProvider.overrideWithGlobalReducer` to override the global reducer
+- feat: add `dispatchedActions` to `RefenaHistoryObserver` to access dispatched actions
 - **BREAKING**: change `overrides` parameter of `ReduxProvider.overrideWithReducer` to `reducer`
 - **BREAKING**: change `TestableNotifier` to `NotifierTester` (the same for `TestableAsyncNotifier` and `TestableReduxNotifier`)
 

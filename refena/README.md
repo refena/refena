@@ -1571,6 +1571,22 @@ void main() {
 }
 ```
 
+To test Redux, you can access `RefenaHistoryObserver.dispatchedActions`:
+
+```dart
+final observer = RefenaHistoryObserver.only(
+  actionDispatched: true,
+);
+
+// ...
+
+expect(observer.dispatchedActions.length, 2);
+expect(observer.dispatchedActions, [
+  isA<IncrementAction>(),
+  isA<DecrementAction>(),
+]);
+```
+
 ### ➤ Example test
 
 There is an example test that shows how to test a counter app.
