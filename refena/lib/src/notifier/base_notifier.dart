@@ -774,8 +774,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 /// A wrapper for [BaseSyncNotifier] that exposes [setState] and [state].
 /// It creates a container internally, so any ref call still works.
 /// This is useful for unit tests.
-class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
-  TestableNotifier({
+class NotifierTester<N extends BaseSyncNotifier<T>, T> {
+  NotifierTester({
     required this.notifier,
     T? initialState,
   }) {
@@ -808,8 +808,8 @@ class TestableNotifier<N extends BaseSyncNotifier<T>, T> {
 /// A wrapper for [BaseAsyncNotifier] that exposes [setState] and [state].
 /// It creates a container internally, so any ref call still works.
 /// This is useful for unit tests.
-class TestableAsyncNotifier<N extends BaseAsyncNotifier<T>, T> {
-  TestableAsyncNotifier({
+class AsyncNotifierTester<N extends BaseAsyncNotifier<T>, T> {
+  AsyncNotifierTester({
     required this.notifier,
     AsyncValue<T>? initialState,
   }) {
@@ -844,8 +844,8 @@ class TestableAsyncNotifier<N extends BaseAsyncNotifier<T>, T> {
 
 /// A wrapper for [BaseReduxNotifier] that exposes [setState] and [state].
 /// This is useful for unit tests.
-class TestableReduxNotifier<T> {
-  TestableReduxNotifier({
+class ReduxNotifierTester<T> {
+  ReduxNotifierTester({
     required this.notifier,
     bool runInitialAction = false,
     T? initialState,

@@ -25,12 +25,12 @@ abstract class ReduxNotifier<T> extends BaseReduxNotifier<T> {
   ///
   /// expect(counter.state, 11);
   /// counter.dispatch(IncrementAction());
-  static TestableReduxNotifier<T> test<T, E extends Object>({
+  static ReduxNotifierTester<T> test<T, E extends Object>({
     required BaseReduxNotifier<T> redux,
     bool runInitialAction = false,
     T? initialState,
   }) {
-    return TestableReduxNotifier(
+    return ReduxNotifierTester(
       notifier: redux,
       runInitialAction: runInitialAction,
       initialState: initialState,

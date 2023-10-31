@@ -11,7 +11,12 @@ export 'package:refena/src/async_value.dart';
 export 'package:refena/src/async_value_join.dart';
 export 'package:refena/src/container.dart';
 export 'package:refena/src/notifier/base_notifier.dart'
-    show ReduxNotifierOverrideExt, MockReducer, TestableReduxNotifier;
+    show
+        ReduxNotifierOverrideExt,
+        MockReducer,
+        NotifierTester,
+        AsyncNotifierTester,
+        ReduxNotifierTester;
 export 'package:refena/src/notifier/base_notifier.dart'
     show NotifyStrategy, ViewProviderNotifier;
 export 'package:refena/src/notifier/notifier_event.dart';

@@ -32,11 +32,11 @@ abstract class Notifier<T> extends BaseSyncNotifier<T> {
 
   /// Returns a debug version of the [notifier] where
   /// you can set the state directly.
-  static TestableNotifier<N, T> test<N extends BaseSyncNotifier<T>, T>({
+  static NotifierTester<N, T> test<N extends BaseSyncNotifier<T>, T>({
     required N notifier,
     T? initialState,
   }) {
-    return TestableNotifier(
+    return NotifierTester(
       notifier: notifier,
       initialState: initialState,
     );

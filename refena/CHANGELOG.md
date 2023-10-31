@@ -1,6 +1,7 @@
 ## 0.39.0
 
 - feat: `AsyncValue.maybeWhen` should also use the previous value to match the behavior of `AsyncValue.when`
+- **BREAKING**: change `TestableNotifier` to `NotifierTester` (the same for `TestableAsyncNotifier` and `TestableReduxNotifier`)
 
 ## 0.38.0
 

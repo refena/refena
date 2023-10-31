@@ -47,11 +47,11 @@ abstract class AsyncNotifier<T> extends BaseAsyncNotifier<T> {
 
   /// Returns a debug version of the [notifier] where
   /// you can set the state directly.
-  static TestableAsyncNotifier<N, T> test<N extends BaseAsyncNotifier<T>, T>({
+  static AsyncNotifierTester<N, T> test<N extends BaseAsyncNotifier<T>, T>({
     required N notifier,
     AsyncValue<T>? initialState,
   }) {
-    return TestableAsyncNotifier(
+    return AsyncNotifierTester(
       notifier: notifier,
       initialState: initialState,
     );
