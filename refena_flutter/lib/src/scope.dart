@@ -67,7 +67,7 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
 
   /// Creates a [RefenaScope] that uses an existing [RefenaContainer].
   /// By default, the [RefenaScope] will dispose the [RefenaContainer]
-  /// when the [RefenaScope] is disposed.
+  /// when the [RefenaScope] itself is disposed.
   /// To prevent this, set [ownsContainer] to false.
   factory RefenaScope.withContainer({
     Key? key,

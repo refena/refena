@@ -91,6 +91,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
 - [Refena vs async_redux](#refena-vs-asyncredux)
 - [Getting Started](#getting-started)
 - [Access the state](#access-the-state)
+- [Container and Scope](#container-and-scope)
 - [Providers](#providers)
   - [Provider](#-provider)
   - [FutureProvider](#-futureprovider)
@@ -316,6 +317,44 @@ class MyPage extends StatelessWidget {
       ),
     );
   }
+}
+```
+
+## Container and Scope
+
+The `RefenaContainer` is the root of your app. It holds the state of all providers.
+
+In Flutter, you should use `RefenaScope` instead which provides easy access the state from a `BuildContext`.
+
+A `RefenaScope` is just a wrapper around a `RefenaContainer`.
+If no container is provided, a new one is implicitly created.
+
+```dart
+void main() {
+  runApp(
+    RefenaScope( // <-- creates an implicit container
+      child: const MyApp(),
+    ),
+  );
+}
+```
+
+You can also create a container explicitly. Use `RefenaScope.withContainer` to provide the container:
+
+```dart
+void main() {
+  final container = RefenaContainer();
+  
+  // pre init procedure
+  container.set(databaseProvider.overrideWithValue(DatabaseService()));
+  container.read(analyticsService).appStarted();
+
+  runApp(
+    RefenaScope.withContainer(
+      container: container, // <-- explicit container
+      child: const MyApp(),
+    ),
+  );
 }
 ```
 
