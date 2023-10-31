@@ -231,7 +231,7 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
 
   @protected
   set future(Future<T> value) {
-    if (savePrev && state.data != null) {
+    if (savePrev && state is AsyncData<T>) {
       _prev = state.data;
     }
     _setFutureAndListen(value);
@@ -240,12 +240,17 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   T? _prev;
 
   /// The last valid state.
+  /// If the future is loading or errored, this will be the previous state.
+  /// If the future is completed, this will be the current data of the future.
+  /// Manipulating the [state] directly will not update this value.
   T? get prev => _prev;
 
-  /// Whether the previous state should be saved.
+  /// Whether the previous state should be saved when setting the [future].
   /// Override this, if you don't want to save the previous state.
+  /// Manipulating the [state] directly will ignore this flag.
   bool get savePrev => true;
 
+  @nonVirtual
   void _setFutureAndListen(Future<T> value) async {
     _future = value;
     _futureCount++;

@@ -614,21 +614,32 @@ class Counter extends AsyncNotifier<int> {
     setState((snapshot) async => (snapshot.curr ?? 0) + 1);
 
     // Set `state` directly if you want more control.
-    state = AsyncSnapshot.waiting();
+    final old = state.data ?? 0;
+    state = AsyncValue.loading(old);
     await Future.delayed(const Duration(seconds: 1));
-    state = AsyncSnapshot.withData(ConnectionState.done, old + 1);
+    state = AsyncValue.data(old + 1);
   }
 }
 ```
 
-Often, you want to implement some kind of refresh logic that shows the previous value while loading.
-
-There is `ref.watchWithPrev` for that.
+Notice that `AsyncValue.loading()` can take an optional previous value.
+This is handy if you want to show the previous value while loading.
+When using `when`, it will automatically use the previous value by default.
 
 ```dart
-final counterState = ref.watchWithPrev(counterProvider);
-AsyncSnapshot<int>? prev = counterState.prev; // show the previous value while loading
-AsyncSnapshot<int> curr = counterState.curr; // might be AsyncSnapshot.waiting()
+build(BuildContext context) {
+  final (counter, loading) = ref.watch(counterProvider.select((s) => (s, s.isLoading)));
+  return counter.when(
+    // also shows previous value even when it's loading
+    data: (value) => Text('The value is $value (loading: $loading)'),
+    
+    // only shown initially when there is no previous value
+    loading: () => Text('Loading...'),
+    
+    // always shows the error if the future fails (configurable)
+    error: (error, stackTrace) => Text('Error: $error'),
+  );
+}
 ```
 
 ### ➤ ReduxProvider

@@ -1,3 +1,7 @@
+## 0.39.0
+
+- feat: `AsyncValue.maybeWhen` should also use the previous value to match the behavior of `AsyncValue.when`
+
 ## 0.38.0
 
 - feat: add `RefenaScope.withContainer` constructor to use an existing `RefenaContainer`

@@ -128,6 +128,89 @@ void main() {
     });
   });
 
+  group('maybeWhen', () {
+    test('Should return the correct value for data', () {
+      expect(
+        AsyncValue.data(1).maybeWhen(
+          data: (data) => 'data-$data',
+          orElse: () => 'orElse',
+        ),
+        'data-1',
+      );
+    });
+
+    test('Should return the correct value for loading', () {
+      expect(
+        AsyncValue<bool>.loading().maybeWhen(
+          loading: () => 'loading',
+          orElse: () => 'orElse',
+        ),
+        'loading',
+      );
+    });
+
+    test('Should return the correct value for error', () {
+      expect(
+        AsyncValue<String>.error('test error', StackTrace.empty).maybeWhen(
+          error: (error, stackTrace) => 'error-$error',
+          orElse: () => 'orElse',
+        ),
+        'error-test error',
+      );
+    });
+
+    test('Should use orElse when loading', () {
+      expect(
+        AsyncValue<int>.loading().maybeWhen(
+          data: (data) => 'data-$data',
+          orElse: () => 'orElse',
+        ),
+        'orElse',
+      );
+    });
+
+    test('Should use orElse when error', () {
+      expect(
+        AsyncValue<int>.error('error', StackTrace.empty).maybeWhen(
+          data: (data) => 'data-$data',
+          orElse: () => 'orElse',
+        ),
+        'orElse',
+      );
+    });
+
+    test('Should skip loading when data is provided', () {
+      expect(
+        AsyncValue<int>.loading(2).maybeWhen(
+          data: (data) => 'data-$data',
+          orElse: () => 'orElse',
+        ),
+        'data-2',
+      );
+    });
+
+    test('Should use error when data is provided', () {
+      expect(
+        AsyncValue<int>.error('error', StackTrace.empty, 3).maybeWhen(
+          data: (data) => 'data-$data',
+          orElse: () => 'orElse',
+        ),
+        'orElse',
+      );
+    });
+
+    test('Should skip error when data is provided and with skip flag', () {
+      expect(
+        AsyncValue<int>.error('error', StackTrace.empty, 3).maybeWhen(
+          data: (data) => 'data-$data',
+          orElse: () => 'orElse',
+          skipError: true,
+        ),
+        'data-3',
+      );
+    });
+  });
+
   group('join', () {
     test('Should join 2 AsyncValue', () {
       final joined = (

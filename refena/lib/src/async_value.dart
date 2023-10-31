@@ -89,12 +89,19 @@ sealed class AsyncValue<T> {
     R Function()? loading,
     R Function(Object error, StackTrace stackTrace)? error,
     required R Function() orElse,
+    bool skipLoading = true,
+    bool skipError = false,
   }) {
     return switch (this) {
       AsyncData<T> curr => data != null ? data(curr.data) : orElse(),
-      AsyncLoading<T> _ => loading != null ? loading() : orElse(),
-      AsyncError<T> curr =>
-        error != null ? error(curr.error, curr.stackTrace) : orElse(),
+      AsyncLoading<T> curr => switch (curr.data) {
+          T t when skipLoading => data != null ? data(t) : orElse(),
+          _ => loading != null ? loading() : orElse(),
+        },
+      AsyncError<T> curr => switch (curr.data) {
+          T t when skipError => data != null ? data(t) : orElse(),
+          _ => error != null ? error(curr.error, curr.stackTrace) : orElse(),
+        },
     };
   }
 
