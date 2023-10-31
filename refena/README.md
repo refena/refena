@@ -278,7 +278,7 @@ class MyPage extends StatelessWidget {
 }
 ```
 
-In a `StatefulWidget`, you can use `with RefenaScope` to access the `ref` directly.
+In a `StatefulWidget`, you can use `with Refena` to access the `ref` directly.
 
 ```dart
 class MyPage extends StatefulWidget {
@@ -286,7 +286,7 @@ class MyPage extends StatefulWidget {
   State<MyPage> createState() => _CounterState();
 }
 
-class _MyPageState extends State<MyPage> with RefenaScope {
+class _MyPageState extends State<MyPage> with Refena {
   @override
   Widget build(BuildContext context) {
     final myValue = ref.watch(myProvider);
