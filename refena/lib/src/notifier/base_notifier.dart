@@ -782,8 +782,8 @@ class NotifierTester<N extends BaseSyncNotifier<T>, T> {
     notifier.internalSetup(
       ProxyRef(
         RefenaContainer(),
-        'TestableNotifier',
-        LabeledReference.custom('TestableNotifier'),
+        'NotifierTester',
+        LabeledReference.custom('NotifierTester'),
       ),
       null,
     );
@@ -816,8 +816,8 @@ class AsyncNotifierTester<N extends BaseAsyncNotifier<T>, T> {
     notifier.internalSetup(
       ProxyRef(
         RefenaContainer(),
-        'TestableAsyncNotifier',
-        LabeledReference.custom('TestableAsyncNotifier'),
+        'AsyncNotifierTester',
+        LabeledReference.custom('AsyncNotifierTester'),
       ),
       null,
     );
