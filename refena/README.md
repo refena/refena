@@ -125,6 +125,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
   - [Override providers](#-override-providers)
   - [Testing without Flutter](#-testing-without-flutter)
   - [Testing ReduxProvider](#-testing-reduxprovider)
+  - [Testing Notifiers](#-testing-notifiers)
   - [Access the state within tests](#-access-the-state-within-tests)
   - [State events](#-state-events)
   - [Example test](#-example-test)
@@ -1496,7 +1497,7 @@ void main() {
     final ref = RefenaContainer(
       overrides: [
         counterProvider.overrideWithReducer(
-          overrides: {
+          reducer: {
             IncrementAction: (state) => state + 20,
             DecrementAction: null, // do nothing
           },
@@ -1513,6 +1514,29 @@ void main() {
     // Should not change the state
     ref.redux(counterProvider).dispatch(DecrementAction());
     expect(ref.read(counterProvider), 20);
+  });
+}
+```
+
+### ➤ Testing Notifiers
+
+You can use `Notifier.test` (or `AsyncNotifier.test`) to test your notifiers in isolation.
+
+This is only useful if your notifier is not dependent on other providers,
+or if you have specified all dependencies via constructor (dependency injection).
+
+```dart
+void main() {
+  test('My test', () {
+    final counter = Notifier.test(
+      notifier: Counter(),
+      initialState: 11,
+    );
+
+    expect(counter.state, 11);
+
+    counter.notifier.increment();
+    expect(counter.state, 12);
   });
 }
 ```
