@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 
 // ignore: implementation_imports
 import 'package:refena/src/proxy_ref.dart';
+// ignore: implementation_imports
+import 'package:refena/src/ref.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_riverpod_extension/src/riverpod_proxy.dart';
 

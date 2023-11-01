@@ -1,3 +1,7 @@
+## 0.40.0
+
+- feat: add `WatchAction`, a new class of action that can watch other providers to rebuild the state
+
 ## 0.39.0
 
 - feat: `AsyncValue.maybeWhen` should also use the previous value during loading to match the behavior of `AsyncValue.when`

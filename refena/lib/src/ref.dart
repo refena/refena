@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
@@ -96,6 +97,7 @@ abstract interface class WatchableRef implements Ref {
 /// The actual implementation of [WatchableRef].
 /// This decoupling is used to discourage access to [rebuildable]
 /// and [trackNotifier].
+@internal
 class WatchableRefImpl implements WatchableRef {
   WatchableRefImpl({
     required RefenaContainer ref,

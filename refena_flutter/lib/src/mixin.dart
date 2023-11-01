@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:refena/refena.dart';
+// ignore: implementation_imports
+import 'package:refena/src/ref.dart';
 import 'package:refena_flutter/src/element_rebuildable.dart';
 import 'package:refena_flutter/src/get_scope.dart';
 

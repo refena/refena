@@ -1,3 +1,7 @@
+## 0.5.0
+
+- deps: bump `refena` to `0.40.0`
+
 ## 0.4.0
 
 - **BREAKING**: rename `RefenaRiverpodScope` to `RefenaRiverpodExtension`

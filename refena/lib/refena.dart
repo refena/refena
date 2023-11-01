@@ -46,5 +46,5 @@ export 'package:refena/src/provider/types/provider.dart';
 export 'package:refena/src/provider/types/redux_provider.dart';
 export 'package:refena/src/provider/types/state_provider.dart';
 export 'package:refena/src/provider/types/view_provider.dart';
-export 'package:refena/src/ref.dart';
+export 'package:refena/src/ref.dart' show Ref, WatchableRef;
 export 'package:refena/src/reference.dart';

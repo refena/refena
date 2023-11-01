@@ -40,6 +40,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
   final String? customDebugLabel;
   BaseProvider? _provider;
   NotifyStrategy? _notifyStrategy;
+  bool _disposed = false;
 
   /// The current state of the notifier.
   /// It will be initialized by [init].
@@ -54,6 +55,9 @@ abstract class BaseNotifier<T> implements LabeledReference {
   /// A collection of notifiers that depend on this notifier.
   /// They will be disposed when this notifier is disposed.
   final Set<BaseNotifier> dependents = {};
+
+  /// Whether this notifier is disposed.
+  bool get disposed => _disposed;
 
   BaseNotifier({String? debugLabel}) : customDebugLabel = debugLabel;
 
@@ -149,6 +153,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
   Set<BaseNotifier> internalDispose() {
     dispose();
 
+    _disposed = true;
     _listeners.dispose();
 
     // Remove from dependency graph
@@ -308,7 +313,6 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   late final WatchableRef _watchableRef;
   final T Function(WatchableRef) _builder;
   final _rebuildController = BatchedStreamController<AbstractChangeEvent>();
-  bool _disposed = false;
 
   @override
   T init() {
@@ -403,9 +407,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   @override
   @nonVirtual
   void dispose() {
-    _disposed = true;
     _rebuildController.dispose();
-    super.dispose();
   }
 
   @override
@@ -432,6 +434,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// A map of overrides for the reducers.
   Map<Type, MockReducer<T>?>? _overrides;
+
+  /// WatchActions that belong to this notifier.
+  /// They will be cancelled when the notifier is disposed.
+  final List<WatchActionSubscription> _watchActions = [];
 
   /// The override for the initial state.
   T? _overrideInitialState;
@@ -755,6 +761,9 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     if (disposeAction != null) {
       dispatch(disposeAction);
     }
+    for (final watchAction in _watchActions) {
+      watchAction.cancel();
+    }
     super.dispose();
   }
 
@@ -768,6 +777,13 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     super.internalSetup(ref, provider);
     _state = _overrideInitialState ?? init();
     _initialized = true;
+  }
+
+  @internal
+  @nonVirtual
+  void registerWatchAction(WatchActionSubscription subscription) {
+    _watchActions.add(subscription);
+    _watchActions.removeWhere((s) => s.disposed);
   }
 }
 
