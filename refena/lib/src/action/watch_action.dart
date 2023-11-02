@@ -196,4 +196,7 @@ final class WatchUpdateAction<N extends BaseReduxNotifier<T>, T>
   T reduce() {
     return newState;
   }
+
+  @override
+  String get debugLabel => 'WatchUpdateAction';
 }

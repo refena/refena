@@ -60,6 +60,9 @@ class RefreshSetLoadingAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
 
   @override
   int get hashCode => 0;
+
+  @override
+  String get debugLabel => 'RefreshSetLoadingAction';
 }
 
 /// Sets the state of a [ReduxNotifier] to [AsyncValue.withError].
@@ -89,4 +92,7 @@ class RefreshSetErrorAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
 
   @override
   int get hashCode => error.hashCode;
+
+  @override
+  String get debugLabel => 'RefreshSetErrorAction';
 }
