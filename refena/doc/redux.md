@@ -63,6 +63,7 @@ class MyPage extends StatelessWidget {
 - [Action Lifecycle](#action-lifecycle)
 - [Dispatching actions from actions](#dispatching-actions-from-actions)
 - [Global Actions](#global-actions)
+- [Watch Actions](#watch-actions)
 - [Refresh Actions](#refresh-actions)
 - [Error Handling](#error-handling)
 - [Tracing](#tracing)
@@ -337,6 +338,10 @@ class IncrementAction extends ReduxAction<Counter, int> {
 
 ## Global Actions
 
+> TL;DR:
+> 
+> A `GlobalAction` has `ref` and is not bound to any notifier.
+
 A global action is an action not bound to any notifier and therefore has no state.
 
 Inside the action, you can access `ref` to dispatch other actions or to read other providers.
@@ -391,7 +396,57 @@ Similar to regular actions, there are also asynchronous global actions or global
 | `GlobalActionWithResult`      | yes               | `R reduce()`            |
 | `AsyncGlobalActionWithResult` | yes               | `Future<R> reduce()`    |
 
+## Watch Actions
+
+> TL;DR:
+> 
+> A `WatchAction` has `ref` and reruns the `reduce()` method whenever a watched provider changes.
+
+You can add additional properties to the state by using a `WatchAction`.
+
+It reruns the `reduce` method and dispatches a `WatchUpdateAction` whenever a watched provider changes.
+
+Usually, you dispatch a `WatchAction` from the `initialAction` of a `ReduxNotifier`.
+
+```dart
+final counterProvider = ReduxProvider<Counter, CounterState>((ref) {
+  return Counter();
+});
+
+class Counter extends ReduxNotifier<CounterState> {
+  @override
+  int init() => CounterState.initial();
+  
+  @override
+  get initialAction => CustomWatchAction();
+}
+
+class CustomWatchAction extends WatchAction<Counter, CounterState> {
+  @override
+  int reduce() {
+    final theme = ref.watch(themeProvider);
+    return state.copyWith(
+      theme: theme,
+    );
+  }
+}
+```
+
+All `WatchAction`s are automatically canceled when the notifier is disposed.
+
+You can also cancel them manually by calling `cancel()` on the result of `dispatchTakeResult()`.
+
+```dart
+final subscription = ref.redux(counterProvider).dispatchTakeResult(CustomWatchAction());
+// ...
+subscription.cancel();
+```
+
 ## Refresh Actions
+
+> TL;DR:
+> 
+> A `RefreshAction` handles the `AsyncValue` state for you during `refresh()`.
 
 To reduce boilerplate code when you want to implement a refresh action, you can use `RefreshAction`.
 
@@ -404,7 +459,7 @@ final counterProvider = ReduxProvider<Counter, AsyncValue<int>>((ref) {
 
 class Counter extends ReduxNotifier<AsyncValue<int>> {
   @override
-  AsyncValue<int> init() => AsyncValue.withData(0);
+  AsyncValue<int> init() => AsyncValue.data(0);
 }
 ```
 
@@ -510,12 +565,10 @@ Register the observer in the `RefenaScope`:
 ```dart
 void main() {
   runApp(RefenaScope(
-    observer: RefenaMultiObserver(
-      observers: [
-        RefenaDebugObserver(),
-        MyObserver(),
-      ],
-    ),
+    observers: [
+      RefenaDebugObserver(),
+      MyObserver(),
+    ],
     child: MyApp(),
   ));
 }
