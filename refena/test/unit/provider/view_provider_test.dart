@@ -4,7 +4,7 @@ import 'package:test/test.dart';
 import '../../util/skip_microtasks.dart';
 
 void main() {
-  test('Single provider test', () {
+  test('Should provide single constant', () {
     final provider = ViewProvider((ref) => 123);
     final observer = RefenaHistoryObserver.all();
     final ref = RefenaContainer(
@@ -25,7 +25,7 @@ void main() {
     ]);
   });
 
-  test('Multiple provider test', () async {
+  test('Should rebuild based on watched provider', () async {
     final stateProvider = StateProvider((ref) => 0);
     final viewProvider = ViewProvider((ref) {
       final state = ref.watch(stateProvider);

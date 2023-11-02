@@ -1,8 +1,12 @@
 part of 'redux_action.dart';
 
-/// An action that can watch other providers to rebuild the state.
-/// This is handy if you want to add additional properties to the state
-/// but you don't want to write an extra [ViewProvider] for it.
+/// TLDR:
+/// This action reruns the [reduce] method whenever a watched provider changes.
+///
+/// This action is handy if you want to add additional properties to the state
+/// but you don't want to write an extra [ViewProvider] / listener for it.
+/// It reruns the [reduce] method and dispatches a [WatchUpdateAction]
+/// whenever a watched provider changes.
 ///
 /// Usually, this action is dispatched in the [initialAction]
 /// of a [ReduxNotifier].
