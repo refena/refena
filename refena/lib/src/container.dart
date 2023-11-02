@@ -19,6 +19,8 @@ import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
 import 'package:refena/src/reference.dart';
 
+/// This type is used to represent the platform type without depending
+/// on Flutter or dart:io.
 enum PlatformHint {
   /// The platform is Android.
   android,
@@ -108,7 +110,7 @@ class RefenaContainer implements Ref, LabeledReference {
 
   /// The platform hint.
   /// This is used by the inspector_client to determine the host IP.
-  final PlatformHint platformHint;
+  PlatformHint platformHint;
 
   /// Holds all provider states
   final _state = <BaseProvider, BaseNotifier>{};
@@ -202,7 +204,7 @@ class RefenaContainer implements Ref, LabeledReference {
   ]) {
     N? notifier = _state[provider] as N?;
     if (notifier == null) {
-      final overridden = _overrides?.createState(
+      final overridden = _overrides?._createState(
         provider,
         _withProviderLabel(provider),
       );
@@ -438,7 +440,7 @@ RefenaObserver? _observerListToSingleObserver(List<RefenaObserver> observers) {
 
 extension on Map<BaseProvider, FutureOr<BaseNotifier> Function(ProxyRef ref)> {
   /// Returns the overridden notifier for the provider.
-  FutureOr<N>? createState<N extends BaseNotifier<T>, T>(
+  FutureOr<N>? _createState<N extends BaseNotifier<T>, T>(
       BaseProvider<N, T> provider, ProxyRef ref) {
     return this[provider]?.call(ref) as FutureOr<N>?;
   }

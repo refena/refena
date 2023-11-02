@@ -52,7 +52,7 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   }) : this._(
           key: key,
           container: RefenaContainer(
-            platformHint: platformHint ?? _getPlatformHint(),
+            platformHint: platformHint ?? RefenaScope.getPlatformHint(),
             overrides: overrides,
             initialProviders: initialProviders,
             defaultNotifyStrategy: defaultNotifyStrategy,
@@ -72,13 +72,18 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   factory RefenaScope.withContainer({
     Key? key,
     required RefenaContainer container,
+    PlatformHint? platformHint,
     bool ownsContainer = true,
     bool defaultRef = true,
     required Widget child,
   }) {
     return RefenaScope._(
       key: key,
-      container: container,
+      container: container
+        ..platformHint = platformHint ??
+            (container.platformHint == PlatformHint.unknown
+                ? RefenaScope.getPlatformHint()
+                : container.platformHint),
       implicitContainer: false,
       ownsContainer: ownsContainer,
       defaultRef: defaultRef,
@@ -93,6 +98,13 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   /// Usage:
   /// RefenaScope.defaultRef.read(myProvider);
   static late Ref defaultRef;
+
+  /// Returns the [PlatformHint] for the current platform.
+  /// This type is used to represent the platform type without depending
+  /// on Flutter or dart:io.
+  static PlatformHint getPlatformHint() {
+    return PlatformHintProvider.instance.getPlatformHint();
+  }
 
   /// The [RefenaContainer] that is used by this [RefenaScope].
   final RefenaContainer _container;
@@ -121,6 +133,10 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   /// The platform hint.
   @override
   PlatformHint get platformHint => _container.platformHint;
+
+  /// Updates the platform hint.
+  @override
+  set platformHint(PlatformHint value) => _container.platformHint = value;
 
   /// The provided observer (e.g. for logging)
   @override
@@ -283,17 +299,24 @@ class RefenaInheritedWidget extends InheritedWidget {
   }
 }
 
-PlatformHint _getPlatformHint() {
-  if (kIsWeb) {
-    return PlatformHint.web;
-  }
+@internal
+class PlatformHintProvider {
+  /// Not final for testing
+  static PlatformHintProvider instance = PlatformHintProvider();
 
-  return switch (defaultTargetPlatform) {
-    TargetPlatform.android => PlatformHint.android,
-    TargetPlatform.iOS => PlatformHint.iOS,
-    TargetPlatform.windows => PlatformHint.windows,
-    TargetPlatform.macOS => PlatformHint.macOS,
-    TargetPlatform.linux => PlatformHint.linux,
-    _ => PlatformHint.unknown,
-  };
+  /// Returns the [PlatformHint] for the current platform.
+  PlatformHint getPlatformHint() {
+    if (kIsWeb) {
+      return PlatformHint.web;
+    }
+
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.android => PlatformHint.android,
+      TargetPlatform.iOS => PlatformHint.iOS,
+      TargetPlatform.windows => PlatformHint.windows,
+      TargetPlatform.macOS => PlatformHint.macOS,
+      TargetPlatform.linux => PlatformHint.linux,
+      _ => PlatformHint.unknown,
+    };
+  }
 }
