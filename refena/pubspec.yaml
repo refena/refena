@@ -12,6 +12,8 @@ topics:
 screenshots:
   - description: The Refena logo.
     path: resources/icon.png
+funding:
+  - https://github.com/sponsors/Tienisto/
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
