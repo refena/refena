@@ -139,62 +139,62 @@ void main() {
     test('Should update dependencies after rebuild', () async {
       final container = RefenaContainer();
 
-      final providerA = StateProvider((ref) => 123);
-      final providerB = Provider((ref) => 10);
-      final providerC = Provider((ref) => 20);
-      final providerD = ViewProvider((ref) {
-        final a = ref.watch(providerA);
-        if (a == 123) {
-          return ref.watch(providerB) + 1;
+      final switchProvider = StateProvider((ref) => true);
+      final providerA = Provider((ref) => 10);
+      final providerB = Provider((ref) => 20);
+      final viewProvider = ViewProvider((ref) {
+        final b = ref.watch(switchProvider);
+        if (b) {
+          return ref.watch(providerA) + 1;
         } else {
-          return ref.watch(providerC) + 1;
+          return ref.watch(providerB) + 1;
         }
       });
 
       // Sanity check
-      expect(container.read(providerA), 123);
-      expect(container.read(providerB), 10);
-      expect(container.read(providerC), 20);
-      expect(container.read(providerD), 11);
+      expect(container.read(switchProvider), true);
+      expect(container.read(providerA), 10);
+      expect(container.read(providerB), 20);
+      expect(container.read(viewProvider), 11);
 
+      final switchNotifier = container.anyNotifier(switchProvider);
       final notifierA = container.anyNotifier(providerA);
       final notifierB = container.anyNotifier(providerB);
-      final notifierC = container.anyNotifier(providerC);
-      final notifierD = container.anyNotifier(providerD);
+      final viewNotifier = container.anyNotifier(viewProvider);
+
+      expect(switchNotifier.dependencies, isEmpty);
+      expect(switchNotifier.dependents, {viewNotifier});
 
       expect(notifierA.dependencies, isEmpty);
-      expect(notifierA.dependents, {notifierD});
-
-      expect(notifierB.dependencies, isEmpty);
-      expect(notifierB.dependents, {notifierD});
-
-      expect(notifierC.dependencies, isEmpty);
-      expect(notifierC.dependents, isEmpty);
-
-      expect(notifierD.dependencies, {notifierA, notifierB});
-      expect(notifierD.dependents, isEmpty);
-
-      // Change state
-      container.notifier(providerA).setState((old) => old + 1);
-      await skipAllMicrotasks();
-
-      // Sanity check
-      expect(container.read(providerA), 124);
-      expect(container.read(providerB), 10);
-      expect(container.read(providerC), 20);
-      expect(container.read(providerD), 21);
-
-      expect(notifierA.dependencies, isEmpty);
-      expect(notifierA.dependents, {notifierD});
+      expect(notifierA.dependents, {viewNotifier});
 
       expect(notifierB.dependencies, isEmpty);
       expect(notifierB.dependents, isEmpty);
 
-      expect(notifierC.dependencies, isEmpty);
-      expect(notifierC.dependents, {notifierD});
+      expect(viewNotifier.dependencies, {switchNotifier, notifierA});
+      expect(viewNotifier.dependents, isEmpty);
 
-      expect(notifierD.dependencies, {notifierA, notifierC});
-      expect(notifierD.dependents, isEmpty);
+      // Change state
+      container.notifier(switchProvider).setState((_) => false);
+      await skipAllMicrotasks();
+
+      // Sanity check
+      expect(container.read(switchProvider), false);
+      expect(container.read(providerA), 10);
+      expect(container.read(providerB), 20);
+      expect(container.read(viewProvider), 21);
+
+      expect(switchNotifier.dependencies, isEmpty);
+      expect(switchNotifier.dependents, {viewNotifier});
+
+      expect(notifierA.dependencies, isEmpty);
+      expect(notifierA.dependents, isEmpty);
+
+      expect(notifierB.dependencies, isEmpty);
+      expect(notifierB.dependents, {viewNotifier});
+
+      expect(viewNotifier.dependencies, {switchNotifier, notifierB});
+      expect(viewNotifier.dependents, isEmpty);
     });
   });
 

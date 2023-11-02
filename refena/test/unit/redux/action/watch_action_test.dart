@@ -14,31 +14,35 @@ void main() {
       observers: [observer],
     );
 
-    expect(ref.read(_counterProvider), 10);
-    expect(ref.read(_reduxProvider).counter, 0);
-    expect(ref.read(_reduxProvider).name, '');
+    final reduxProvider = ReduxProvider<_ReduxNotifier, _ReduxState>((ref) {
+      return _ReduxNotifier();
+    });
 
-    ref.redux(_reduxProvider).dispatch(_WatchAction());
-    expect(ref.read(_counterProvider), 10);
-    expect(ref.read(_reduxProvider).counter, 10);
-    expect(ref.read(_reduxProvider).name, '');
+    expect(ref.read(_counterAProvider), 10);
+    expect(ref.read(reduxProvider).counter, 0);
+    expect(ref.read(reduxProvider).name, '');
 
-    ref.redux(_reduxProvider).dispatch(_UpdateNameAction('test'));
+    ref.redux(reduxProvider).dispatch(_WatchAction());
+    expect(ref.read(_counterAProvider), 10);
+    expect(ref.read(reduxProvider).counter, 10);
+    expect(ref.read(reduxProvider).name, '');
+
+    ref.redux(reduxProvider).dispatch(_UpdateNameAction('test'));
     await skipAllMicrotasks();
-    expect(ref.read(_counterProvider), 10);
-    expect(ref.read(_reduxProvider).counter, 10);
-    expect(ref.read(_reduxProvider).name, 'test');
+    expect(ref.read(_counterAProvider), 10);
+    expect(ref.read(reduxProvider).counter, 10);
+    expect(ref.read(reduxProvider).name, 'test');
     expect(observer.dispatchedActions.length, 2);
     expect(observer.dispatchedActions, [
       isA<_WatchAction>(),
       isA<_UpdateNameAction>(),
     ]);
 
-    ref.notifier(_counterProvider).setState((_) => 20);
+    ref.notifier(_counterAProvider).setState((_) => 20);
     await skipAllMicrotasks();
-    expect(ref.read(_counterProvider), 20);
-    expect(ref.read(_reduxProvider).counter, 20);
-    expect(ref.read(_reduxProvider).name, 'test');
+    expect(ref.read(_counterAProvider), 20);
+    expect(ref.read(reduxProvider).counter, 20);
+    expect(ref.read(reduxProvider).name, 'test');
     expect(observer.dispatchedActions.length, 3);
     expect(observer.dispatchedActions, [
       isA<_WatchAction>(),
@@ -46,17 +50,17 @@ void main() {
       isA<WatchUpdateAction>(),
     ]);
 
-    ref.redux(_reduxProvider).dispatch(_UpdateNameAction('test2'));
+    ref.redux(reduxProvider).dispatch(_UpdateNameAction('test2'));
     await skipAllMicrotasks();
-    expect(ref.read(_counterProvider), 20);
-    expect(ref.read(_reduxProvider).counter, 20);
-    expect(ref.read(_reduxProvider).name, 'test2');
+    expect(ref.read(_counterAProvider), 20);
+    expect(ref.read(reduxProvider).counter, 20);
+    expect(ref.read(reduxProvider).name, 'test2');
 
-    ref.notifier(_counterProvider).setState((_) => 30);
+    ref.notifier(_counterAProvider).setState((_) => 30);
     await skipAllMicrotasks();
-    expect(ref.read(_counterProvider), 30);
-    expect(ref.read(_reduxProvider).counter, 30);
-    expect(ref.read(_reduxProvider).name, 'test2');
+    expect(ref.read(_counterAProvider), 30);
+    expect(ref.read(reduxProvider).counter, 30);
+    expect(ref.read(reduxProvider).name, 'test2');
     expect(observer.dispatchedActions.length, 5);
     expect(observer.dispatchedActions, [
       isA<_WatchAction>(),
@@ -84,7 +88,128 @@ void main() {
     final watchUpdateEvent = observer.history[5] as ActionDispatchedEvent;
     expect(watchUpdateEvent.action, isA<WatchUpdateAction>());
     expect(watchUpdateEvent.debugOrigin, '_WatchAction');
-    expect(watchUpdateEvent.debugOriginRef, ref.anyNotifier(_reduxProvider));
+    expect(watchUpdateEvent.debugOriginRef, ref.anyNotifier(reduxProvider));
+  });
+
+  test('Should unwatch old provider', () async {
+    final observer = RefenaHistoryObserver.only(
+      startImmediately: false,
+      actionDispatched: true,
+    );
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    final reduxProvider = ReduxProvider<_ReduxNotifier, _ReduxState>((ref) {
+      // This provider depends on the parent provider
+      ref.read(_parentProvider);
+      return _ReduxNotifier();
+    });
+
+    final parentNotifier = ref.anyNotifier(_parentProvider);
+    final switchNotifier = ref.anyNotifier(_switchProvider);
+    final notifierA = ref.anyNotifier(_counterAProvider);
+    final notifierB = ref.anyNotifier(_counterBProvider);
+    final reduxNotifier = ref.anyNotifier(reduxProvider);
+
+    expect(ref.read(_switchProvider), true);
+    expect(ref.read(_counterAProvider), 10);
+    expect(ref.read(_counterBProvider), 20);
+    expect(ref.read(reduxProvider).counter, 0);
+
+    // Check initial dependency graph
+    expect(parentNotifier.dependencies, isEmpty);
+    expect(parentNotifier.dependents, {reduxNotifier});
+    expect(switchNotifier.dependencies, isEmpty);
+    expect(switchNotifier.dependents, isEmpty);
+    expect(notifierA.dependencies, isEmpty);
+    expect(notifierA.dependents, isEmpty);
+    expect(notifierB.dependencies, isEmpty);
+    expect(notifierB.dependents, isEmpty);
+    expect(reduxNotifier.dependencies, {parentNotifier});
+
+    ref.redux(reduxProvider).dispatch(_WatchDependencyAction());
+
+    expect(ref.read(_switchProvider), true);
+    expect(ref.read(_counterAProvider), 10);
+    expect(ref.read(_counterBProvider), 20);
+    expect(ref.read(reduxProvider).counter, 10);
+
+    // Check dependency graph after WatchAction
+    expect(parentNotifier.dependencies, isEmpty);
+    expect(parentNotifier.dependents, {reduxNotifier});
+    expect(switchNotifier.dependencies, isEmpty);
+    expect(switchNotifier.dependents, {reduxNotifier});
+    expect(notifierA.dependencies, isEmpty);
+    expect(notifierA.dependents, {reduxNotifier});
+    expect(notifierB.dependencies, isEmpty);
+    expect(notifierB.dependents, isEmpty);
+    expect(reduxNotifier.dependencies, {
+      parentNotifier, // make sure to handle decoy (see action)
+      switchNotifier,
+      notifierA,
+    });
+    expect(reduxNotifier.dependents, isEmpty);
+
+    // Change state
+    ref.notifier(_counterAProvider).setState((old) => old + 1);
+    await skipAllMicrotasks();
+
+    expect(ref.read(_switchProvider), true);
+    expect(ref.read(_counterAProvider), 11);
+    expect(ref.read(_counterBProvider), 20);
+    expect(ref.read(reduxProvider).counter, 11);
+
+    // Watch new provider
+    ref.notifier(_switchProvider).setState((_) => false);
+    await skipAllMicrotasks();
+
+    expect(ref.read(_switchProvider), false);
+    expect(ref.read(_counterAProvider), 11);
+    expect(ref.read(_counterBProvider), 20);
+    expect(ref.read(reduxProvider).counter, 20);
+
+    // Check dependency graph after switching
+    expect(parentNotifier.dependencies, isEmpty);
+    expect(parentNotifier.dependents, {reduxNotifier});
+    expect(switchNotifier.dependencies, isEmpty);
+    expect(switchNotifier.dependents, {reduxNotifier});
+    expect(notifierA.dependencies, isEmpty);
+    expect(notifierA.dependents, isEmpty);
+    expect(notifierB.dependencies, isEmpty);
+    expect(notifierB.dependents, {reduxNotifier});
+    expect(reduxNotifier.dependencies, {
+      parentNotifier, // make sure to handle decoy (see action)
+      switchNotifier,
+      notifierB,
+    });
+    expect(reduxNotifier.dependents, isEmpty);
+
+    // Change state
+    observer.start(clearHistory: true);
+    ref.notifier(_counterBProvider).setState((old) => old + 1);
+    await skipAllMicrotasks();
+    observer.stop();
+
+    expect(ref.read(_switchProvider), false);
+    expect(ref.read(_counterAProvider), 11);
+    expect(ref.read(_counterBProvider), 21);
+    expect(ref.read(reduxProvider).counter, 21);
+    expect(observer.dispatchedActions, [
+      isA<WatchUpdateAction>(),
+    ]);
+
+    // Change state of old provider (should not trigger a rebuild)
+    observer.start(clearHistory: true);
+    ref.notifier(_counterAProvider).setState((old) => old + 1);
+    await skipAllMicrotasks();
+    observer.stop();
+
+    expect(ref.read(_switchProvider), false);
+    expect(ref.read(_counterAProvider), 12);
+    expect(ref.read(_counterBProvider), 21);
+    expect(ref.read(reduxProvider).counter, 21);
+    expect(observer.dispatchedActions, isEmpty);
   });
 
   test('Should dispose WatchAction manually', () async {
@@ -97,24 +222,28 @@ void main() {
       observers: [observer],
     );
 
-    final sub = ref.redux(_reduxProvider).dispatchTakeResult(_WatchAction());
-    expect(ref.read(_counterProvider), 10);
-    expect(ref.read(_reduxProvider).counter, 10);
-    expect(ref.read(_reduxProvider).name, '');
+    final reduxProvider = ReduxProvider<_ReduxNotifier, _ReduxState>((ref) {
+      return _ReduxNotifier();
+    });
 
-    ref.notifier(_counterProvider).setState((_) => 20);
+    final sub = ref.redux(reduxProvider).dispatchTakeResult(_WatchAction());
+    expect(ref.read(_counterAProvider), 10);
+    expect(ref.read(reduxProvider).counter, 10);
+    expect(ref.read(reduxProvider).name, '');
+
+    ref.notifier(_counterAProvider).setState((_) => 20);
     await skipAllMicrotasks();
-    expect(ref.read(_counterProvider), 20);
-    expect(ref.read(_reduxProvider).counter, 20);
-    expect(ref.read(_reduxProvider).name, '');
+    expect(ref.read(_counterAProvider), 20);
+    expect(ref.read(reduxProvider).counter, 20);
+    expect(ref.read(reduxProvider).name, '');
 
     sub.cancel();
 
-    ref.notifier(_counterProvider).setState((_) => 30);
+    ref.notifier(_counterAProvider).setState((_) => 30);
     await skipAllMicrotasks();
-    expect(ref.read(_counterProvider), 30);
-    expect(ref.read(_reduxProvider).counter, 20);
-    expect(ref.read(_reduxProvider).name, '');
+    expect(ref.read(_counterAProvider), 30);
+    expect(ref.read(reduxProvider).counter, 20);
+    expect(ref.read(reduxProvider).name, '');
   });
 
   test('Should dispose WatchAction on notifier dispose', () async {
@@ -127,37 +256,40 @@ void main() {
       observers: [observer],
     );
 
-    final sub = ref.redux(_reduxProvider).dispatchTakeResult(_WatchAction());
-    expect(ref.read(_counterProvider), 10);
-    expect(ref.read(_reduxProvider).counter, 10);
-    expect(ref.read(_reduxProvider).name, '');
+    final reduxProvider = ReduxProvider<_ReduxNotifier, _ReduxState>((ref) {
+      return _ReduxNotifier();
+    });
 
-    ref.notifier(_counterProvider).setState((_) => 20);
+    final sub = ref.redux(reduxProvider).dispatchTakeResult(_WatchAction());
+    expect(ref.read(_counterAProvider), 10);
+    expect(ref.read(reduxProvider).counter, 10);
+    expect(ref.read(reduxProvider).name, '');
+
+    ref.notifier(_counterAProvider).setState((_) => 20);
     await skipAllMicrotasks();
-    expect(ref.read(_counterProvider), 20);
-    expect(ref.read(_reduxProvider).counter, 20);
-    expect(ref.read(_reduxProvider).name, '');
+    expect(ref.read(_counterAProvider), 20);
+    expect(ref.read(reduxProvider).counter, 20);
+    expect(ref.read(reduxProvider).name, '');
     expect(sub.disposed, false);
 
-    ref.dispose(_reduxProvider);
-    expect(ref.read(_counterProvider), 20);
-    expect(ref.read(_reduxProvider).counter, 0);
-    expect(ref.read(_reduxProvider).name, '');
+    ref.dispose(reduxProvider);
+    expect(ref.read(_counterAProvider), 20);
+    expect(ref.read(reduxProvider).counter, 0);
+    expect(ref.read(reduxProvider).name, '');
     expect(sub.disposed, true);
 
-    ref.notifier(_counterProvider).setState((_) => 30);
+    ref.notifier(_counterAProvider).setState((_) => 30);
     await skipAllMicrotasks();
-    expect(ref.read(_counterProvider), 30);
-    expect(ref.read(_reduxProvider).counter, 0);
-    expect(ref.read(_reduxProvider).name, '');
+    expect(ref.read(_counterAProvider), 30);
+    expect(ref.read(reduxProvider).counter, 0);
+    expect(ref.read(reduxProvider).name, '');
   });
 }
 
-final _counterProvider = StateProvider((ref) => 10);
-
-final _reduxProvider = ReduxProvider<_ReduxNotifier, _ReduxState>(
-  (ref) => _ReduxNotifier(),
-);
+final _switchProvider = StateProvider((ref) => true);
+final _parentProvider = StateProvider((ref) => 0);
+final _counterAProvider = StateProvider((ref) => 10);
+final _counterBProvider = StateProvider((ref) => 20);
 
 class _ReduxState {
   final int counter;
@@ -195,7 +327,25 @@ class _WatchAction extends WatchAction<_ReduxNotifier, _ReduxState> {
   @override
   _ReduxState reduce() {
     return _ReduxState(
-      counter: ref.watch(_counterProvider),
+      counter: ref.watch(_counterAProvider),
+      name: state.name,
+    );
+  }
+}
+
+class _WatchDependencyAction extends WatchAction<_ReduxNotifier, _ReduxState> {
+  @override
+  _ReduxState reduce() {
+    final b = ref.watch(_switchProvider);
+    final int counter;
+    if (b) {
+      ref.watch(_parentProvider); // decoy
+      counter = ref.watch(_counterAProvider);
+    } else {
+      counter = ref.watch(_counterBProvider);
+    }
+    return _ReduxState(
+      counter: counter,
       name: state.name,
     );
   }

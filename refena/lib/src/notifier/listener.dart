@@ -96,9 +96,16 @@ class NotifierListeners<T> {
     _stream.close();
   }
 
+  /// Removes all listeners that have been disposed.
   void removeUnusedListeners() {
     // remove any listener that has been disposed
     _listeners.removeWhere((rebuildable, config) => rebuildable.disposed);
+  }
+
+  /// Removes a listener from the notifier.
+  /// This reverts ref.watch.
+  void removeListener(Rebuildable rebuildable) {
+    _listeners.remove(rebuildable);
   }
 
   List<Rebuildable> getListeners() => _listeners.keys.toList();

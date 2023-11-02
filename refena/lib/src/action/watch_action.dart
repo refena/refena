@@ -43,7 +43,14 @@ part of 'redux_action.dart';
 abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
     extends BaseReduxActionWithResult<N, T, WatchActionSubscription>
     implements Rebuildable {
+  /// The dependencies of this [WatchAction] that
+  /// are **NOT** already dependencies of the [ReduxNotifier].
+  final _actionDependencies = <BaseNotifier>{};
+
+  /// The controller to schedule rebuilds.
   final _rebuildController = BatchedStreamController<void>();
+
+  /// Whether the [WatchAction] is disposed (cancelled).
   bool _disposed = false;
 
   /// Access the [Ref].
@@ -66,21 +73,69 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
   @internal
   @nonVirtual
   (T, WatchActionSubscription) internalWrapReduce() {
+    final notifierDependencies = {..._notifier.dependencies};
     _rebuildController.stream.listen((event) {
-      if (notifier.disposed) {
-        _cancel();
-        return;
-      }
-
-      // rebuild
-      notifier.dispatch(
-        WatchUpdateAction._(wrapReduce()),
-        debugOrigin: debugLabel,
+      _reduceWithDependencyCheck(
+        notifierDependencies: notifierDependencies,
+        dispatchNewAction: true,
       );
     });
     final subscription = WatchActionSubscription(this);
     notifier.registerWatchAction(subscription);
-    return (wrapReduce(), subscription);
+    return (
+      _reduceWithDependencyCheck(
+        notifierDependencies: notifierDependencies,
+        dispatchNewAction: false,
+      ),
+      subscription
+    );
+  }
+
+  T _reduceWithDependencyCheck({
+    required Set<BaseNotifier> notifierDependencies,
+    required bool dispatchNewAction,
+  }) {
+    if (notifier.disposed) {
+      _cancel();
+      return state;
+    }
+
+    // rebuild
+    final oldDeps = {..._actionDependencies};
+    _actionDependencies.clear();
+
+    final newState = (ref as WatchableRefImpl).trackNotifier(
+      onAccess: (notifier) {
+        if (!notifierDependencies.contains(notifier)) {
+          // only add if not already a notifier dependency
+          _notifier.dependencies.add(notifier);
+          _actionDependencies.add(notifier);
+          notifier.dependents.add(_notifier);
+        }
+      },
+      run: () {
+        if (dispatchNewAction) {
+          return notifier.dispatch(
+            WatchUpdateAction._(wrapReduce()),
+            debugOrigin: debugLabel,
+          );
+        } else {
+          return wrapReduce();
+        }
+      },
+    );
+
+    final removedDeps = oldDeps.difference(_actionDependencies);
+    for (final removedDependency in removedDeps) {
+      // remove from dependency graph
+      _notifier.dependencies.remove(removedDependency);
+      removedDependency.dependents.remove(_notifier);
+
+      // remove listener to avoid future rebuilds
+      removedDependency.removeListener(this);
+    }
+
+    return newState;
   }
 
   @override

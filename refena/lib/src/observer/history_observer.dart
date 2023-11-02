@@ -187,7 +187,10 @@ class RefenaHistoryObserver extends RefenaObserver {
   }
 
   /// Starts the observer to store events.
-  void start() {
+  void start({bool clearHistory = false}) {
+    if (clearHistory) {
+      clear();
+    }
     listening = true;
   }
 

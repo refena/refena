@@ -232,6 +232,145 @@ void main() {
       ),
     ]);
   });
+
+  test('Should unwatch old provider', () async {
+    final observer = RefenaHistoryObserver.only(
+      startImmediately: false,
+      rebuild: true,
+    );
+    final container = RefenaContainer(
+      observers: [observer],
+    );
+
+    final switchProvider = StateProvider((ref) => true);
+    final providerA = StateProvider((ref) => 10);
+    final providerB = StateProvider((ref) => 20);
+    int rebuildCount = 0;
+    final viewProvider = ViewProvider((ref) {
+      rebuildCount++;
+      final b = ref.watch(switchProvider);
+      if (b) {
+        return ref.watch(providerA) + 1;
+      } else {
+        return ref.watch(providerB) + 1;
+      }
+    });
+
+    final switchNotifier = container.anyNotifier(switchProvider);
+    final notifierA = container.anyNotifier(providerA);
+    final notifierB = container.anyNotifier(providerB);
+    final viewNotifier = container.anyNotifier(viewProvider);
+
+    // initial state
+    expect(container.read(switchProvider), true);
+    expect(container.read(providerA), 10);
+    expect(container.read(providerB), 20);
+    expect(container.read(viewProvider), 11);
+
+    // Change state
+    observer.start(clearHistory: true);
+    container.notifier(providerA).setState((old) => old + 1);
+    await skipAllMicrotasks();
+    observer.stop();
+
+    // Changing A should update view
+    expect(container.read(switchProvider), true);
+    expect(container.read(providerA), 11);
+    expect(container.read(providerB), 20);
+    expect(container.read(viewProvider), 12);
+    expect(observer.history, [
+      RebuildEvent(
+        rebuildable: viewNotifier,
+        causes: [
+          ChangeEvent<int>(
+            notifier: notifierA,
+            action: null,
+            prev: 10,
+            next: 11,
+            rebuild: [viewNotifier],
+          ),
+        ],
+        prev: 11,
+        next: 12,
+        rebuild: [],
+      ),
+    ]);
+
+    // Change watched provider
+    observer.start(clearHistory: true);
+    container.notifier(switchProvider).setState((_) => false);
+    await skipAllMicrotasks();
+    observer.stop();
+
+    // Should watch B now
+    expect(container.read(switchProvider), false);
+    expect(container.read(providerA), 11);
+    expect(container.read(providerB), 20);
+    expect(container.read(viewProvider), 21);
+    expect(observer.history, [
+      RebuildEvent(
+        rebuildable: viewNotifier,
+        causes: [
+          ChangeEvent<bool>(
+            notifier: switchNotifier,
+            action: null,
+            prev: true,
+            next: false,
+            rebuild: [viewNotifier],
+          ),
+        ],
+        prev: 12,
+        next: 21,
+        rebuild: [],
+      ),
+    ]);
+
+    // Change state
+    observer.start(clearHistory: true);
+    rebuildCount = 0;
+    container.notifier(providerB).setState((old) => old + 1);
+    await skipAllMicrotasks();
+    observer.stop();
+
+    // Changing B should update view
+    expect(container.read(switchProvider), false);
+    expect(container.read(providerA), 11);
+    expect(container.read(providerB), 21);
+    expect(container.read(viewProvider), 22);
+    expect(rebuildCount, 1);
+    expect(observer.history, [
+      RebuildEvent(
+        rebuildable: viewNotifier,
+        causes: [
+          ChangeEvent<int>(
+            notifier: notifierB,
+            action: null,
+            prev: 20,
+            next: 21,
+            rebuild: [viewNotifier],
+          ),
+        ],
+        prev: 21,
+        next: 22,
+        rebuild: [],
+      ),
+    ]);
+
+    // Change state
+    observer.start(clearHistory: true);
+    rebuildCount = 0;
+    container.notifier(providerA).setState((old) => old + 1);
+    await skipAllMicrotasks();
+    observer.stop();
+
+    // Changing A should not update view
+    expect(container.read(switchProvider), false);
+    expect(container.read(providerA), 12);
+    expect(container.read(providerB), 21);
+    expect(container.read(viewProvider), 22);
+    expect(rebuildCount, 0);
+    expect(observer.history, isEmpty);
+  });
 }
 
 class _ComplexState {

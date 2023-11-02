@@ -44,9 +44,11 @@ abstract class BaseNotifier<T> implements LabeledReference {
 
   /// The current state of the notifier.
   /// It will be initialized by [init].
+  @nonVirtual
   late T _state;
 
   /// A collection of listeners
+  @nonVirtual
   final NotifierListeners<T> _listeners = NotifierListeners<T>();
 
   /// A collection of notifiers that this notifier depends on.
@@ -177,6 +179,11 @@ abstract class BaseNotifier<T> implements LabeledReference {
   @internal
   void addListener(Rebuildable rebuildable, ListenerConfig<T> config) {
     _listeners.addListener(rebuildable, config);
+  }
+
+  @internal
+  void removeListener(Rebuildable rebuildable) {
+    _listeners.removeListener(rebuildable);
   }
 
   @internal
@@ -340,7 +347,11 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
 
     final removedDependencies = oldDependencies.difference(dependencies);
     for (final removedDependency in removedDependencies) {
+      // remove from dependency graph
       removedDependency.dependents.remove(this);
+
+      // remove listener to avoid future rebuilds
+      removedDependency._listeners.removeListener(this);
     }
 
     return nextState;
