@@ -1,3 +1,7 @@
+## 0.40.3
+
+- fix: dependency constraints
+
 ## 0.40.2
 
 - docs: fix documentation
