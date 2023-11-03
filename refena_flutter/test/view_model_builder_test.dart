@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:refena_flutter/refena_flutter.dart';
-import 'package:refena_flutter/src/view_model_builder.dart';
 
 void main() {
   testWidgets('Should watch state', (tester) async {

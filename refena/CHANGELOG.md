@@ -1,3 +1,7 @@
+## 0.40.4
+
+- fix: missing export of `ViewModelBuilder`
+
 ## 0.40.3
 
 - fix: dependency constraints
