@@ -308,6 +308,24 @@ void main() {
     });
   });
 
+  group(StreamProvider, () {
+    test('Should override', () async {
+      final provider = StreamProvider<int>((ref) => throw 'Not initialized');
+      final ref = RefenaContainer(
+        overrides: [
+          provider.overrideWithStream((ref) async* {
+            yield 456;
+          }),
+        ],
+      );
+
+      expect(ref.read(provider), AsyncValue<int>.loading());
+
+      await skipAllMicrotasks();
+      expect(ref.read(provider), AsyncValue<int>.data(456));
+    });
+  });
+
   group(ViewProvider, () {
     test('Should override', () {
       final provider = ViewProvider((ref) => 123);

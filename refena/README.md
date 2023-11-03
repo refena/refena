@@ -96,6 +96,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
   - [Provider](#-provider)
   - [FutureProvider](#-futureprovider)
   - [StateProvider](#-stateprovider)
+  - [StreamProvider](#-streamprovider)
   - [ChangeNotifierProvider](#-changenotifierprovider)
   - [NotifierProvider](#-notifierprovider)
   - [AsyncNotifierProvider](#-asyncnotifierprovider)
@@ -467,6 +468,33 @@ Update the state:
 
 ```dart
 ref.notifier(myProvider).setState((old) => old + 1);
+```
+
+### ➤ StreamProvider
+
+Use this provider to listen to a stream.
+
+```dart
+final myProvider = StreamProvider<int>((ref) async* {
+  yield 1;
+  await Future.delayed(const Duration(seconds: 1));
+  yield 2;
+  await Future.delayed(const Duration(seconds: 1));
+  yield 3;
+});
+```
+
+Access:
+
+```dart
+build(BuildContext context) {
+  AsyncValue<int> streamAsync = ref.watch(myProvider);
+  return streamAsync.when(
+    data: (value) => Text('The value is $value'),
+    loading: () => const CircularProgressIndicator(),
+    error: (error, stackTrace) => Text('Error: $error'),
+  );
+}
 ```
 
 ### ➤ ChangeNotifierProvider

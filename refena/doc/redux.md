@@ -442,6 +442,42 @@ final subscription = ref.redux(counterProvider).dispatchTakeResult(CustomWatchAc
 subscription.cancel();
 ```
 
+Hook into the lifecycle of a `WatchAction` by overriding `before()` and `dispose()`.
+
+This makes it easy to watch a stream and dispose it when the notifier is disposed.
+
+```dart
+class CustomWatchAction extends WatchAction<Counter, CounterState> {
+  // temporary provider
+  final _counterProvider = StreamProvider<int>((ref) {
+    return ref.read(databaseService).getCounterStream();
+  });
+
+  @override
+  void before() {
+    // called once before reduce()
+  }
+
+  @override
+  CounterState reduce() {
+    // called when a watched provider changes
+    final counter = ref.watch(_counterProvider);
+
+    return state.copyWith(
+      counter: counter.data ?? 0,
+    );
+  }
+
+  @override
+  void dispose() {
+    // called when the notifier is disposed
+    // or when the action is canceled
+    ref.dispose(_counterProvider);
+    super.dispose();
+  }
+}
+```
+
 You might find yourself in a situation where you want to build a view model inside your `init()`
 method. In this case, you probably notice that you shouldn't dispatch actions directly inside
 the notifier. Instead, you need to add `redux` as a dispatcher.

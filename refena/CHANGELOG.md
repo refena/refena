@@ -1,3 +1,8 @@
+## 0.41.0
+
+- feat: add `StreamProvider`
+- feat: add `dispose` to `WatchAction`
+
 ## 0.40.4
 
 - fix: missing export of `ViewModelBuilder`

@@ -1,7 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/notifier/types/async_notifier.dart';
 
-/// The corresponding notifier for a [FutureProvider].
+/// The corresponding notifier of a [FutureProvider].
 final class FutureProviderNotifier<T> extends AsyncNotifier<T> {
   final Future<T> _future;
 
