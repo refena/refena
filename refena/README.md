@@ -327,7 +327,7 @@ class MyPage extends StatelessWidget {
 
 The `RefenaContainer` is the root of your app. It holds the state of all providers.
 
-In Flutter, you should use `RefenaScope` instead which provides easy access the state from a `BuildContext`.
+In Flutter, you should use `RefenaScope` instead which provides easy access to the state from a `BuildContext`.
 
 A `RefenaScope` is just a wrapper around a `RefenaContainer`.
 If no container is provided, a new one is implicitly created.
@@ -791,11 +791,39 @@ class SettingsPage extends StatelessWidget {
 }
 ```
 
-To have initialization and dispose logic, you can use the `ViewModelBuilder` widget.
-
-It automatically disposes the view model when the widget is removed from the widget tree.
+To automatically dispose the view model, you can use the `ViewModelBuilder` widget.
 
 Nice to know: The `ViewModelBuilder` not only works with `ViewProvider` but with any provider.
+
+```dart
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ViewModelBuilder(
+      provider: settingsVmProvider,
+      builder: (context, vm) {
+        return Scaffold(
+          body: Center(
+            child: Column(
+              children: [
+                Text('First name: ${vm.firstName}'),
+                Text('Last name: ${vm.lastName}'),
+                Text('Theme mode: ${vm.themeMode}'),
+                ElevatedButton(
+                  onPressed: vm.logout,
+                  child: const Text('Logout'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+```
+
+You can also add lifecycle hooks to the view model:
 
 ```dart
 class SettingsPage extends StatelessWidget {
