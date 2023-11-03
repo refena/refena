@@ -415,7 +415,7 @@ final counterProvider = ReduxProvider<Counter, CounterState>((ref) {
 
 class Counter extends ReduxNotifier<CounterState> {
   @override
-  int init() => CounterState.initial();
+  CounterState init() => CounterState.initial();
   
   @override
   get initialAction => CustomWatchAction();
@@ -423,7 +423,7 @@ class Counter extends ReduxNotifier<CounterState> {
 
 class CustomWatchAction extends WatchAction<Counter, CounterState> {
   @override
-  int reduce() {
+  CounterState reduce() {
     final theme = ref.watch(themeProvider);
     return state.copyWith(
       theme: theme,
@@ -440,6 +440,22 @@ You can also cancel them manually by calling `cancel()` on the result of `dispat
 final subscription = ref.redux(counterProvider).dispatchTakeResult(CustomWatchAction());
 // ...
 subscription.cancel();
+```
+
+You might find yourself in a situation where you want to build a view model inside your `init()`
+method. In this case, you probably notice that you shouldn't dispatch actions directly inside
+the notifier. Instead, you need to add `redux` as a dispatcher.
+
+```dart
+class Counter extends ReduxNotifier<CounterState> {
+  @override
+  CounterState init() {
+    return CounterState(
+      counter: 0,
+      increment: () => redux.dispatch(IncrementAction()),
+    );
+  }
+}
 ```
 
 ## Refresh Actions

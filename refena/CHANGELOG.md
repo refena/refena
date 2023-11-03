@@ -1,7 +1,8 @@
 ## 0.40.1
 
-- feat: add `Dispatcher.ofNotifier` constructor
+- feat: add `redux` and `external()` to `ReduxNotifier` to dispatch actions inside `init`
 - feat: add `ViewModelBuilder` to watch exactly one provider with auto dispose
+- feat: add `Dispatcher.ofNotifier` constructor
 
 ## 0.40.0
 

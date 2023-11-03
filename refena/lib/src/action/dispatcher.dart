@@ -18,9 +18,8 @@ class Dispatcher<N extends BaseReduxNotifier<T>, T> {
   });
 
   /// Creates a [Dispatcher] from a [notifier].
-  Dispatcher.ofNotifier({
-    required this.notifier,
-  })  : debugOrigin = notifier.debugLabel,
+  Dispatcher.ofNotifier(this.notifier)
+      : debugOrigin = notifier.debugLabel,
         debugOriginRef = notifier;
 
   /// The notifier to dispatch actions to.

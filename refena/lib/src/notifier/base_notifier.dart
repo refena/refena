@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/async_value.dart';
 import 'package:refena/src/container.dart';
@@ -453,10 +454,31 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// The override for the initial state.
   T? _overrideInitialState;
 
+  /// Access the [Dispatcher] of this notifier.
+  late final redux = Dispatcher<BaseReduxNotifier<T>, T>(
+    notifier: this,
+    debugOrigin: debugLabel,
+    debugOriginRef: this,
+  );
+
+  /// Creates a [Dispatcher] for an external notifier.
+  Dispatcher<BaseReduxNotifier<T2>, T2> external<T2>(
+    BaseReduxNotifier<T2> notifier,
+  ) {
+    return Dispatcher<BaseReduxNotifier<T2>, T2>(
+      notifier: notifier,
+      debugOrigin: debugLabel,
+      debugOriginRef: this,
+    );
+  }
+
   /// Dispatches an action and updates the state.
   /// Returns the new state.
   ///
-  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
+  /// For library consumers, use:
+  /// - [BaseReduxAction.external] to dispatch external actions.
+  /// - [external] to dispatch external actions inside the notifier.
+  /// - [redux] to dispatch internal actions inside the notifier.
   @internal
   @nonVirtual
   T dispatch(
@@ -474,7 +496,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// Dispatches an action and updates the state.
   /// Returns the new state along with the result of the action.
   ///
-  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
+  /// For library consumers, use:
+  /// - [BaseReduxAction.external] to dispatch external actions.
+  /// - [external] to dispatch external actions inside the notifier.
+  /// - [redux] to dispatch internal actions inside the notifier.
   @internal
   @nonVirtual
   (T, R) dispatchWithResult<R>(
@@ -492,7 +517,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// Dispatches an action and updates the state.
   /// Returns only the result of the action.
   ///
-  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
+  /// For library consumers, use:
+  /// - [BaseReduxAction.external] to dispatch external actions.
+  /// - [external] to dispatch external actions inside the notifier.
+  /// - [redux] to dispatch internal actions inside the notifier.
   @internal
   @nonVirtual
   R dispatchTakeResult<R>(
@@ -595,7 +623,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state.
   ///
-  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
+  /// For library consumers, use:
+  /// - [BaseReduxAction.external] to dispatch external actions.
+  /// - [external] to dispatch external actions inside the notifier.
+  /// - [redux] to dispatch internal actions inside the notifier.
   @internal
   @nonVirtual
   Future<T> dispatchAsync(
@@ -614,7 +645,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state along with the result of the action.
   ///
-  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
+  /// For library consumers, use:
+  /// - [BaseReduxAction.external] to dispatch external actions.
+  /// - [external] to dispatch external actions inside the notifier.
+  /// - [redux] to dispatch internal actions inside the notifier.
   @internal
   @nonVirtual
   Future<(T, R)> dispatchAsyncWithResult<R>(
@@ -632,7 +666,10 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   /// Dispatches an asynchronous action and updates the state.
   /// Returns only the result of the action.
   ///
-  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
+  /// For library consumers, use:
+  /// - [BaseReduxAction.external] to dispatch external actions.
+  /// - [external] to dispatch external actions inside the notifier.
+  /// - [redux] to dispatch internal actions inside the notifier.
   @internal
   @nonVirtual
   Future<R> dispatchAsyncTakeResult<R>(
