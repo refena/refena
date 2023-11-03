@@ -455,6 +455,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an action and updates the state.
   /// Returns the new state.
+  ///
+  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
   @internal
   @nonVirtual
   T dispatch(
@@ -471,6 +473,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an action and updates the state.
   /// Returns the new state along with the result of the action.
+  ///
+  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
   @internal
   @nonVirtual
   (T, R) dispatchWithResult<R>(
@@ -487,6 +491,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an action and updates the state.
   /// Returns only the result of the action.
+  ///
+  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
   @internal
   @nonVirtual
   R dispatchTakeResult<R>(
@@ -588,6 +594,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state.
+  ///
+  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
   @internal
   @nonVirtual
   Future<T> dispatchAsync(
@@ -605,6 +613,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an asynchronous action and updates the state.
   /// Returns the new state along with the result of the action.
+  ///
+  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
   @internal
   @nonVirtual
   Future<(T, R)> dispatchAsyncWithResult<R>(
@@ -621,6 +631,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
 
   /// Dispatches an asynchronous action and updates the state.
   /// Returns only the result of the action.
+  ///
+  /// For library consumers, use [Dispatcher.ofNotifier] to get a dispatcher.
   @internal
   @nonVirtual
   Future<R> dispatchAsyncTakeResult<R>(

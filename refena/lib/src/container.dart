@@ -141,6 +141,8 @@ class RefenaContainer implements Ref, LabeledReference {
 
   /// Awaiting this future will ensure that all overrides are initialized.
   /// Calling it multiple times is safe.
+  ///
+  /// {@category Initialization}
   Future<void> ensureOverrides() {
     return _overridesFuture;
   }

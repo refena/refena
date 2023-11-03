@@ -31,6 +31,9 @@ class ChangeNotifierProvider<N extends ChangeNotifier>
   @override
   N getSelectedState(N notifier, void state) => notifier;
 
+  /// Overrides with a predefined notifier.
+  ///
+  /// {@category Initialization}
   ProviderOverride<N, void> overrideWithNotifier(N Function(Ref ref) builder) {
     return ProviderOverride(
       provider: this,

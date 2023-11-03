@@ -24,6 +24,8 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
   }
 
   /// Overrides the state of a provider with a predefined value.
+  ///
+  /// {@category Initialization}
   ProviderOverride<ImmutableNotifier<T>, T> overrideWithValue(
     T value,
   ) {
@@ -37,6 +39,8 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
   }
 
   /// Overrides the state of a provider with a predefined value.
+  ///
+  /// {@category Initialization}
   ProviderOverride<ImmutableNotifier<T>, T> overrideWithBuilder(
     T Function(Ref ref) builder,
   ) {
@@ -48,6 +52,8 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
 
   /// Overrides the state of a provider with a predefined value.
   /// Here, you can use a future to build the state.
+  ///
+  /// {@category Initialization}
   ProviderOverride<ImmutableNotifier<T>, T> overrideWithFuture(
     Future<T> Function(Ref ref) builder,
   ) {

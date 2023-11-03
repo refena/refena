@@ -35,6 +35,9 @@ class StateProvider<T> extends BaseWatchableProvider<StateNotifier<T>, T>
     );
   }
 
+  /// Overrides the initial state.
+  ///
+  /// {@category Initialization}
   ProviderOverride overrideWithInitialState(T Function(Ref ref) builder) {
     return ProviderOverride<StateNotifier<T>, T>(
       provider: this,

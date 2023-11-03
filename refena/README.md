@@ -134,12 +134,13 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
   - [Navigation](#-navigation)
   - [Actions](#-actions)
 - [Dart only](#dart-only)
+- [Deep Dives](#deep-dives)
 
 ## Refena vs Riverpod
 
 Refena is aimed to be more notifier focused than Riverpod.
 
-Refena also includes a comprehensive [Redux](https://github.com/refena/refena/blob/main/refena/doc/redux.md) implementation
+Refena also includes a comprehensive [Redux](https://pub.dev/documentation/refena/latest/topics/Redux-topic.html) implementation
 that can be used for crucial parts of your app.
 
 ### ➤ Key differences
@@ -359,6 +360,8 @@ void main() {
 }
 ```
 
+More about initialization [here](https://pub.dev/documentation/refena/latest/topics/Initialization-topic.html).
+
 ## Providers
 
 There are many types of providers. Each one has its own purpose.
@@ -399,89 +402,6 @@ DatabaseService a = ref.watch(databaseProvider);
 
 This type of provider can replace your entire dependency injection solution.
 
-By default, the value is initialized lazily,
-but you can also tell Refena to initialize it right away with the `initialProviders` parameter:
-
-```dart
-void main() {
-  runApp(
-    RefenaScope(
-      initialProviders: [
-        databaseProvider,
-      ],
-      child: const MyApp(),
-    ),
-  );
-}
-```
-
-The provider body is called synchronously.\
-If you need to do some asynchronous work, you can use `overrideWithFuture` or `overrideWithValue`.
-
-```dart
-final persistenceProvider = Provider<PersistenceService>((ref) => throw 'Not initialized');
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  final PersistenceService persistenceService = await initPersistenceService();
-
-  runApp(RefenaScope(
-    overrides: [
-      persistenceProvider.overrideWithValue(persistenceService),
-    ],
-    child: const MyApp(),
-  ));
-}
-```
-
-You can have multiple overrides depending on each other.\
-The override order is important:
-An exception will be thrown on app start if you reference a provider that is not yet initialized.\
-If you have at least one future override, you should await the initialization with `scope.ensureOverrides()`.
-
-`scope.ensureOverrides()` returns a Future, so you can also show a loading indicator while the app is initializing.
-
-```dart
-final persistenceProvider = Provider<PersistenceService>((ref) => throw 'Not initialized');
-final apiProvider = Provider<ApiService>((ref) => throw 'Not initialized');
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  final scope = RefenaScope(
-    overrides: [
-      // order is important
-      persistenceProvider.overrideWithFuture((ref) async {
-        final prefs = await SharedPreferences.getInstance();
-        return PersistenceService(prefs);
-      }),
-      apiProvider.overrideWithFuture((ref) async {
-        // uses persistenceService from above
-        final persistenceService = ref.read(persistenceProvider);
-        final anotherService = await initAnotherService();
-        return ApiService(persistenceService, anotherService);
-      }),
-    ],
-    child: const MyApp(),
-  );
-
-  await scope.ensureOverrides();
-
-  runApp(scope);
-}
-```
-
-You could also override this on demand:
-
-```dart
-// Access container for low level access
-RefenaContainer container = ref.container;
-
-// Override the provider
-container.set(persistenceProvider.overrideWithValue(persistenceService));
-```
-
 ### ➤ FutureProvider
 
 Use this provider for asynchronous values that never change.
@@ -513,6 +433,8 @@ build(BuildContext context) {
   );
 }
 ```
+
+More about `AsyncValue` [here](https://pub.dev/documentation/refena/latest/topics/Async%20Value-topic.html).
 
 ### ➤ FutureFamilyProvider
 
@@ -684,7 +606,7 @@ build(BuildContext context) {
 
 ### ➤ ReduxProvider
 
-[Redux full documentation](https://github.com/refena/refena/blob/main/refena/doc/redux.md).
+[Redux full documentation](https://pub.dev/documentation/refena/latest/topics/Redux-topic.html).
 
 The `ReduxProvider` is the strictest option. The `state` is solely altered by actions.
 
@@ -783,7 +705,7 @@ Here is how the console output could look like with `RefenaDebugObserver`:
 You can additionally override `before`, `after`, and `wrapReduce` in a `ReduxAction` to add custom logic.
 
 The redux feature is quite complex.
-You can read more about it [here](https://github.com/refena/refena/blob/main/refena/doc/redux.md).
+You can read more about it [here](https://pub.dev/documentation/refena/latest/topics/Redux-topic.html).
 
 ### ➤ ViewProvider
 
@@ -836,6 +758,44 @@ class SettingsPage extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+```
+
+To have initialization and dispose logic, you can use the `ViewModelBuilder` widget.
+
+It automatically disposes the view model when the widget is removed from the widget tree.
+
+Nice to know: The `ViewModelBuilder` not only works with `ViewProvider` but with any provider.
+
+```dart
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ViewModelBuilder(
+      provider: settingsVmProvider,
+      init: (context, ref) => ref.notifier(authProvider).init(),
+      dispose: (context, ref) => ref.notifier(authProvider).dispose(),
+      placeholder: (context) => Text('Loading...'), // while init is running
+      error: (context, error, stackTrace) => Text('Error: $error'), // when init fails
+      builder: (context, vm) {
+        return Scaffold(
+          body: Center(
+            child: Column(
+              children: [
+                Text('First name: ${vm.firstName}'),
+                Text('Last name: ${vm.lastName}'),
+                Text('Theme mode: ${vm.themeMode}'),
+                ElevatedButton(
+                  onPressed: vm.logout,
+                  child: const Text('Logout'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
@@ -1615,7 +1575,7 @@ expect(observer.dispatchedActions, [
 
 There is an example test that shows how to test a counter app.
 
-[See the example test](https://github.com/refena/refena/blob/main/refena/doc/testing.md).
+[See the example test](https://pub.dev/documentation/refena/latest/topics/Testing-topic.html).
 
 ## Add-ons
 
@@ -1716,7 +1676,7 @@ So you can dispatch them from anywhere.
 ref.dispatch(ShowSnackBarAction(message: 'Hello World from Action!'));
 ```
 
-Please read the full documentation about global actions [here](https://github.com/refena/refena/blob/main/refena/doc/redux.md#global-actions).
+Please read the full documentation about global actions [here](https://pub.dev/documentation/refena/latest/topics/Redux-topic.html#global-actions).
 
 You can easily customize the given add-ons by extending their respective "Base-" classes.
 
@@ -1773,6 +1733,12 @@ void main() {
   });
 }
 ```
+
+## Deep dives
+
+This README is a high-level overview of Refena.
+
+To learn more about each topic, checkout the [topics](https://pub.dev/documentation/refena/latest/topics/Introduction-topic.html).
 
 ## License
 

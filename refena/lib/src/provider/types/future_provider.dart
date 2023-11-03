@@ -29,6 +29,9 @@ class FutureProvider<T>
           debugLabel: debugLabel ?? 'FutureProvider<$T>',
         );
 
+  /// Overrides the future.
+  ///
+  /// {@category Initialization}
   ProviderOverride<FutureProviderNotifier<T>, AsyncValue<T>> overrideWithFuture(
     Future<T> Function(Ref ref) builder,
   ) {

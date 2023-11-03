@@ -2,6 +2,8 @@ dartdoc:
   categories:
     "Introduction":
       markdown: "doc/intro.md"
+    "Initialization":
+      markdown: "doc/initialization.md"
     "Redux":
       markdown: "doc/redux.md"
     "Async Value":
@@ -10,6 +12,7 @@ dartdoc:
       markdown: "doc/testing.md"
   categoryOrder:
     - "Introduction"
+    - "Initialization"
     - "Redux"
     - "Async Value"
     - "Testing"

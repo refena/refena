@@ -23,6 +23,9 @@ class ReduxProvider<N extends BaseReduxNotifier<T>, T>
     return _build(ref, builder);
   }
 
+  /// Overrides with a predefined notifier.
+  ///
+  /// {@category Initialization}
   ProviderOverride<N, T> overrideWithNotifier(N Function(Ref ref) builder) {
     return ProviderOverride(
       provider: this,

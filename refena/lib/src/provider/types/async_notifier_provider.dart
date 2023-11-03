@@ -24,6 +24,9 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
     return _build(ref, _builder);
   }
 
+  /// Overrides with a predefined notifier.
+  ///
+  /// {@category Initialization}
   ProviderOverride<N, AsyncValue<T>> overrideWithNotifier(
     N Function(Ref ref) builder,
   ) {

@@ -24,8 +24,11 @@ class FutureFamilyProvider<T, P> extends BaseProvider<
         debugLabel: customDebugLabel ?? 'FutureFamilyProvider<$T>');
   }
 
+  /// Overrides the future builder.
+  ///
+  /// {@category Initialization}
   ProviderOverride<FutureFamilyProviderNotifier<T, P>, Map<P, AsyncValue<T>>>
-      overrideWithNotifier(
+      overrideWithFutureBuilder(
     FutureBuilder<T, P> Function(Ref ref) builder,
   ) {
     return ProviderOverride(

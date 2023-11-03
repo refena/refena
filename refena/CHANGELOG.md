@@ -1,3 +1,8 @@
+## 0.40.1
+
+- feat: add `Dispatcher.ofNotifier` constructor
+- feat: add `ViewModelBuilder` to watch exactly one provider with auto dispose
+
 ## 0.40.0
 
 - feat: add `WatchAction`, a new class of action that can watch other providers to rebuild the state

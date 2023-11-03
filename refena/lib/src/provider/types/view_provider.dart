@@ -25,6 +25,9 @@ class ViewProvider<T> extends BaseWatchableProvider<ViewProviderNotifier<T>, T>
     );
   }
 
+  /// Overrides with a predefined value.
+  ///
+  /// {@category Initialization}
   ProviderOverride<ViewProviderNotifier<T>, T> overrideWithBuilder(
     T Function(WatchableRef) builder,
   ) {
