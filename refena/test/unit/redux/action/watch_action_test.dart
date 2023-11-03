@@ -22,11 +22,16 @@ void main() {
     expect(ref.read(reduxProvider).counter, 0);
     expect(ref.read(reduxProvider).name, '');
 
-    ref.redux(reduxProvider).dispatch(_WatchAction());
+    bool beforeCalled = false;
+    ref.redux(reduxProvider).dispatch(_WatchAction(
+          onBefore: () => beforeCalled = true,
+        ));
     expect(ref.read(_counterAProvider), 10);
     expect(ref.read(reduxProvider).counter, 10);
     expect(ref.read(reduxProvider).name, '');
+    expect(beforeCalled, true);
 
+    beforeCalled = false;
     ref.redux(reduxProvider).dispatch(_UpdateNameAction('test'));
     await skipAllMicrotasks();
     expect(ref.read(_counterAProvider), 10);
@@ -37,7 +42,9 @@ void main() {
       isA<_WatchAction>(),
       isA<_UpdateNameAction>(),
     ]);
+    expect(beforeCalled, false);
 
+    beforeCalled = false;
     ref.notifier(_counterAProvider).setState((_) => 20);
     await skipAllMicrotasks();
     expect(ref.read(_counterAProvider), 20);
@@ -49,6 +56,7 @@ void main() {
       isA<_UpdateNameAction>(),
       isA<WatchUpdateAction>(),
     ]);
+    expect(beforeCalled, false);
 
     ref.redux(reduxProvider).dispatch(_UpdateNameAction('test2'));
     await skipAllMicrotasks();
@@ -226,16 +234,23 @@ void main() {
       return _ReduxNotifier();
     });
 
-    final sub = ref.redux(reduxProvider).dispatchTakeResult(_WatchAction());
+    bool disposeCalled = false;
+    final sub = ref.redux(reduxProvider).dispatchTakeResult(_WatchAction(
+          onDispose: () => disposeCalled = true,
+        ));
     expect(ref.read(_counterAProvider), 10);
     expect(ref.read(reduxProvider).counter, 10);
     expect(ref.read(reduxProvider).name, '');
+    expect(disposeCalled, false);
+    expect(sub.disposed, false);
 
     ref.notifier(_counterAProvider).setState((_) => 20);
     await skipAllMicrotasks();
     expect(ref.read(_counterAProvider), 20);
     expect(ref.read(reduxProvider).counter, 20);
     expect(ref.read(reduxProvider).name, '');
+    expect(disposeCalled, false);
+    expect(sub.disposed, false);
 
     sub.cancel();
 
@@ -244,6 +259,8 @@ void main() {
     expect(ref.read(_counterAProvider), 30);
     expect(ref.read(reduxProvider).counter, 20);
     expect(ref.read(reduxProvider).name, '');
+    expect(disposeCalled, true);
+    expect(sub.disposed, true);
   });
 
   test('Should dispose WatchAction on notifier dispose', () async {
@@ -260,22 +277,29 @@ void main() {
       return _ReduxNotifier();
     });
 
-    final sub = ref.redux(reduxProvider).dispatchTakeResult(_WatchAction());
+    bool disposeCalled = false;
+    final sub = ref.redux(reduxProvider).dispatchTakeResult(_WatchAction(
+          onDispose: () => disposeCalled = true,
+        ));
     expect(ref.read(_counterAProvider), 10);
     expect(ref.read(reduxProvider).counter, 10);
     expect(ref.read(reduxProvider).name, '');
+    expect(disposeCalled, false);
+    expect(sub.disposed, false);
 
     ref.notifier(_counterAProvider).setState((_) => 20);
     await skipAllMicrotasks();
     expect(ref.read(_counterAProvider), 20);
     expect(ref.read(reduxProvider).counter, 20);
     expect(ref.read(reduxProvider).name, '');
+    expect(disposeCalled, false);
     expect(sub.disposed, false);
 
     ref.dispose(reduxProvider);
     expect(ref.read(_counterAProvider), 20);
     expect(ref.read(reduxProvider).counter, 0);
     expect(ref.read(reduxProvider).name, '');
+    expect(disposeCalled, true);
     expect(sub.disposed, true);
 
     ref.notifier(_counterAProvider).setState((_) => 30);
@@ -324,12 +348,31 @@ class _UpdateNameAction extends ReduxAction<_ReduxNotifier, _ReduxState> {
 }
 
 class _WatchAction extends WatchAction<_ReduxNotifier, _ReduxState> {
+  final void Function()? onBefore;
+  final void Function()? onDispose;
+
+  _WatchAction({
+    this.onBefore,
+    this.onDispose,
+  });
+
+  @override
+  void before() {
+    onBefore?.call();
+  }
+
   @override
   _ReduxState reduce() {
     return _ReduxState(
       counter: ref.watch(_counterAProvider),
       name: state.name,
     );
+  }
+
+  @override
+  void dispose() {
+    onDispose?.call();
+    super.dispose();
   }
 }
 

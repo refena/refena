@@ -11,6 +11,9 @@ part of 'redux_action.dart';
 /// Usually, this action is dispatched in the [initialAction]
 /// of a [ReduxNotifier].
 ///
+/// Override [before] to implement some logic before the [reduce] method.
+/// It will run only once, when the [WatchAction] is first dispatched.
+///
 /// All [WatchAction]s are automatically cancelled when the [ReduxNotifier]
 /// is disposed, but you can also cancel them manually by saving the result
 /// of the [dispatchTakeResult] method in a variable
@@ -61,7 +64,7 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
   );
 
   /// The method that returns the new state.
-  /// Whenever a watched provider changes, this method is called.
+  /// Whenever a watched provider changes, this method is called again.
   T reduce();
 
   /// Override this to have some logic before and after the [reduce] method.
@@ -96,7 +99,7 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
     required bool dispatchNewAction,
   }) {
     if (notifier.disposed) {
-      _cancel();
+      dispose();
       return state;
     }
 
@@ -139,6 +142,7 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
   }
 
   @override
+  @internal
   void rebuild(ChangeEvent? changeEvent, RebuildEvent? rebuildEvent) {
     _rebuildController.schedule(null);
   }
@@ -151,7 +155,8 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
   @nonVirtual
   bool get disposed => _disposed;
 
-  void _cancel() {
+  @mustCallSuper
+  void dispose() {
     _disposed = true;
     _rebuildController.dispose();
   }
@@ -178,7 +183,7 @@ class WatchActionSubscription {
   /// Cancel the [WatchAction].
   /// It no longer rebuild the state.
   void cancel() {
-    _action._cancel();
+    _action.dispose();
   }
 
   /// Whether the [WatchAction] is disposed (cancelled).
