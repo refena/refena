@@ -25,7 +25,7 @@ void main() {
 All providers are initialized synchronously.
 
 If one of your providers needs to do some asynchronous work,
-you will need to override them at startup.
+you will need to override it at startup.
 
 ```dart
 final persistenceProvider = Provider<PersistenceService>((ref) => throw 'Not initialized');
