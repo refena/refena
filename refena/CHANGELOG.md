@@ -1,3 +1,7 @@
+## 0.40.2
+
+- docs: fix documentation
+
 ## 0.40.1
 
 - feat: add `redux` and `external()` to `ReduxNotifier` to dispatch actions inside `init`

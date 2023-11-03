@@ -55,6 +55,7 @@ enum PlatformHint {
 /// In this case, the state of the provider is initialized right away.
 ///
 /// {@category Introduction}
+/// {@category Initialization}
 class RefenaContainer implements Ref, LabeledReference {
   /// Creates a [RefenaContainer].
   ///
