@@ -5,6 +5,7 @@ import 'package:refena/refena.dart';
 // ignore: implementation_imports
 import 'package:refena/src/notifier/rebuildable.dart';
 import 'package:refena_flutter/src/consumer.dart';
+import 'package:refena_flutter/src/view_model_builder.dart';
 import 'package:refena_flutter/src/widget_rebuildable.dart';
 
 /// A [Rebuildable] that rebuilds an [Element].
@@ -56,6 +57,7 @@ String _getDebugLabel(Widget? widget) {
   return switch (widget) {
     Consumer() => widget.debugLabel,
     ExpensiveConsumer() => widget.debugLabel,
+    ViewModelBuilder() => widget.debugLabel,
     _ => widget.runtimeType.toString(),
   };
 }

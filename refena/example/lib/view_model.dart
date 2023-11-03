@@ -119,10 +119,10 @@ class MySecondPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Second page'),
       ),
-      body: Consumer(
+      body: ViewModelBuilder(
+          provider: viewProvider,
           debugParent: this,
-          builder: (context, ref) {
-            final vm = ref.watch(viewProvider);
+          builder: (context, vm) {
             return Row(
               children: [
                 Expanded(

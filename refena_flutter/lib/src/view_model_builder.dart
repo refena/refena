@@ -42,10 +42,13 @@ class ViewModelBuilder<T> extends StatefulWidget {
     StackTrace stackTrace,
   )? error;
 
+  /// A debug label for better logging.
+  final String debugLabel;
+
   /// The builder to build the widget tree.
   final Widget Function(BuildContext context, T vm) builder;
 
-  const ViewModelBuilder({
+  ViewModelBuilder({
     super.key,
     required this.provider,
     this.init,
@@ -53,8 +56,12 @@ class ViewModelBuilder<T> extends StatefulWidget {
     this.disposeProvider = true,
     this.placeholder,
     this.error,
+    String? debugLabel,
+    Widget? debugParent,
     required this.builder,
-  });
+  }) : debugLabel = debugLabel ??
+            debugParent?.runtimeType.toString() ??
+            'ViewModelBuilder<$T>';
 
   @override
   State<ViewModelBuilder> createState() => _ViewModelBuilderState<T>();
