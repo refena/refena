@@ -1,4 +1,4 @@
-## 0.41.0
+## 0.42.0
 
 - Checkout [Refena Changelog](https://pub.dev/packages/refena/changelog) for concrete changes.
 
