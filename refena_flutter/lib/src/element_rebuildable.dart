@@ -10,9 +10,8 @@ import 'package:refena/src/notifier/base_notifier.dart';
 // ignore: implementation_imports
 import 'package:refena/src/notifier/rebuildable.dart';
 
-// ignore: implementation_imports
-import 'package:refena/src/util/batched_stream_controller.dart';
 import 'package:refena_flutter/src/consumer.dart';
+import 'package:refena_flutter/src/util/batched_set_controller.dart';
 import 'package:refena_flutter/src/view_model_builder.dart';
 import 'package:refena_flutter/src/widget_rebuildable.dart';
 
@@ -82,12 +81,11 @@ class ElementRebuildable implements Rebuildable {
 @internal
 class UnwatchManager {
   final ElementRebuildable _rebuildable;
-  final _controller = BatchedStreamController<BaseNotifier>();
+  final _controller = BatchedSetController<BaseNotifier>();
   Set<BaseNotifier> oldNotifiers = {};
 
   UnwatchManager(this._rebuildable) {
-    _controller.stream.listen((List<BaseNotifier> notifiers) {
-      final newNotifiers = notifiers.toSet();
+    _controller.stream.listen((Set<BaseNotifier> newNotifiers) {
       if (oldNotifiers.isNotEmpty) {
         // Find old notifiers that are not in the new notifiers.
         final removedNotifiers = oldNotifiers.difference(newNotifiers);
@@ -101,7 +99,13 @@ class UnwatchManager {
   }
 
   void addNotifier(BaseNotifier notifier) {
-    _controller.schedule(notifier);
+    final scheduled = _controller.schedule(notifier);
+    if (!scheduled) {
+      print('''
+$_red[Refena] ${notifier.debugLabel} in ${_rebuildable.debugLabel} is already watched! Only watch each provider once in a build method. Tip: Use records to combine multiple fields.$_reset''');
+      print('''
+$_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_reset\n${StackTrace.current}''');
+    }
   }
 
   void dispose() {
@@ -117,3 +121,6 @@ String _getDebugLabel(Widget? widget) {
     _ => widget.runtimeType.toString(),
   };
 }
+
+const _red = '\x1B[31m';
+const _reset = '\x1B[0m';

@@ -1,5 +1,6 @@
 ## 0.43.0
 
+- feat: print error message when the same provider is watched multiple times in a `build` method
 - **BREAKING**: `WatchAction` should not update the dependencies of the notifier anymore
 
 ## 0.42.0
