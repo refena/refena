@@ -99,6 +99,42 @@ void main() {
     expect(watchUpdateEvent.debugOriginRef, ref.anyNotifier(reduxProvider));
   });
 
+  test('WatchUpdateAction should not refer to origin action', () async {
+    final observer = RefenaHistoryObserver.only(
+      actionDispatched: true,
+    );
+
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    final reduxProvider = ReduxProvider<_ReduxNotifier, _ReduxState>((ref) {
+      return _ReduxNotifier();
+    });
+
+    ref.redux(reduxProvider).dispatch(_WatchAction());
+    ref.notifier(_counterAProvider).setState((_) => 20);
+    await skipAllMicrotasks();
+
+    final reduxNotifier = ref.notifier(reduxProvider);
+    expect(ref.read(_counterAProvider), 20);
+    expect(ref.read(reduxProvider).counter, 20);
+    expect(observer.dispatchedActions, [
+      isA<_WatchAction>(),
+      isA<WatchUpdateAction>(),
+    ]);
+
+    final lastActionEvent = observer.history.last as ActionDispatchedEvent;
+
+    expect(lastActionEvent.action, isA<WatchUpdateAction>());
+
+    // refer to origin action is ok
+    expect(lastActionEvent.debugOrigin, '_WatchAction');
+
+    // should refer to notifier instead of origin action
+    expect(lastActionEvent.debugOriginRef, reduxNotifier);
+  });
+
   test('Should unwatch old provider', () async {
     final observer = RefenaHistoryObserver.only(
       startImmediately: false,

@@ -194,6 +194,9 @@ final class WatchUpdateAction<N extends BaseReduxNotifier<T>, T>
   WatchUpdateAction._(this.newState);
 
   @override
+  bool get trackOrigin => false;
+
+  @override
   T reduce() {
     return newState;
   }
