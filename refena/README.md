@@ -86,6 +86,8 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
 - [Refena vs Riverpod](#refena-vs-riverpod)
   - [Key differences](#-key-differences)
   - [Similarities](#-similarities)
+  - [Downsides](#-downsides)
+  - [Migration](#-migration)
 - [Refena vs async_redux](#refena-vs-asyncredux)
 - [Getting Started](#getting-started)
 - [Access the state](#access-the-state)
@@ -151,18 +153,17 @@ To access `ref`, you can either add `with Refena` (only in `StatefulWidget`) or 
 
 **Common super class**:\
 `WatchableRef extends Ref`.
-You can use `Ref` as parameter to implement util functions that need access to `ref`.
+You can use `Ref` as a parameter type to implement util functions that need access to `ref`.
 These functions can be called by providers and also by widgets.
 
 **ref.watch**:\
 Only the `ViewProvider` can `watch` other providers.
-Every other provider can only be accessed with `ref.read` or `ref.notifier` within a provider body.
+Every other provider only have `ref.read` or `ref.notifier` to access other providers.
 This ensures that the notifier itself is not accidentally rebuilt.
 
 **Use ref anywhere, anytime**:\
 Don't worry that the `ref` within providers or notifiers becomes invalid.
 They live as long as the `RefenaScope`.
-With `ensureRef`, you also can access the `ref` within `initState` or `dispose` of a `StatefulWidget`.
 
 **No provider modifiers**:\
 There is no `.family` or `.autodispose`. This makes the provider landscape simple and straightforward.
@@ -174,8 +175,9 @@ you can choose the right notifier for your use case.
 ### ➤ Similarities
 
 **Testable**:\
-The state is still bound to the `RefenaScope` widget.
-This means that you can override every provider in your tests.
+Providers are stateless.
+The state is stored in the `RefenaContainer`.
+This makes providers testable.
 
 **Type-safe**:\
 Working with providers and notifiers are type-safe and null-safe.
@@ -183,6 +185,13 @@ Working with providers and notifiers are type-safe and null-safe.
 **Auto register**:\
 Don't worry that you forget to register a provider.
 They are automatically registered when you use them.
+
+### ➤ Downsides
+
+**No `autodispose`**:\
+Since there is no `ConsumerWidget`, providers are **never** disposed automatically.
+Refena encourages you to use [ref.dispose](#-refdispose) to dispose providers explicitly.
+For view models, you can use `ViewModelBuilder` which disposes the provider automatically.
 
 ### ➤ Migration
 
@@ -200,14 +209,16 @@ ref.riverpod.read(myRiverpodProvider);
 ## Refena vs async_redux
 
 Compared to [async_redux](https://pub.dev/packages/async_redux),
-Refena encourages you to split the state into multiple notifiers.
+Refena encourages you to split the state into multiple providers.
 
 This makes it easier to implement isolated features,
-so you not only have separation of concerns between UI and business logic,
-but also between different features.
+so not only you have separation of concerns between UI and business logic,
+but also between different features: You can only dispatch actions of the same provider.
 
-Refena uses dependency injection to allow you to use other notifiers.
-Dependency injection enables the creation of the [dependency graph](#-dependency-graph).
+Refena also favors dependency injection, so you can test each provider in isolation.
+
+Another benefit is
+that you can view the [dependency graph](#-dependency-graph) without any additional logic in your providers.
 
 ## Getting started
 
