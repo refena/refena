@@ -1,6 +1,6 @@
 ## 0.5.0
 
-- deps: bump `refena` to `0.40.0`
+- deps: bump `refena` to `0.42.0`
 
 ## 0.4.0
 
