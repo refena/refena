@@ -46,8 +46,7 @@ part of 'redux_action.dart';
 abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
     extends BaseReduxActionWithResult<N, T, WatchActionSubscription>
     implements Rebuildable {
-  /// The dependencies of this [WatchAction] that
-  /// are **NOT** already dependencies of the [ReduxNotifier].
+  /// The dependencies of this [WatchAction].
   final _actionDependencies = <BaseNotifier>{};
 
   /// The controller to schedule rebuilds.
@@ -109,12 +108,7 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
 
     final newState = (ref as WatchableRefImpl).trackNotifier(
       onAccess: (notifier) {
-        if (!notifierDependencies.contains(notifier)) {
-          // only add if not already a notifier dependency
-          _notifier.dependencies.add(notifier);
-          _actionDependencies.add(notifier);
-          notifier.dependents.add(_notifier);
-        }
+        _actionDependencies.add(notifier);
       },
       run: () {
         if (dispatchNewAction) {
@@ -130,10 +124,6 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
 
     final removedDeps = oldDeps.difference(_actionDependencies);
     for (final removedDependency in removedDeps) {
-      // remove from dependency graph
-      _notifier.dependencies.remove(removedDependency);
-      removedDependency.dependents.remove(_notifier);
-
       // remove listener to avoid future rebuilds
       removedDependency.removeListener(this);
     }

@@ -1,3 +1,7 @@
+## 0.43.0
+
+- **BREAKING**: `WatchAction` should not update the dependencies of the notifier anymore
+
 ## 0.42.0
 
 - feat: add `context.watch`, `context.read`, `context.notifier`, `context.redux` shorthands

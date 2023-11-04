@@ -125,18 +125,30 @@ void main() {
     expect(ref.read(_counterBProvider), 20);
     expect(ref.read(reduxProvider).counter, 0);
 
-    // Check initial dependency graph
-    expect(parentNotifier.dependencies, isEmpty);
-    expect(parentNotifier.dependents, {reduxNotifier});
-    expect(switchNotifier.dependencies, isEmpty);
-    expect(switchNotifier.dependents, isEmpty);
-    expect(notifierA.dependencies, isEmpty);
-    expect(notifierA.dependents, isEmpty);
-    expect(notifierB.dependencies, isEmpty);
-    expect(notifierB.dependents, isEmpty);
-    expect(reduxNotifier.dependencies, {parentNotifier});
+    // Check initial dependency graph (it should not change)
+    void checkDependencyGraph() {
+      expect(parentNotifier.dependencies, isEmpty);
+      expect(parentNotifier.dependents, {reduxNotifier});
+      expect(switchNotifier.dependencies, isEmpty);
+      expect(switchNotifier.dependents, isEmpty);
+      expect(notifierA.dependencies, isEmpty);
+      expect(notifierA.dependents, isEmpty);
+      expect(notifierB.dependencies, isEmpty);
+      expect(notifierB.dependents, isEmpty);
+      expect(reduxNotifier.dependencies, {parentNotifier});
+    }
 
-    ref.redux(reduxProvider).dispatch(_WatchDependencyAction());
+    checkDependencyGraph();
+
+    // Check listeners
+    expect(parentNotifier.getListeners(), isEmpty);
+    expect(switchNotifier.getListeners(), isEmpty);
+    expect(notifierA.getListeners(), isEmpty);
+    expect(notifierB.getListeners(), isEmpty);
+    expect(reduxNotifier.getListeners(), isEmpty);
+
+    final action = _WatchDependencyAction();
+    ref.redux(reduxProvider).dispatch(action);
 
     expect(ref.read(_switchProvider), true);
     expect(ref.read(_counterAProvider), 10);
@@ -144,20 +156,14 @@ void main() {
     expect(ref.read(reduxProvider).counter, 10);
 
     // Check dependency graph after WatchAction
-    expect(parentNotifier.dependencies, isEmpty);
-    expect(parentNotifier.dependents, {reduxNotifier});
-    expect(switchNotifier.dependencies, isEmpty);
-    expect(switchNotifier.dependents, {reduxNotifier});
-    expect(notifierA.dependencies, isEmpty);
-    expect(notifierA.dependents, {reduxNotifier});
-    expect(notifierB.dependencies, isEmpty);
-    expect(notifierB.dependents, isEmpty);
-    expect(reduxNotifier.dependencies, {
-      parentNotifier, // make sure to handle decoy (see action)
-      switchNotifier,
-      notifierA,
-    });
-    expect(reduxNotifier.dependents, isEmpty);
+    checkDependencyGraph();
+
+    // Check listeners
+    expect(parentNotifier.getListeners(), [action]);
+    expect(switchNotifier.getListeners(), [action]);
+    expect(notifierA.getListeners(), [action]);
+    expect(notifierB.getListeners(), isEmpty);
+    expect(reduxNotifier.getListeners(), isEmpty);
 
     // Change state
     ref.notifier(_counterAProvider).setState((old) => old + 1);
@@ -178,20 +184,14 @@ void main() {
     expect(ref.read(reduxProvider).counter, 20);
 
     // Check dependency graph after switching
-    expect(parentNotifier.dependencies, isEmpty);
-    expect(parentNotifier.dependents, {reduxNotifier});
-    expect(switchNotifier.dependencies, isEmpty);
-    expect(switchNotifier.dependents, {reduxNotifier});
-    expect(notifierA.dependencies, isEmpty);
-    expect(notifierA.dependents, isEmpty);
-    expect(notifierB.dependencies, isEmpty);
-    expect(notifierB.dependents, {reduxNotifier});
-    expect(reduxNotifier.dependencies, {
-      parentNotifier, // make sure to handle decoy (see action)
-      switchNotifier,
-      notifierB,
-    });
-    expect(reduxNotifier.dependents, isEmpty);
+    checkDependencyGraph();
+
+    // Check listeners
+    expect(parentNotifier.getListeners(), isEmpty);
+    expect(switchNotifier.getListeners(), [action]);
+    expect(notifierA.getListeners(), isEmpty);
+    expect(notifierB.getListeners(), [action]);
+    expect(reduxNotifier.getListeners(), isEmpty);
 
     // Change state
     observer.start(clearHistory: true);
@@ -244,6 +244,7 @@ void main() {
     expect(disposeCalled, false);
     expect(sub.disposed, false);
 
+    // Change state (should trigger a rebuild)
     ref.notifier(_counterAProvider).setState((_) => 20);
     await skipAllMicrotasks();
     expect(ref.read(_counterAProvider), 20);
@@ -253,7 +254,10 @@ void main() {
     expect(sub.disposed, false);
 
     sub.cancel();
+    expect(disposeCalled, true);
+    expect(sub.disposed, true);
 
+    // Change state (should not trigger a rebuild)
     ref.notifier(_counterAProvider).setState((_) => 30);
     await skipAllMicrotasks();
     expect(ref.read(_counterAProvider), 30);
@@ -307,6 +311,55 @@ void main() {
     expect(ref.read(_counterAProvider), 30);
     expect(ref.read(reduxProvider).counter, 0);
     expect(ref.read(reduxProvider).name, '');
+  });
+
+  test('Disposing temp provider should not dispose notifier', () async {
+    final observer = RefenaHistoryObserver.only(
+      providerDispose: true,
+    );
+
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    final reduxProvider = ReduxProvider<_ReduxNotifier, _ReduxState>((ref) {
+      return _ReduxNotifier();
+    });
+
+    final action = _TempProviderAction();
+    final sub = ref.redux(reduxProvider).dispatchTakeResult(action);
+
+    final notifier = ref.notifier(reduxProvider);
+    final tempNotifier = ref.notifier(action._tempProvider);
+    expect(ref.read(reduxProvider).counter, 33);
+    expect(ref.read(action._tempProvider), 33);
+    expect(sub.disposed, false);
+    expect(notifier.disposed, false);
+    expect(tempNotifier.disposed, false);
+
+    ref.notifier(action._tempProvider).setState((old) => old + 1);
+    await skipAllMicrotasks();
+
+    expect(ref.read(reduxProvider).counter, 34);
+    expect(ref.read(action._tempProvider), 34);
+    expect(sub.disposed, false);
+    expect(notifier.disposed, false);
+    expect(tempNotifier.disposed, false);
+
+    sub.cancel();
+
+    // Everything should be disposed except the notifier
+    expect(ref.read(reduxProvider).counter, 34);
+    expect(ref.read(action._tempProvider), 33); // reset to initial value
+    expect(sub.disposed, true);
+    expect(notifier.disposed, false);
+    expect(tempNotifier.disposed, true);
+
+    ref.dispose(reduxProvider);
+
+    // Now the notifier should be disposed too
+    expect(ref.read(reduxProvider).counter, 0);
+    expect(notifier.disposed, true);
   });
 }
 
@@ -382,7 +435,7 @@ class _WatchDependencyAction extends WatchAction<_ReduxNotifier, _ReduxState> {
     final b = ref.watch(_switchProvider);
     final int counter;
     if (b) {
-      ref.watch(_parentProvider); // decoy
+      ref.watch(_parentProvider); // it is also notifier dependency
       counter = ref.watch(_counterAProvider);
     } else {
       counter = ref.watch(_counterBProvider);
@@ -391,5 +444,23 @@ class _WatchDependencyAction extends WatchAction<_ReduxNotifier, _ReduxState> {
       counter: counter,
       name: state.name,
     );
+  }
+}
+
+class _TempProviderAction extends WatchAction<_ReduxNotifier, _ReduxState> {
+  late final _tempProvider = StateProvider((ref) => 33);
+
+  @override
+  _ReduxState reduce() {
+    return _ReduxState(
+      counter: ref.watch(_tempProvider),
+      name: state.name,
+    );
+  }
+
+  @override
+  void dispose() {
+    ref.dispose(_tempProvider);
+    super.dispose();
   }
 }
