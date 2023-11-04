@@ -1,6 +1,7 @@
 ## 0.42.0
 
 - feat: add `trackOrigin` property to `ReduxAction` to allow disabling origin tracking
+- feat(graph): update node colors
 
 ## 0.41.0
 

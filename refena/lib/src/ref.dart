@@ -9,7 +9,6 @@ import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
 import 'package:refena/src/notifier/types/async_notifier.dart';
 import 'package:refena/src/notifier/types/future_family_provider_notifier.dart';
-import 'package:refena/src/notifier/types/immutable_notifier.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
@@ -184,38 +183,36 @@ class WatchableRefImpl implements WatchableRef {
     bool Function(T prev, T next)? rebuildWhen,
   }) {
     final notifier = _ref.anyNotifier(watchable.provider);
-    if (notifier is! ImmutableNotifier) {
-      // We need to add a listener to the notifier
-      // to rebuild the widget when the state changes.
-      if (watchable is SelectedWatchable<N, T, R>) {
-        if (watchable is FamilySelectedWatchable) {
-          // start future
-          final familyNotifier = notifier as FutureFamilyProviderNotifier;
-          final familyWatchable = watchable as FamilySelectedWatchable;
-          familyNotifier.startFuture(familyWatchable.param);
-        }
-        notifier.addListener(
-          rebuildable,
-          ListenerConfig<T>(
-            callback: listener,
-            rebuildWhen: (prev, next) {
-              if (rebuildWhen?.call(prev, next) == false) {
-                return false;
-              }
-              return watchable.getSelectedState(notifier, prev) !=
-                  watchable.getSelectedState(notifier, next);
-            },
-          ),
-        );
-      } else {
-        notifier.addListener(
-          rebuildable,
-          ListenerConfig<T>(
-            callback: listener,
-            rebuildWhen: rebuildWhen,
-          ),
-        );
+    // We need to add a listener to the notifier
+    // to rebuild the widget when the state changes.
+    if (watchable is SelectedWatchable<N, T, R>) {
+      if (watchable is FamilySelectedWatchable) {
+        // start future
+        final familyNotifier = notifier as FutureFamilyProviderNotifier;
+        final familyWatchable = watchable as FamilySelectedWatchable;
+        familyNotifier.startFuture(familyWatchable.param);
       }
+      notifier.addListener(
+        rebuildable,
+        ListenerConfig<T>(
+          callback: listener,
+          rebuildWhen: (prev, next) {
+            if (rebuildWhen?.call(prev, next) == false) {
+              return false;
+            }
+            return watchable.getSelectedState(notifier, prev) !=
+                watchable.getSelectedState(notifier, next);
+          },
+        ),
+      );
+    } else {
+      notifier.addListener(
+        rebuildable,
+        ListenerConfig<T>(
+          callback: listener,
+          rebuildWhen: rebuildWhen,
+        ),
+      );
     }
 
     _onAccessNotifier?.call(notifier);

@@ -8,6 +8,8 @@ import 'package:refena/src/tools/graph_input_model.dart';
 import 'package:refena_flutter/src/graph/graph_node.dart';
 import 'package:refena_flutter/src/graph/graph_paint_constants.dart';
 
+const _highlightColor = Colors.red;
+
 class GraphPainter extends CustomPainter {
   /// The graph data to be painted.
   final Graph _graph;
@@ -142,7 +144,7 @@ class GraphPainter extends CustomPainter {
         );
 
         paintEdge.color = switch (node.selected || child.selected) {
-          true => Colors.red,
+          true => _highlightColor,
           false =>
             _brightness == Brightness.light ? Colors.black : Colors.white,
         };
@@ -155,7 +157,7 @@ class GraphPainter extends CustomPainter {
           node.parents.any((p) => p.selected) ||
           node.children.any((c) => c.selected)) {
         // draw red border
-        paintNode.color = Colors.red;
+        paintNode.color = _highlightColor;
 
         const borderWidth = 2.0;
         canvas.drawRRect(
@@ -180,9 +182,9 @@ class GraphPainter extends CustomPainter {
 
       final nodeColor = switch (node.node.type) {
         InputNodeType.view => Colors.green,
-        InputNodeType.redux => Colors.red.shade700,
+        InputNodeType.redux => Colors.purple,
         InputNodeType.immutable || InputNodeType.future => Colors.blue.shade800,
-        InputNodeType.widget => Colors.purple,
+        InputNodeType.widget => Colors.blueGrey,
         InputNodeType.notifier => Colors.orange.shade700,
       };
       final totalHeight =
@@ -206,9 +208,9 @@ class GraphPainter extends CustomPainter {
 
       paintNode.color = switch (node.node.type) {
         InputNodeType.view => Colors.green.shade200,
-        InputNodeType.redux => Colors.red.shade200,
+        InputNodeType.redux => Colors.purple.shade200,
         InputNodeType.immutable || InputNodeType.future => Colors.blue.shade200,
-        InputNodeType.widget => Colors.purple.shade200,
+        InputNodeType.widget => Colors.blueGrey.shade200,
         InputNodeType.notifier => Colors.orange.shade200,
       };
       canvas.drawRRect(

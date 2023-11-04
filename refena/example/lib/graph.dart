@@ -16,6 +16,9 @@ class _App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      theme: ThemeData.from(
+        colorScheme: const ColorScheme.dark(),
+      ),
       home: _GraphPlaygroundPage(),
     );
   }
@@ -25,6 +28,7 @@ enum _Mode {
   viewModel,
   controller,
   viewModelAndController,
+  everything,
 }
 
 class _GraphPlaygroundPage extends StatefulWidget {
@@ -65,6 +69,10 @@ class _GraphPlaygroundPageState extends State<_GraphPlaygroundPage> with Refena 
                 ref.dispose(_viewModelProvider);
                 ref.dispose(_controllerProvider);
                 ref.dispose(_viewModelControllerProvider);
+                ref.dispose(_provider);
+                ref.dispose(_futureProvider);
+                ref.dispose(_stateProvider);
+                ref.dispose(_reduxProvider);
                 setState(() {
                   _mode = value;
                 });
@@ -85,6 +93,7 @@ class _GraphPlaygroundPageState extends State<_GraphPlaygroundPage> with Refena 
               _Mode.viewModel => _ViewModelWidget(),
               _Mode.controller => _ControllerWidget(),
               _Mode.viewModelAndController => _ViewModelControllerWidget(),
+              _Mode.everything => _EverythingWidget(),
             },
           )
         ],
@@ -130,3 +139,33 @@ class _ViewModelControllerWidget extends StatelessWidget {
   }
 }
 
+final _provider = Provider((ref) => 10, debugLabel: 'Provider');
+
+final _futureProvider = FutureProvider((ref) async {
+  await Future.delayed(const Duration(seconds: 1));
+  return 10;
+}, debugLabel: 'FutureProvider');
+
+final _stateProvider = StateProvider((ref) => 10, debugLabel: 'StateProvider');
+
+final _reduxProvider = ReduxProvider<_Counter, int>((ref) {
+  return _Counter();
+}, debugLabel: 'ReduxProvider');
+
+class _Counter extends ReduxNotifier<int> {
+  @override
+  int init() => 10;
+}
+
+class _EverythingWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ref = context.ref;
+    ref.watch(_provider);
+    ref.watch(_futureProvider);
+    ref.watch(_stateProvider);
+    ref.watch(_reduxProvider);
+    ref.watch(_viewModelControllerProvider);
+    return Text('Everything');
+  }
+}
