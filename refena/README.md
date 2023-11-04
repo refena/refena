@@ -63,14 +63,13 @@ class AddAction extends ReduxAction<Counter, int> {
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var ref = context.ref;
-    int counterState = ref.watch(counterProvider);
+    int counterState = context.watch(counterProvider);
     return Scaffold(
       body: Center(
         child: Text('Counter state: $counterState'),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => ref.redux(counterProvider).dispatch(AddAction(2)),
+        onPressed: () => context.redux(counterProvider).dispatch(AddAction(2)),
         child: const Icon(Icons.add),
       ),
     );
@@ -678,6 +677,7 @@ class SubtractAction extends ReduxAction<Counter, int> {
   @override
   int reduce() => state - amount;
 
+  // This is called after the state transition
   @override
   void after() {
     // dispatch actions of other notifiers
@@ -702,18 +702,17 @@ class MyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ref = context.ref;
-    final state = ref.watch(counterProvider);
+    final state = context.watch(counterProvider);
     return Scaffold(
       body: Column(
         children: [
           Text(state.toString()),
           ElevatedButton(
-            onPressed: () => ref.redux(counterProvider).dispatch(AddAction(2)),
+            onPressed: () => context.redux(counterProvider).dispatch(AddAction(2)),
             child: const Text('Increment'),
           ),
           ElevatedButton(
-            onPressed: () => ref.redux(counterProvider).dispatch(SubtractAction(3)),
+            onPressed: () => context.redux(counterProvider).dispatch(SubtractAction(3)),
             child: const Text('Decrement'),
           ),
         ],
@@ -774,7 +773,7 @@ The widget:
 class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final vm = context.ref.watch(settingsVmProvider);
+    final vm = context.watch(settingsVmProvider);
     return Scaffold(
       body: Center(
         child: Column(
@@ -1096,7 +1095,9 @@ class MyNotifier extends Notifier<int> {
 
 Emits a message to the observer.
 
-This might be handy if you have a `RefenaTracingPage`.
+This might be handy if you use one of the built-in observers like `RefenaDebugObserver`.
+
+The messages are also shown in the [inspector](#-inspector).
 
 ```dart
 ref.message('Hello World');
