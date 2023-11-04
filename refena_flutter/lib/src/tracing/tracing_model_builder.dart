@@ -162,7 +162,6 @@ void _addWidgetEntries(_TracingEntry entry, List<String> rebuildableList) {
       [],
       isWidget: true,
     ));
-    break;
   }
 }
 
