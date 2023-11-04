@@ -375,6 +375,7 @@ The most important ones are `Provider`, `NotifierProvider`, and `ReduxProvider` 
 | `FutureProvider`         | Immutable async values               | -              | No          |
 | `FutureFamilyProvider`   | Immutable collection of async values | -              | No          |
 | `StateProvider`          | Simple states                        | `setState`     | No          |
+| `StreamProvider`         | Streams                              | -              | No          |
 | `ChangeNotifierProvider` | Performance critical services        | Custom methods | No          |
 | `NotifierProvider`       | Regular services                     | Custom methods | No          |
 | `AsyncNotifierProvider`  | Services that need futures           | Custom methods | No          |
@@ -1040,7 +1041,7 @@ Dispatches an action to a `ReduxProvider`.
 ```dart
 ref.redux(myReduxProvider).dispatch(MyAction());
 
-await ref.redux(myReduxProvider).dispatch(MyAction());
+await ref.redux(myReduxProvider).dispatchAsync(MyAsyncAction());
 ```
 
 ### ➤ ref.dispose
