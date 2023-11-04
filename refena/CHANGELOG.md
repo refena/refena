@@ -1,3 +1,7 @@
+## 0.42.0
+
+- feat: add `trackOrigin` property to `ReduxAction` to allow disabling origin tracking
+
 ## 0.41.0
 
 - feat: add `StreamProvider`

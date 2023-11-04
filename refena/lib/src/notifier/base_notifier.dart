@@ -543,7 +543,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   }) {
     _observer?.internalHandleEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
-      debugOriginRef: debugOriginRef ?? this,
+      debugOriginRef: action.trackOrigin ? (debugOriginRef ?? this) : this,
       notifier: this,
       action: action,
     ));
@@ -693,7 +693,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   }) async {
     _observer?.internalHandleEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
-      debugOriginRef: debugOriginRef ?? this,
+      debugOriginRef: action.trackOrigin ? (debugOriginRef ?? this) : this,
       notifier: this,
       action: action,
     ));

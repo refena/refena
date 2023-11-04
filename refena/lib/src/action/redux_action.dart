@@ -152,6 +152,16 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
     );
   }
 
+  /// Whether the [ActionDispatchedEvent] should have the
+  /// [ActionDispatchedEvent.debugOriginRef] of the origin of the action.
+  /// This is true by default for better visualization in the tracing page.
+  ///
+  /// Turn this off if this action is dispatched by a long running action
+  /// where the origin action puts this action too far in the past.
+  ///
+  /// The [ActionDispatchedEvent.debugOrigin] is unaffected by this.
+  bool get trackOrigin => true;
+
   /// The debug label of the action.
   /// Override this getter to provide a custom label.
   @override
