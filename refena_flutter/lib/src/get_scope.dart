@@ -3,9 +3,9 @@ import 'package:meta/meta.dart';
 import 'package:refena/refena.dart';
 import 'package:refena_flutter/src/scope.dart';
 
-/// Returns the nearest [RefenaScope].
+/// Returns the nearest [RefenaContainer] of this [BuildContext].
 @internal
-RefenaContainer getScope(BuildContext context) {
+RefenaContainer getContainer(BuildContext context) {
   final scope =
       context.dependOnInheritedWidgetOfExactType<RefenaInheritedWidget>();
   if (scope == null) {

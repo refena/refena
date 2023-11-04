@@ -7,7 +7,7 @@ import 'package:refena_flutter/src/get_scope.dart';
 mixin Refena<W extends StatefulWidget> on State<W> {
   /// Access this ref inside your [State].
   late final WatchableRef ref = WatchableRefImpl(
-    ref: getScope(context),
+    container: getContainer(context),
     rebuildable: ElementRebuildable(context as Element),
   );
 

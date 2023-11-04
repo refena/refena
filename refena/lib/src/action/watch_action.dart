@@ -59,7 +59,7 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
   /// Access the [Ref].
   /// This is a special ref that can watch other providers.
   late final WatchableRef ref = WatchableRefImpl(
-    ref: _originalRef!.container,
+    container: _originalRef!.container,
     rebuildable: this,
   );
 
@@ -154,6 +154,12 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
   @override
   @nonVirtual
   bool get disposed => _disposed;
+
+  @override
+  void onDisposeWidget() {}
+
+  @override
+  void notifyListenerTarget(BaseNotifier notifier) {}
 
   @mustCallSuper
   void dispose() {

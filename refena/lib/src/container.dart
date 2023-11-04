@@ -274,7 +274,7 @@ class RefenaContainer implements Ref, LabeledReference {
   }
 
   @override
-  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
+  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T>(
     ReduxProvider<N, T> provider,
   ) {
     return Dispatcher<N, T>(

@@ -1,6 +1,9 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter/material.dart';
 import 'package:refena/refena.dart';
-
+// ignore: implementation_imports
+import 'package:refena/src/notifier/base_notifier.dart';
 // ignore: implementation_imports
 import 'package:refena/src/notifier/rebuildable.dart';
 import 'package:refena_flutter/src/element_rebuildable.dart';
@@ -10,13 +13,19 @@ import 'package:refena_flutter/src/element_rebuildable.dart';
 ///
 /// This allows for equality of [ElementRebuildable] == [WidgetRebuildable]
 /// because it is hard to access the [BuildContext] of a [Widget].
-// ignore: invalid_use_of_internal_member
-class WidgetRebuildable<W extends Widget> extends Rebuildable {
+class WidgetRebuildable<W extends Widget> implements Rebuildable {
   @override
   String get debugLabel => 'WidgetRebuildable<$W>';
 
   @override
   bool get disposed => throw UnimplementedError();
+
+  @override
+  void onDisposeWidget() => throw UnimplementedError();
+
+  @override
+  void notifyListenerTarget(BaseNotifier notifier) =>
+      throw UnimplementedError();
 
   @override
   void rebuild(ChangeEvent? changeEvent, RebuildEvent? rebuildEvent) {

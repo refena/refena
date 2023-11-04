@@ -1,7 +1,10 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
+
 /// A stream controller that batches multiple calls to [schedule]
-/// into a single event.
+/// into a single event in the next microtask.
+@internal
 class BatchedStreamController<T> {
   final _streamController = StreamController<List<T>>();
   List<T>? _scheduledEvents;

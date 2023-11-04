@@ -29,7 +29,7 @@ abstract interface class Ref {
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider);
 
   /// Get a proxy class to dispatch actions to a [ReduxNotifier].
-  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
+  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T>(
     ReduxProvider<N, T> provider,
   );
 
@@ -99,11 +99,15 @@ abstract interface class WatchableRef implements Ref {
 @internal
 class WatchableRefImpl implements WatchableRef {
   WatchableRefImpl({
-    required RefenaContainer ref,
+    required RefenaContainer container,
     required this.rebuildable,
-  }) : _ref = ref;
+  }) : _ref = container;
 
+  /// The backing container.
   final RefenaContainer _ref;
+
+  /// The owner of this [Ref].
+  /// It will be rebuilt when a watched provider changes.
   final Rebuildable rebuildable;
 
   @override
@@ -125,7 +129,7 @@ class WatchableRefImpl implements WatchableRef {
   }
 
   @override
-  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
+  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T>(
     ReduxProvider<N, T> provider,
   ) {
     final notifier = _ref.anyNotifier(provider);
@@ -192,6 +196,7 @@ class WatchableRefImpl implements WatchableRef {
         final familyWatchable = watchable as FamilySelectedWatchable;
         familyNotifier.startFuture(familyWatchable.param);
       }
+      rebuildable.notifyListenerTarget(notifier);
       notifier.addListener(
         rebuildable,
         ListenerConfig<T>(
@@ -206,6 +211,7 @@ class WatchableRefImpl implements WatchableRef {
         ),
       );
     } else {
+      rebuildable.notifyListenerTarget(notifier);
       notifier.addListener(
         rebuildable,
         ListenerConfig<T>(

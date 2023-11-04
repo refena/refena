@@ -1,4 +1,20 @@
+// ignore_for_file: invalid_use_of_internal_member
+
 import 'package:flutter/material.dart';
+import 'package:refena/refena.dart';
+
+// ignore: implementation_imports
+import 'package:refena/src/notifier/base_notifier.dart';
+
+// ignore: implementation_imports
+import 'package:refena/src/notifier/listener.dart';
+
+// ignore: implementation_imports
+import 'package:refena/src/provider/base_provider.dart';
+
+// ignore: implementation_imports
+import 'package:refena/src/provider/watchable.dart';
+
 // ignore: implementation_imports
 import 'package:refena/src/ref.dart';
 import 'package:refena_flutter/src/element_rebuildable.dart';
@@ -10,8 +26,42 @@ extension ContextRefExt on BuildContext {
   /// Access the [Ref] using this [BuildContext].
   WatchableRef get ref {
     return _refCollection[this] ??= WatchableRefImpl(
-      ref: getScope(this),
+      container: getContainer(this),
       rebuildable: ElementRebuildable(this as Element),
     );
+  }
+
+  /// Shorthand for `context.ref.read()`.
+  /// See [Ref.read] for more information.
+  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+    return ref.read(provider);
+  }
+
+  /// Shorthand for `context.ref.watch()`.
+  /// See [WatchableRef.watch] for more information.
+  R watch<N extends BaseNotifier<T>, T, R>(
+    Watchable<N, T, R> watchable, {
+    ListenerCallback<T>? listener,
+    bool Function(T prev, T next)? rebuildWhen,
+  }) {
+    return ref.watch(
+      watchable,
+      listener: listener,
+      rebuildWhen: rebuildWhen,
+    );
+  }
+
+  /// Shorthand for `context.ref.notifier()`.
+  /// See [Ref.notifier] for more information.
+  N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {
+    return ref.notifier(provider);
+  }
+
+  /// Shorthand for `context.ref.redux()`.
+  /// See [Ref.redux] for more information.
+  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T>(
+    ReduxProvider<N, T> provider,
+  ) {
+    return ref.redux(provider);
   }
 }

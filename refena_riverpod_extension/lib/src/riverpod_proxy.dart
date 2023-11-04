@@ -47,6 +47,7 @@ class RiverpodRebuildableProxy extends RiverpodProxy {
       provider,
       (previous, next) {
         if (rebuildable.disposed) {
+          rebuildable.onDisposeWidget();
           subscription?.close();
           return;
         }

@@ -22,20 +22,19 @@ class Counter extends Notifier<int> {
 }
 ```
 
-Use `context.ref` to access the provider:
+Use `context.watch` to access the provider:
 
 ```dart
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var ref = context.ref;
-    int counterState = ref.watch(counterProvider);
+    int counterState = context.watch(counterProvider);
     return Scaffold(
       body: Center(
         child: Text('Counter state: $counterState'),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => ref.notifier(counterProvider).increment(),
+        onPressed: () => context.notifier(counterProvider).increment(),
         child: const Icon(Icons.add),
       ),
     );
@@ -113,6 +112,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
   - [ref.dispose](#-refdispose)
   - [ref.message](#-refmessage)
   - [ref.container](#-refcontainer)
+  - [BuildContext Extensions](#-buildcontext-extensions)
 - [What to choose?](#what-to-choose)
 - [Performance Optimization](#performance-optimization)
 - [ensureRef](#ensureref)
@@ -238,7 +238,7 @@ void main() {
 **Step 3: Define a provider**
 
 ```dart
-final myProvider = Provider((_) => 42);
+final myProvider = Provider((ref) => 42);
 ```
 
 **Step 4: Use the provider**
@@ -247,7 +247,7 @@ final myProvider = Provider((_) => 42);
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final myValue = context.ref.watch(myProvider);
+    final myValue = context.watch(myProvider);
     return Scaffold(
       body: Center(
         child: Text('The value is $myValue'),
@@ -281,6 +281,8 @@ class MyPage extends StatelessWidget {
   }
 }
 ```
+
+To make your life easier, you can also skip the `ref` part: Just call `context.watch`.
 
 In a `StatefulWidget`, you can use `with Refena` to access the `ref` directly.
 
@@ -978,10 +980,13 @@ int a = ref.read(myProvider);
 
 Read the value of a provider and rebuild the widget when the value changes.
 
-This should be used within a `build` method.
+This should be used within a `build` method of a widget or inside a body of a `ViewProvider`.
+
+**Warning:** Watching outside the `build` method can lead to inconsistent rebuilds.
 
 ```dart
-build(BuildContext context) {
+Widget build(BuildContext context) {
+  final ref = context.ref;
   final currentValue = ref.watch(myProvider);
   
   // ...
@@ -1106,6 +1111,17 @@ The container exposes more advanced methods for edge cases like post-init overri
 
 ```dart
 RefenaContainer container = ref.container;
+```
+
+### ➤ BuildContext Extensions
+
+Some frequently used methods are available as extensions on `BuildContext`.
+
+```dart
+context.watch(myProvider);
+context.read(myProvider);
+context.notifier(myProvider).increment();
+context.redux(myReduxProvider).dispatch(MyAction());
 ```
 
 ## What to choose?

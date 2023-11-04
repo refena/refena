@@ -393,7 +393,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
     BaseProvider? provider,
   ) {
     _watchableRef = WatchableRefImpl(
-      ref: ref.container,
+      container: ref.container,
       rebuildable: this,
     );
 
@@ -424,6 +424,12 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
 
   @override
   bool get disposed => _disposed;
+
+  @override
+  void onDisposeWidget() {}
+
+  @override
+  void notifyListenerTarget(BaseNotifier notifier) {}
 
   @override
   bool get isWidget => false;

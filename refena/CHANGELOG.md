@@ -1,7 +1,9 @@
 ## 0.42.0
 
+- feat: add `context.watch`, `context.read`, `context.notifier`, `context.redux` shorthands
 - feat: add `trackOrigin` property to `ReduxAction` to allow disabling origin tracking
 - feat(graph): update node colors
+- fix: should unwatch old providers when not watched during `build`
 
 ## 0.41.0
 

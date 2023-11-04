@@ -45,7 +45,7 @@ class ProxyRef implements Ref {
   }
 
   @override
-  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T, E extends Object>(
+  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T>(
     ReduxProvider<N, T> provider,
   ) {
     final notifier = _ref.anyNotifier(provider);

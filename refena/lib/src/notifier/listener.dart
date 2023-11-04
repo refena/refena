@@ -98,8 +98,13 @@ class NotifierListeners<T> {
 
   /// Removes all listeners that have been disposed.
   void removeUnusedListeners() {
-    // remove any listener that has been disposed
-    _listeners.removeWhere((rebuildable, config) => rebuildable.disposed);
+    _listeners.removeWhere((rebuildable, config) {
+      final disposed = rebuildable.disposed;
+      if (disposed) {
+        rebuildable.onDisposeWidget();
+      }
+      return disposed;
+    });
   }
 
   /// Removes a listener from the notifier.
