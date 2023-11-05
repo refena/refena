@@ -1,3 +1,9 @@
+## 1.0.0
+
+- **Marking Refena as stable**
+- feat: `WatchAction` has `trackOrigin` disabled by default
+- fix: missing `StreamController.dispose` when `ref.dispose` is called
+
 ## 0.43.0
 
 - feat: print error message when the same provider is watched multiple times in a `build` method
