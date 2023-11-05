@@ -8,6 +8,7 @@ import 'package:meta/meta.dart';
 class BatchedSetController<T extends Object> {
   final _streamController = StreamController<Set<T>>();
   Set<T>? _scheduledEvents;
+  bool _disposed = false;
 
   /// Schedules an event to be fired on the stream.
   /// In the next microtask, all events are batched into a single event.
@@ -25,10 +26,15 @@ class BatchedSetController<T extends Object> {
     return true;
   }
 
+  /// Closes the stream and releases resources.
   void dispose() {
     _streamController.close();
     _scheduledEvents = null;
+    _disposed = true;
   }
+
+  /// Whether this controller has been disposed.
+  bool get disposed => _disposed;
 
   Stream<Set<T>> get stream => _streamController.stream;
 }

@@ -174,7 +174,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
 
   @internal
   void cleanupListeners() {
-    _listeners.removeUnusedListeners();
+    _listeners.removeDisposedListeners();
   }
 
   @internal

@@ -47,6 +47,12 @@ class ElementRebuildable implements Rebuildable {
     _unwatchManager.dispose();
   }
 
+  /// While we don't interfere with the garbage collection of the [Element],
+  /// we need to make sure that the [UnwatchManager] is disposed also.
+  /// This boolean is exposed for testing.
+  @visibleForTesting
+  bool get unwatchManagerDisposed => _unwatchManager._controller.disposed;
+
   @override
   void notifyListenerTarget(BaseNotifier notifier) {
     _unwatchManager.addNotifier(notifier);
@@ -82,19 +88,19 @@ class ElementRebuildable implements Rebuildable {
 class UnwatchManager {
   final ElementRebuildable _rebuildable;
   final _controller = BatchedSetController<BaseNotifier>();
-  Set<BaseNotifier> oldNotifiers = {};
+  Set<BaseNotifier> _oldNotifiers = const {};
 
   UnwatchManager(this._rebuildable) {
     _controller.stream.listen((Set<BaseNotifier> newNotifiers) {
-      if (oldNotifiers.isNotEmpty) {
+      if (_oldNotifiers.isNotEmpty) {
         // Find old notifiers that are not in the new notifiers.
-        final removedNotifiers = oldNotifiers.difference(newNotifiers);
+        final removedNotifiers = _oldNotifiers.difference(newNotifiers);
         for (final notifier in removedNotifiers) {
           notifier.removeListener(_rebuildable);
         }
       }
 
-      oldNotifiers = newNotifiers;
+      _oldNotifiers = newNotifiers;
     });
   }
 
@@ -110,6 +116,7 @@ $_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_r
 
   void dispose() {
     _controller.dispose();
+    _oldNotifiers = const {};
   }
 }
 

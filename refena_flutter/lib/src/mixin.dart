@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:refena/src/ref.dart';
-import 'package:refena_flutter/src/element_rebuildable.dart';
-import 'package:refena_flutter/src/get_scope.dart';
+import 'package:refena_flutter/src/extension.dart';
 
 mixin Refena<W extends StatefulWidget> on State<W> {
   /// Access this ref inside your [State].
-  late final WatchableRef ref = WatchableRefImpl(
-    container: getContainer(context),
-    rebuildable: ElementRebuildable(context as Element),
-  );
+  late final WatchableRef ref = context.ref;
 
   /// Call this method inside [initState] to have some
   /// initializations run after the first frame.

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:refena_flutter/src/element_rebuildable.dart';
 
 /// These tests check if notifiers are correctly unwatched when
 /// they are no longer watched in the build method but were watched
@@ -82,6 +83,36 @@ void main() {
     expect(find.text('22'), findsOneWidget);
     expect(buildCalled, true);
   });
+
+  testWidgets('Should dispose rebuildable on provider dispose', (tester) async {
+    final ref = RefenaScope(
+      child: MaterialApp(
+        home: _ViewModelParentWidget(),
+      ),
+    );
+
+    await tester.pumpWidget(ref);
+
+    final notifierA = ref.notifier(_providerA);
+    final viewNotifier = ref.anyNotifier(_vmProvider);
+    final rebuildable = viewNotifier.getListeners().first as ElementRebuildable;
+    expect(find.text('10'), findsOneWidget);
+    expect(notifierA.disposed, false);
+    expect(viewNotifier.disposed, false);
+    expect(rebuildable.unwatchManagerDisposed, false);
+
+    // implicitly dispose [_ViewModelWidget]
+    ref.notifier(_switchProvider).setState((_) => false);
+    await tester.pump();
+
+    expect(find.text('10'), findsNothing);
+    expect(notifierA.disposed, false);
+    expect(viewNotifier.disposed, true);
+
+    // While the widget is disposed, we need to ensure that
+    // the unwatch manager is also disposed.
+    expect(rebuildable.unwatchManagerDisposed, true);
+  });
 }
 
 final _switchProvider = StateProvider((ref) => true);
@@ -103,5 +134,38 @@ class _Widget extends StatelessWidget {
       number = context.watch(_providerB);
     }
     return Text(number.toString());
+  }
+}
+
+final _vmProvider = ViewProvider((ref) {
+  return ref.watch(_providerA);
+});
+
+class _ViewModelParentWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    if (context.watch(_switchProvider)) {
+      return _ViewModelWidget();
+    } else {
+      return Container();
+    }
+  }
+}
+
+class _ViewModelWidget extends StatefulWidget {
+  @override
+  State<_ViewModelWidget> createState() => _ViewModelWidgetState();
+}
+
+class _ViewModelWidgetState extends State<_ViewModelWidget> with Refena {
+  @override
+  void dispose() {
+    ref.dispose(_vmProvider);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(context.watch(_vmProvider).toString());
   }
 }
