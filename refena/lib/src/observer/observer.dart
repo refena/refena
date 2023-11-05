@@ -149,7 +149,7 @@ class RefenaDebugObserver extends RefenaObserver {
         final label = _getProviderDebugLabel(null, event.notifier);
         final actionStr = event.action == null
             ? ''
-            : ' triggered by [${event.action.runtimeType}]';
+            : ' triggered by [${event.action!.debugLabel}]';
         _line('Change by [$label]$actionStr', intentWhenLogger: true);
         _line(
           ' - Prev: ${event.prev.toString().toSingleLine()}',
