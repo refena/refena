@@ -284,7 +284,7 @@ class RefenaDebugObserver extends RefenaObserver {
 extension on ProviderInitCause {
   String get description {
     return switch (this) {
-      ProviderInitCause.override => 'SCOPE OVERRIDE',
+      ProviderInitCause.override => 'CONTAINER OVERRIDE',
       ProviderInitCause.initial => 'INITIAL DURING STARTUP',
       ProviderInitCause.access => 'INITIAL ACCESS',
     };
