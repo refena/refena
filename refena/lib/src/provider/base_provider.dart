@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/provider/types/change_notifier_provider.dart';
 import 'package:refena/src/provider/types/future_family_provider.dart';
@@ -31,6 +32,16 @@ abstract class BaseProvider<N extends BaseNotifier<T>, T>
     }
     return '$type(label: $debugLabel)';
   }
+
+  /// Subclasses should not override this method.
+  /// It is used internally by [RefenaContainer] to map a provider to a state.
+  @override
+  @nonVirtual
+  bool operator ==(Object other) => identical(this, other);
+
+  @override
+  @nonVirtual
+  int get hashCode => super.hashCode;
 }
 
 /// A provider with default behaviour for [WatchableRef.watch].
