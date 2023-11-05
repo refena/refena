@@ -8,12 +8,22 @@ import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
 
 /// A provider that listens to a [Stream] and exposes its latest value.
+///
+/// Set [describeState] to customize the description of the state.
+/// See [BaseNotifier.describeState].
+///
+/// Set [debugLabel] to customize the debug label of the provider.
 class StreamProvider<T>
     extends BaseWatchableProvider<StreamProviderNotifier<T>, AsyncValue<T>>
     with ProviderSelectMixin<StreamProviderNotifier<T>, AsyncValue<T>> {
   final Stream<T> Function(Ref ref) _builder;
+  final String Function(AsyncValue<T> state)? _describeState;
 
-  StreamProvider(this._builder, {super.debugLabel});
+  StreamProvider(
+    this._builder, {
+    String Function(AsyncValue<T> state)? describeState,
+    super.debugLabel,
+  }) : _describeState = describeState;
 
   @internal
   @override
@@ -21,6 +31,7 @@ class StreamProvider<T>
     return _build(
       ref: ref,
       builder: _builder,
+      describeState: _describeState,
       debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
   }
@@ -39,6 +50,7 @@ class StreamProvider<T>
       createState: (ref) => _build(
         ref: ref,
         builder: builder,
+        describeState: _describeState,
         debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
     );
@@ -49,13 +61,18 @@ class StreamProvider<T>
 StreamProviderNotifier<T> _build<T>({
   required ProxyRef ref,
   required Stream<T> Function(Ref ref) builder,
+  required String Function(AsyncValue<T> state)? describeState,
   required String debugLabel,
 }) {
   final dependencies = <BaseNotifier>{};
 
   final notifier = ref.trackNotifier(
     onAccess: (notifier) => dependencies.add(notifier),
-    run: () => StreamProviderNotifier(builder(ref), debugLabel: debugLabel),
+    run: () => StreamProviderNotifier(
+      builder(ref),
+      describeState: describeState,
+      debugLabel: debugLabel,
+    ),
   );
 
   notifier.dependencies.addAll(dependencies);

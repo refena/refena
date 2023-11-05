@@ -202,8 +202,8 @@ class InputEvent {
         ChangeEvent() => {
             'Notifier': event.notifier.debugLabel,
             if (event.action != null) 'Triggered by': event.action!.debugLabel,
-            'Prev': formatValue(event.prev),
-            'Next': formatValue(event.next),
+            'Prev': formatValue(event.notifier.describeState(event.prev)),
+            'Next': formatValue(event.notifier.describeState(event.next)),
             'Rebuild': event.rebuild.isEmpty
                 ? '<none>'
                 : event.rebuild.map((r) => r.debugLabel).join(', '),
@@ -214,8 +214,10 @@ class InputEvent {
                 'Notifier': event.rebuildable.debugLabel,
                 'Triggered by':
                     event.causes.map((e) => e.stateType.toString()).join(', '),
-                'Prev': formatValue(event.prev),
-                'Next': formatValue(event.next),
+                'Prev':
+                    formatValue(event.rebuildable.describeState(event.prev)),
+                'Next':
+                    formatValue(event.rebuildable.describeState(event.next)),
                 'Rebuild': event.rebuild.isEmpty
                     ? '<none>'
                     : event.rebuild.map((r) => r.debugLabel).join(', '),
@@ -229,7 +231,7 @@ class InputEvent {
         ActionErrorEvent() => {},
         ProviderInitEvent() => {
             'Provider': event.provider.toString(),
-            'Initial': formatValue(event.value),
+            'Initial': formatValue(event.notifier.describeState(event.value)),
             'Reason': event.cause.name.toUpperCase(),
           },
         ProviderDisposeEvent() => {

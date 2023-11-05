@@ -9,18 +9,27 @@ import 'package:refena/src/ref.dart';
 /// Use a [Provider] to implement a stateless provider.
 /// Useful for dependency injection.
 /// Often used with [overrideWithValue] during initialization of the app.
+///
+/// Set [describeState] to customize the description of the state.
+/// See [BaseNotifier.describeState].
+///
+/// Set [debugLabel] to customize the debug label of the provider.
 class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
     with ProviderSelectMixin<ImmutableNotifier<T>, T> {
-  @internal
-  final T Function(Ref ref) builder;
+  final T Function(Ref ref) _builder;
+  final String Function(T state)? _describeState;
 
-  Provider(this.builder, {String? debugLabel})
-      : super(debugLabel: debugLabel ?? 'Provider<$T>');
+  Provider(
+    this._builder, {
+    String Function(T state)? describeState,
+    String? debugLabel,
+  })  : _describeState = describeState,
+        super(debugLabel: debugLabel ?? 'Provider<$T>');
 
   @internal
   @override
   ImmutableNotifier<T> createState(ProxyRef ref) {
-    return _build(ref, builder);
+    return _build(ref, _builder);
   }
 
   /// Overrides the state of a provider with a predefined value.
@@ -31,9 +40,9 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
   ) {
     return ProviderOverride(
       provider: this,
-      createState: (ref) => ImmutableNotifier(
-        value,
-        debugLabel: customDebugLabel ?? runtimeType.toString(),
+      createState: (ref) => _build(
+        ref,
+        (_) => value,
       ),
     );
   }
@@ -76,6 +85,7 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
 
     final notifier = ImmutableNotifier<T>(
       initialState,
+      describeState: _describeState,
       debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
 
@@ -100,6 +110,7 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
 
     final notifier = ImmutableNotifier<T>(
       initialState,
+      describeState: _describeState,
       debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
 

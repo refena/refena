@@ -21,9 +21,14 @@ class StateProvider<T> extends BaseWatchableProvider<StateNotifier<T>, T>
     with ProviderSelectMixin<StateNotifier<T>, T>
     implements NotifyableProvider<StateNotifier<T>, T> {
   final T Function(Ref ref) _builder;
+  final String Function(T state)? _describeState;
 
-  StateProvider(this._builder, {String? debugLabel})
-      : super(debugLabel: debugLabel ?? 'StateProvider<$T>');
+  StateProvider(
+    this._builder, {
+    String Function(T state)? describeState,
+    String? debugLabel,
+  })  : _describeState = describeState,
+        super(debugLabel: debugLabel ?? 'StateProvider<$T>');
 
   @internal
   @override
@@ -31,6 +36,7 @@ class StateProvider<T> extends BaseWatchableProvider<StateNotifier<T>, T>
     return _build(
       ref: ref,
       builder: _builder,
+      describeState: _describeState,
       debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
   }
@@ -44,6 +50,7 @@ class StateProvider<T> extends BaseWatchableProvider<StateNotifier<T>, T>
       createState: (ref) => _build(
         ref: ref,
         builder: builder,
+        describeState: _describeState,
         debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
     );
@@ -54,6 +61,7 @@ class StateProvider<T> extends BaseWatchableProvider<StateNotifier<T>, T>
 StateNotifier<T> _build<T>({
   required ProxyRef ref,
   required T Function(Ref ref) builder,
+  required String Function(T state)? describeState,
   required String debugLabel,
 }) {
   final dependencies = <BaseNotifier>{};
@@ -65,6 +73,7 @@ StateNotifier<T> _build<T>({
 
   final notifier = StateNotifier<T>(
     initialState,
+    describeState: describeState,
     debugLabel: debugLabel,
   );
 

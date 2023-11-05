@@ -3,7 +3,13 @@ import 'package:refena/src/notifier/types/pure_notifier.dart';
 /// A pre-implemented notifier for simple use cases.
 /// You may add a [listener] to retrieve every [setState] event.
 class StateNotifier<T> extends PureNotifier<T> {
-  StateNotifier(T initial, {super.debugLabel}) {
+  final String Function(T state)? _describeState;
+
+  StateNotifier(
+    T initial, {
+    String Function(T state)? describeState,
+    super.debugLabel,
+  }) : _describeState = describeState {
     state = initial;
   }
 
@@ -18,5 +24,13 @@ class StateNotifier<T> extends PureNotifier<T> {
     final oldState = state;
     final newState = newStateBuilder(oldState);
     state = newState;
+  }
+
+  @override
+  String describeState(T state) {
+    if (_describeState == null) {
+      return super.describeState(state);
+    }
+    return _describeState!(state);
   }
 }

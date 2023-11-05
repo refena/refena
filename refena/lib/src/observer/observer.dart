@@ -150,13 +150,14 @@ class RefenaDebugObserver extends RefenaObserver {
         final actionStr = event.action == null
             ? ''
             : ' triggered by [${event.action!.debugLabel}]';
+        final notifier = event.notifier;
         _line('Change by [$label]$actionStr', intentWhenLogger: true);
         _line(
-          ' - Prev: ${event.prev.toString().toSingleLine()}',
+          ' - Prev: ${notifier.describeState(event.prev).toSingleLine()}',
           followUp: true,
         );
         _line(
-          ' - Next: ${event.next.toString().toSingleLine()}',
+          ' - Next: ${notifier.describeState(event.next).toSingleLine()}',
           followUp: true,
         );
         final rebuildable = event.rebuild;
@@ -171,13 +172,14 @@ class RefenaDebugObserver extends RefenaObserver {
         final label = _getProviderDebugLabel(null, event.rebuildable);
         final causes =
             ' triggered by [${event.causes.map((c) => c.debugLabel).join(', ')}]';
+        final notifier = event.rebuildable;
         _line('Rebuild by [$label]$causes', intentWhenLogger: true);
         _line(
-          ' - Prev: ${event.prev.toString().toSingleLine()}',
+          ' - Prev: ${notifier.describeState(event.prev).toSingleLine()}',
           followUp: true,
         );
         _line(
-          ' - Next: ${event.next.toString().toSingleLine()}',
+          ' - Next: ${notifier.describeState(event.next).toSingleLine()}',
           followUp: true,
         );
         final rebuildable = event.rebuild;
@@ -192,7 +194,7 @@ class RefenaDebugObserver extends RefenaObserver {
         _line('Provider initialized: [$label]', intentWhenLogger: true);
         _line(' - Reason: ${event.cause.description}', followUp: true);
         _line(
-          ' - Value: ${event.value.toString().toSingleLine()}',
+          ' - Value: ${event.notifier.describeState(event.value).toSingleLine()}',
           followUp: true,
         );
         onLine?.call(_b);

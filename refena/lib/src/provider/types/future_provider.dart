@@ -20,10 +20,17 @@ import 'package:refena/src/ref.dart';
 /// - fetch device information (that does not change)
 class FutureProvider<T>
     extends AsyncNotifierProvider<FutureProviderNotifier<T>, T> {
-  FutureProvider(Future<T> Function(Ref ref) builder, {String? debugLabel})
-      : super(
+  final String Function(AsyncValue<T> state)? _describeState;
+
+  FutureProvider(
+    Future<T> Function(Ref ref) builder, {
+    String Function(AsyncValue<T> state)? describeState,
+    String? debugLabel,
+  })  : _describeState = describeState,
+        super(
           (ref) => FutureProviderNotifier<T>(
             builder(ref),
+            describeState: describeState,
             debugLabel: debugLabel ?? 'FutureProvider<$T>',
           ),
           debugLabel: debugLabel ?? 'FutureProvider<$T>',
@@ -39,6 +46,7 @@ class FutureProvider<T>
       provider: this,
       createState: (ref) => FutureProviderNotifier<T>(
         builder(ref),
+        describeState: _describeState,
         debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
     );

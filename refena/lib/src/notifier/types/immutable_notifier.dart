@@ -5,11 +5,13 @@ import 'package:refena/src/notifier/base_notifier.dart';
 /// The state of the notifier is provided in the constructor.
 class ImmutableNotifier<T> extends BaseSyncNotifier<T> {
   final T _value;
+  final String Function(T state)? _describeState;
 
   ImmutableNotifier(
     this._value, {
+    String Function(T state)? describeState,
     super.debugLabel,
-  });
+  }) : _describeState = describeState;
 
   @override
   T init() => _value;
@@ -18,5 +20,13 @@ class ImmutableNotifier<T> extends BaseSyncNotifier<T> {
   @internal
   set state(T value) {
     throw UnsupportedError('ImmutableNotifier is immutable');
+  }
+
+  @override
+  String describeState(T state) {
+    if (_describeState == null) {
+      return super.describeState(state);
+    }
+    return _describeState!(state);
   }
 }

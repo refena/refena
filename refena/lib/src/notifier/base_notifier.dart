@@ -128,6 +128,11 @@ abstract class BaseNotifier<T> implements LabeledReference {
     }
   }
 
+  /// Override this to provide a customized description of the state.
+  /// This is used by the built-in observers for improved logging.
+  @useResult
+  String describeState(T state) => state.toString();
+
   @override
   String get debugLabel => customDebugLabel ?? runtimeType.toString();
 
@@ -316,10 +321,15 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
 
 final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
     implements Rebuildable {
-  ViewProviderNotifier(this._builder, {super.debugLabel});
+  ViewProviderNotifier(
+    this._builder, {
+    String Function(T state)? describeState,
+    super.debugLabel,
+  }) : _describeState = describeState;
 
   late final WatchableRef _watchableRef;
   final T Function(WatchableRef) _builder;
+  final String Function(T state)? _describeState;
   final _rebuildController = BatchedStreamController<AbstractChangeEvent>();
 
   @override
@@ -424,6 +434,14 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
 
   @override
   bool get disposed => _disposed;
+
+  @override
+  String describeState(T state) {
+    if (_describeState == null) {
+      return super.describeState(state);
+    }
+    return _describeState!(state);
+  }
 
   @override
   void onDisposeWidget() {}

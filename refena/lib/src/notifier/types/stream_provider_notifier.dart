@@ -6,9 +6,14 @@ import 'package:refena/src/notifier/base_notifier.dart';
 /// The corresponding notifier of a [StreamProvider].
 final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>> {
   final Stream<T> _stream;
+  final String Function(AsyncValue<T> state)? _describeState;
   late StreamSubscription<T> _subscription;
 
-  StreamProviderNotifier(this._stream, {super.debugLabel});
+  StreamProviderNotifier(
+    this._stream, {
+    String Function(AsyncValue<T> state)? describeState,
+    super.debugLabel,
+  }) : _describeState = describeState;
 
   @override
   AsyncValue<T> init() {
@@ -27,5 +32,13 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>> {
   void dispose() {
     _subscription.cancel();
     super.dispose();
+  }
+
+  @override
+  String describeState(AsyncValue<T> state) {
+    if (_describeState == null) {
+      return super.describeState(state);
+    }
+    return _describeState!(state);
   }
 }
