@@ -1,6 +1,6 @@
-## 1.0.0
+## 0.44.0
 
-- **Marking Refena as stable**
+- feat: add `container.exists`, `container.getActiveProviders`
 - feat: add `describeState` method to notifiers for customized state descriptions
 - feat: `WatchAction` has `trackOrigin` disabled by default
 - fix: missing `StreamController.dispose` when `ref.dispose` is called

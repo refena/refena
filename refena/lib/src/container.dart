@@ -314,6 +314,31 @@ class RefenaContainer implements Ref, LabeledReference {
   @override
   RefenaContainer get container => this;
 
+  /// Whether the provider is initialized.
+  /// Usually, providers are initialized when you first access them.
+  /// They are also initialized when you override them.
+  /// They are getting disposed when you call [Ref.dispose].
+  bool exists(BaseProvider provider) {
+    return _state.containsKey(provider);
+  }
+
+  /// Returns all active providers.
+  /// Remember: A provider is stateless. The notifier holds the state.
+  List<BaseProvider> getActiveProviders() {
+    return [
+      ..._state.keys.where((p) =>
+          !identical(p, globalReduxProvider) && !identical(p, tracingProvider)),
+    ];
+  }
+
+  /// Returns all active notifiers.
+  /// Remember: A provider is stateless. The notifier holds the state.
+  List<BaseNotifier> getActiveNotifiers() {
+    return [
+      ..._state.values.where((n) => n is! GlobalRedux && n is! TracingNotifier)
+    ];
+  }
+
   @internal
   void internalDispose<N extends BaseNotifier<T>, T>(
     BaseProvider<N, T> provider,
@@ -362,12 +387,6 @@ class RefenaContainer implements Ref, LabeledReference {
         }
       }
     } while (queue.isNotEmpty);
-  }
-
-  List<BaseNotifier> getActiveNotifiers() {
-    return [
-      ..._state.values.where((n) => n is! GlobalRedux && n is! TracingNotifier)
-    ];
   }
 
   /// Removes disposed listeners from all notifiers.

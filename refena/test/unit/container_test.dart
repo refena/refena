@@ -369,6 +369,45 @@ void main() {
       expect(observerB._disposed, true);
     });
   });
+
+  group('exists', () {
+    test('Should return correct exists state', () {
+      final ref = RefenaContainer();
+      final stateProvider = StateProvider((ref) => 10);
+
+      expect(ref.exists(stateProvider), false);
+
+      ref.read(stateProvider);
+      expect(ref.exists(stateProvider), true);
+
+      ref.dispose(stateProvider);
+      expect(ref.exists(stateProvider), false);
+    });
+  });
+
+  group('getActiveProviders', () {
+    test('Should return no active providers', () {
+      final ref = RefenaContainer();
+      expect(ref.getActiveProviders(), isEmpty);
+    });
+
+    test('Should return one active provider', () {
+      final ref = RefenaContainer();
+      final stateProvider = StateProvider((ref) => 10);
+      expect(ref.getActiveProviders(), isEmpty);
+      ref.read(stateProvider);
+      expect(ref.getActiveProviders(), [stateProvider]);
+    });
+
+    test('Should ignore globalRedux provider', () {
+      final ref = RefenaContainer();
+      final stateProvider = StateProvider((ref) => 10);
+      expect(ref.getActiveProviders(), isEmpty);
+      ref.read(stateProvider);
+      ref.read(globalReduxProvider);
+      expect(ref.getActiveProviders(), [stateProvider]);
+    });
+  });
 }
 
 class _DummyClass {
