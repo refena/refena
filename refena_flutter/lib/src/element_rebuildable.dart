@@ -106,9 +106,18 @@ class UnwatchManager {
 
   void addNotifier(BaseNotifier notifier) {
     final scheduled = _controller.schedule(notifier);
+
+    if (_rebuildable.element.target?.debugDoingBuild == false) {
+      print('''
+$_red[Refena] In ${_rebuildable.debugLabel}, ${notifier.debugLabel} is watched outside the build method! This will lead to inconsistent rebuilds of the widget. Use context.read or ref.read instead.$_reset''');
+      print('''
+$_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_reset\n${StackTrace.current}''');
+      return;
+    }
+
     if (!scheduled) {
       print('''
-$_red[Refena] ${notifier.debugLabel} in ${_rebuildable.debugLabel} is already watched! Only watch each provider once in a build method. Tip: Use records to combine multiple fields.$_reset''');
+$_red[Refena] In ${_rebuildable.debugLabel}, ${notifier.debugLabel} is watched multiple times! Only watch each provider once in a build method. Tip: Use records to combine multiple fields.$_reset''');
       print('''
 $_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_reset\n${StackTrace.current}''');
     }
