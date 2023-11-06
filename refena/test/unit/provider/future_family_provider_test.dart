@@ -4,6 +4,21 @@ import 'package:test/test.dart';
 import '../../util/skip_microtasks.dart';
 
 void main() {
+  test('Should compile with family shorthand', () async {
+    final ref = RefenaContainer();
+
+    final provider = FutureProvider.family<int, int>((ref, param) async {
+      return param * 2;
+    });
+    final notifier = ref.anyNotifier(provider);
+
+    expect(notifier.isParamInitialized(123), false);
+    expect(ref.read(provider(123)), AsyncValue<int>.loading());
+    await skipAllMicrotasks();
+    expect(notifier.isParamInitialized(123), true);
+    expect(ref.read(provider(123)), AsyncValue.data(246));
+  });
+
   test('Should read the value', () async {
     final doubleProvider = FutureFamilyProvider<int, int>((ref, param) async {
       await Future.delayed(Duration(milliseconds: 50));
@@ -82,6 +97,11 @@ void main() {
   });
 
   test('Should update the listener config', () async {
+    final observer = RefenaHistoryObserver.all();
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
     final doubleProvider = FutureFamilyProvider<int, int>((ref, param) async {
       await Future.delayed(Duration(milliseconds: 50));
       return Future.value(param * 2);
@@ -91,13 +111,11 @@ void main() {
       final param = ref.watch(stateProvider);
       return ref.watch(doubleProvider(param));
     });
-    final view2Provider = ViewProvider((ref) {
+
+    // decoy provider (it should not rebuild)
+    final decoyProvider = ViewProvider((ref) {
       return ref.watch(doubleProvider(123));
     });
-    final observer = RefenaHistoryObserver.all();
-    final ref = RefenaContainer(
-      observers: [observer],
-    );
 
     expect(ref.read(viewProvider), AsyncValue<int>.loading());
     await Future.delayed(Duration(milliseconds: 100));
@@ -105,12 +123,17 @@ void main() {
       ref.read(viewProvider),
       AsyncValue.data(246),
     );
+    expect(
+      ref.read(decoyProvider),
+      AsyncValue.data(246), // it should use cached result of 123
+    );
 
+    // trigger rebuild
     ref.notifier(stateProvider).setState((old) => 100);
     await skipAllMicrotasks();
     expect(ref.read(viewProvider), AsyncValue<int>.loading());
     expect(
-      ref.read(view2Provider),
+      ref.read(decoyProvider),
       AsyncValue.data(246),
     );
 
@@ -120,7 +143,7 @@ void main() {
       AsyncValue.data(200),
     );
     expect(
-      ref.read(view2Provider),
+      ref.read(decoyProvider),
       AsyncValue.data(246),
     );
 
@@ -134,13 +157,33 @@ void main() {
       3,
     );
 
-    final view2Notifier = ref.anyNotifier(view2Provider);
+    final decoyNotifier = ref.anyNotifier(decoyProvider);
     expect(
       observer.history
           .whereType<RebuildEvent>()
-          .where((e) => e.rebuildable == view2Notifier)
+          .where((e) => e.rebuildable == decoyNotifier)
           .length,
       0,
     );
+  });
+
+  test('Should read family with select', () async {
+    final ref = RefenaContainer();
+    final provider = FutureFamilyProvider<int, int>((ref, param) async {
+      return param * 2;
+    });
+    final notifier = ref.anyNotifier(provider);
+
+    expect(notifier.isParamInitialized(10), false);
+    expect(ref.read(provider(10)), AsyncValue<int>.loading());
+    expect(notifier.isParamInitialized(10), true);
+
+    await skipAllMicrotasks();
+
+    expect(ref.read(provider(10)), AsyncValue.data(20));
+
+    final selected = ref.read(provider(10).select((state) => state.data! - 5));
+    expect(selected, 15);
+    expect(notifier.isParamInitialized(10), true);
   });
 }

@@ -11,7 +11,13 @@ import 'package:refena/refena.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 
 // ignore: implementation_imports
+import 'package:refena/src/notifier/family_notifier.dart';
+
+// ignore: implementation_imports
 import 'package:refena/src/provider/base_provider.dart';
+
+// ignore: implementation_imports
+import 'package:refena/src/provider/watchable.dart';
 
 /// A wrapper widget around [RefenaContainer].
 class RefenaScope extends StatefulWidget implements RefenaContainer {
@@ -166,8 +172,8 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
 
   /// Returns the actual value of a [Provider].
   @override
-  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _container.read(provider);
+  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable) {
+    return _container.read(watchable);
   }
 
   /// Returns the notifier of a [NotifierProvider].
@@ -212,6 +218,14 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   @override
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
     _container.dispose(provider);
+  }
+
+  @override
+  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P>, P>(
+    BaseProvider<N, dynamic> provider,
+    P param,
+  ) {
+    _container.disposeFamilyParam<N, P>(provider, param);
   }
 
   @override

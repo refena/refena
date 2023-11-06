@@ -368,7 +368,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
     return nextState;
   }
 
-  // See [BaseNotifier._setState] for reference.
+  /// See [BaseNotifier._setState] for reference.
   void _setStateCustom(T value, List<AbstractChangeEvent> causes) {
     if (!_initialized) {
       _state = value;
@@ -863,6 +863,8 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     _initialized = true;
   }
 
+  /// Registers a [WatchAction] so it can be later disposed
+  /// when the notifier is disposed.
   @internal
   @nonVirtual
   void registerWatchAction(WatchActionSubscription subscription) {

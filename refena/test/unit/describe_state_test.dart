@@ -42,6 +42,37 @@ void main() {
     });
   });
 
+  group(FutureFamilyProvider, () {
+    test('Should use default description', () {
+      final ref = RefenaContainer();
+      final provider = FutureFamilyProvider<int, int>((ref, param) async {
+        return 0;
+      });
+      expect(
+        ref.anyNotifier(provider).describeState({
+          1: AsyncValue.data(123),
+          2: AsyncValue<int>.loading(),
+        }),
+        '1: AsyncData<int>(123), 2: AsyncLoading<int>',
+      );
+    });
+
+    test('Should use custom description', () {
+      final ref = RefenaContainer();
+      final provider = FutureFamilyProvider<int, int>(
+        (ref, param) async => 0,
+        describeState: (value) => ((value.data ?? 0) * 2).toString(),
+      );
+      expect(
+        ref.anyNotifier(provider).describeState({
+          1: AsyncValue.data(123),
+          2: AsyncValue<int>.loading(),
+        }),
+        '1: 246, 2: 0',
+      );
+    });
+  });
+
   group(StateProvider, () {
     test('Should use default description', () {
       final ref = RefenaContainer();
@@ -96,6 +127,35 @@ void main() {
         describeState: (value) => (value * 2).toString(),
       );
       expect(ref.anyNotifier(provider).describeState(123), '246');
+    });
+  });
+
+  group(ViewFamilyProvider, () {
+    test('Should use default description', () {
+      final ref = RefenaContainer();
+      final provider = ViewFamilyProvider<int, int>((ref, param) => 0);
+      expect(
+        ref.anyNotifier(provider).describeState({
+          1: 123,
+          2: 456,
+        }),
+        '1: 123, 2: 456',
+      );
+    });
+
+    test('Should use custom description', () {
+      final ref = RefenaContainer();
+      final provider = ViewFamilyProvider<int, int>(
+        (ref, param) => 0,
+        describeState: (value) => (value + 1).toString(),
+      );
+      expect(
+        ref.anyNotifier(provider).describeState({
+          1: 123,
+          2: 456,
+        }),
+        '1: 124, 2: 457',
+      );
     });
   });
 }

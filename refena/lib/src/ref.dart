@@ -4,11 +4,11 @@ import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
+import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/listener.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
 import 'package:refena/src/notifier/types/async_notifier.dart';
-import 'package:refena/src/notifier/types/future_family_provider_notifier.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
@@ -23,7 +23,7 @@ import 'package:refena/src/provider/watchable.dart';
 /// {@category Introduction}
 abstract interface class Ref {
   /// Get the current value of a provider without listening to changes.
-  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider);
+  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable);
 
   /// Get the notifier of a provider.
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider);
@@ -53,6 +53,14 @@ abstract interface class Ref {
   /// You may call this method in the dispose method of a stateful widget.
   /// Note: The [provider] will be initialized again on next access.
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider);
+
+  /// Disposes the [param] of a family [provider].
+  /// While the ordinary [dispose] method disposes the whole provider,
+  /// this method only disposes the [param].
+  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P>, P>(
+    BaseProvider<N, dynamic> provider,
+    P param,
+  );
 
   /// Emits a message to the observer.
   /// This might be handy if you use [RefenaTracingPage].
@@ -111,14 +119,14 @@ class WatchableRefImpl implements WatchableRef {
   final Rebuildable rebuildable;
 
   @override
-  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable) {
     if (_onAccessNotifier == null) {
-      return _ref.read<N, T>(provider);
+      return _ref.read<N, T, R>(watchable);
     }
 
-    final notifier = _ref.anyNotifier<N, T>(provider);
+    final notifier = _ref.anyNotifier<N, T>(watchable.provider);
     _onAccessNotifier!(notifier);
-    return notifier.state;
+    return _ref.read<N, T, R>(watchable);
   }
 
   @override
@@ -173,6 +181,14 @@ class WatchableRefImpl implements WatchableRef {
   }
 
   @override
+  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P>, P>(
+    BaseProvider<N, dynamic> provider,
+    P param,
+  ) {
+    _ref.disposeFamilyParam<N, P>(provider, param);
+  }
+
+  @override
   void message(String message) {
     _ref.observer?.internalHandleEvent(MessageEvent(message, rebuildable));
   }
@@ -191,10 +207,12 @@ class WatchableRefImpl implements WatchableRef {
     // to rebuild the widget when the state changes.
     if (watchable is SelectedWatchable<N, T, R>) {
       if (watchable is FamilySelectedWatchable) {
-        // start future
-        final familyNotifier = notifier as FutureFamilyProviderNotifier;
-        final familyWatchable = watchable as FamilySelectedWatchable;
-        familyNotifier.startFuture(familyWatchable.param);
+        // initialize parameter
+        final familyNotifier = notifier as FamilyNotifier;
+        final param = (watchable as FamilySelectedWatchable).param;
+        if (!familyNotifier.isParamInitialized(param)) {
+          familyNotifier.initParam(param);
+        }
       }
       rebuildable.notifyListenerTarget(notifier);
       notifier.addListener(

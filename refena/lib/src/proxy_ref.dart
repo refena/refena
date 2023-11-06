@@ -2,12 +2,14 @@ import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
+import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/types/async_notifier.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
+import 'package:refena/src/provider/watchable.dart';
 import 'package:refena/src/ref.dart';
 import 'package:refena/src/reference.dart';
 
@@ -27,14 +29,14 @@ class ProxyRef implements Ref {
   final LabeledReference _debugOriginRef;
 
   @override
-  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable) {
     if (_onAccessNotifier == null) {
-      return _ref.read<N, T>(provider);
+      return _ref.read<N, T, R>(watchable);
     }
 
-    final notifier = _ref.anyNotifier<N, T>(provider);
+    final notifier = _ref.anyNotifier<N, T>(watchable.provider);
     _onAccessNotifier!(notifier);
-    return notifier.state;
+    return _ref.read<N, T, R>(watchable);
   }
 
   @override
@@ -86,6 +88,14 @@ class ProxyRef implements Ref {
   @override
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
     _ref.internalDispose<N, T>(provider, _debugOriginRef);
+  }
+
+  @override
+  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P>, P>(
+    BaseProvider<N, dynamic> provider,
+    P param,
+  ) {
+    _ref.disposeFamilyParam<N, P>(provider, param);
   }
 
   @override

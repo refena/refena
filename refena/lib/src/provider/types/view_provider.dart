@@ -1,6 +1,7 @@
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
+import 'package:refena/src/provider/types/view_family_provider.dart';
 import 'package:refena/src/ref.dart';
 
 /// The [ViewProvider] is the only provider that can watch other providers.
@@ -47,6 +48,19 @@ class ViewProvider<T> extends BaseWatchableProvider<ViewProviderNotifier<T>, T>
         describeState: _describeState,
         debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
+    );
+  }
+
+  /// A shorthand for [ViewFamilyProvider].
+  static ViewFamilyProvider<T, P> family<T, P>(
+    ViewFamilyBuilder<T, P> builder, {
+    String Function(T state)? describeState,
+    String? debugLabel,
+  }) {
+    return ViewFamilyProvider(
+      builder,
+      describeState: describeState,
+      debugLabel: debugLabel ?? 'ViewFamilyProvider<$T, $P>',
     );
   }
 }

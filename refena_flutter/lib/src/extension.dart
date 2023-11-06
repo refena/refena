@@ -33,8 +33,8 @@ extension ContextRefExt on BuildContext {
 
   /// Shorthand for `context.ref.read()`.
   /// See [Ref.read] for more information.
-  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return ref.read(provider);
+  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable) {
+    return ref.read(watchable);
   }
 
   /// Shorthand for `context.ref.watch()`.

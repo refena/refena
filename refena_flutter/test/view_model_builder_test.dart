@@ -12,12 +12,33 @@ void main() {
 
     await tester.pumpWidget(ref);
 
+    expect(ref.read(_counter), 0);
     expect(find.text('0'), findsOneWidget);
 
     ref.notifier(_counter).setState((old) => old + 1);
     await tester.pump();
 
+    expect(ref.read(_counter), 1);
     expect(find.text('1'), findsOneWidget);
+  });
+
+  testWidgets('Should watch state with select', (tester) async {
+    final ref = RefenaScope(
+      child: MaterialApp(
+        home: _SelectWidget(),
+      ),
+    );
+
+    await tester.pumpWidget(ref);
+
+    expect(ref.read(_counter), 0);
+    expect(find.text('0'), findsOneWidget);
+
+    ref.notifier(_counter).setState((old) => old + 1);
+    await tester.pump();
+
+    expect(ref.read(_counter), 1);
+    expect(find.text('2'), findsOneWidget);
   });
 
   testWidgets('Should dispose watched provider', (tester) async {
@@ -175,6 +196,18 @@ class _SimpleWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       provider: _counter,
+      builder: (context, vm) {
+        return Text('$vm');
+      },
+    );
+  }
+}
+
+class _SelectWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ViewModelBuilder(
+      provider: _counter.select((state) => state * 2),
       builder: (context, vm) {
         return Text('$vm');
       },

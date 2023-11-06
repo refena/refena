@@ -5,6 +5,7 @@ import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
+import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/types/async_notifier.dart';
 import 'package:refena/src/observer/event.dart';
@@ -15,6 +16,7 @@ import 'package:refena/src/provider/override.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
 import 'package:refena/src/provider/types/notifier_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
+import 'package:refena/src/provider/watchable.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
 import 'package:refena/src/reference.dart';
@@ -256,8 +258,17 @@ class RefenaContainer implements Ref, LabeledReference {
 
   /// Returns the actual value of a [Provider].
   @override
-  T read<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _getState(provider).state;
+  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable) {
+    final notifier = _getState(watchable.provider);
+    if (watchable is FamilySelectedWatchable) {
+      // initialize parameter
+      final familyNotifier = notifier as FamilyNotifier;
+      final param = (watchable as FamilySelectedWatchable).param;
+      if (!familyNotifier.isParamInitialized(param)) {
+        familyNotifier.initParam(param);
+      }
+    }
+    return watchable.getSelectedState(notifier, notifier.state);
   }
 
   /// Returns the notifier of a [NotifierProvider].
@@ -304,6 +315,15 @@ class RefenaContainer implements Ref, LabeledReference {
     BaseProvider<N, T> provider,
   ) {
     internalDispose(provider, this);
+  }
+
+  @override
+  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P>, P>(
+    BaseProvider<N, dynamic> provider,
+    P param,
+  ) {
+    final notifier = _getState(provider);
+    notifier.disposeParam(param);
   }
 
   @override

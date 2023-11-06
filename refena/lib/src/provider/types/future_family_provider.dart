@@ -12,16 +12,24 @@ typedef FutureBuilder<T, P> = Future<T> Function(Ref ref, P param);
 /// allows you to watch a collection of [Future]s.
 class FutureFamilyProvider<T, P> extends BaseProvider<
     FutureFamilyProviderNotifier<T, P>, Map<P, AsyncValue<T>>> {
-  FutureFamilyProvider(this.builder, {super.debugLabel});
+  FutureFamilyProvider(
+    this._builder, {
+    String Function(AsyncValue<T> state)? describeState,
+    super.debugLabel,
+  }) : _describeState = describeState;
 
-  @internal
-  final FutureBuilder<T, P> builder;
+  final FutureBuilder<T, P> _builder;
+
+  final String Function(AsyncValue<T> state)? _describeState;
 
   @internal
   @override
   FutureFamilyProviderNotifier<T, P> createState(Ref ref) {
-    return FutureFamilyProviderNotifier(builder,
-        debugLabel: customDebugLabel ?? 'FutureFamilyProvider<$T>');
+    return FutureFamilyProviderNotifier(
+      _builder,
+      describeState: _describeState,
+      debugLabel: customDebugLabel ?? 'FutureFamilyProvider<$T, $P>',
+    );
   }
 
   /// Overrides the future builder.
@@ -35,34 +43,16 @@ class FutureFamilyProvider<T, P> extends BaseProvider<
       provider: this,
       createState: (ref) => FutureFamilyProviderNotifier(
         builder(ref),
+        describeState: _describeState,
         debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
     );
   }
 
-  FutureFamilyProviderProxy<T, P> call(P param) {
-    return FutureFamilyProviderProxy(this, param);
-  }
-}
-
-/// A proxy class to make [WatchableRef.watch] work with [FutureFamilyProvider].
-class FutureFamilyProviderProxy<T, P> extends FamilySelectedWatchable<
-    FutureFamilyProviderNotifier<T, P>,
-    Map<P, AsyncValue<T>>,
-    P,
-    AsyncValue<T>> {
-  FutureFamilyProviderProxy(FutureFamilyProvider<T, P> provider, P param)
-      : super(provider, param, (map) {
-          return map[param] ?? AsyncValue<T>.loading();
-        });
-
-  FamilySelectedWatchable<
-      FutureFamilyProviderNotifier<T, P>,
-      Map<P, AsyncValue<T>>,
-      P,
-      R> select<R>(R Function(AsyncValue<T> state) selector) {
-    return FamilySelectedWatchable(provider, param, (map) {
-      return selector(map[param] ?? AsyncValue<T>.loading());
-    });
+  /// Provide accessor for one parameter.
+  FamilySelectedWatchable<Map<P, AsyncValue<T>>, P, AsyncValue<T>> call(
+    P param,
+  ) {
+    return FamilySelectedWatchable(this, param, (map) => map[param]!);
   }
 }

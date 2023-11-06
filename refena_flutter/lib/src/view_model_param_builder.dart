@@ -5,20 +5,18 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 // ignore: implementation_imports
-import 'package:refena/src/notifier/base_notifier.dart';
-
-// ignore: implementation_imports
 import 'package:refena/src/provider/watchable.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
-/// A widget that uses exactly one provider to build the widget tree.
-/// On widget dispose, the provider will be disposed as well.
+/// Similar to [ViewModelBuilder], but designed for family providers
+/// so that you can provide a parameter.
 ///
-/// To avoid disposing the provider, set [disposeProvider] to false.
-class ViewModelBuilder<T, R> extends StatefulWidget {
+/// When this widget is disposed, only the parameter will be disposed instead
+/// of the whole family (which is what [ViewModelBuilder] does).
+class ViewModelParamBuilder<T, P, R> extends StatefulWidget {
   /// The provider to use.
   /// The [builder] will be called whenever this provider changes.
-  final Watchable<BaseNotifier<T>, T, R> provider;
+  final FamilySelectedWatchable<T, P, R> provider;
 
   /// This function is called **AFTER** the widget is built for the first time.
   final FutureOr<void> Function(BuildContext context, Ref ref)? init;
@@ -45,7 +43,7 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
   /// The builder to build the widget tree.
   final Widget Function(BuildContext context, R vm) builder;
 
-  ViewModelBuilder({
+  ViewModelParamBuilder({
     super.key,
     required this.provider,
     this.init,
@@ -61,11 +59,12 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
             'ViewModelBuilder<$T>';
 
   @override
-  State<ViewModelBuilder<T, R>> createState() => _ViewModelBuilderState<T, R>();
+  State<ViewModelParamBuilder<T, P, R>> createState() =>
+      _ViewModelParamBuilderState<T, P, R>();
 }
 
-class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
-    with Refena {
+class _ViewModelParamBuilderState<T, P, R>
+    extends State<ViewModelParamBuilder<T, P, R>> with Refena {
   bool _initialized = false;
   (Object, StackTrace)? _error; // use record for null-safety
 
@@ -105,7 +104,7 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
       widget.dispose!(ref);
     }
     if (widget.disposeProvider) {
-      ref.dispose(widget.provider.provider);
+      ref.disposeFamilyParam(widget.provider.provider, widget.provider.param);
     }
     super.dispose();
   }
@@ -119,6 +118,7 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
     if (!_initialized && widget.placeholder != null) {
       return widget.placeholder!(context);
     }
+
     return widget.builder(
       context,
       ref.watch(widget.provider),

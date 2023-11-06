@@ -2,6 +2,7 @@ import 'package:refena/src/async_value.dart';
 import 'package:refena/src/notifier/types/future_provider_notifier.dart';
 import 'package:refena/src/provider/override.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
+import 'package:refena/src/provider/types/future_family_provider.dart';
 import 'package:refena/src/ref.dart';
 
 /// A [FutureProvider] is a custom implementation of a [AsyncNotifierProvider]
@@ -49,6 +50,19 @@ class FutureProvider<T>
         describeState: _describeState,
         debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
+    );
+  }
+
+  /// A shorthand for [FutureFamilyProvider].
+  static FutureFamilyProvider<T, P> family<T, P>(
+    FutureBuilder<T, P> future, {
+    String Function(AsyncValue<T> state)? describeState,
+    String? debugLabel,
+  }) {
+    return FutureFamilyProvider(
+      future,
+      describeState: describeState,
+      debugLabel: debugLabel ?? 'FutureFamilyProvider<$T, $P>',
     );
   }
 }
