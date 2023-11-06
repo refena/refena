@@ -38,7 +38,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
   bool _initialized = false;
   RefenaContainer? _container;
   RefenaObserver? _observer;
-  final String? customDebugLabel;
+  String? _customDebugLabel;
   BaseProvider? _provider;
   NotifyStrategy? _notifyStrategy;
   bool _disposed = false;
@@ -62,7 +62,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
   /// Whether this notifier is disposed.
   bool get disposed => _disposed;
 
-  BaseNotifier({String? debugLabel}) : customDebugLabel = debugLabel;
+  BaseNotifier({String? debugLabel}) : _customDebugLabel = debugLabel;
 
   /// The provider that created this notifier.
   /// This is only available after the initialization.
@@ -134,7 +134,11 @@ abstract class BaseNotifier<T> implements LabeledReference {
   String describeState(T state) => state.toString();
 
   @override
+  @nonVirtual
   String get debugLabel => customDebugLabel ?? runtimeType.toString();
+
+  /// Override this to provide a custom debug label.
+  String? get customDebugLabel => _customDebugLabel;
 
   /// Override this to provide a custom post initialization.
   /// The initial state is already set at this point.
@@ -152,6 +156,12 @@ abstract class BaseNotifier<T> implements LabeledReference {
     _notifyStrategy = ref.container.defaultNotifyStrategy;
     _provider = provider;
     _observer = ref.container.observer;
+
+    // Prefer the custom debug label from the provider
+    final providerDebugLabel = provider?.customDebugLabel;
+    if (providerDebugLabel != null && _customDebugLabel == null) {
+      _customDebugLabel = providerDebugLabel;
+    }
   }
 
   /// Disposes the notifier.
