@@ -1,3 +1,8 @@
+## 1.0.0
+
+- **Marking Refena as stable**
+- fix: disable warning print (of watching the same provider multiple times) due to false positives
+
 ## 0.45.0
 
 - feat: add `ViewProvider.family` and `ViewModelBuilder.family` as a replacement for `provider.family` of Riverpod

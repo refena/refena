@@ -105,7 +105,7 @@ class UnwatchManager {
   }
 
   void addNotifier(BaseNotifier notifier) {
-    final scheduled = _controller.schedule(notifier);
+    _controller.schedule(notifier);
 
     if (_rebuildable.element.target?.debugDoingBuild == false) {
       print('''
@@ -115,12 +115,16 @@ $_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_r
       return;
     }
 
-    if (!scheduled) {
-      print('''
-$_red[Refena] In ${_rebuildable.debugLabel}, ${notifier.debugLabel} is watched multiple times! Only watch each provider once in a build method. Tip: Use records to combine multiple fields.$_reset''');
-      print('''
-$_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_reset\n${StackTrace.current}''');
-    }
+    // Apparently, this is not possible to detect.
+    // Flutter may rebuild a widget multiple times synchronously.
+    // This is okay.
+
+//     if (!scheduled) {
+//       print('''
+// $_red[Refena] In ${_rebuildable.debugLabel}, ${notifier.debugLabel} is watched multiple times! Only watch each provider once in a build method. Tip: Use records to combine multiple fields.$_reset''');
+//       print('''
+// $_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_reset\n${StackTrace.current}''');
+//     }
   }
 
   void dispose() {

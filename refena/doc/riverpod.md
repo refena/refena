@@ -85,8 +85,6 @@ Do **not** execute `ref.watch` of the same provider multiple times
 as only the last one will be used for the rebuild condition.
 Instead, you should use *Records* to combine multiple values.
 
-Don't worry, Refena will print a warning message if you do this.
-
 ```dart
 Widget build(BuildContext context) {
   final (themeMode, locale) = context.watch(settingsProvider.select((settings) {
