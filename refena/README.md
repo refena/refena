@@ -453,10 +453,10 @@ More about `AsyncValue` [here](https://pub.dev/documentation/refena/latest/topic
 
 ### ➤ FutureFamilyProvider
 
-Use this provider for multiple asynchronous values.
+Use this provider for multiple asynchronous values. Use `FutureProvider.family` for better readability.
 
 ```dart
-final userProvider = FutureFamilyProvider<User, String>((ref, id) async {
+final userProvider = FutureProvider.family<User, String>((ref, id) async {
   final api = ref.read(apiProvider);
   return api.fetchUser(id);
 });
