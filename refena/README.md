@@ -394,6 +394,7 @@ The most important ones are `Provider`, `NotifierProvider`, and `ReduxProvider` 
 | `AsyncNotifierProvider`  | Services that need futures           | Custom methods | No          |
 | `ReduxProvider`          | Action based services                | Custom actions | No          |
 | `ViewProvider`           | View models                          | -              | Yes         |
+| `ViewFamilyProvider`     | View models with parameters          | -              | Yes         |
 
 ### ➤ Provider
 
