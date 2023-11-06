@@ -184,7 +184,7 @@ class InputEvent {
             },
         RebuildEvent() => event.rebuildable.isWidget
             ? event.debugLabel
-            : event.stateType.toString(),
+            : event.rebuildable.customDebugLabel ?? event.stateType.toString(),
         ActionDispatchedEvent() => event.action.debugLabel,
         ActionFinishedEvent() => '',
         ActionErrorEvent() => '',
