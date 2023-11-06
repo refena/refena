@@ -79,6 +79,22 @@ class _MyPageState extends State<MyPage> {
 
 Use `ViewModelBuilder` or `FamilyViewModelBuilder` widgets to dispose providers automatically.
 
+## Watching
+
+Do **not** execute `ref.watch` of the same provider multiple times
+as only the last one will be used for the rebuild condition.
+Instead, you should use *Records* to combine multiple values.
+
+Don't worry, Refena will print a warning message if you do this.
+
+```dart
+Widget build(BuildContext context) {
+  final (themeMode, locale) = context.watch(settingsProvider.select((settings) {
+    return (settings.theme, settings.locale);
+  }));
+}
+```
+
 ## Access notifiers
 
 A slight difference between Riverpod and Refena is how you access the notifiers.
@@ -96,13 +112,18 @@ In Refena, there are two ways to listen to a provider:
 Outside the `build` method:
 
 ```dart
-final subscription = ref.stream(provider).listen((prev, next) {});
+final subscription = ref.stream(provider).listen((prev, next) {
+  // This callback is called whenever the provider changes
+});
+
+// Cancel the subscription when you don't need it anymore
+subscription.cancel();
 ```
 
 Inside the `build` method:
 
 ```dart
-final state = ref.watch(provider, (prev, next) {
+final state = ref.watch(provider, listener: (prev, next) {
   // This callback is called whenever the provider changes
 });
 ```
@@ -146,3 +167,68 @@ To change the state of a `StateProvider`, there is a slight difference between R
 
 You need to access the notifier first to keep the code consistent with other providers.
 
+## Refactoring
+
+### ➤ ConsumerWidget
+
+Before:
+
+```dart
+class MyPage extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final counter = ref.watch(counterProvider);
+    return Text('$counter');
+  }
+}
+```
+
+After:
+
+```dart
+class MyPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final ref = context.ref; // get ref from context
+    final counter = ref.watch(counterProvider);
+    return Text('$counter');
+  }
+}
+```
+
+### ➤ ConsumerStatefulWidget
+
+Before:
+
+```dart
+class MyPage extends ConsumerStatefulWidget {
+  @override
+  _MyPageState createState() => _MyPageState();
+}
+
+class _MyPageState extends ConsumerState<MyPage> {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final counter = ref.watch(counterProvider);
+    return Text('$counter');
+  }
+}
+```
+
+After:
+
+```dart
+class MyPage extends StatefulWidget {
+  @override
+  _MyPageState createState() => _MyPageState();
+}
+
+class _MyPageState extends State<MyPage> with Refena {
+  @override
+  Widget build(BuildContext context) {
+    // ref is available from the mixin
+    final counter = ref.watch(counterProvider);
+    return Text('$counter');
+  }
+}
+```

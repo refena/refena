@@ -1275,7 +1275,8 @@ build(BuildContext context) {
 You can use both `select` and `rebuildWhen` at the same time.
 The `select` will be applied, when `rebuildWhen` returns `true`.
 
-Do **not** execute `ref.watch` multiple times as only the last one will be used for the rebuild condition.
+Do **not** execute `ref.watch` of the same provider multiple times
+as only the last one will be used for the rebuild condition.
 Instead, you should use *Records* to combine multiple values.
 
 ```dart
