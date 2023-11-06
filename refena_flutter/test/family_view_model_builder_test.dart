@@ -3,6 +3,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
 void main() {
+  testWidgets('Should compile with family shorthand', (tester) async {
+    final widget = ViewModelBuilder.family(
+      provider: _vm(10),
+      builder: (context, vm) {
+        return Text('$vm');
+      },
+    );
+
+    expect(widget, isA<FamilyViewModelBuilder>());
+  });
+
   testWidgets('Should watch state', (tester) async {
     final ref = RefenaScope(
       child: MaterialApp(
@@ -96,7 +107,7 @@ final _vm = ViewFamilyProvider<int, int>((ref, param) {
 class _SimpleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ViewModelParamBuilder(
+    return FamilyViewModelBuilder(
       provider: _vm(10),
       builder: (context, vm) {
         return Text('$vm');
@@ -108,7 +119,7 @@ class _SimpleWidget extends StatelessWidget {
 class _SelectWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ViewModelParamBuilder(
+    return FamilyViewModelBuilder(
       provider: _vm(10).select((state) => state - 5),
       builder: (context, vm) {
         return Text('$vm');
@@ -126,7 +137,7 @@ class _SwitchingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final b = context.ref.watch(_switcher);
     if (b) {
-      return ViewModelParamBuilder(
+      return FamilyViewModelBuilder(
         provider: _vm(10).select((state) => state - 5),
         dispose: (ref) => onDispose(),
         builder: (context, vm) {

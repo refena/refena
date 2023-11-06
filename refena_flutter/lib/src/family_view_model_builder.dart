@@ -8,12 +8,11 @@ import 'package:flutter/material.dart';
 import 'package:refena/src/provider/watchable.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
-/// Similar to [ViewModelBuilder], but designed for family providers
-/// so that you can provide a parameter.
+/// Similar to [ViewModelBuilder], but designed for family providers.
 ///
 /// When this widget is disposed, only the parameter will be disposed instead
 /// of the whole family (which is what [ViewModelBuilder] does).
-class ViewModelParamBuilder<T, P, R> extends StatefulWidget {
+class FamilyViewModelBuilder<T, P, R> extends StatefulWidget {
   /// The provider to use.
   /// The [builder] will be called whenever this provider changes.
   final FamilySelectedWatchable<T, P, R> provider;
@@ -43,28 +42,29 @@ class ViewModelParamBuilder<T, P, R> extends StatefulWidget {
   /// The builder to build the widget tree.
   final Widget Function(BuildContext context, R vm) builder;
 
-  ViewModelParamBuilder({
+  FamilyViewModelBuilder({
     super.key,
     required this.provider,
     this.init,
     this.dispose,
-    this.disposeProvider = true,
+    bool? disposeProvider,
     this.placeholder,
     this.error,
     String? debugLabel,
     Widget? debugParent,
     required this.builder,
-  }) : debugLabel = debugLabel ??
+  })  : disposeProvider = disposeProvider ?? true,
+        debugLabel = debugLabel ??
             debugParent?.runtimeType.toString() ??
             'ViewModelBuilder<$T>';
 
   @override
-  State<ViewModelParamBuilder<T, P, R>> createState() =>
-      _ViewModelParamBuilderState<T, P, R>();
+  State<FamilyViewModelBuilder<T, P, R>> createState() =>
+      _FamilyViewModelBuilderState<T, P, R>();
 }
 
-class _ViewModelParamBuilderState<T, P, R>
-    extends State<ViewModelParamBuilder<T, P, R>> with Refena {
+class _FamilyViewModelBuilderState<T, P, R>
+    extends State<FamilyViewModelBuilder<T, P, R>> with Refena {
   bool _initialized = false;
   (Object, StackTrace)? _error; // use record for null-safety
 

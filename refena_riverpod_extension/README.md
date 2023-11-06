@@ -6,6 +6,8 @@
 
 Provides extension getters to use [Riverpod](https://pub.dev/packages/riverpod) and [Refena](https://pub.dev/packages/refena) at the same time.
 
+Checkout [Refena for Riverpod developers](https://pub.dev/documentation/refena/latest/topics/Riverpod-topic.html) for more information.
+
 ```dart
 // Riverpod -> Refena
 ref.refena.read(myRefenaProvider);

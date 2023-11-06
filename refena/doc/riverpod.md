@@ -19,6 +19,14 @@ However, there are still some things that need your attention when you want to m
 | `NotifierProvider`       | `NotifierProvider` (no change)                                      |
 | `AsyncNotifierProvider`  | `AsyncNotifierProvider` (no change)                                 |
 
+Family providers:
+
+| Riverpod                | Refena                                                  |
+|-------------------------|---------------------------------------------------------|
+| `Provider.family`       | `ViewProvider.family` (only reactive version available) |
+| `FutureProvider.family` | `FutureProvider.family` (no change)                     |
+| Other                   | Not supported                                           |
+
 New providers:
 
 | Refena          | Description                                                |
@@ -69,7 +77,7 @@ class _MyPageState extends State<MyPage> {
 }
 ```
 
-Use `ViewModelBuilder` or `ViewModelParamBuilder` widgets to dispose providers automatically.
+Use `ViewModelBuilder` or `FamilyViewModelBuilder` widgets to dispose providers automatically.
 
 ## Access notifiers
 

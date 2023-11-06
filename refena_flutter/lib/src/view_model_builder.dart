@@ -62,6 +62,38 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
 
   @override
   State<ViewModelBuilder<T, R>> createState() => _ViewModelBuilderState<T, R>();
+
+  /// Returns the family version of this widget.
+  /// See [FamilyViewModelBuilder] for more information.
+  static FamilyViewModelBuilder<T, P, R> family<T, P, R>({
+    Key? key,
+    required FamilySelectedWatchable<T, P, R> provider,
+    FutureOr<void> Function(BuildContext context, Ref ref)? init,
+    void Function(Ref ref)? dispose,
+    bool? disposeProvider,
+    Widget Function(BuildContext context)? placeholder,
+    Widget Function(
+      BuildContext context,
+      Object error,
+      StackTrace stackTrace,
+    )? error,
+    String? debugLabel,
+    Widget? debugParent,
+    required Widget Function(BuildContext context, R vm) builder,
+  }) {
+    return FamilyViewModelBuilder<T, P, R>(
+      key: key,
+      provider: provider,
+      init: init,
+      dispose: dispose,
+      disposeProvider: disposeProvider,
+      placeholder: placeholder,
+      error: error,
+      debugLabel: debugLabel,
+      debugParent: debugParent,
+      builder: builder,
+    );
+  }
 }
 
 class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>

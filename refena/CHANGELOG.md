@@ -1,6 +1,6 @@
 ## 0.45.0
 
-- feat: add `ViewFamilyProvider` and `ViewModelParamBuilder` as a replacement for `provider.family` of Riverpod
+- feat: add `ViewFamilyProvider` and `FamilyViewModelBuilder` as a replacement for `provider.family` of Riverpod
 - feat: `ref.read` should support family providers and `select`
 
 ## 0.44.0

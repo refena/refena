@@ -95,6 +95,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
 - [Providers](#providers)
   - [Provider](#-provider)
   - [FutureProvider](#-futureprovider)
+  - [FutureFamilyProvider](#-futurefamilyprovider)
   - [StateProvider](#-stateprovider)
   - [StreamProvider](#-streamprovider)
   - [ChangeNotifierProvider](#-changenotifierprovider)
@@ -102,6 +103,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
   - [AsyncNotifierProvider](#-asyncnotifierprovider)
   - [ReduxProvider](#-reduxprovider)
   - [ViewProvider](#-viewprovider)
+  - [ViewFamilyProvider](#-viewfamilyprovider)
 - [Notifiers](#notifiers)
 - [Using ref](#using-ref)
   - [ref.read](#-refread)
@@ -165,9 +167,6 @@ This ensures that the notifier itself is not accidentally rebuilt.
 Don't worry that the `ref` within providers or notifiers becomes invalid.
 They live as long as the `RefenaScope`.
 
-**No provider modifiers**:\
-There is no `.family` or `.autodispose`. This makes the provider landscape simple and straightforward.
-
 **Notifier first**:\
 With `Notifier`, `AsyncNotifier`, `PureNotifier`, and `ReduxNotifier`,
 you can choose the right notifier for your use case.
@@ -205,6 +204,8 @@ ref.refena.read(myRefenaProvider);
 // Refena -> Riverpod
 ref.riverpod.read(myRiverpodProvider);
 ```
+
+Checkout [Refena for Riverpod developers](https://pub.dev/documentation/refena/latest/topics/Riverpod-topic.html) for more information.
 
 ## Refena vs async_redux
 
@@ -848,6 +849,56 @@ class SettingsPage extends StatelessWidget {
       dispose: (context, ref) => ref.notifier(authProvider).dispose(),
       placeholder: (context) => Text('Loading...'), // while init is running
       error: (context, error, stackTrace) => Text('Error: $error'), // when init fails
+      builder: (context, vm) {
+        return Scaffold(
+          body: Center(
+            child: Column(
+              children: [
+                Text('First name: ${vm.firstName}'),
+                Text('Last name: ${vm.lastName}'),
+                Text('Theme mode: ${vm.themeMode}'),
+                ElevatedButton(
+                  onPressed: vm.logout,
+                  child: const Text('Logout'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+```
+
+### ➤ ViewFamilyProvider
+
+Similar to `ViewProvider` but with a parameter. Use `ViewProvider.family` for better readability.
+
+```dart
+final settingsVmProvider = ViewProvider.family<String, SettingsVm>((ref, userId) {
+  final auth = ref.watch(authProvider(userId));
+  final themeMode = ref.watch(themeModeProvider);
+  return SettingsVm(
+    firstName: auth.firstName,
+    lastName: auth.lastName,
+    themeMode: themeMode,
+    logout: () => ref.notifier(authProvider).logout(),
+  );
+});
+```
+
+A `ViewModelBuilder` would dispose the whole family provider.
+You should use `FamilyViewModelBuilder` (or `ViewModelBuilder.family`) instead.
+This will only dispose a member of the family on widget disposal.
+
+```dart
+class SettingsPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    int userId = 123;
+    return ViewModelBuilder.family(
+      provider: settingsVmProvider(userId),
       builder: (context, vm) {
         return Scaffold(
           body: Center(
