@@ -137,7 +137,7 @@ class _SwitchingWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final b = context.ref.watch(_switcher);
     if (b) {
-      return FamilyViewModelBuilder(
+      return ViewModelBuilder.family(
         provider: _vm(10).select((state) => state - 5),
         dispose: (ref) => onDispose(),
         builder: (context, vm) {

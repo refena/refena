@@ -259,7 +259,7 @@ class RefenaContainer implements Ref, LabeledReference {
 
   /// Returns the actual value of a [Provider].
   @override
-  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable) {
+  R read<N extends BaseNotifier<T>, T, R>(BaseWatchable<N, T, R> watchable) {
     final notifier = _getState(watchable.provider);
     if (watchable is FamilySelectedWatchable) {
       // initialize parameter

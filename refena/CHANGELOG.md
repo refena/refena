@@ -2,6 +2,7 @@
 
 - **Marking Refena as stable**
 - fix: disable warning print (of watching the same provider multiple times) due to false positives
+- **BREAKING**: disallow using `ViewModelBuilder` with family providers (use `ViewModelBuilder.family` instead)
 
 ## 0.45.0
 

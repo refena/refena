@@ -14,6 +14,8 @@ import 'package:refena_flutter/refena_flutter.dart';
 /// A widget that uses exactly one provider to build the widget tree.
 /// On widget dispose, the provider will be disposed as well.
 ///
+/// Family providers should use [FamilyViewModelBuilder] instead.
+///
 /// To avoid disposing the provider, set [disposeProvider] to false.
 class ViewModelBuilder<T, R> extends StatefulWidget {
   /// The provider to use.

@@ -33,14 +33,14 @@ extension ContextRefExt on BuildContext {
 
   /// Shorthand for `context.ref.read()`.
   /// See [Ref.read] for more information.
-  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable) {
+  R read<N extends BaseNotifier<T>, T, R>(BaseWatchable<N, T, R> watchable) {
     return ref.read(watchable);
   }
 
   /// Shorthand for `context.ref.watch()`.
   /// See [WatchableRef.watch] for more information.
   R watch<N extends BaseNotifier<T>, T, R>(
-    Watchable<N, T, R> watchable, {
+    BaseWatchable<N, T, R> watchable, {
     ListenerCallback<T>? listener,
     bool Function(T prev, T next)? rebuildWhen,
   }) {

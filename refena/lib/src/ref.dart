@@ -23,7 +23,7 @@ import 'package:refena/src/provider/watchable.dart';
 /// {@category Introduction}
 abstract interface class Ref {
   /// Get the current value of a provider without listening to changes.
-  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable);
+  R read<N extends BaseNotifier<T>, T, R>(BaseWatchable<N, T, R> watchable);
 
   /// Get the notifier of a provider.
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider);
@@ -95,7 +95,7 @@ abstract interface class WatchableRef implements Ref {
   ///
   /// Only call this method during build or inside a [ViewProvider].
   R watch<N extends BaseNotifier<T>, T, R>(
-    Watchable<N, T, R> watchable, {
+    BaseWatchable<N, T, R> watchable, {
     ListenerCallback<T>? listener,
     bool Function(T prev, T next)? rebuildWhen,
   });
@@ -119,7 +119,7 @@ class WatchableRefImpl implements WatchableRef {
   final Rebuildable rebuildable;
 
   @override
-  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable) {
+  R read<N extends BaseNotifier<T>, T, R>(BaseWatchable<N, T, R> watchable) {
     if (_onAccessNotifier == null) {
       return _ref.read<N, T, R>(watchable);
     }
@@ -198,14 +198,15 @@ class WatchableRefImpl implements WatchableRef {
 
   @override
   R watch<N extends BaseNotifier<T>, T, R>(
-    Watchable<N, T, R> watchable, {
+    BaseWatchable<N, T, R> watchable, {
     ListenerCallback<T>? listener,
     bool Function(T prev, T next)? rebuildWhen,
   }) {
     final notifier = _ref.anyNotifier(watchable.provider);
     // We need to add a listener to the notifier
     // to rebuild the widget when the state changes.
-    if (watchable is SelectedWatchable<N, T, R>) {
+    if (watchable is SelectedWatchable<N, T, R> ||
+        watchable is FamilySelectedWatchable) {
       if (watchable is FamilySelectedWatchable) {
         // initialize parameter
         final familyNotifier = notifier as FamilyNotifier;
@@ -214,7 +215,6 @@ class WatchableRefImpl implements WatchableRef {
           familyNotifier.initParam(param);
         }
       }
-      rebuildable.notifyListenerTarget(notifier);
       notifier.addListener(
         rebuildable,
         ListenerConfig<T>(
@@ -229,7 +229,6 @@ class WatchableRefImpl implements WatchableRef {
         ),
       );
     } else {
-      rebuildable.notifyListenerTarget(notifier);
       notifier.addListener(
         rebuildable,
         ListenerConfig<T>(
@@ -239,6 +238,7 @@ class WatchableRefImpl implements WatchableRef {
       );
     }
 
+    rebuildable.notifyListenerTarget(notifier);
     _onAccessNotifier?.call(notifier);
 
     return watchable.getSelectedState(notifier, notifier.state);

@@ -29,7 +29,7 @@ class ProxyRef implements Ref {
   final LabeledReference _debugOriginRef;
 
   @override
-  R read<N extends BaseNotifier<T>, T, R>(Watchable<N, T, R> watchable) {
+  R read<N extends BaseNotifier<T>, T, R>(BaseWatchable<N, T, R> watchable) {
     if (_onAccessNotifier == null) {
       return _ref.read<N, T, R>(watchable);
     }
