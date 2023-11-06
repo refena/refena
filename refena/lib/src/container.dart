@@ -58,6 +58,7 @@ enum PlatformHint {
 ///
 /// {@category Introduction}
 /// {@category Initialization}
+/// {@category Riverpod}
 class RefenaContainer implements Ref, LabeledReference {
   /// Creates a [RefenaContainer].
   ///

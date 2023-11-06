@@ -2,6 +2,8 @@ dartdoc:
   categories:
     "Introduction":
       markdown: "doc/intro.md"
+    "Riverpod":
+      markdown: "doc/riverpod.md"
     "Initialization":
       markdown: "doc/initialization.md"
     "Redux":
@@ -12,6 +14,7 @@ dartdoc:
       markdown: "doc/testing.md"
   categoryOrder:
     - "Introduction"
+    - "Riverpod"
     - "Initialization"
     - "Redux"
     - "Async Value"

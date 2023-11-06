@@ -157,10 +157,10 @@ class _ViewModelWidget extends StatefulWidget {
   State<_ViewModelWidget> createState() => _ViewModelWidgetState();
 }
 
-class _ViewModelWidgetState extends State<_ViewModelWidget> with Refena {
+class _ViewModelWidgetState extends State<_ViewModelWidget> {
   @override
   void dispose() {
-    ref.dispose(_vmProvider);
+    context.dispose(_vmProvider);
     super.dispose();
   }
 

@@ -64,4 +64,10 @@ extension ContextRefExt on BuildContext {
   ) {
     return ref.redux(provider);
   }
+
+  /// Shorthand for `context.ref.dispose()`.
+  /// See [Ref.dispose] for more information.
+  void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
+    ref.dispose(provider);
+  }
 }
