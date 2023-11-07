@@ -14,6 +14,9 @@ import 'package:refena/src/observer/error_parser.dart';
 // ignore: implementation_imports
 import 'package:refena/src/tools/tracing_input_model.dart';
 
+// ignore: implementation_imports
+import 'package:refena/src/util/id_provider.dart';
+
 import 'package:refena_flutter/src/graph/graph_page.dart';
 import 'package:refena_flutter/src/graph/live_button.dart';
 import 'package:refena_flutter/src/mixin.dart';

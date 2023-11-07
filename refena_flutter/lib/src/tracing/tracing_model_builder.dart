@@ -6,6 +6,7 @@ List<_TracingEntry> _buildEntries(
   Iterable<InputEvent> events,
   ErrorParser? errorParser,
 ) {
+  final maxId = events.lastOrNull?.id ?? 0;
   final result = <_TracingEntry>[];
   for (final e in events) {
     switch (e.type) {
@@ -16,7 +17,7 @@ List<_TracingEntry> _buildEntries(
           if (existing != null) {
             final created = _TracingEntry(e, []);
 
-            _addWidgetEntries(created, e.rebuildWidgets!);
+            _addWidgetEntries(maxId, created, e.rebuildWidgets!);
 
             existing.children.add(created);
             continue;
@@ -24,7 +25,7 @@ List<_TracingEntry> _buildEntries(
         }
 
         final created = _TracingEntry(e, []);
-        _addWidgetEntries(created, e.rebuildWidgets!);
+        _addWidgetEntries(maxId, created, e.rebuildWidgets!);
         result.add(created);
         break;
       case InputEventType.rebuild:
@@ -40,7 +41,7 @@ List<_TracingEntry> _buildEntries(
             );
 
             if (!superseded) {
-              _addWidgetEntries(created, e.rebuildWidgets!);
+              _addWidgetEntries(maxId, created, e.rebuildWidgets!);
             }
 
             existing.children.add(created);
@@ -149,11 +150,13 @@ _TracingEntry? _findEvent(
   return null;
 }
 
-void _addWidgetEntries(_TracingEntry entry, List<String> rebuildableList) {
+final _idProvider = IdProvider();
+void _addWidgetEntries(
+    int startId, _TracingEntry entry, List<String> rebuildableList) {
   for (final rebuild in rebuildableList) {
     entry.children.add(_TracingEntry(
       InputEvent.only(
-        id: -1,
+        id: startId + _idProvider.getNextId() + 1,
         type: InputEventType.rebuild,
         millisSinceEpoch: entry.timestamp.millisecondsSinceEpoch,
         label: rebuild,
