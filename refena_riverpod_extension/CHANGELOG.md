@@ -1,3 +1,7 @@
+## 1.0.0
+
+- Stable release
+
 ## 0.5.0
 
 - deps: bump `refena` to `0.42.0`

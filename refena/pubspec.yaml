@@ -1,6 +1,6 @@
 name: refena
 description: A state management library for Dart and Flutter. Inspired by Riverpod and async_redux.
-version: 0.45.0
+version: 1.0.0
 repository: https://github.com/refena/refena/tree/main/refena
 issue_tracker: https://github.com/refena/refena/issues
 topics:

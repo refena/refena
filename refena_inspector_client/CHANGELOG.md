@@ -1,3 +1,7 @@
+## 1.0.0
+
+- Stable release
+
 ## 0.8.0
 
 - deps: bump refena to 0.36.0
