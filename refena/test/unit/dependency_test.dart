@@ -198,6 +198,104 @@ void main() {
     });
   });
 
+  group(ViewFamilyProvider, () {
+    test('Should correctly create dependency to temp provider', () async {
+      final ref = RefenaContainer();
+
+      final provider = ViewProvider.family<int, int>((ref, param) {
+        return param * 2;
+      });
+
+      expect(ref.read(provider(5)), 10);
+
+      final viewNotifier = ref.anyNotifier(provider);
+      final tempProvider = viewNotifier.getTempProviders().first;
+      final tempNotifier = ref.anyNotifier(tempProvider);
+      expect(viewNotifier.isParamInitialized(5), true);
+      expect(viewNotifier.getTempProviders().length, 1);
+
+      expect(tempNotifier.dependencies, isEmpty);
+      expect(tempNotifier.dependents, {viewNotifier});
+
+      expect(viewNotifier.dependencies, {tempNotifier});
+      expect(viewNotifier.dependents, isEmpty);
+    });
+
+    test('disposeFamilyParam should not dispose family provider', () async {
+      final ref = RefenaContainer();
+
+      final provider = ViewProvider.family<int, int>((ref, param) {
+        return param * 2;
+      });
+
+      expect(ref.read(provider(5)), 10);
+
+      final viewNotifier = ref.anyNotifier(provider);
+      final tempProvider = viewNotifier.getTempProviders().first;
+      final tempNotifier = ref.anyNotifier(tempProvider);
+      expect(viewNotifier.isParamInitialized(5), true);
+      expect(viewNotifier.getTempProviders().length, 1);
+
+      expect(tempNotifier.dependencies, isEmpty);
+      expect(tempNotifier.dependents, {viewNotifier});
+
+      expect(viewNotifier.dependencies, {tempNotifier});
+      expect(viewNotifier.dependents, isEmpty);
+
+      // Dispose param (should not dispose family provider)
+      ref.disposeFamilyParam(provider, 5);
+
+      expect(tempNotifier.disposed, true);
+      expect(viewNotifier.disposed, false);
+
+      expect(viewNotifier.state, isEmpty);
+      expect(viewNotifier.getTempProviders(), isEmpty);
+
+      expect(tempNotifier.dependencies, isEmpty);
+      expect(tempNotifier.dependents, isEmpty);
+
+      expect(viewNotifier.dependencies, isEmpty);
+      expect(viewNotifier.dependents, isEmpty);
+    });
+
+    test('dispose should clear dependency graph', () async {
+      final ref = RefenaContainer();
+
+      final provider = ViewProvider.family<int, int>((ref, param) {
+        return param * 2;
+      });
+
+      expect(ref.read(provider(5)), 10);
+
+      final viewNotifier = ref.anyNotifier(provider);
+      final tempProvider = viewNotifier.getTempProviders().first;
+      final tempNotifier = ref.anyNotifier(tempProvider);
+      expect(viewNotifier.isParamInitialized(5), true);
+      expect(viewNotifier.getTempProviders().length, 1);
+
+      expect(tempNotifier.dependencies, isEmpty);
+      expect(tempNotifier.dependents, {viewNotifier});
+
+      expect(viewNotifier.dependencies, {tempNotifier});
+      expect(viewNotifier.dependents, isEmpty);
+
+      // Dispose param (should not dispose family provider)
+      ref.dispose(provider);
+
+      expect(tempNotifier.disposed, true);
+      expect(viewNotifier.disposed, true);
+
+      expect(viewNotifier.state, isEmpty);
+      expect(viewNotifier.getTempProviders(), isEmpty);
+
+      expect(tempNotifier.dependencies, isEmpty);
+      expect(tempNotifier.dependents, isEmpty);
+
+      expect(viewNotifier.dependencies, isEmpty);
+      expect(viewNotifier.dependents, isEmpty);
+    });
+  });
+
   group(ReduxProvider, () {
     test('Should correctly build with one dependency', () {
       final container = RefenaContainer();

@@ -62,6 +62,11 @@ abstract class BaseNotifier<T> implements LabeledReference {
   /// They will be disposed when this notifier is disposed.
   final Set<BaseNotifier> dependents = {};
 
+  /// Whether disposing this notifier should also dispose the dependents.
+  /// If this is true, the [dependents] are considered to be fake.
+  @nonVirtual
+  bool _fakeDependents = false;
+
   /// Whether this notifier is disposed.
   bool get disposed => _disposed;
 
@@ -180,6 +185,10 @@ abstract class BaseNotifier<T> implements LabeledReference {
     // Remove from dependency graph
     for (final dependency in dependencies) {
       dependency.dependents.remove(this);
+    }
+
+    if (_fakeDependents) {
+      return {};
     }
 
     return dependents;
@@ -484,6 +493,8 @@ final class ViewFamilyProviderNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
       debugLabel: '$debugLabel($param)',
     );
     _providers[param] = provider;
+    _initDependencies(provider);
+
     _setStateCustom(
       this,
       {
@@ -516,6 +527,8 @@ final class ViewFamilyProviderNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
     if (provider == null) {
       return;
     }
+
+    _clearDependencies(provider);
     _container!.internalDispose(provider, debugOrigin ?? this);
     state.remove(param);
   }
@@ -523,10 +536,25 @@ final class ViewFamilyProviderNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
   @override
   void dispose() {
     for (final provider in _providers.values) {
+      _clearDependencies(provider);
       _container!.internalDispose(provider, this);
     }
     _providers.clear();
     state.clear();
+  }
+
+  void _initDependencies(ViewProvider tempProvider) {
+    final tempNotifier = _container!.anyNotifier(tempProvider);
+    // so this notifier (the family notifier) won't get disposed
+    tempNotifier._fakeDependents = true;
+    dependencies.add(tempNotifier);
+    tempNotifier.dependents.add(this);
+  }
+
+  void _clearDependencies(ViewProvider tempProvider) {
+    final tempNotifier = _container!.anyNotifier(tempProvider);
+    dependencies.remove(tempNotifier);
+    tempNotifier.dependents.clear();
   }
 
   @visibleForTesting
