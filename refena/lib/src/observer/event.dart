@@ -79,6 +79,9 @@ class ChangeEvent<T> extends AbstractChangeEvent<T> {
       rebuild.hashCode;
 
   @override
+  String get debugLabel => 'ChangeEvent(${notifier.debugLabel})';
+
+  @override
   String toString() {
     return 'ChangeEvent<$T>(notifier: $notifier, action: $action, prev: $prev, next: $next, rebuild: $rebuild)';
   }
@@ -122,6 +125,9 @@ class RebuildEvent<T> extends AbstractChangeEvent<T> {
       prev.hashCode ^
       next.hashCode ^
       rebuild.hashCode;
+
+  @override
+  String get debugLabel => 'RebuildEvent(${rebuildable.debugLabel})';
 
   @override
   String toString() {
