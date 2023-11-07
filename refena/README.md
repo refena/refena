@@ -77,6 +77,16 @@ class MyPage extends StatelessWidget {
 }
 ```
 
+Offering high traceability with [RefenaDebugObserver](#observer) and [RefenaTracingObserver](#-event-tracing):
+
+```text
+[Refena] Action dispatched: [ReduxCounter.SubtractAction] by [MyPage]
+[Refena] Change by [ReduxCounter] triggered by [SubtractAction]
+           - Prev: 8
+           - Next: 5
+           - Rebuild (1): [MyPage]
+```
+
 With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector):
 
 ![inspector](https://raw.githubusercontent.com/refena/refena/main/resources/inspector-screenshot.webp)
