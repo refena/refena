@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
@@ -7,7 +6,6 @@ import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/reference.dart';
 import 'package:refena/src/util/time_provider.dart';
 
-const _eq = IterableEquality();
 final _timeProvider = TimeProvider();
 
 /// The base event.
@@ -69,7 +67,7 @@ class ChangeEvent<T> extends AbstractChangeEvent<T> {
             action == other.action &&
             prev == other.prev &&
             next == other.next &&
-            _eq.equals(rebuild, other.rebuild);
+            _iterableEquals(rebuild, other.rebuild);
   }
 
   @override
@@ -111,10 +109,10 @@ class RebuildEvent<T> extends AbstractChangeEvent<T> {
         other is RebuildEvent &&
             runtimeType == other.runtimeType &&
             rebuildable == other.rebuildable &&
-            _eq.equals(causes, other.causes) &&
+            _iterableEquals(causes, other.causes) &&
             prev == other.prev &&
             next == other.next &&
-            _eq.equals(rebuild, other.rebuild);
+            _iterableEquals(rebuild, other.rebuild);
   }
 
   @override
@@ -377,4 +375,17 @@ class MessageEvent extends RefenaEvent {
 
   @override
   String get debugLabel => message;
+}
+
+// Copied from collection package with some simplifications.
+bool _iterableEquals<E>(Iterable<E> elements1, Iterable<E> elements2) {
+  if (identical(elements1, elements2)) return true;
+  var it1 = elements1.iterator;
+  var it2 = elements2.iterator;
+  while (true) {
+    var hasNext = it1.moveNext();
+    if (hasNext != it2.moveNext()) return false;
+    if (!hasNext) return true;
+    if (it1.current != it2.current) return false;
+  }
 }

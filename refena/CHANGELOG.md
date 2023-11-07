@@ -1,6 +1,7 @@
 ## 1.0.0
 
 - **Marking Refena as stable**
+- feat: do not depend on `collection` package anymore
 - fix: disable warning print (of watching the same provider multiple times) due to false positives
 - **BREAKING**: disallow using `ViewModelBuilder` with family providers (use `ViewModelBuilder.family` instead)
 
