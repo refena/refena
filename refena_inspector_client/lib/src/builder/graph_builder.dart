@@ -4,8 +4,6 @@ import 'package:refena/refena.dart';
 // ignore: implementation_imports
 import 'package:refena/src/notifier/base_notifier.dart';
 // ignore: implementation_imports
-import 'package:refena/src/notifier/rebuildable.dart';
-// ignore: implementation_imports
 import 'package:refena/src/tools/graph_input_model.dart';
 // ignore: implementation_imports
 import 'package:refena/src/util/id_provider.dart';

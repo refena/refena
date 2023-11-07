@@ -113,7 +113,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
           rebuild: [], // will be modified by notifyAll
         );
         _listeners.notifyAll(prev: oldState, next: _state, changeEvent: event);
-        observer.internalHandleEvent(event);
+        observer.dispatchEvent(event);
       } else {
         _listeners.notifyAll(prev: oldState, next: _state);
       }
@@ -172,49 +172,32 @@ abstract class BaseNotifier<T> implements LabeledReference {
     }
   }
 
-  /// Disposes the notifier.
-  /// Returns a list of dependents that should be disposed as well.
   @internal
   @nonVirtual
-  Set<BaseNotifier> internalDispose() {
-    dispose();
-
-    _disposed = true;
-    _listeners.dispose();
-
-    // Remove from dependency graph
-    for (final dependency in dependencies) {
-      dependency.dependents.remove(this);
-    }
-
-    if (_fakeDependents) {
-      return {};
-    }
-
-    return dependents;
-  }
-
-  @internal
   List<Rebuildable> getListeners() {
     return _listeners.getListeners();
   }
 
   @internal
+  @nonVirtual
   void cleanupListeners() {
     _listeners.removeDisposedListeners();
   }
 
   @internal
+  @nonVirtual
   void addListener(Rebuildable rebuildable, ListenerConfig<T> config) {
     _listeners.addListener(rebuildable, config);
   }
 
   @internal
+  @nonVirtual
   void removeListener(Rebuildable rebuildable) {
     _listeners.removeListener(rebuildable);
   }
 
   @internal
+  @nonVirtual
   Stream<NotifierEvent<T>> getStream() {
     return _listeners.getStream();
   }
@@ -235,6 +218,29 @@ abstract class BaseNotifier<T> implements LabeledReference {
   @override
   @nonVirtual
   int get hashCode => super.hashCode;
+}
+
+@internal
+extension InternalBaseNotifierExt<T> on BaseNotifier<T> {
+  /// Disposes the notifier.
+  /// Returns a list of dependents that should be disposed as well.
+  Set<BaseNotifier> internalDispose() {
+    dispose();
+
+    _disposed = true;
+    _listeners.dispose();
+
+    // Remove from dependency graph
+    for (final dependency in dependencies) {
+      dependency.dependents.remove(this);
+    }
+
+    if (_fakeDependents) {
+      return {};
+    }
+
+    return dependents;
+  }
 }
 
 @internal
@@ -714,7 +720,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     required String? debugOrigin,
     required LabeledReference? debugOriginRef,
   }) {
-    _observer?.internalHandleEvent(ActionDispatchedEvent(
+    _observer?.dispatchEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
       debugOriginRef: action.trackOrigin ? (debugOriginRef ?? this) : this,
       notifier: this,
@@ -734,7 +740,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
               'Invalid override reducer for ${action.runtimeType}'),
         };
         _setState(temp.$1, action);
-        _observer?.internalHandleEvent(ActionFinishedEvent(
+        _observer?.dispatchEvent(ActionFinishedEvent(
           action: action,
           result: temp.$2,
         ));
@@ -751,7 +757,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       try {
         action.before();
       } catch (error, stackTrace) {
-        _observer?.internalHandleEvent(ActionErrorEvent(
+        _observer?.dispatchEvent(ActionErrorEvent(
           action: action,
           lifecycle: ActionLifecycle.before,
           error: error,
@@ -763,13 +769,13 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       try {
         final newState = action.internalWrapReduce();
         _setState(newState.$1, action);
-        _observer?.internalHandleEvent(ActionFinishedEvent(
+        _observer?.dispatchEvent(ActionFinishedEvent(
           action: action,
           result: newState.$2,
         ));
         return newState;
       } catch (error, stackTrace) {
-        _observer?.internalHandleEvent(ActionErrorEvent(
+        _observer?.dispatchEvent(ActionErrorEvent(
           action: action,
           lifecycle: ActionLifecycle.reduce,
           error: error,
@@ -783,7 +789,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       try {
         action.after();
       } catch (error, stackTrace) {
-        _observer?.internalHandleEvent(ActionErrorEvent(
+        _observer?.dispatchEvent(ActionErrorEvent(
           action: action,
           lifecycle: ActionLifecycle.after,
           error: error,
@@ -864,7 +870,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
     required String? debugOrigin,
     required LabeledReference? debugOriginRef,
   }) async {
-    _observer?.internalHandleEvent(ActionDispatchedEvent(
+    _observer?.dispatchEvent(ActionDispatchedEvent(
       debugOrigin: debugOrigin ?? runtimeType.toString(),
       debugOriginRef: action.trackOrigin ? (debugOriginRef ?? this) : this,
       notifier: this,
@@ -884,7 +890,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
               'Invalid override reducer for ${action.runtimeType}'),
         };
         _setState(temp.$1, action);
-        _observer?.internalHandleEvent(ActionFinishedEvent(
+        _observer?.dispatchEvent(ActionFinishedEvent(
           action: action,
           result: temp.$2,
         ));
@@ -902,7 +908,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
         await action.before();
       } catch (error, stackTrace) {
         final extendedStackTrace = extendStackTrace(stackTrace);
-        _observer?.internalHandleEvent(ActionErrorEvent(
+        _observer?.dispatchEvent(ActionErrorEvent(
           action: action,
           lifecycle: ActionLifecycle.before,
           error: error,
@@ -917,14 +923,14 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       try {
         final newState = await action.internalWrapReduce();
         _setState(newState.$1, action);
-        _observer?.internalHandleEvent(ActionFinishedEvent(
+        _observer?.dispatchEvent(ActionFinishedEvent(
           action: action,
           result: newState.$2,
         ));
         return newState;
       } catch (error, stackTrace) {
         final extendedStackTrace = extendStackTrace(stackTrace);
-        _observer?.internalHandleEvent(ActionErrorEvent(
+        _observer?.dispatchEvent(ActionErrorEvent(
           action: action,
           lifecycle: ActionLifecycle.reduce,
           error: error,
@@ -941,7 +947,7 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
       try {
         action.after();
       } catch (error, stackTrace) {
-        _observer?.internalHandleEvent(ActionErrorEvent(
+        _observer?.dispatchEvent(ActionErrorEvent(
           action: action,
           lifecycle: ActionLifecycle.after,
           error: error,
@@ -1293,7 +1299,7 @@ mixin _ViewNotifierSetStateMixin<T> on BaseSyncNotifier<T> {
           rebuild: [], // will be modified by notifyAll
         );
         _listeners.notifyAll(prev: oldState, next: _state, rebuildEvent: event);
-        observer.internalHandleEvent(event);
+        observer.dispatchEvent(event);
       } else {
         _listeners.notifyAll(prev: oldState, next: _state);
       }

@@ -46,9 +46,12 @@ abstract class RefenaObserver implements LabeledReference {
     init();
     _initialized = true;
   }
+}
 
-  @internal
-  void internalHandleEvent(RefenaEvent event) {
+@internal
+extension InternalRefenaObserverExt on RefenaObserver {
+  /// The method to dispatch a new event to the observer.
+  void dispatchEvent(RefenaEvent event) {
     if (!_initialized) {
       return;
     }
@@ -89,7 +92,7 @@ class RefenaMultiObserver extends RefenaObserver {
   @override
   void handleEvent(RefenaEvent event) {
     for (final observer in observers) {
-      observer.internalHandleEvent(event);
+      observer.dispatchEvent(event);
     }
   }
 

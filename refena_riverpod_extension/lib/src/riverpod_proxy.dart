@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart' as riverpod;
 
 // ignore: implementation_imports
 import 'package:refena/src/notifier/rebuildable.dart';
+
+// ignore: implementation_imports
+import 'package:refena/src/observer/observer.dart';
 import 'package:refena_flutter/refena_flutter.dart' as refena;
 
 class RiverpodProxy {
@@ -61,7 +64,7 @@ class RiverpodRebuildableProxy extends RiverpodProxy {
             next: next,
             rebuild: [rebuildable],
           );
-          observer.internalHandleEvent(changeEvent);
+          observer.dispatchEvent(changeEvent);
         }
 
         rebuildable.rebuild(

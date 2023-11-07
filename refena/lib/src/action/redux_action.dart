@@ -147,7 +147,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
 
   /// Emits a message to the observer.
   void emitMessage(String message) {
-    _observer?.internalHandleEvent(
+    _observer?.dispatchEvent(
       MessageEvent(message, this),
     );
   }
@@ -185,14 +185,17 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   Type get notifierType => N;
 
   @internal
+  FutureOr<(T, R)> internalWrapReduce();
+}
+
+@internal
+extension InternalBaseReduxActionExt<N extends BaseReduxNotifier<T>, T, R>
+    on BaseReduxAction<N, T, R> {
   void internalSetup(Ref? ref, N notifier, RefenaObserver? observer) {
     _originalRef = ref;
     _notifier = notifier;
     _observer = observer;
   }
-
-  @internal
-  FutureOr<(T, R)> internalWrapReduce();
 }
 
 @internal

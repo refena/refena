@@ -1,4 +1,3 @@
-import 'package:meta/meta.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/observer/event.dart';
@@ -7,7 +6,6 @@ import 'package:refena/src/reference.dart';
 /// Something that can be rebuilt.
 /// It might be a [Widget], a [ViewProvider] or a [WatchAction].
 /// A [Ref] holds a [Rebuildable] to make [ref.watch] work.
-@internal
 abstract interface class Rebuildable implements LabeledReference {
   /// Schedule a rebuild (in the next frame).
   /// Optionally pass the [changeEvent], or [rebuildEvent]

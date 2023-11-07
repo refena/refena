@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:refena/refena.dart';
 // ignore: implementation_imports
 import 'package:refena/src/notifier/base_notifier.dart';
-// ignore: implementation_imports
-import 'package:refena/src/notifier/rebuildable.dart';
 import 'package:refena_flutter/src/element_rebuildable.dart';
 
 /// A helper class for unit tests.

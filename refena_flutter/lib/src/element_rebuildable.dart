@@ -7,9 +7,6 @@ import 'package:refena/refena.dart';
 // ignore: implementation_imports
 import 'package:refena/src/notifier/base_notifier.dart';
 
-// ignore: implementation_imports
-import 'package:refena/src/notifier/rebuildable.dart';
-
 import 'package:refena_flutter/src/consumer.dart';
 import 'package:refena_flutter/src/family_view_model_builder.dart';
 import 'package:refena_flutter/src/util/batched_set_controller.dart';

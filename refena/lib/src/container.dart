@@ -188,7 +188,7 @@ class RefenaContainer implements Ref, LabeledReference {
     notifier.internalSetup(_withNotifierLabel(notifier), provider);
     _state[provider] = notifier;
 
-    observer?.internalHandleEvent(
+    observer?.dispatchEvent(
       ProviderInitEvent(
         provider: provider,
         notifier: notifier,
@@ -236,7 +236,7 @@ class RefenaContainer implements Ref, LabeledReference {
       notifier.internalSetup(_withNotifierLabel(notifier), provider);
       _state[provider] = notifier;
 
-      observer?.internalHandleEvent(
+      observer?.dispatchEvent(
         ProviderInitEvent(
           provider: provider,
           notifier: notifier,
@@ -329,7 +329,7 @@ class RefenaContainer implements Ref, LabeledReference {
 
   @override
   void message(String message) {
-    observer?.internalHandleEvent(MessageEvent(message, this));
+    observer?.dispatchEvent(MessageEvent(message, this));
   }
 
   @override
@@ -358,56 +358,6 @@ class RefenaContainer implements Ref, LabeledReference {
     return [
       ..._state.values.where((n) => n is! GlobalRedux && n is! TracingNotifier)
     ];
-  }
-
-  @internal
-  void internalDispose<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider,
-    LabeledReference debugOrigin,
-  ) {
-    final notifier = _state[provider];
-    if (notifier == null) {
-      return;
-    }
-
-    final queue = Queue<BaseNotifier>();
-    final originMap = <BaseNotifier, ProviderDisposeEvent?>{};
-    final observer = this.observer;
-    queue.add(notifier);
-    do {
-      // Call dispose on the notifier
-      // The state is not removed YET.
-      final current = queue.removeFirst();
-
-      final dependents = current.internalDispose();
-
-      // Remove the state from the container
-      // The state is removed AFTER the remove call.
-      final provider = current.provider!;
-      _state.remove(provider);
-
-      if (observer != null) {
-        final event = ProviderDisposeEvent(
-          debugOrigin: originMap[current] ?? debugOrigin,
-          provider: provider,
-        );
-        observer.internalHandleEvent(event);
-
-        for (final dependent in dependents) {
-          if (!originMap.containsKey(dependent)) {
-            originMap[dependent] = event;
-            queue.add(dependent);
-          }
-        }
-      } else {
-        for (final dependent in dependents) {
-          if (!originMap.containsKey(dependent)) {
-            originMap[dependent] = null;
-            queue.add(dependent);
-          }
-        }
-      }
-    } while (queue.isNotEmpty);
   }
 
   /// Removes disposed listeners from all notifiers.
@@ -453,6 +403,58 @@ class RefenaContainer implements Ref, LabeledReference {
       provider.debugLabel,
       provider,
     );
+  }
+}
+
+@internal
+extension InternalRefenaContainerExt on RefenaContainer {
+  void internalDispose<N extends BaseNotifier<T>, T>(
+    BaseProvider<N, T> provider,
+    LabeledReference debugOrigin,
+  ) {
+    final notifier = _state[provider];
+    if (notifier == null) {
+      return;
+    }
+
+    final queue = Queue<BaseNotifier>();
+    final originMap = <BaseNotifier, ProviderDisposeEvent?>{};
+    final observer = this.observer;
+    queue.add(notifier);
+    do {
+      // Call dispose on the notifier
+      // The state is not removed YET.
+      final current = queue.removeFirst();
+
+      final dependents = current.internalDispose();
+
+      // Remove the state from the container
+      // The state is removed AFTER the remove call.
+      final provider = current.provider!;
+      _state.remove(provider);
+
+      if (observer != null) {
+        final event = ProviderDisposeEvent(
+          debugOrigin: originMap[current] ?? debugOrigin,
+          provider: provider,
+        );
+        observer.dispatchEvent(event);
+
+        for (final dependent in dependents) {
+          if (!originMap.containsKey(dependent)) {
+            originMap[dependent] = event;
+            queue.add(dependent);
+          }
+        }
+      } else {
+        for (final dependent in dependents) {
+          if (!originMap.containsKey(dependent)) {
+            originMap[dependent] = null;
+            queue.add(dependent);
+          }
+        }
+      }
+    } while (queue.isNotEmpty);
   }
 }
 

@@ -10,6 +10,7 @@ import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
 import 'package:refena/src/notifier/types/async_notifier.dart';
 import 'package:refena/src/observer/event.dart';
+import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
@@ -191,7 +192,7 @@ class WatchableRefImpl implements WatchableRef {
 
   @override
   void message(String message) {
-    _ref.observer?.internalHandleEvent(MessageEvent(message, rebuildable));
+    _ref.observer?.dispatchEvent(MessageEvent(message, rebuildable));
   }
 
   @override

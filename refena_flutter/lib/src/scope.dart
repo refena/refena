@@ -246,14 +246,6 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   List<BaseNotifier> getActiveNotifiers() => _container.getActiveNotifiers();
 
   @override
-  void internalDispose<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider,
-    LabeledReference debugOrigin,
-  ) {
-    _container.internalDispose(provider, debugOrigin);
-  }
-
-  @override
   void cleanupListeners() => _container.cleanupListeners();
 
   @override
