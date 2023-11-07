@@ -33,6 +33,7 @@ class _StateGraphInputBuilder extends GraphInputBuilder {
       final node = InputNode(
         type: switch (notifier) {
           ViewProviderNotifier() => InputNodeType.view,
+          ViewFamilyProviderNotifier() => InputNodeType.view,
           ReduxNotifier() => InputNodeType.redux,
           ImmutableNotifier() => InputNodeType.immutable,
           FutureProviderNotifier() => InputNodeType.future,

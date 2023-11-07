@@ -33,6 +33,7 @@ class GraphBuilder {
         id: _idProvider.getNextId(),
         type: switch (notifier) {
           ViewProviderNotifier() => InputNodeType.view,
+          ViewFamilyProviderNotifier() => InputNodeType.view,
           ReduxNotifier() => InputNodeType.redux,
           ImmutableNotifier() => InputNodeType.immutable,
           FutureProviderNotifier() => InputNodeType.future,
