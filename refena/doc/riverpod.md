@@ -184,7 +184,7 @@ class MyPage extends ConsumerWidget {
 After:
 
 ```dart
-class MyPage extends StatelessWidget {
+class MyPage extends StatelessWidget { // change to native widget
   @override
   Widget build(BuildContext context) {
     final ref = context.ref; // get ref from context
@@ -201,12 +201,12 @@ Before:
 ```dart
 class MyPage extends ConsumerStatefulWidget {
   @override
-  _MyPageState createState() => _MyPageState();
+  ConsumerState<MyPage> createState() => _MyPageState();
 }
 
 class _MyPageState extends ConsumerState<MyPage> {
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final counter = ref.watch(counterProvider);
     return Text('$counter');
   }
@@ -216,12 +216,12 @@ class _MyPageState extends ConsumerState<MyPage> {
 After:
 
 ```dart
-class MyPage extends StatefulWidget {
+class MyPage extends StatefulWidget { // change to native widget
   @override
-  _MyPageState createState() => _MyPageState();
+  State<MyPage> createState() => _MyPageState();
 }
 
-class _MyPageState extends State<MyPage> with Refena {
+class _MyPageState extends State<MyPage> with Refena { // add mixin
   @override
   Widget build(BuildContext context) {
     // ref is available from the mixin
