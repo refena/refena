@@ -96,6 +96,8 @@ class RebuildEvent<T> extends AbstractChangeEvent<T> {
 
   /// The causes leading to the rebuild.
   /// They are batched together to avoid unnecessary rebuilds in the same frame.
+  /// It might be empty if it's the first build of a parameter
+  /// of a [ViewFamilyProviderNotifier].
   final List<AbstractChangeEvent> causes;
 
   RebuildEvent({
