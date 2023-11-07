@@ -1,4 +1,4 @@
-import 'package:refena/src/notifier/types/view_family_provider_notifier.dart';
+import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
 import 'package:refena/src/provider/watchable.dart';

@@ -169,10 +169,10 @@ class RefenaDebugObserver extends RefenaObserver {
         break;
       case RebuildEvent event:
         onLine?.call(_t);
-        final label = _getProviderDebugLabel(null, event.rebuildable);
+        final notifier = event.rebuildable as BaseNotifier;
+        final label = _getProviderDebugLabel(null, notifier);
         final causes =
             ' triggered by [${event.causes.map((c) => c.debugLabel).join(', ')}]';
-        final notifier = event.rebuildable;
         _line('Rebuild by [$label]$causes', intentWhenLogger: true);
         _line(
           ' - Prev: ${notifier.describeState(event.prev).toSingleLine()}',

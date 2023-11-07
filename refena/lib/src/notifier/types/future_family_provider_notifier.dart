@@ -2,6 +2,7 @@ import 'package:refena/src/async_value.dart';
 import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/types/notifier.dart';
 import 'package:refena/src/provider/types/future_family_provider.dart';
+import 'package:refena/src/reference.dart';
 
 /// The corresponding notifier of a [FutureFamilyProvider].
 final class FutureFamilyProviderNotifier<T, P>
@@ -52,7 +53,7 @@ final class FutureFamilyProviderNotifier<T, P>
   }
 
   @override
-  void disposeParam(P param) {
+  void disposeParam(P param, LabeledReference? debugOrigin) {
     state.remove(param);
   }
 

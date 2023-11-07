@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
+import 'package:refena/src/reference.dart';
 
 @internal
 abstract interface class FamilyNotifier<T, P> extends BaseNotifier<T> {
@@ -10,5 +11,5 @@ abstract interface class FamilyNotifier<T, P> extends BaseNotifier<T> {
   void initParam(P param);
 
   @internal
-  void disposeParam(P param);
+  void disposeParam(P param, LabeledReference? debugOrigin);
 }

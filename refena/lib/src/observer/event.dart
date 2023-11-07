@@ -91,7 +91,7 @@ class ChangeEvent<T> extends AbstractChangeEvent<T> {
 /// there can be multiple pairs of actions and notifiers.
 class RebuildEvent<T> extends AbstractChangeEvent<T> {
   /// The view notifier that has been rebuilt.
-  final ViewProviderNotifier rebuildable;
+  final Rebuildable rebuildable;
 
   /// The causes leading to the rebuild.
   /// They are batched together to avoid unnecessary rebuilds in the same frame.

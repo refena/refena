@@ -1,5 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/action/redux_action.dart';
+import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/observer/error_parser.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/util/object_formatter.dart';
@@ -184,7 +185,8 @@ class InputEvent {
             },
         RebuildEvent() => event.rebuildable.isWidget
             ? event.debugLabel
-            : event.rebuildable.customDebugLabel ?? event.stateType.toString(),
+            : (event.rebuildable as BaseNotifier).customDebugLabel ??
+                event.stateType.toString(),
         ActionDispatchedEvent() => event.action.debugLabel,
         ActionFinishedEvent() => '',
         ActionErrorEvent() => '',
@@ -214,10 +216,10 @@ class InputEvent {
                 'Notifier': event.rebuildable.debugLabel,
                 'Triggered by':
                     event.causes.map((e) => e.stateType.toString()).join(', '),
-                'Prev':
-                    formatValue(event.rebuildable.describeState(event.prev)),
-                'Next':
-                    formatValue(event.rebuildable.describeState(event.next)),
+                'Prev': formatValue((event.rebuildable as BaseNotifier)
+                    .describeState(event.prev)),
+                'Next': formatValue((event.rebuildable as BaseNotifier)
+                    .describeState(event.next)),
                 'Rebuild': event.rebuild.isEmpty
                     ? '<none>'
                     : event.rebuild.map((r) => r.debugLabel).join(', '),

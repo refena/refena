@@ -185,7 +185,8 @@ class WatchableRefImpl implements WatchableRef {
     BaseProvider<N, dynamic> provider,
     P param,
   ) {
-    _ref.disposeFamilyParam<N, P>(provider, param);
+    final notifier = _ref.anyNotifier<N, dynamic>(provider);
+    notifier.disposeParam(param, rebuildable);
   }
 
   @override

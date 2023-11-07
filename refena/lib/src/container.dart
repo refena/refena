@@ -324,7 +324,7 @@ class RefenaContainer implements Ref, LabeledReference {
     P param,
   ) {
     final notifier = _getState(provider);
-    notifier.disposeParam(param);
+    notifier.disposeParam(param, this);
   }
 
   @override

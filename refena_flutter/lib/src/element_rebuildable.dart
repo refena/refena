@@ -11,6 +11,7 @@ import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
 
 import 'package:refena_flutter/src/consumer.dart';
+import 'package:refena_flutter/src/family_view_model_builder.dart';
 import 'package:refena_flutter/src/util/batched_set_controller.dart';
 import 'package:refena_flutter/src/view_model_builder.dart';
 import 'package:refena_flutter/src/widget_rebuildable.dart';
@@ -138,6 +139,7 @@ String _getDebugLabel(Widget? widget) {
     Consumer() => widget.debugLabel,
     ExpensiveConsumer() => widget.debugLabel,
     ViewModelBuilder() => widget.debugLabel,
+    FamilyViewModelBuilder() => widget.debugLabel,
     _ => widget.runtimeType.toString(),
   };
 }

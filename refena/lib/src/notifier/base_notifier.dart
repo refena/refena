@@ -5,6 +5,7 @@ import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/async_value.dart';
 import 'package:refena/src/container.dart';
+import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/listener.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
@@ -13,6 +14,8 @@ import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
+import 'package:refena/src/provider/types/view_family_provider.dart';
+import 'package:refena/src/provider/types/view_provider.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
 import 'package:refena/src/reference.dart';
@@ -330,6 +333,7 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
 }
 
 final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
+    with _ViewNotifierSetStateMixin<T>
     implements Rebuildable {
   ViewProviderNotifier(
     this._builder, {
@@ -347,6 +351,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
     _rebuildController.stream.listen((event) {
       // rebuild notifier state
       _setStateCustom(
+        this,
         _build(),
         event,
       );
@@ -376,34 +381,6 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
     }
 
     return nextState;
-  }
-
-  /// See [BaseNotifier._setState] for reference.
-  void _setStateCustom(T value, List<AbstractChangeEvent> causes) {
-    if (!_initialized) {
-      _state = value;
-      return;
-    }
-
-    final oldState = _state;
-    _state = value;
-
-    if (_initialized && updateShouldNotify(oldState, _state)) {
-      final observer = _observer;
-      if (observer != null) {
-        final event = RebuildEvent<T>(
-          rebuildable: this,
-          causes: causes,
-          prev: oldState,
-          next: value,
-          rebuild: [], // will be modified by notifyAll
-        );
-        _listeners.notifyAll(prev: oldState, next: _state, rebuildEvent: event);
-        observer.internalHandleEvent(event);
-      } else {
-        _listeners.notifyAll(prev: oldState, next: _state);
-      }
-    }
   }
 
   @internal
@@ -443,9 +420,6 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   }
 
   @override
-  bool get disposed => _disposed;
-
-  @override
   String describeState(T state) {
     if (_describeState == null) {
       return super.describeState(state);
@@ -461,6 +435,143 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
 
   @override
   bool get isWidget => false;
+}
+
+/// The corresponding notifier of a [ViewFamilyProvider].
+final class ViewFamilyProviderNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
+    with _ViewNotifierSetStateMixin<Map<P, T>>
+    implements Rebuildable, FamilyNotifier<Map<P, T>, P> {
+  late final WatchableRef _watchableRef;
+  final ViewFamilyBuilder<T, P> _builder;
+  final Map<P, ViewProvider<T>> _providers = {};
+  final String Function(T state)? _describeState;
+  final _rebuildController = BatchedStreamController<AbstractChangeEvent>();
+
+  ViewFamilyProviderNotifier(
+    this._builder, {
+    String Function(T state)? describeState,
+    super.debugLabel,
+  }) : _describeState = describeState;
+
+  @override
+  Map<P, T> init() => {};
+
+  @override
+  void postInit() {
+    _rebuildController.stream.listen((event) {
+      // rebuild notifier state
+      _setStateCustom(
+        this,
+        {
+          for (final entry in _providers.entries)
+            entry.key: _watchableRef.read(entry.value),
+        },
+        event,
+      );
+    });
+  }
+
+  @override
+  bool isParamInitialized(P param) {
+    return state.containsKey(param);
+  }
+
+  @override
+  void initParam(P param) {
+    // create new temporary provider
+    final provider = ViewProvider<T>(
+      (ref) => _builder(ref, param),
+      debugLabel: '$debugLabel($param)',
+    );
+    _providers[param] = provider;
+    _setStateCustom(
+      this,
+      {
+        ...state,
+        param: _watchableRef.watch(provider),
+      },
+      [],
+    );
+  }
+
+  @override
+  void rebuild(ChangeEvent? changeEvent, RebuildEvent? rebuildEvent) {
+    assert(
+      changeEvent == null || rebuildEvent == null,
+      'Cannot have both changeEvent and rebuildEvent',
+    );
+
+    if (changeEvent != null) {
+      _rebuildController.schedule(changeEvent);
+    } else if (rebuildEvent != null) {
+      _rebuildController.schedule(rebuildEvent);
+    } else {
+      _rebuildController.schedule(null);
+    }
+  }
+
+  @override
+  void disposeParam(P param, LabeledReference? debugOrigin) {
+    final provider = _providers.remove(param);
+    if (provider == null) {
+      return;
+    }
+    _container!.internalDispose(provider, debugOrigin ?? this);
+    state.remove(param);
+  }
+
+  @override
+  void dispose() {
+    for (final provider in _providers.values) {
+      _container!.internalDispose(provider, this);
+    }
+    _providers.clear();
+    state.clear();
+  }
+
+  @visibleForTesting
+  List<ViewProvider<T>> getTempProviders() {
+    return _providers.values.toList();
+  }
+
+  @override
+  String describeState(Map<P, T> state) {
+    if (_describeState != null) {
+      return _describeViewMapState(state, _describeState!);
+    } else {
+      return _describeViewMapState(state, (value) => value.toString());
+    }
+  }
+
+  @internal
+  @override
+  void internalSetup(
+    ProxyRef ref,
+    BaseProvider? provider,
+  ) {
+    _watchableRef = WatchableRefImpl(
+      container: ref.container,
+      rebuildable: this,
+    );
+
+    super.internalSetup(ref, provider);
+  }
+
+  @override
+  void onDisposeWidget() {}
+
+  @override
+  void notifyListenerTarget(BaseNotifier notifier) {}
+
+  @override
+  bool get isWidget => false;
+}
+
+String _describeViewMapState<T, P>(
+  Map<P, T> state,
+  String Function(T state) describe,
+) {
+  return state.entries.map((e) => '${e.key}: ${describe(e.value)}').join(', ');
 }
 
 /// A notifier where the state can be updated by dispatching actions
@@ -1125,5 +1236,39 @@ extension GlobalReduxNotifierOverrideExt on ReduxProvider<GlobalRedux, void> {
         return createdNotifier;
       },
     );
+  }
+}
+
+mixin _ViewNotifierSetStateMixin<T> on BaseSyncNotifier<T> {
+  /// See [BaseNotifier._setState] for reference.
+  void _setStateCustom(
+    Rebuildable rebuildable,
+    T value,
+    List<AbstractChangeEvent> causes,
+  ) {
+    if (!_initialized) {
+      _state = value;
+      return;
+    }
+
+    final oldState = _state;
+    _state = value;
+
+    if (_initialized && updateShouldNotify(oldState, _state)) {
+      final observer = _observer;
+      if (observer != null) {
+        final event = RebuildEvent<T>(
+          rebuildable: rebuildable,
+          causes: causes,
+          prev: oldState,
+          next: value,
+          rebuild: [], // will be modified by notifyAll
+        );
+        _listeners.notifyAll(prev: oldState, next: _state, rebuildEvent: event);
+        observer.internalHandleEvent(event);
+      } else {
+        _listeners.notifyAll(prev: oldState, next: _state);
+      }
+    }
   }
 }
