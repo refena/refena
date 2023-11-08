@@ -887,7 +887,7 @@ class SettingsPage extends StatelessWidget {
 Similar to `ViewProvider` but with a parameter. Use `ViewProvider.family` for better readability.
 
 ```dart
-final settingsVmProvider = ViewProvider.family<String, SettingsVm>((ref, userId) {
+final settingsVmProvider = ViewProvider.family<SettingsVm, String>((ref, userId) {
   final auth = ref.watch(authProvider(userId));
   final themeMode = ref.watch(themeModeProvider);
   return SettingsVm(
