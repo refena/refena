@@ -1,3 +1,7 @@
+## 1.0.1
+
+- fix: should not print "watch-outside-build" warning in release mode
+
 ## 1.0.0
 
 - Stable release
