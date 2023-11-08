@@ -1,3 +1,8 @@
+## 1.0.1
+
+- fix: should not print "watch-outside-build" warning in release mode
+- docs: update Riverpod topic and README
+
 ## 1.0.0
 
 - **Marking Refena as stable**

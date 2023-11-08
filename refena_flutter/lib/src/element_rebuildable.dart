@@ -1,5 +1,6 @@
 // ignore_for_file: invalid_use_of_internal_member
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:refena/refena.dart';
@@ -105,7 +106,7 @@ class UnwatchManager {
   void addNotifier(BaseNotifier notifier) {
     _controller.schedule(notifier);
 
-    if (_rebuildable.element.target?.debugDoingBuild == false) {
+    if (kDebugMode && _rebuildable.element.target?.debugDoingBuild == false) {
       print('''
 $_red[Refena] In ${_rebuildable.debugLabel}, ${notifier.debugLabel} is watched outside the build method! This will lead to inconsistent rebuilds of the widget. Use context.read or ref.read instead.$_reset''');
       print('''
