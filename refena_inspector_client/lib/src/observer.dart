@@ -204,7 +204,7 @@ class InspectorGlobalAction extends GlobalAction {
   void reduce() => action(ref, params);
 
   @override
-  String get debugLabel => 'InspectorAction:$name';
+  String get debugLabel => 'InspectorAction($name)';
 
   @override
   String toString() => 'InspectorAction(name: $name, params: $params)';
