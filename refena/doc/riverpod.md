@@ -165,7 +165,7 @@ To change the state of a `StateProvider`, there is a slight difference between R
 
 You need to access the notifier first to keep the code consistent with other providers.
 
-## Refactoring
+## Widgets
 
 ### ➤ ConsumerWidget
 
@@ -229,4 +229,27 @@ class _MyPageState extends State<MyPage> with Refena { // add mixin
     return Text('$counter');
   }
 }
+```
+
+## Ref.listenSelf
+
+Before:
+
+```dart
+final provider = StateProvider<int>((ref) {
+  ref.listenSelf((int? prev, int next) {
+    print('state changed from $prev to $next');
+  });
+  return 0;
+});
+```
+
+After:
+
+```dart
+final provider = StateProvider<int>((ref) {
+  return 0;
+}, onChanged: (prev, next, ref) {
+  print('state changed from $prev to $next');
+});
 ```
