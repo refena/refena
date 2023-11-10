@@ -1,3 +1,7 @@
+## 1.0.2
+
+- feat(debug): print warning if a provider is watched multiple times in a `ViewProvider` or in a `WatchAction`
+
 ## 1.0.1
 
 - fix: should not print "watch-outside-build" warning in release mode

@@ -108,7 +108,13 @@ abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
 
     final newState = (ref as WatchableRefImpl).trackNotifier(
       onAccess: (notifier) {
-        _actionDependencies.add(notifier);
+        final added = _actionDependencies.add(notifier);
+        if (!added) {
+          printAlreadyWatchedWarning(
+            rebuildable: this,
+            notifier: notifier,
+          );
+        }
       },
       run: () {
         if (dispatchNewAction) {

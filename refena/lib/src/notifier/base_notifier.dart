@@ -380,7 +380,13 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
 
     final nextState = (_watchableRef as WatchableRefImpl).trackNotifier(
       onAccess: (notifier) {
-        dependencies.add(notifier);
+        final added = dependencies.add(notifier);
+        if (!added) {
+          printAlreadyWatchedWarning(
+            rebuildable: this,
+            notifier: notifier,
+          );
+        }
         notifier.dependents.add(this);
       },
       run: () => _builder(_watchableRef),
@@ -1306,3 +1312,17 @@ mixin _ViewNotifierSetStateMixin<T> on BaseSyncNotifier<T> {
     }
   }
 }
+
+@internal
+void printAlreadyWatchedWarning({
+  required Rebuildable rebuildable,
+  required BaseNotifier notifier,
+}) {
+  print('''
+$_red[Refena] In ${rebuildable.debugLabel}, ${notifier.debugLabel} is watched multiple times! Only watch each provider once in a build method. Tip: Use records to combine multiple fields.$_reset''');
+  print('''
+$_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_reset\n${StackTrace.current}''');
+}
+
+const _red = '\x1B[31m';
+const _reset = '\x1B[0m';
