@@ -46,6 +46,7 @@ export 'package:refena/src/observer/observer.dart'
         RefenaDebugObserver;
 export 'package:refena/src/observer/tracing_observer.dart';
 export 'package:refena/src/provider/override.dart';
+export 'package:refena/src/provider/provider_changed_callback.dart';
 export 'package:refena/src/provider/types/async_notifier_provider.dart';
 export 'package:refena/src/provider/types/change_notifier_provider.dart';
 export 'package:refena/src/provider/types/future_family_provider.dart';

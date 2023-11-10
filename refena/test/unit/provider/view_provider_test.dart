@@ -371,6 +371,43 @@ void main() {
     expect(rebuildCount, 0);
     expect(observer.history, isEmpty);
   });
+
+  test('Should trigger onChanged', () async {
+    final stateProvider = StateProvider((ref) => 0);
+    final provider = ViewProvider((ref) {
+      return ref.watch(stateProvider) * 2;
+    }, onChanged: (prev, next, ref) {
+      ref.message('Change from $prev to $next');
+    });
+    final observer = RefenaHistoryObserver.only(
+      message: true,
+    );
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    expect(ref.read(provider), 0);
+
+    ref.notifier(stateProvider).setState((old) => old + 1);
+    await skipAllMicrotasks();
+
+    expect(ref.read(provider), 2);
+    expect(observer.history, hasLength(1));
+    expect((observer.history.first as MessageEvent).origin, provider);
+    expect(observer.messages, [
+      'Change from 0 to 2',
+    ]);
+
+    ref.dispose(provider);
+
+    ref.notifier(stateProvider).setState((old) => old + 1);
+    await skipAllMicrotasks();
+
+    // onChanged should not be called
+    expect(observer.messages, [
+      'Change from 0 to 2',
+    ]);
+  });
 }
 
 class _ComplexState {

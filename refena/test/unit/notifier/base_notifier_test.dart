@@ -36,7 +36,7 @@ void main() {
           '_Counter(label: _Counter, state: uninitialized)');
 
       final ref = RefenaContainer();
-      final provider = NotifierProvider((ref) => _Counter());
+      final provider = NotifierProvider<_Counter, int>((ref) => _Counter());
 
       expect(ref.notifier(provider).toString(),
           '_Counter(label: _Counter, state: 33)');
@@ -44,7 +44,8 @@ void main() {
 
     test(PureNotifier, () {
       final ref = RefenaContainer();
-      final provider = NotifierProvider((ref) => _PureCounter());
+      final provider =
+          NotifierProvider<_PureCounter, int>((ref) => _PureCounter());
 
       expect(ref.notifier(provider).toString(),
           '_PureCounter(label: _PureCounter, state: 44)');
@@ -52,7 +53,8 @@ void main() {
 
     test(AsyncNotifier, () async {
       final ref = RefenaContainer();
-      final provider = AsyncNotifierProvider((ref) => _AsyncCounter());
+      final provider =
+          AsyncNotifierProvider<_AsyncCounter, int>((ref) => _AsyncCounter());
       final notifier = ref.notifier(provider);
 
       expect(notifier.toString(),
@@ -87,7 +89,7 @@ void main() {
     test('Should call dispose on Notifier', () {
       final ref = RefenaContainer();
       bool called = false;
-      final provider = NotifierProvider((ref) {
+      final provider = NotifierProvider<_DisposableCounter, int>((ref) {
         return _DisposableCounter(() => called = true);
       });
 

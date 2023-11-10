@@ -153,7 +153,9 @@ class _ExtendedActionPage extends StatelessWidget {
   }
 }
 
-final _myReduxProvider = ReduxProvider((ref) => _MyReduxService());
+final _myReduxProvider = ReduxProvider<_MyReduxService, int>((ref) {
+  return _MyReduxService();
+});
 
 class _MyReduxService extends ReduxNotifier<int> {
   @override

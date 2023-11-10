@@ -12,7 +12,11 @@ class NotifierProvider<N extends BaseSyncNotifier<T>, T>
     extends BaseWatchableProvider<N, T>
     with ProviderSelectMixin<N, T>
     implements NotifyableProvider<N, T> {
-  NotifierProvider(this._builder, {super.debugLabel});
+  NotifierProvider(
+    this._builder, {
+    super.onChanged,
+    super.debugLabel,
+  });
 
   final N Function(Ref ref) _builder;
 

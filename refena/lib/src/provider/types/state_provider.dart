@@ -25,6 +25,7 @@ class StateProvider<T> extends BaseWatchableProvider<StateNotifier<T>, T>
 
   StateProvider(
     this._builder, {
+    super.onChanged,
     String Function(T state)? describeState,
     String? debugLabel,
   })  : _describeState = describeState,

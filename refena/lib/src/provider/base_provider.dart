@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
+import 'package:refena/src/provider/provider_changed_callback.dart';
 import 'package:refena/src/provider/types/change_notifier_provider.dart';
 import 'package:refena/src/provider/types/future_family_provider.dart';
 import 'package:refena/src/provider/watchable.dart';
@@ -15,11 +16,16 @@ import 'package:refena/src/reference.dart';
 abstract class BaseProvider<N extends BaseNotifier<T>, T>
     implements LabeledReference {
   final String? customDebugLabel;
+  final ProviderChangedCallback<T>? _onChanged;
 
   @override
   String get debugLabel => customDebugLabel ?? N.toString();
 
-  BaseProvider({String? debugLabel}) : customDebugLabel = debugLabel;
+  BaseProvider({
+    required ProviderChangedCallback<T>? onChanged,
+    required String? debugLabel,
+  })  : _onChanged = onChanged,
+        customDebugLabel = debugLabel;
 
   @internal
   N createState(ProxyRef ref);
@@ -44,12 +50,20 @@ abstract class BaseProvider<N extends BaseNotifier<T>, T>
   int get hashCode => super.hashCode;
 }
 
+@internal
+extension InternalBaseProviderExt<T> on BaseProvider<BaseNotifier<T>, T> {
+  ProviderChangedCallback<T>? get onChanged => _onChanged;
+}
+
 /// A provider with default behaviour for [WatchableRef.watch].
 /// Inherited by all providers except for
 /// [ChangeNotifierProvider] and [FutureFamilyProvider].
 abstract class BaseWatchableProvider<N extends BaseNotifier<T>, T>
     extends BaseProvider<N, T> implements Watchable<N, T, T> {
-  BaseWatchableProvider({super.debugLabel});
+  BaseWatchableProvider({
+    required super.onChanged,
+    super.debugLabel,
+  });
 
   @override
   BaseProvider<N, T> get provider => this;

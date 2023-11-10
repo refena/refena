@@ -15,7 +15,11 @@ class ReduxProvider<N extends BaseReduxNotifier<T>, T>
   @internal
   final N Function(Ref ref) builder;
 
-  ReduxProvider(this.builder, {super.debugLabel});
+  ReduxProvider(
+    this.builder, {
+    super.onChanged,
+    super.debugLabel,
+  });
 
   @internal
   @override

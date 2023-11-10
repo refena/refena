@@ -14,7 +14,11 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
     extends BaseWatchableProvider<N, AsyncValue<T>>
     with ProviderSelectMixin<N, AsyncValue<T>>
     implements NotifyableProvider<N, AsyncValue<T>> {
-  AsyncNotifierProvider(this._builder, {super.debugLabel});
+  AsyncNotifierProvider(
+    this._builder, {
+    super.onChanged,
+    super.debugLabel,
+  });
 
   final N Function(Ref ref) _builder;
 

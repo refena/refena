@@ -4,7 +4,9 @@ import 'package:test/test.dart';
 void main() {
   test('Should use notifier class type', () {
     final ref = RefenaContainer();
-    final provider = NotifierProvider((ref) => _NoDebugLabelNotifier());
+    final provider = NotifierProvider<_NoDebugLabelNotifier, int>(
+      (ref) => _NoDebugLabelNotifier(),
+    );
 
     expect(ref.notifier(provider).debugLabel, '_NoDebugLabelNotifier');
     expect(ref.notifier(provider).customDebugLabel, null);
@@ -12,7 +14,7 @@ void main() {
 
   test('Should use provider label if notifier label does not exist', () {
     final ref = RefenaContainer();
-    final provider = NotifierProvider(
+    final provider = NotifierProvider<_NoDebugLabelNotifier, int>(
       (ref) => _NoDebugLabelNotifier(),
       debugLabel: 'provider-label',
     );
@@ -23,7 +25,7 @@ void main() {
 
   test('Should use custom notifier label', () {
     final ref = RefenaContainer();
-    final provider = NotifierProvider(
+    final provider = NotifierProvider<_WithDebugLabelNotifier, int>(
       (ref) => _WithDebugLabelNotifier(),
       debugLabel: 'provider-label',
     );

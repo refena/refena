@@ -267,7 +267,7 @@ void main() {
 
   group(NotifierProvider, () {
     test('Should override', () {
-      final provider = NotifierProvider((ref) => _Notifier());
+      final provider = NotifierProvider<_Notifier, int>((ref) => _Notifier());
       final ref = RefenaContainer(
         overrides: [
           provider.overrideWithNotifier((ref) => _OverrideNotifier()),
@@ -281,7 +281,9 @@ void main() {
 
   group(AsyncNotifierProvider, () {
     test('Should override', () async {
-      final provider = AsyncNotifierProvider((ref) => _AsyncNotifier());
+      final provider = AsyncNotifierProvider<_AsyncNotifier, int>(
+        (ref) => _AsyncNotifier(),
+      );
       final ref = RefenaContainer(
         overrides: [
           provider.overrideWithNotifier((ref) => _OverrideAsyncNotifier()),

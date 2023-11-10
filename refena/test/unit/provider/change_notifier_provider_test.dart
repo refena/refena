@@ -63,6 +63,30 @@ void main() {
       ),
     ]);
   });
+
+  test('Should trigger onChanged', () async {
+    final provider = ChangeNotifierProvider(
+      (ref) => _Counter(123),
+      onChanged: (ref) => ref.message('Changed!'),
+    );
+    final observer = RefenaHistoryObserver.only(
+      message: true,
+    );
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    expect(ref.notifier(provider).value, 123);
+    expect(observer.messages, isEmpty);
+
+    ref.notifier(provider).increment();
+    await skipAllMicrotasks();
+
+    expect(ref.notifier(provider).value, 124);
+    expect(observer.messages, [
+      'Changed!',
+    ]);
+  });
 }
 
 class _Counter extends ChangeNotifier {

@@ -1,6 +1,8 @@
 import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
+import '../../util/skip_microtasks.dart';
+
 void main() {
   test('Single provider test', () {
     final notifier = _Counter(123);
@@ -88,6 +90,29 @@ void main() {
         next: 2,
         rebuild: [],
       ),
+    ]);
+  });
+
+  test('Should trigger onChanged', () async {
+    final provider = NotifierProvider<_Counter, int>(
+      (ref) => _Counter(123),
+      onChanged: (prev, next, ref) => ref.message('Change from $prev to $next'),
+    );
+    final observer = RefenaHistoryObserver.only(
+      message: true,
+    );
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    expect(ref.read(provider), 123);
+
+    ref.notifier(provider).increment();
+    await skipAllMicrotasks();
+
+    expect(ref.read(provider), 124);
+    expect(observer.messages, [
+      'Change from 123 to 124',
     ]);
   });
 }

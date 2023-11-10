@@ -39,4 +39,28 @@ void main() {
       ),
     ]);
   });
+
+  test('Should trigger onChanged', () async {
+    final controller = StreamController<int>();
+    final provider = StreamProvider(
+      (ref) => controller.stream,
+      onChanged: (prev, next, ref) => ref.message('Change from $prev to $next'),
+    );
+    final observer = RefenaHistoryObserver.only(
+      message: true,
+    );
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    expect(ref.read(provider), AsyncValue<int>.loading());
+
+    controller.add(123);
+    await skipAllMicrotasks();
+
+    expect(ref.read(provider), AsyncValue<int>.data(123));
+    expect(observer.messages, [
+      'Change from AsyncLoading<int> to AsyncData<int>(123)',
+    ]);
+  });
 }

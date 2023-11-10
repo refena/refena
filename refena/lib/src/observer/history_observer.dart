@@ -97,6 +97,11 @@ class RefenaHistoryObserver extends RefenaObserver {
   List<BaseReduxAction> get dispatchedActions =>
       history.whereType<ActionDispatchedEvent>().map((e) => e.action).toList();
 
+  /// Messages
+  /// Make sure that [HistoryObserverConfig.saveMessageEvents] is true.
+  List<String> get messages =>
+      history.whereType<MessageEvent>().map((e) => e.message).toList();
+
   /// The configuration of the observer.
   final HistoryObserverConfig config;
 

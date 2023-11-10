@@ -39,7 +39,7 @@ abstract class AsyncNotifier<T> extends BaseAsyncNotifier<T> {
   @override
   void internalSetup(
     ProxyRef ref,
-    BaseProvider? provider,
+    BaseProvider<BaseNotifier<AsyncValue<T>>, AsyncValue<T>>? provider,
   ) {
     _ref = ref;
     super.internalSetup(ref, provider);

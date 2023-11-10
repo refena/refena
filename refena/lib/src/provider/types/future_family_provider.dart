@@ -14,6 +14,7 @@ class FutureFamilyProvider<T, P> extends BaseProvider<
     FutureFamilyProviderNotifier<T, P>, Map<P, AsyncValue<T>>> {
   FutureFamilyProvider(
     this._builder, {
+    super.onChanged,
     String Function(AsyncValue<T> state)? describeState,
     super.debugLabel,
   }) : _describeState = describeState;

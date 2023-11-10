@@ -25,6 +25,7 @@ class FutureProvider<T>
 
   FutureProvider(
     Future<T> Function(Ref ref) builder, {
+    super.onChanged,
     String Function(AsyncValue<T> state)? describeState,
     String? debugLabel,
   })  : _describeState = describeState,

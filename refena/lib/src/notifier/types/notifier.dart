@@ -24,7 +24,7 @@ abstract class Notifier<T> extends BaseSyncNotifier<T> {
   @override
   void internalSetup(
     ProxyRef ref,
-    BaseProvider? provider,
+    BaseProvider<BaseNotifier<T>, T>? provider,
   ) {
     _ref = ref;
     super.internalSetup(ref, provider);

@@ -134,6 +134,33 @@ void main() {
       ),
     ]);
   });
+
+  test('Should trigger onChanged', () async {
+    final provider = AsyncNotifierProvider<_AsyncCounter, int>(
+      (ref) => _AsyncCounter(123),
+      onChanged: (prev, next, ref) => ref.message('Change from $prev to $next'),
+    );
+    final observer = RefenaHistoryObserver.only(
+      message: true,
+    );
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    expect(ref.read(provider), AsyncValue<int>.loading());
+    expect(await ref.future(provider), 123);
+    expect(
+      ref.read(provider),
+      AsyncValue.data(123),
+    );
+    expect(observer.messages, isEmpty);
+
+    await skipAllMicrotasks();
+
+    expect(observer.messages, [
+      'Change from AsyncLoading<int> to AsyncData<int>(123)',
+    ]);
+  });
 }
 
 class _AsyncCounter extends AsyncNotifier<int> {

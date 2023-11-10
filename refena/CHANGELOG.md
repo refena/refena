@@ -1,5 +1,6 @@
-## 1.0.2
+## 1.1.0
 
+- feat: add `onChanged` parameter to all providers
 - feat(debug): print warning if a provider is watched multiple times in a `ViewProvider` or in a `WatchAction`
 
 ## 1.0.1

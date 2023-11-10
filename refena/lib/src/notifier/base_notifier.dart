@@ -42,8 +42,9 @@ abstract class BaseNotifier<T> implements LabeledReference {
   RefenaContainer? _container;
   RefenaObserver? _observer;
   String? _customDebugLabel;
-  BaseProvider? _provider;
+  BaseProvider<BaseNotifier<T>, T>? _provider;
   NotifyStrategy? _notifyStrategy;
+  StreamSubscription<NotifierEvent<T>>? _onChangedSubscription;
   bool _disposed = false;
 
   /// The current state of the notifier.
@@ -75,7 +76,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
   /// The provider that created this notifier.
   /// This is only available after the initialization.
   @nonVirtual
-  BaseProvider? get provider => _provider;
+  BaseProvider<BaseNotifier<T>, T>? get provider => _provider;
 
   /// Gets the current state.
   @nonVirtual
@@ -89,6 +90,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
 
   /// Sets the state and notify listeners (the actual implementation).
   // We need to extract this method to make [ReduxNotifier] work.
+  @nonVirtual
   void _setState(T value, BaseReduxAction? action) {
     if (!_initialized) {
       // We allow initializing the state before the initialization
@@ -158,7 +160,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
   @mustCallSuper
   void internalSetup(
     ProxyRef ref,
-    BaseProvider? provider,
+    BaseProvider<BaseNotifier<T>, T>? provider,
   ) {
     _container = ref.container;
     _notifyStrategy = ref.container.defaultNotifyStrategy;
@@ -229,6 +231,7 @@ extension InternalBaseNotifierExt<T> on BaseNotifier<T> {
 
     _disposed = true;
     _listeners.dispose();
+    _onChangedSubscription?.cancel();
 
     // Remove from dependency graph
     for (final dependency in dependencies) {
@@ -240,6 +243,19 @@ extension InternalBaseNotifierExt<T> on BaseNotifier<T> {
     }
 
     return dependents;
+  }
+
+  void _setupOnChanged(
+    RefenaContainer container,
+    BaseProvider<BaseNotifier<T>, T>? provider,
+  ) {
+    final onChanged = provider?.onChanged;
+    if (onChanged != null) {
+      final onChangedRef = _getOnChangedProxyRef(container, provider!);
+      _onChangedSubscription = _listeners.getStream().listen((event) {
+        onChanged(event.prev, event.next, onChangedRef);
+      });
+    }
   }
 }
 
@@ -257,11 +273,13 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
   @mustCallSuper
   void internalSetup(
     ProxyRef ref,
-    BaseProvider? provider,
+    BaseProvider<BaseNotifier<T>, T>? provider,
   ) {
     super.internalSetup(ref, provider);
     _state = init();
     _initialized = true;
+
+    _setupOnChanged(ref.container, provider);
   }
 }
 
@@ -336,7 +354,7 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
   @mustCallSuper
   void internalSetup(
     ProxyRef ref,
-    BaseProvider? provider,
+    BaseProvider<BaseNotifier<AsyncValue<T>>, AsyncValue<T>>? provider,
   ) {
     super.internalSetup(ref, provider);
 
@@ -344,6 +362,8 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
     _setFutureAndListen(init());
 
     _initialized = true;
+
+    _setupOnChanged(ref.container, provider);
   }
 }
 
@@ -408,7 +428,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   @override
   void internalSetup(
     ProxyRef ref,
-    BaseProvider? provider,
+    BaseProvider<BaseNotifier<T>, T>? provider,
   ) {
     _watchableRef = WatchableRefImpl(
       container: ref.container,
@@ -587,7 +607,7 @@ final class ViewFamilyProviderNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
   @override
   void internalSetup(
     ProxyRef ref,
-    BaseProvider? provider,
+    BaseProvider<BaseNotifier<Map<P, T>>, Map<P, T>>? provider,
   ) {
     _watchableRef = WatchableRefImpl(
       container: ref.container,
@@ -1017,11 +1037,13 @@ abstract class BaseReduxNotifier<T> extends BaseNotifier<T> {
   @mustCallSuper
   void internalSetup(
     ProxyRef ref,
-    BaseProvider? provider,
+    BaseProvider<BaseNotifier<T>, T>? provider,
   ) {
     super.internalSetup(ref, provider);
     _state = _overrideInitialState ?? init();
     _initialized = true;
+
+    _setupOnChanged(ref.container, provider);
   }
 
   /// Registers a [WatchAction] so it can be later disposed
@@ -1311,6 +1333,17 @@ mixin _ViewNotifierSetStateMixin<T> on BaseSyncNotifier<T> {
       }
     }
   }
+}
+
+ProxyRef _getOnChangedProxyRef<T>(
+  RefenaContainer container,
+  BaseProvider<BaseNotifier<T>, T> provider,
+) {
+  return ProxyRef(
+    container,
+    '${provider.customDebugLabel ?? provider.runtimeType}.onChanged',
+    provider,
+  );
 }
 
 @internal

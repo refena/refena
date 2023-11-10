@@ -21,6 +21,7 @@ class StreamProvider<T>
 
   StreamProvider(
     this._builder, {
+    super.onChanged,
     String Function(AsyncValue<T> state)? describeState,
     super.debugLabel,
   }) : _describeState = describeState;

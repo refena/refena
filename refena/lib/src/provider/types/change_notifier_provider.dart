@@ -13,7 +13,13 @@ import 'package:refena/src/ref.dart';
 class ChangeNotifierProvider<N extends ChangeNotifier>
     extends BaseProvider<N, void>
     implements NotifyableProvider<N, void>, Watchable<N, void, N> {
-  ChangeNotifierProvider(this._builder, {super.debugLabel});
+  ChangeNotifierProvider(
+    this._builder, {
+    void Function(Ref)? onChanged,
+    super.debugLabel,
+  }) : super(
+          onChanged: onChanged == null ? null : (_, __, ref) => onChanged(ref),
+        );
 
   final N Function(Ref ref) _builder;
 

@@ -24,7 +24,10 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
     String Function(T state)? describeState,
     String? debugLabel,
   })  : _describeState = describeState,
-        super(debugLabel: debugLabel ?? 'Provider<$T>');
+        super(
+          onChanged: null, // Providers are immutable
+          debugLabel: debugLabel ?? 'Provider<$T>',
+        );
 
   @internal
   @override

@@ -1,6 +1,8 @@
 import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
+import '../../util/skip_microtasks.dart';
+
 void main() {
   test('Should read the value', () async {
     final provider = FutureProvider((ref) => Future.value(123));
@@ -126,6 +128,33 @@ void main() {
         next: AsyncValue.data('AAA BBB CCC'),
         rebuild: [],
       ),
+    ]);
+  });
+
+  test('Should trigger onChanged', () async {
+    final provider = FutureProvider(
+      (ref) => Future.value(123),
+      onChanged: (prev, next, ref) => ref.message('Change from $prev to $next'),
+    );
+    final observer = RefenaHistoryObserver.only(
+      message: true,
+    );
+    final ref = RefenaContainer(
+      observers: [observer],
+    );
+
+    expect(ref.read(provider), AsyncValue<int>.loading());
+    expect(await ref.future(provider), 123);
+    expect(
+      ref.read(provider),
+      AsyncValue.data(123),
+    );
+
+    expect(observer.messages, isEmpty);
+    await skipAllMicrotasks();
+
+    expect(observer.messages, [
+      'Change from AsyncLoading<int> to AsyncData<int>(123)',
     ]);
   });
 }

@@ -15,6 +15,7 @@ class ViewFamilyProvider<T, P>
 
   ViewFamilyProvider(
     this._builder, {
+    super.onChanged,
     String Function(T state)? describeState,
     String? debugLabel,
   })  : _describeState = describeState,
