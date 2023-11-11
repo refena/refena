@@ -2,8 +2,14 @@ import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
 import '../../util/skip_microtasks.dart';
+import '../../util/web.dart';
 
 void main() {
+  if (kIsWeb) {
+    // runtimeType.toString is not consistent on web
+    return;
+  }
+
   group('toString', () {
     test(ImmutableNotifier, () {
       final ref = RefenaContainer();

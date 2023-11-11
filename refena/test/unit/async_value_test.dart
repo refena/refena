@@ -1,6 +1,8 @@
 import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
+import '../util/web.dart';
+
 void main() {
   group('toString', () {
     test(AsyncData, () {
@@ -254,7 +256,12 @@ void main() {
         return '$a0:$a1:$a2:$a3';
       });
 
-      expect(joined, AsyncValue.data('1:a:true:2.0'));
+      if (kIsWeb) {
+        // In Web, there is only "number", so 2.0 is 2
+        expect(joined, AsyncValue.data('1:a:true:2'));
+      } else {
+        expect(joined, AsyncValue.data('1:a:true:2.0'));
+      }
     });
 
     test('Should join 5 AsyncValue', () {
@@ -273,7 +280,12 @@ void main() {
         return '$a0:$a1:$a2:$a3:$a4';
       });
 
-      expect(joined, AsyncValue.data('1:a:true:2.0:3'));
+      if (kIsWeb) {
+        // In Web, there is only "number", so 2.0 is 2
+        expect(joined, AsyncValue.data('1:a:true:2:3'));
+      } else {
+        expect(joined, AsyncValue.data('1:a:true:2.0:3'));
+      }
     });
 
     test('Should join 2 AsyncValue while one is loading', () {

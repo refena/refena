@@ -79,7 +79,8 @@ void main() {
         rebuild: [],
       ),
       ActionDispatchedEvent(
-        debugOrigin: '_AsyncCounter',
+        // can't use "_AsyncCounter" here because it is inconsistent in web
+        debugOrigin: _AsyncCounter().runtimeType.toString(),
         debugOriginRef: notifier,
         notifier: notifier,
         action: _AsyncSubtractAction(5),
