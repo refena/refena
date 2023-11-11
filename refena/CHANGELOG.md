@@ -2,6 +2,7 @@
 
 - feat: add `onChanged` parameter to all providers
 - feat(debug): print warning if a provider is watched multiple times in a `ViewProvider` or in a `WatchAction`
+- fix: initialize provider overrides synchronously on Flutter Web
 
 ## 1.0.1
 

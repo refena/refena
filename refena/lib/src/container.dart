@@ -180,10 +180,13 @@ class RefenaContainer implements Ref, LabeledReference {
 
     final notifierOrFuture = override.createState(_withProviderLabel(provider));
 
-    final BaseNotifier notifier = switch (notifierOrFuture) {
-      Future<BaseNotifier> future => await future,
-      BaseNotifier notifier => notifier,
-    };
+    // TODO: Use switch expression when https://github.com/flutter/flutter/issues/138306 is fixed
+    final BaseNotifier notifier;
+    if (notifierOrFuture is Future<BaseNotifier>) {
+      notifier = await notifierOrFuture;
+    } else {
+      notifier = notifierOrFuture;
+    }
 
     notifier.internalSetup(_withNotifierLabel(notifier), provider);
     _state[provider] = notifier;
