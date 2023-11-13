@@ -5,7 +5,7 @@ part of 'redux_action.dart';
 /// {@category Redux}
 final globalReduxProvider = ReduxProvider<GlobalRedux, void>((_) {
   return GlobalRedux();
-});
+}, debugVisibleInGraph: false);
 
 /// The corresponding global redux notifier.
 final class GlobalRedux extends ReduxNotifier<void> {

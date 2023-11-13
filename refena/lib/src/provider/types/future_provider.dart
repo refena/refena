@@ -28,6 +28,7 @@ class FutureProvider<T>
     super.onChanged,
     String Function(AsyncValue<T> state)? describeState,
     String? debugLabel,
+    super.debugVisibleInGraph = true,
   })  : _describeState = describeState,
         super(
           (ref) => FutureProviderNotifier<T>(

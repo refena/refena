@@ -2,6 +2,7 @@
 
 - feat: add `initialBuild` to mixin as an alternative to `ensureRef` that is called before the first build
 - feat: add `initBuild` to `ViewModelBuilder` to access the `ref` before the first build
+- feat: add `debugVisibleInGraph` parameter to providers to hide them in the dependency graph
 - fix: possible NPE when disposing a widget while triggering a rebuild
 
 ## 1.1.0

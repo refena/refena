@@ -17,6 +17,7 @@ class FutureFamilyProvider<T, P> extends BaseProvider<
     super.onChanged,
     String Function(AsyncValue<T> state)? describeState,
     super.debugLabel,
+    super.debugVisibleInGraph = true,
   }) : _describeState = describeState;
 
   final FutureBuilder<T, P> _builder;

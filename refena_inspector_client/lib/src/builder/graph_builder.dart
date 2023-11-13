@@ -3,8 +3,10 @@ import 'package:refena/refena.dart';
 
 // ignore: implementation_imports
 import 'package:refena/src/notifier/base_notifier.dart';
+
 // ignore: implementation_imports
 import 'package:refena/src/tools/graph_input_model.dart';
+
 // ignore: implementation_imports
 import 'package:refena/src/util/id_provider.dart';
 import 'package:refena_inspector_client/src/protocol.dart';
@@ -18,7 +20,10 @@ class GraphBuilder {
   /// Builds the graph from the state of the app in DTO format.
   static List<GraphNodeDto> buildDto(Ref ref) {
     ref.container.cleanupListeners();
-    final notifiers = ref.container.getActiveNotifiers();
+    final notifiers = ref.container
+        .getActiveNotifiers()
+        .where((n) => n.provider?.debugVisibleInGraph ?? false)
+        .toList();
 
     // To ensure deterministic results
     _idProvider.reset();

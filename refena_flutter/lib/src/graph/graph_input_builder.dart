@@ -24,7 +24,10 @@ class _StateGraphInputBuilder extends GraphInputBuilder {
   @override
   List<InputNode> build(Ref ref) {
     ref.container.cleanupListeners();
-    final notifiers = ref.container.getActiveNotifiers();
+    final notifiers = ref.container
+        .getActiveNotifiers()
+        .where((n) => n.provider?.debugVisibleInGraph ?? false)
+        .toList();
 
     final inputNodes = <InputNode>[];
     final nodeMap = <BaseNotifier, InputNode>{};

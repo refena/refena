@@ -3,14 +3,12 @@ import 'dart:collection';
 
 import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
-import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/types/async_notifier.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';
-import 'package:refena/src/observer/tracing_observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
@@ -349,18 +347,13 @@ class RefenaContainer implements Ref, LabeledReference {
   /// Returns all active providers.
   /// Remember: A provider is stateless. The notifier holds the state.
   List<BaseProvider> getActiveProviders() {
-    return [
-      ..._state.keys.where((p) =>
-          !identical(p, globalReduxProvider) && !identical(p, tracingProvider)),
-    ];
+    return [..._state.keys];
   }
 
   /// Returns all active notifiers.
   /// Remember: A provider is stateless. The notifier holds the state.
   List<BaseNotifier> getActiveNotifiers() {
-    return [
-      ..._state.values.where((n) => n is! GlobalRedux && n is! TracingNotifier)
-    ];
+    return [..._state.values];
   }
 
   /// Removes disposed listeners from all notifiers.

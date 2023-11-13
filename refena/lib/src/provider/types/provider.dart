@@ -23,6 +23,7 @@ class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
     this._builder, {
     String Function(T state)? describeState,
     String? debugLabel,
+    super.debugVisibleInGraph = true,
   })  : _describeState = describeState,
         super(
           onChanged: null, // Providers are immutable

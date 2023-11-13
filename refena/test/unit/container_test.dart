@@ -399,13 +399,13 @@ void main() {
       expect(ref.getActiveProviders(), [stateProvider]);
     });
 
-    test('Should ignore globalRedux provider', () {
+    test('Should include globalRedux provider', () {
       final ref = RefenaContainer();
       final stateProvider = StateProvider((ref) => 10);
       expect(ref.getActiveProviders(), isEmpty);
       ref.read(stateProvider);
       ref.read(globalReduxProvider);
-      expect(ref.getActiveProviders(), [stateProvider]);
+      expect(ref.getActiveProviders(), [stateProvider, globalReduxProvider]);
     });
   });
 }

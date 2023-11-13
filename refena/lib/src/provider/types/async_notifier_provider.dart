@@ -18,6 +18,7 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
     this._builder, {
     super.onChanged,
     super.debugLabel,
+    super.debugVisibleInGraph = true,
   });
 
   final N Function(Ref ref) _builder;

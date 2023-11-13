@@ -17,6 +17,7 @@ class ChangeNotifierProvider<N extends ChangeNotifier>
     this._builder, {
     void Function(Ref)? onChanged,
     super.debugLabel,
+    super.debugVisibleInGraph = true,
   }) : super(
           onChanged: onChanged == null ? null : (_, __, ref) => onChanged(ref),
         );

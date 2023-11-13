@@ -24,6 +24,7 @@ class StreamProvider<T>
     super.onChanged,
     String Function(AsyncValue<T> state)? describeState,
     super.debugLabel,
+    super.debugVisibleInGraph = true,
   }) : _describeState = describeState;
 
   @internal

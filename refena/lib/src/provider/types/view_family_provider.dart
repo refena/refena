@@ -18,6 +18,7 @@ class ViewFamilyProvider<T, P>
     super.onChanged,
     String Function(T state)? describeState,
     String? debugLabel,
+    super.debugVisibleInGraph = true,
   })  : _describeState = describeState,
         super(debugLabel: debugLabel ?? 'ViewFamilyProvider<$T, $P>');
 

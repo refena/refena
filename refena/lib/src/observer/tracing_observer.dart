@@ -47,7 +47,7 @@ class RefenaTracingObserver extends RefenaObserver {
 
 final tracingProvider = ChangeNotifierProvider((ref) {
   return TracingNotifier();
-});
+}, debugVisibleInGraph: false);
 
 class TracingNotifier extends ChangeNotifier {
   int _limit = 100;

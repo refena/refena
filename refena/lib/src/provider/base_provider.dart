@@ -15,7 +15,15 @@ import 'package:refena/src/reference.dart';
 /// You may add a [debugLabel] for better logging.
 abstract class BaseProvider<N extends BaseNotifier<T>, T>
     implements LabeledReference {
+  /// A custom label used by debug tools.
   final String? customDebugLabel;
+
+  /// Set this flag to false to hide the provider from the [RefenaGraphPage].
+  /// By default, all providers are visible in the graph.
+  /// However, some providers add unnecessary noise.
+  final bool debugVisibleInGraph;
+
+  /// The callback to be called when the underlying notifier changes its state.
   final ProviderChangedCallback<T>? _onChanged;
 
   @override
@@ -23,6 +31,7 @@ abstract class BaseProvider<N extends BaseNotifier<T>, T>
 
   BaseProvider({
     required ProviderChangedCallback<T>? onChanged,
+    required this.debugVisibleInGraph,
     required String? debugLabel,
   })  : _onChanged = onChanged,
         customDebugLabel = debugLabel;
@@ -62,6 +71,7 @@ abstract class BaseWatchableProvider<N extends BaseNotifier<T>, T>
     extends BaseProvider<N, T> implements Watchable<N, T, T> {
   BaseWatchableProvider({
     required super.onChanged,
+    required super.debugVisibleInGraph,
     super.debugLabel,
   });
 

@@ -19,6 +19,7 @@ class ReduxProvider<N extends BaseReduxNotifier<T>, T>
     this.builder, {
     super.onChanged,
     super.debugLabel,
+    super.debugVisibleInGraph = true,
   });
 
   @internal

@@ -24,6 +24,7 @@ class ViewProvider<T> extends BaseWatchableProvider<ViewProviderNotifier<T>, T>
     super.onChanged,
     String Function(T state)? describeState,
     String? debugLabel,
+    super.debugVisibleInGraph = true,
   })  : _describeState = describeState,
         super(debugLabel: debugLabel ?? 'ViewProvider<$T>');
 
