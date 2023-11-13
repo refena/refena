@@ -1,3 +1,7 @@
+## 1.0.2
+
+- deps: bump refena to 1.2.0
+
 ## 1.0.1
 
 - fix: should not print "watch-outside-build" warning in release mode
