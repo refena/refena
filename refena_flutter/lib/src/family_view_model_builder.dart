@@ -17,7 +17,13 @@ class FamilyViewModelBuilder<T, P, R> extends StatefulWidget {
   /// The [builder] will be called whenever this provider changes.
   final FamilySelectedWatchable<T, P, R> provider;
 
+  /// This function is called **BEFORE** the widget is built for the first time.
+  /// It should not return a [Future].
+  final void Function(BuildContext context, Ref ref)? initBuild;
+
   /// This function is called **AFTER** the widget is built for the first time.
+  /// It can return a [Future].
+  /// In this case, the widget will show the [placeholder] if provided.
   final FutureOr<void> Function(BuildContext context, Ref ref)? init;
 
   /// This function is called when the widget is removed from the tree.
@@ -45,6 +51,7 @@ class FamilyViewModelBuilder<T, P, R> extends StatefulWidget {
   FamilyViewModelBuilder({
     super.key,
     required this.provider,
+    this.initBuild,
     this.init,
     this.dispose,
     bool? disposeProvider,
@@ -111,6 +118,10 @@ class _FamilyViewModelBuilderState<T, P, R>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.initBuild != null) {
+      initialBuild((ref) => widget.initBuild!(context, ref));
+    }
+
     final error = _error;
     if (error != null && widget.error != null) {
       return widget.error!(context, error.$1, error.$2);

@@ -22,7 +22,13 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
   /// The [builder] will be called whenever this provider changes.
   final Watchable<BaseNotifier<T>, T, R> provider;
 
+  /// This function is called **BEFORE** the widget is built for the first time.
+  /// It should not return a [Future].
+  final void Function(BuildContext context, Ref ref)? initBuild;
+
   /// This function is called **AFTER** the widget is built for the first time.
+  /// It can return a [Future].
+  /// In this case, the widget will show the [placeholder] if provided.
   final FutureOr<void> Function(BuildContext context, Ref ref)? init;
 
   /// This function is called when the widget is removed from the tree.
@@ -50,6 +56,7 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
   ViewModelBuilder({
     super.key,
     required this.provider,
+    this.initBuild,
     this.init,
     this.dispose,
     this.disposeProvider = true,
@@ -70,6 +77,7 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
   static FamilyViewModelBuilder<T, P, R> family<T, P, R>({
     Key? key,
     required FamilySelectedWatchable<T, P, R> provider,
+    void Function(BuildContext context, Ref ref)? initBuild,
     FutureOr<void> Function(BuildContext context, Ref ref)? init,
     void Function(Ref ref)? dispose,
     bool? disposeProvider,
@@ -86,6 +94,7 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
     return FamilyViewModelBuilder<T, P, R>(
       key: key,
       provider: provider,
+      initBuild: initBuild,
       init: init,
       dispose: dispose,
       disposeProvider: disposeProvider,
@@ -146,6 +155,10 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
 
   @override
   Widget build(BuildContext context) {
+    if (widget.initBuild != null) {
+      initialBuild((ref) => widget.initBuild!(context, ref));
+    }
+
     final error = _error;
     if (error != null && widget.error != null) {
       return widget.error!(context, error.$1, error.$2);
@@ -153,6 +166,7 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
     if (!_initialized && widget.placeholder != null) {
       return widget.placeholder!(context);
     }
+
     return widget.builder(
       context,
       ref.watch(widget.provider),

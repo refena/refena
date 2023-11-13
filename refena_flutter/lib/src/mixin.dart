@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 // ignore: implementation_imports
 import 'package:refena/src/ref.dart';
 import 'package:refena_flutter/src/extension.dart';
@@ -6,6 +7,8 @@ import 'package:refena_flutter/src/extension.dart';
 mixin Refena<W extends StatefulWidget> on State<W> {
   /// Access this ref inside your [State].
   late final WatchableRef ref = context.ref;
+
+  bool _initialBuild = true;
 
   /// Call this method inside [initState] to have some
   /// initializations run after the first frame.
@@ -19,5 +22,31 @@ mixin Refena<W extends StatefulWidget> on State<W> {
       ref; // ignore: unnecessary_statements
       callback?.call(ref);
     });
+  }
+
+  /// Call this method inside [build] to initialize a variable
+  /// before the first frame.
+  ///
+  /// This might be needed if you are dealing with
+  /// e.g. [TextFormField.initialValue].
+  void initialBuild<R>(void Function(Ref ref) callback) {
+    if (_initialBuild) {
+      _initialBuild = false;
+
+      // ignore: unnecessary_cast
+      final result = callback(ref) as Object?;
+
+      assert(() {
+        if (result is Future) {
+          throw FlutterError.fromParts([
+            ErrorSummary('[Refena] initialBuild() returned a Future.'),
+            ErrorDescription(
+              'initialBuild() must be a void method without an `async` keyword.',
+            ),
+          ]);
+        }
+        return true;
+      }());
+    }
   }
 }

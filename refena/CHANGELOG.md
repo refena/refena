@@ -1,5 +1,7 @@
 ## 1.2.0
 
+- feat: add `initialBuild` to mixin as an alternative to `ensureRef` that is called before the first build
+- feat: add `initBuild` to `ViewModelBuilder` to access the `ref` before the first build
 - fix: possible NPE when disposing a widget while triggering a rebuild
 
 ## 1.1.0

@@ -41,6 +41,25 @@ void main() {
     expect(find.text('2'), findsOneWidget);
   });
 
+  testWidgets('Should run initBuild once before build', (tester) async {
+    final ref = RefenaScope(
+      child: MaterialApp(
+        home: _InitBuildWidget(),
+      ),
+    );
+
+    await tester.pumpWidget(ref);
+
+    expect(ref.read(_counter), 0);
+    expect(find.text('0 - 0'), findsOneWidget);
+
+    ref.notifier(_counter).setState((old) => old + 1);
+    await tester.pump();
+
+    expect(ref.read(_counter), 1);
+    expect(find.text('1 - 0'), findsOneWidget);
+  });
+
   testWidgets('Should dispose watched provider', (tester) async {
     final observer = RefenaHistoryObserver.only(
       providerDispose: true,
@@ -210,6 +229,22 @@ class _SelectWidget extends StatelessWidget {
       provider: _counter.select((state) => state * 2),
       builder: (context, vm) {
         return Text('$vm');
+      },
+    );
+  }
+}
+
+class _InitBuildWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    late int initCounter;
+    return ViewModelBuilder(
+      provider: _counter,
+      initBuild: (context, ref) {
+        initCounter = ref.read(_counter);
+      },
+      builder: (context, vm) {
+        return Text('$vm - $initCounter');
       },
     );
   }
