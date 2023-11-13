@@ -1,3 +1,7 @@
+## 1.2.0
+
+- fix: possible NPE when disposing a widget while triggering a rebuild
+
 ## 1.1.0
 
 - feat: add `onChanged` parameter to all providers

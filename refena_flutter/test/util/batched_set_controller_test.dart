@@ -99,4 +99,20 @@ void main() {
       {4, 5, 6},
     ]);
   });
+
+  test('Should handle dispose between micro task', () async {
+    final controller = BatchedSetController<int>();
+    final events = <Set<int>>[];
+    subscription = controller.stream.listen(events.add);
+
+    controller.schedule(1);
+    controller.schedule(2);
+    controller.dispose();
+
+    expect(events, isEmpty);
+
+    await skipAllMicrotasks();
+
+    expect(events, isEmpty);
+  });
 }

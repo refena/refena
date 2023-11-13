@@ -25,6 +25,10 @@ class BatchedStreamController<T> {
       _scheduledEvents = [];
     }
     scheduleMicrotask(() {
+      if (_streamController.isClosed) {
+        // Might be disposed while waiting for the micro task.
+        return;
+      }
       _streamController.add(_scheduledEvents!);
       _scheduledEvents = null;
     });
