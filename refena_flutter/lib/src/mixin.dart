@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 // ignore: implementation_imports
@@ -33,6 +34,14 @@ mixin Refena<W extends StatefulWidget> on State<W> {
     if (_initialBuild) {
       _initialBuild = false;
 
+      if (kDebugMode && (context as Element).debugDoingBuild == false) {
+        print('''
+$_red[Refena] In ${widget.runtimeType}, initialBuild() is called outside a build method$_reset''');
+        print('''
+$_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_reset\n${StackTrace.current}''');
+        return;
+      }
+
       // ignore: unnecessary_cast
       final result = callback(ref) as Object?;
 
@@ -50,3 +59,6 @@ mixin Refena<W extends StatefulWidget> on State<W> {
     }
   }
 }
+
+const _red = '\x1B[31m';
+const _reset = '\x1B[0m';
