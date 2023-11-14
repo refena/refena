@@ -135,6 +135,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
   - [Event Tracing](#-event-tracing)
   - [Dependency Graph](#-dependency-graph)
   - [Inspector](#-inspector)
+  - [Sentry](#-sentry)
 - [Testing](#testing)
   - [Override providers](#-override-providers)
   - [Testing without Flutter](#-testing-without-flutter)
@@ -1535,6 +1536,14 @@ Here is how it looks like:
 Both the `RefenaTracingPage` and the `RefenaGraphPage` are included in the [Refena Inspector](https://pub.dev/packages/refena_inspector).
 
 ![inspector](https://raw.githubusercontent.com/refena/refena/main/resources/inspector-screenshot.webp)
+
+### ➤ Sentry
+
+Use [refena_sentry](https://pub.dev/packages/refena_sentry) to add breadcrumbs to Sentry.
+
+This is especially useful if you use Redux since you can see every action in Sentry.
+
+![sentry](https://raw.githubusercontent.com/refena/refena/main/resources/sentry.webp)
 
 ## Testing
 

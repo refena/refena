@@ -6,7 +6,7 @@
 
 Sentry integration for Refena.
 
-![inspector](https://raw.githubusercontent.com/refena/refena/main/resources/sentry.webp)
+![sentry](https://raw.githubusercontent.com/refena/refena/main/resources/sentry.webp)
 
 ## Setup
 
