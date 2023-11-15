@@ -158,7 +158,7 @@ void _addWidgetEntries(
       InputEvent.only(
         id: startId + _idProvider.getNextId() + 1,
         type: InputEventType.rebuild,
-        millisSinceEpoch: entry.timestamp.millisecondsSinceEpoch,
+        millisSinceEpoch: entry.event.millisSinceEpoch,
         label: rebuild,
         data: {},
       ),
