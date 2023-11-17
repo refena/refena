@@ -105,11 +105,16 @@ class RefenaInspectorObserver extends RefenaObserver {
       ref.message('Connecting to Refena Inspector at $host:$port...');
     } else {
       hosts = [
+        if (ref.container.platformHint == PlatformHint.unknown ||
+            ref.container.platformHint == PlatformHint.android)
+          // Android emulator
+          // Also need to assume if unknown because the initialization of the
+          // RefenaScope might be too late (e.g. explicit container).
+          '10.0.2.2',
         'localhost',
-        if (ref.container.platformHint == PlatformHint.android) '10.0.2.2',
       ];
       ref.message(
-          'Connecting to Refena Inspector at ${hosts.map((h) => h).join('|')}:$port...');
+          'Connecting to Refena Inspector at [${hosts.map((h) => h).join('|')}]:$port (inferred by platformHint = ${ref.container.platformHint.name})...');
     }
 
     int hostIndex = 0;
