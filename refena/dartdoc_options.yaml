@@ -6,6 +6,8 @@ dartdoc:
       markdown: "doc/riverpod.md"
     "Initialization":
       markdown: "doc/initialization.md"
+    "Dependency Injection":
+      markdown: "doc/dependency_injection.md"
     "Redux":
       markdown: "doc/redux.md"
     "Async Value":
@@ -16,6 +18,7 @@ dartdoc:
     - "Introduction"
     - "Riverpod"
     - "Initialization"
+    - "Dependency Injection"
     - "Redux"
     - "Async Value"
     - "Testing"

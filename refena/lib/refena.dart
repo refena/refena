@@ -1,3 +1,4 @@
+export 'package:refena/src/accessor.dart';
 export 'package:refena/src/action/dispatcher.dart';
 export 'package:refena/src/action/global_action_dispatcher.dart';
 export 'package:refena/src/action/redux_action.dart'

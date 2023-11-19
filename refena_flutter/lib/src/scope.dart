@@ -176,6 +176,18 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
     return _container.read(watchable);
   }
 
+  /// Similar to [Ref.read], but instead of returning the state right away,
+  /// it returns a [StateAccessor] to get the **latest** state later.
+  ///
+  /// This is useful if you need to use the latest state of a provider,
+  /// but you can't use [Ref.watch] when building a notifier.
+  @override
+  StateAccessor<R> accessor<R>(
+    BaseWatchable<BaseNotifier, dynamic, R> provider,
+  ) {
+    return _container.accessor(provider);
+  }
+
   /// Returns the notifier of a [NotifierProvider].
   @override
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {

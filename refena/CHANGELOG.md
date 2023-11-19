@@ -1,3 +1,7 @@
+## 1.3.0
+
+- feat: add `Ref.accessor`
+
 ## 1.2.0
 
 - feat: add `initialBuild` to mixin as an alternative to `ensureRef` that is called before the first build

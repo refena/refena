@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:collection';
 
 import 'package:meta/meta.dart';
+import 'package:refena/src/accessor.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/family_notifier.dart';
@@ -271,6 +272,17 @@ class RefenaContainer implements Ref, LabeledReference {
       }
     }
     return watchable.getSelectedState(notifier, notifier.state);
+  }
+
+  @override
+  StateAccessor<R> accessor<R>(
+    BaseWatchable<BaseNotifier, dynamic, R> provider,
+  ) {
+    _getState(provider.provider); // ensure initialized
+    return StateAccessor<R>(
+      ref: this,
+      provider: provider,
+    );
   }
 
   /// Returns the notifier of a [NotifierProvider].

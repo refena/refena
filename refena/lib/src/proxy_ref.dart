@@ -1,4 +1,5 @@
 import 'package:meta/meta.dart';
+import 'package:refena/src/accessor.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
@@ -38,6 +39,18 @@ class ProxyRef implements Ref {
     final notifier = _ref.anyNotifier<N, T>(watchable.provider);
     _onAccessNotifier!(notifier);
     return _ref.read<N, T, R>(watchable);
+  }
+
+  @override
+  StateAccessor<R> accessor<R>(
+    BaseWatchable<BaseNotifier, dynamic, R> provider,
+  ) {
+    final notifier = _ref.anyNotifier(provider.provider);
+    _onAccessNotifier?.call(notifier);
+    return StateAccessor<R>(
+      ref: this,
+      provider: provider,
+    );
   }
 
   @override

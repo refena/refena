@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:meta/meta.dart';
+import 'package:refena/src/accessor.dart';
 import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
@@ -25,6 +26,15 @@ import 'package:refena/src/provider/watchable.dart';
 abstract interface class Ref {
   /// Get the current value of a provider without listening to changes.
   R read<N extends BaseNotifier<T>, T, R>(BaseWatchable<N, T, R> watchable);
+
+  /// Similar to [Ref.read], but instead of returning the state right away,
+  /// it returns a [StateAccessor] to get the state later.
+  ///
+  /// This is useful if you need to use the latest state of a provider,
+  /// but you can't use [Ref.watch] when building a notifier.
+  StateAccessor<R> accessor<R>(
+    BaseWatchable<BaseNotifier, dynamic, R> provider,
+  );
 
   /// Get the notifier of a provider.
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider);
@@ -128,6 +138,18 @@ class WatchableRefImpl implements WatchableRef {
     final notifier = _ref.anyNotifier<N, T>(watchable.provider);
     _onAccessNotifier!(notifier);
     return _ref.read<N, T, R>(watchable);
+  }
+
+  @override
+  StateAccessor<R> accessor<R>(
+    BaseWatchable<BaseNotifier, dynamic, R> provider,
+  ) {
+    final notifier = _ref.anyNotifier(provider.provider);
+    _onAccessNotifier?.call(notifier);
+    return StateAccessor<R>(
+      ref: this,
+      provider: provider,
+    );
   }
 
   @override

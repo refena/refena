@@ -118,6 +118,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
 - [Using ref](#using-ref)
   - [ref.read](#-refread)
   - [ref.watch](#-refwatch)
+  - [ref.accessor](#-refaccessor)
   - [ref.stream](#-refstream)
   - [ref.future](#-reffuture)
   - [ref.notifier](#-refnotifier)
@@ -1051,7 +1052,7 @@ int a = ref.read(myProvider);
 
 ### ➤ ref.watch
 
-Read the value of a provider and rebuild the widget when the value changes.
+Read the value of a provider and rebuild the widget / provider when the value changes.
 
 This should be used within a `build` method of a widget or inside a body of a `ViewProvider`.
 
@@ -1075,6 +1076,43 @@ build(BuildContext context) {
   });
 
   // ...
+}
+```
+
+### ➤ ref.accessor
+
+Similar to `Ref.read`, but instead of returning the state right away,
+it returns a `StateAccessor` to get the state later.
+
+This is useful if you need to read the latest state of a provider (`ViewProvider` in particular),
+but you can't use `Ref.watch` when building a notifier.
+
+More about [dependency injection](https://pub.dev/documentation/refena/latest/topics/Dependency%20Injection-topic.html).
+
+```dart
+final myViewProvider = ViewProvider((ref) {
+  final counter = ref.watch(counterProvider);
+  return MyView(counter);
+});
+
+final myProvider = NotifierProvider<MyNotifier, int>((ref) {
+  // If we just use ref.read, then we don't have the latest state
+  // of the myViewProvider.
+  final view = ref.accessor(myViewProvider);
+  return MyNotifier(view);
+});
+
+class MyNotifier extends Notifier<int> {
+  final StateAccessor<MyView> _view;
+
+  MyNotifier(this._view);
+
+  @override
+  int init() => 0;
+
+  void add() {
+    state += _view.state.counter;
+  }
 }
 ```
 
