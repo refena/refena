@@ -1,6 +1,7 @@
 ## 1.3.0
 
 - feat: add `Ref.accessor`
+- feat: add `context.dispatch` and `context.dispatchAsync` shorthands to dispatch global actions
 
 ## 1.2.0
 

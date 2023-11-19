@@ -70,4 +70,16 @@ extension ContextRefExt on BuildContext {
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
     ref.dispose(provider);
   }
+
+  /// Shorthand for `context.ref.dispatch()`.
+  /// See [GlobalActionExtension.dispatch] for more information.
+  R dispatch<R>(GlobalActionWithResult<R> action) {
+    return ref.dispatch(action);
+  }
+
+  /// Shorthand for `context.ref.dispatchAsync()`.
+  /// See [GlobalActionExtension.dispatchAsync] for more information.
+  Future<R> dispatchAsync<R>(AsyncGlobalActionWithResult<R> action) {
+    return ref.dispatchAsync(action);
+  }
 }
