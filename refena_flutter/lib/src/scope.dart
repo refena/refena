@@ -221,7 +221,7 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   }
 
   @override
-  Future<T> future<N extends BaseAsyncNotifier<T>, T>(
+  Future<T> future<N extends GetFutureNotifier<T>, T>(
     BaseProvider<N, AsyncValue<T>> provider,
   ) {
     return _container.future(provider);

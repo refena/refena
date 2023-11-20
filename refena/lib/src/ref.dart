@@ -16,6 +16,7 @@ import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
 import 'package:refena/src/provider/types/future_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
+import 'package:refena/src/provider/types/stream_provider.dart';
 import 'package:refena/src/provider/types/view_provider.dart';
 import 'package:refena/src/provider/watchable.dart';
 
@@ -56,8 +57,9 @@ abstract interface class Ref {
     BaseProvider<N, T> provider,
   );
 
-  /// Get the [Future] of an [AsyncNotifierProvider].
-  Future<T> future<N extends BaseAsyncNotifier<T>, T>(
+  /// Get the [Future] of an [AsyncNotifierProvider], [FutureProvider] or
+  /// [StreamProvider].
+  Future<T> future<N extends GetFutureNotifier<T>, T>(
     BaseProvider<N, AsyncValue<T>> provider,
   );
 
@@ -201,7 +203,7 @@ class WatchableRefImpl implements WatchableRef {
   }
 
   @override
-  Future<T> future<N extends BaseAsyncNotifier<T>, T>(
+  Future<T> future<N extends GetFutureNotifier<T>, T>(
     BaseProvider<N, AsyncValue<T>> provider,
   ) {
     if (_onAccessNotifier == null) {
@@ -297,7 +299,8 @@ class WatchableRefImpl implements WatchableRef {
   /// Used to determine the dependency graph.
   void Function(BaseNotifier)? _onAccessNotifier;
 
-  /// Runs [run] and calls [onAccess] for every [BaseNotifier]
+  /// Runs [run] and calls [onAccess] for every [BaseNotifier].
+  /// Returns the result of [run].
   R trackNotifier<R>({
     required void Function(BaseNotifier) onAccess,
     required R Function() run,
@@ -306,5 +309,15 @@ class WatchableRefImpl implements WatchableRef {
     final result = run();
     _onAccessNotifier = null;
     return result;
+  }
+
+  void startNotifierTracking({
+    required void Function(BaseNotifier) onAccess,
+  }) {
+    _onAccessNotifier = onAccess;
+  }
+
+  void stopNotifierTracking() {
+    _onAccessNotifier = null;
   }
 }

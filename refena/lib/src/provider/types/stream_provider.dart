@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/async_value.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
-import 'package:refena/src/notifier/types/stream_provider_notifier.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
 import 'package:refena/src/proxy_ref.dart';
@@ -16,7 +15,7 @@ import 'package:refena/src/ref.dart';
 class StreamProvider<T>
     extends BaseWatchableProvider<StreamProviderNotifier<T>, AsyncValue<T>>
     with ProviderSelectMixin<StreamProviderNotifier<T>, AsyncValue<T>> {
-  final Stream<T> Function(Ref ref) _builder;
+  final Stream<T> Function(WatchableRef ref) _builder;
   final String Function(AsyncValue<T> state)? _describeState;
 
   StreamProvider(
@@ -31,7 +30,6 @@ class StreamProvider<T>
   @override
   StreamProviderNotifier<T> createState(ProxyRef ref) {
     return _build(
-      ref: ref,
       builder: _builder,
       describeState: _describeState,
       debugLabel: customDebugLabel ?? runtimeType.toString(),
@@ -50,7 +48,6 @@ class StreamProvider<T>
     return ProviderOverride<StreamProviderNotifier<T>, AsyncValue<T>>(
       provider: this,
       createState: (ref) => _build(
-        ref: ref,
         builder: builder,
         describeState: _describeState,
         debugLabel: customDebugLabel ?? runtimeType.toString(),
@@ -61,26 +58,13 @@ class StreamProvider<T>
 
 /// Builds the notifier and also registers the dependencies.
 StreamProviderNotifier<T> _build<T>({
-  required ProxyRef ref,
-  required Stream<T> Function(Ref ref) builder,
+  required Stream<T> Function(WatchableRef ref) builder,
   required String Function(AsyncValue<T> state)? describeState,
   required String debugLabel,
 }) {
-  final dependencies = <BaseNotifier>{};
-
-  final notifier = ref.trackNotifier(
-    onAccess: (notifier) => dependencies.add(notifier),
-    run: () => StreamProviderNotifier(
-      builder(ref),
-      describeState: describeState,
-      debugLabel: debugLabel,
-    ),
+  return StreamProviderNotifier(
+    builder,
+    describeState: describeState,
+    debugLabel: debugLabel,
   );
-
-  notifier.dependencies.addAll(dependencies);
-  for (final dependency in dependencies) {
-    dependency.dependents.add(notifier);
-  }
-
-  return notifier;
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
@@ -138,18 +140,13 @@ void main() {
 
     final parentProvider = StateProvider((ref) => 0);
     final childProvider = FutureProvider((ref) async {
+      await Future.delayed(Duration(milliseconds: 50));
       final value = ref.watch(parentProvider);
       await Future.delayed(Duration(milliseconds: 50));
       return value * 2;
     });
 
     expect(ref.read(childProvider), AsyncValue<int>.loading());
-
-    expect(await ref.future(childProvider), 0);
-    expect(
-      ref.read(childProvider),
-      AsyncValue.data(0),
-    );
 
     final parentNotifier = ref.anyNotifier<StateNotifier<int>, int>(
       parentProvider,
@@ -159,7 +156,19 @@ void main() {
       childProvider,
     );
 
-    // Check dependency graph
+    // Check dependency graph (before)
+    expect(parentNotifier.dependencies, isEmpty);
+    expect(parentNotifier.dependents, isEmpty);
+    expect(childNotifier.dependencies, isEmpty);
+    expect(childNotifier.dependents, isEmpty);
+
+    expect(await ref.future(childProvider), 0);
+    expect(
+      ref.read(childProvider),
+      AsyncValue.data(0),
+    );
+
+    // Check dependency graph (after)
     expect(parentNotifier.dependencies, isEmpty);
     expect(parentNotifier.dependents, {childNotifier});
     expect(childNotifier.dependencies, {parentNotifier});
@@ -180,16 +189,16 @@ void main() {
     // Check events
     expect(observer.history, [
       ProviderInitEvent(
-        provider: parentProvider,
-        notifier: parentNotifier,
-        cause: ProviderInitCause.access,
-        value: 0,
-      ),
-      ProviderInitEvent(
         provider: childProvider,
         notifier: childNotifier,
         cause: ProviderInitCause.access,
         value: AsyncValue<int>.loading(),
+      ),
+      ProviderInitEvent(
+        provider: parentProvider,
+        notifier: parentNotifier,
+        cause: ProviderInitCause.access,
+        value: 0,
       ),
       ChangeEvent(
         notifier: childNotifier,
@@ -228,6 +237,98 @@ void main() {
         rebuild: [],
       ),
     ]);
+  });
+
+  test('Rebuild should clear old dependencies', () async {
+    final ref = RefenaContainer();
+
+    late Completer<void> bridgeCompleter;
+    late Completer<void> bCompleter;
+    final parentProviderA = StateProvider((ref) => 1);
+    final parentProviderB = StateProvider((ref) => 2);
+    final parentProviderC = StateProvider((ref) => 3);
+    final bridgeProvider = StateProvider((ref) => false);
+    final childProvider = FutureProvider((ref) async {
+      bridgeCompleter = Completer<void>();
+
+      await Future.delayed(Duration(milliseconds: 50));
+      final bridge = ref.watch(bridgeProvider);
+      bridgeCompleter.complete();
+      if (bridge) {
+        final c = ref.watch(parentProviderC);
+        return c;
+      } else {
+        final a = ref.watch(parentProviderA);
+        bCompleter = Completer<void>();
+        await Future.delayed(Duration(milliseconds: 50));
+        bCompleter.complete();
+        final b = ref.watch(parentProviderB);
+        return a + b;
+      }
+    });
+
+    final parentNotifierA = ref.anyNotifier(parentProviderA);
+    final parentNotifierB = ref.anyNotifier(parentProviderB);
+    final parentNotifierC = ref.anyNotifier(parentProviderC);
+    final bridgeNotifier = ref.anyNotifier(bridgeProvider);
+    final childNotifier = ref.anyNotifier(childProvider);
+
+    // Check dependency graph (before)
+    expect(parentNotifierA.dependencies, isEmpty);
+    expect(parentNotifierA.dependents, isEmpty);
+    expect(parentNotifierB.dependencies, isEmpty);
+    expect(parentNotifierB.dependents, isEmpty);
+    expect(parentNotifierC.dependencies, isEmpty);
+    expect(parentNotifierC.dependents, isEmpty);
+    expect(bridgeNotifier.dependencies, isEmpty);
+    expect(bridgeNotifier.dependents, isEmpty);
+    expect(childNotifier.dependencies, isEmpty);
+    expect(childNotifier.dependents, isEmpty);
+
+    await bridgeCompleter.future;
+
+    // Check dependency graph (bridge)
+    expect(parentNotifierA.dependencies, isEmpty);
+    expect(parentNotifierA.dependents, {childNotifier});
+    expect(parentNotifierB.dependencies, isEmpty);
+    expect(parentNotifierB.dependents, isEmpty);
+    expect(parentNotifierC.dependencies, isEmpty);
+    expect(parentNotifierC.dependents, isEmpty);
+    expect(bridgeNotifier.dependencies, isEmpty);
+    expect(bridgeNotifier.dependents, {childNotifier});
+    expect(childNotifier.dependencies, {parentNotifierA, bridgeNotifier});
+    expect(childNotifier.dependents, isEmpty);
+
+    // Change bridge
+    ref.notifier(bridgeProvider).setState((old) => true);
+    await skipAllMicrotasks();
+
+    // Check dependency graph (after change bridge)
+    expect(parentNotifierA.dependencies, isEmpty);
+    expect(parentNotifierA.dependents, isEmpty);
+    expect(parentNotifierB.dependencies, isEmpty);
+    expect(parentNotifierB.dependents, isEmpty);
+    expect(parentNotifierC.dependencies, isEmpty);
+    expect(parentNotifierC.dependents, isEmpty);
+    expect(bridgeNotifier.dependencies, isEmpty);
+    expect(bridgeNotifier.dependents, isEmpty);
+    expect(childNotifier.dependencies, isEmpty);
+    expect(childNotifier.dependents, isEmpty);
+
+    await bridgeCompleter.future;
+    await bCompleter.future;
+
+    // Check dependency graph (after bridge future)
+    expect(parentNotifierA.dependencies, isEmpty);
+    expect(parentNotifierA.dependents, isEmpty);
+    expect(parentNotifierB.dependencies, isEmpty);
+    expect(parentNotifierB.dependents, isEmpty);
+    expect(parentNotifierC.dependencies, isEmpty);
+    expect(parentNotifierC.dependents, {childNotifier});
+    expect(bridgeNotifier.dependencies, isEmpty);
+    expect(bridgeNotifier.dependents, {childNotifier});
+    expect(childNotifier.dependencies, {parentNotifierC, bridgeNotifier});
+    expect(childNotifier.dependents, isEmpty);
   });
 
   test('Should trigger onChanged', () async {

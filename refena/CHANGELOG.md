@@ -1,6 +1,6 @@
 ## 1.4.0
 
-- feat: make `FutureProvider` rebuildable (`ref.watch` is allowed)
+- feat: make `FutureProvider` and `StreamProvider` rebuildable (`ref.watch` is allowed)
 - feat: add `Ref.rebuild` to manually rebuild a rebuildable provider
 
 ## 1.3.0

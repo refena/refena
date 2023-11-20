@@ -26,6 +26,8 @@ part 'types/future_provider_notifier.dart';
 
 part 'types/redux_notifier.dart';
 
+part 'types/stream_provider_notifier.dart';
+
 part 'types/view_family_provider_notifier.dart';
 
 part 'types/view_provider_notifier.dart';
@@ -333,12 +335,14 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
 }
 
 @internal
-abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>> {
+abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>>
+    implements GetFutureNotifier<T> {
   late Future<T> _future;
   int _futureCount = 0;
 
   BaseAsyncNotifier({super.debugLabel});
 
+  @override
   @protected
   Future<T> get future => _future;
 
@@ -494,6 +498,14 @@ class AsyncNotifierTester<N extends BaseAsyncNotifier<T>, T> {
   AsyncValue<T> get state => notifier.state;
 }
 
+/// A notifier that exposes a [future].
+abstract interface class GetFutureNotifier<T>
+    implements BaseNotifier<AsyncValue<T>> {
+  /// The future.
+  Future<T> get future;
+}
+
+/// A notifier that can be rebuilt.
 mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
   late final WatchableRefImpl _watchableRef;
   final _rebuildController = BatchedStreamController<AbstractChangeEvent>();
@@ -501,7 +513,7 @@ mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
   /// Calls [builder] and tracks all accessed notifiers.
   /// Returns the result of [builder].
   @nonVirtual
-  R _callAndTrackNotifiers<R>(R Function(WatchableRef) builder) {
+  R _callAndSetDependencies<R>(R Function(WatchableRef) builder) {
     final oldDependencies = {...dependencies};
     dependencies.clear();
 
@@ -531,6 +543,47 @@ mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
     return nextState;
   }
 
+  /// Similar to [_callAndSetDependencies],
+  /// but the listener stays active until
+  /// [RefDependencyListener.cancel] is called.
+  ///
+  /// This is used by futures and streams because the dependencies
+  /// may not known in advance.
+  @nonVirtual
+  RefDependencyListener<R> _callAndListenDependencies<R>(
+      R Function(WatchableRef) builder) {
+    // Clear old dependencies
+    for (final dependency in dependencies) {
+      // remove from dependency graph
+      dependency.dependents.remove(this);
+
+      // remove listener to avoid future rebuilds
+      dependency._listeners.removeListener(this);
+    }
+    dependencies.clear();
+
+    final tempRef = WatchableRefImpl(
+      container: _watchableRef.container,
+      rebuildable: this,
+    );
+    tempRef.startNotifierTracking(onAccess: _addNotifierDependency);
+
+    return RefDependencyListener(builder(tempRef), () {
+      tempRef.stopNotifierTracking();
+    });
+  }
+
+  void _addNotifierDependency(BaseNotifier notifier) {
+    final added = dependencies.add(notifier);
+    if (!added) {
+      printAlreadyWatchedWarning(
+        rebuildable: this,
+        notifier: notifier,
+      );
+    }
+    notifier.dependents.add(this);
+  }
+
   @internal
   @override
   @nonVirtual
@@ -547,7 +600,7 @@ mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
   }
 
   @override
-  @nonVirtual
+  @mustCallSuper
   void dispose() {
     _rebuildController.dispose();
   }
@@ -581,6 +634,18 @@ mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
   @override
   @nonVirtual
   bool get isWidget => false;
+}
+
+@internal
+class RefDependencyListener<R> {
+  final R result;
+  final void Function() _cancel;
+
+  RefDependencyListener(this.result, this._cancel);
+
+  void cancel() {
+    _cancel();
+  }
 }
 
 @internal

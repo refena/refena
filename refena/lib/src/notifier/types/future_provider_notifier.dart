@@ -2,8 +2,7 @@ part of '../base_notifier.dart';
 
 /// The corresponding notifier of a [FutureProvider].
 final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
-    with RebuildableNotifier
-    implements Rebuildable {
+    with RebuildableNotifier {
   FutureProviderNotifier(
     this._builder, {
     String Function(AsyncValue<T> state)? describeState,
@@ -12,20 +11,27 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
 
   final Future<T> Function(WatchableRef ref) _builder;
   final String Function(AsyncValue<T> state)? _describeState;
+  RefDependencyListener<Future<T>>? _dependencyListener;
 
   @override
   Future<T> init() {
     _rebuildController.stream.listen((event) {
-      // rebuild notifier state
+      // rebuild future
       _setFutureAndListenRebuild(event);
     });
-    return _callAndTrackNotifiers(_builder);
+    _dependencyListener = _callAndListenDependencies(_builder);
+    return _dependencyListener!.result;
   }
 
   /// The rebuild version of [BaseAsyncNotifier._setFutureAndListen].
   @nonVirtual
   void _setFutureAndListenRebuild(List<AbstractChangeEvent> causes) async {
-    _future = _callAndTrackNotifiers(_builder);
+    _dependencyListener?.cancel();
+
+    final nextDependencyListener = _callAndListenDependencies(_builder);
+    _dependencyListener = nextDependencyListener;
+
+    _future = nextDependencyListener.result;
     _futureCount++;
     final currentCount = _futureCount;
     _setStateAsRebuild(this, AsyncValue<T>.loading(_prev), causes);
@@ -37,13 +43,25 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
       }
       state = AsyncValue.data(value);
       _prev = value; // drop the previous state
+
+      // must not be in finally because of the count check
+      _dependencyListener?.cancel();
     } catch (error, stackTrace) {
       if (currentCount != _futureCount) {
         // The future has been changed in the meantime.
         return;
       }
       state = AsyncValue<T>.error(error, stackTrace, _prev);
+
+      // must not be in finally because of the count check
+      _dependencyListener?.cancel();
     }
+  }
+
+  @override
+  void dispose() {
+    _dependencyListener?.cancel();
+    super.dispose();
   }
 
   @override

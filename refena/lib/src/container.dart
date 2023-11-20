@@ -316,7 +316,7 @@ class RefenaContainer implements Ref, LabeledReference {
   }
 
   @override
-  Future<T> future<N extends BaseAsyncNotifier<T>, T>(
+  Future<T> future<N extends GetFutureNotifier<T>, T>(
     BaseProvider<N, AsyncValue<T>> provider,
   ) {
     // ignore: invalid_use_of_protected_member

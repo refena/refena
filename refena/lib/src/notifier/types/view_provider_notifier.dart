@@ -18,11 +18,11 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
       // rebuild notifier state
       _setStateAsRebuild(
         this,
-        _callAndTrackNotifiers(_builder),
+        _callAndSetDependencies(_builder),
         event,
       );
     });
-    return _callAndTrackNotifiers(_builder);
+    return _callAndSetDependencies(_builder);
   }
 
   @override
