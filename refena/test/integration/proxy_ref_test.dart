@@ -2,14 +2,14 @@ import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
 void main() {
-  late RefenaContainer ref;
+  late RefenaContainer container;
   final observer = RefenaHistoryObserver.only(
     actionDispatched: true,
   );
 
   setUp(() {
     observer.clear();
-    ref = RefenaContainer(
+    container = RefenaContainer(
       observers: [observer],
     );
   });
@@ -41,13 +41,13 @@ void main() {
   });
 
   test('Should use container label', () {
-    ref.redux(_reduxProviderA).dispatch(_AddActionA(2));
+    container.redux(_reduxProviderA).dispatch(_AddActionA(2));
 
-    final notifier = ref.redux(_reduxProviderA).notifier;
+    final notifier = container.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'RefenaContainer',
-        debugOriginRef: ref,
+        debugOriginRef: container,
         notifier: notifier,
         action: _AddActionA(2),
       ),
@@ -55,13 +55,15 @@ void main() {
   });
 
   test('Should use given label', () {
-    ref.redux(_reduxProviderA).dispatch(_AddActionA(2), debugOrigin: 'MyLabel');
+    container
+        .redux(_reduxProviderA)
+        .dispatch(_AddActionA(2), debugOrigin: 'MyLabel');
 
-    final notifier = ref.redux(_reduxProviderA).notifier;
+    final notifier = container.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'MyLabel',
-        debugOriginRef: ref,
+        debugOriginRef: container,
         notifier: notifier,
         action: _AddActionA(2),
       ),
@@ -69,7 +71,7 @@ void main() {
   });
 
   test('Should use label of ReduxNotifier', () {
-    final notifier = ref.redux(_reduxProviderA).notifier;
+    final notifier = container.redux(_reduxProviderA).notifier;
 
     // ignore: invalid_use_of_protected_member
     notifier.dispatch(_AddActionA(2));
@@ -85,10 +87,10 @@ void main() {
   });
 
   test('Should use label of another notifier', () {
-    ref.notifier(_anotherProvider).trigger();
+    container.notifier(_anotherProvider).trigger();
 
-    final notifier = ref.redux(_reduxProviderA).notifier;
-    final anotherNotifier = ref.notifier(_anotherProvider);
+    final notifier = container.redux(_reduxProviderA).notifier;
+    final anotherNotifier = container.notifier(_anotherProvider);
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: '_AnotherNotifier',
@@ -100,10 +102,10 @@ void main() {
   });
 
   test('Should use label of view', () {
-    ref.read(_viewProvider).trigger();
+    container.read(_viewProvider).trigger();
 
-    final viewNotifier = ref.anyNotifier(_viewProvider);
-    final notifier = ref.redux(_reduxProviderA).notifier;
+    final viewNotifier = container.anyNotifier(_viewProvider);
+    final notifier = container.redux(_reduxProviderA).notifier;
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: 'ViewProvider<_Vm>',
@@ -115,7 +117,7 @@ void main() {
   });
 
   test('Should use label of the ReduxAction', () {
-    final notifier = ref.redux(_reduxProviderA).notifier;
+    final notifier = container.redux(_reduxProviderA).notifier;
 
     // ignore: invalid_use_of_protected_member
     notifier.dispatch(_DispatchActionA(2));
@@ -137,12 +139,12 @@ void main() {
   });
 
   test('Should use same label when another notifier provided via DI', () {
-    final notifierA = ref.redux(_reduxProviderA).notifier;
+    final notifierA = container.redux(_reduxProviderA).notifier;
 
     // ignore: invalid_use_of_protected_member
     notifierA.dispatch(_DispatchBAction());
 
-    final notifierB = ref.redux(_reduxProviderB).notifier;
+    final notifierB = container.redux(_reduxProviderB).notifier;
     expect(observer.history, [
       ActionDispatchedEvent(
         debugOrigin: '_ReduxA',
