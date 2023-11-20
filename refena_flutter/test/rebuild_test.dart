@@ -268,6 +268,28 @@ void main() {
     ]);
   });
 
+  testWidgets('Should rebuild with rebuild on ViewProvider', (tester) async {
+    final widget = _ViewModelWidget();
+    final observer = RefenaHistoryObserver.all();
+    final scope = RefenaScope(
+      observers: [observer],
+      child: MaterialApp(
+        home: widget,
+      ),
+    );
+    await tester.pumpWidget(scope);
+
+    expect(find.text('111 - 999'), findsOneWidget);
+    expect(widget._rebuildCount, 1);
+
+    // trigger rebuild
+    scope.rebuild(_viewProvider);
+    await tester.pump();
+
+    expect(find.text('111 - 999'), findsOneWidget);
+    expect(widget._rebuildCount, 2);
+  });
+
   testWidgets('Should rebuild widget conditionally', (tester) async {
     final widget = _RebuildWhenWidget();
     final scope = RefenaScope(

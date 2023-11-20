@@ -99,6 +99,13 @@ class ProxyRef implements Ref {
   }
 
   @override
+  void rebuild<N extends RebuildableNotifier<T>, T>(
+    BaseProvider<N, T> provider,
+  ) {
+    _ref.rebuild(provider);
+  }
+
+  @override
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
     _ref.internalDispose<N, T>(provider, _debugOriginRef);
   }

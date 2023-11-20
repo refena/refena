@@ -552,6 +552,7 @@ mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
     _rebuildController.dispose();
   }
 
+  /// Schedules a rebuild in the next microtask.
   @override
   @nonVirtual
   void rebuild(ChangeEvent? changeEvent, RebuildEvent? rebuildEvent) {

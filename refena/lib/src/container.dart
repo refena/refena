@@ -324,6 +324,13 @@ class RefenaContainer implements Ref, LabeledReference {
   }
 
   @override
+  void rebuild<N extends RebuildableNotifier<T>, T>(
+    BaseProvider<N, T> provider,
+  ) {
+    _getState(provider).rebuild(null, null);
+  }
+
+  @override
   void dispose<N extends BaseNotifier<T>, T>(
     BaseProvider<N, T> provider,
   ) {

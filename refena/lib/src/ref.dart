@@ -14,7 +14,9 @@ import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
+import 'package:refena/src/provider/types/future_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
+import 'package:refena/src/provider/types/view_provider.dart';
 import 'package:refena/src/provider/watchable.dart';
 
 /// The base ref to read and notify providers.
@@ -57,6 +59,19 @@ abstract interface class Ref {
   /// Get the [Future] of an [AsyncNotifierProvider].
   Future<T> future<N extends BaseAsyncNotifier<T>, T>(
     BaseProvider<N, AsyncValue<T>> provider,
+  );
+
+  /// Rebuilds a rebuildable provider (e.g. [ViewProvider], [FutureProvider])
+  /// in the next microtask, triggering a rebuild of all listeners.
+  ///
+  /// Remember:
+  /// Rebuildable providers allow you to watch other providers
+  /// within the builder function.
+  ///
+  /// This is **NOT** the same as calling [Ref.dispose] and then [Ref.read]
+  /// as the notifier is not disposed and listeners won't be notified.
+  void rebuild<N extends RebuildableNotifier<T>, T>(
+    BaseProvider<N, T> provider,
   );
 
   /// Disposes a [provider].
@@ -196,6 +211,13 @@ class WatchableRefImpl implements WatchableRef {
     final notifier = _ref.anyNotifier(provider);
     _onAccessNotifier!(notifier);
     return notifier.future; // ignore: invalid_use_of_protected_member
+  }
+
+  @override
+  void rebuild<N extends RebuildableNotifier<T>, T>(
+    BaseProvider<N, T> provider,
+  ) {
+    _ref.rebuild(provider);
   }
 
   @override
