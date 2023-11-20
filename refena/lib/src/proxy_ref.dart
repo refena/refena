@@ -1,15 +1,14 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/accessor.dart';
 import 'package:refena/src/action/dispatcher.dart';
+import 'package:refena/src/async_value.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
-import 'package:refena/src/notifier/types/async_notifier.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
-import 'package:refena/src/provider/types/async_notifier_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
 import 'package:refena/src/provider/watchable.dart';
 import 'package:refena/src/ref.dart';
@@ -87,8 +86,8 @@ class ProxyRef implements Ref {
   }
 
   @override
-  Future<T> future<N extends AsyncNotifier<T>, T>(
-    AsyncNotifierProvider<N, T> provider,
+  Future<T> future<N extends BaseAsyncNotifier<T>, T>(
+    BaseProvider<N, AsyncValue<T>> provider,
   ) {
     if (_onAccessNotifier == null) {
       return _ref.future<N, T>(provider);

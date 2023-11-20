@@ -43,7 +43,7 @@ class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
 }
 
 /// Builds the notifier and also registers the dependencies.
-N _build<N extends AsyncNotifier<T>, T>(
+N _build<N extends BaseAsyncNotifier<T>, T>(
   ProxyRef ref,
   N Function(Ref ref) builder,
 ) {

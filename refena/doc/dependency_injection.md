@@ -134,8 +134,8 @@ This additional type system allows Refena to provide lint rules that prevent thi
 
 ## Summary
 
-| Provider                                                | Inject rebuildable       | Inject non-rebuildable |
-|---------------------------------------------------------|--------------------------|------------------------|
-| Rebuildable<br>(`ViewProvider`)                         | `ref.watch`              | `ref.watch`            |
-| Non-rebuildable<br>(`NotiferProvider`, `ReduxProvider`) | `ref.accessor`           | `ref.read`             |
-| `Provider`                                              | change to `ViewProvider` | `ref.read`             |
+| Provider                                              | Inject rebuildable       | Inject non-rebuildable |
+|-------------------------------------------------------|--------------------------|------------------------|
+| Rebuildable<br>`ViewProvider`, `FutureProvider`       | `ref.watch`              | `ref.watch`            |
+| Non-rebuildable<br>`NotiferProvider`, `ReduxProvider` | `ref.accessor`           | `ref.read`             |
+| `Provider`                                            | change to `ViewProvider` | `ref.read`             |

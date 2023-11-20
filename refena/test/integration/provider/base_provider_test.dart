@@ -44,18 +44,18 @@ void main() {
 
     test(AsyncNotifierProvider, () {
       expect(
-        AsyncNotifierProvider<FutureProviderNotifier<int>, int>(
-          (ref) => FutureProviderNotifier(Future.value(0)),
+        AsyncNotifierProvider<_MyAsyncNotifier, int>(
+          (ref) => _MyAsyncNotifier(),
         ).toString(),
-        'AsyncNotifierProvider<FutureProviderNotifier<int>, int>(label: FutureProviderNotifier<int>)',
+        'AsyncNotifierProvider<_MyAsyncNotifier, int>(label: _MyAsyncNotifier)',
       );
 
       expect(
-        AsyncNotifierProvider<FutureProviderNotifier<int>, int>(
-          (ref) => FutureProviderNotifier(Future.value(0)),
+        AsyncNotifierProvider<_MyAsyncNotifier, int>(
+          (ref) => _MyAsyncNotifier(),
           debugLabel: 'Foo',
         ).toString(),
-        'AsyncNotifierProvider<FutureProviderNotifier<int>, int>(label: Foo)',
+        'AsyncNotifierProvider<_MyAsyncNotifier, int>(label: Foo)',
       );
     });
 
@@ -88,4 +88,9 @@ void main() {
 class _MyNotifier extends Notifier<int> {
   @override
   int init() => 0;
+}
+
+class _MyAsyncNotifier extends AsyncNotifier<int> {
+  @override
+  Future<int> init() async => 0;
 }

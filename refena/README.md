@@ -394,19 +394,21 @@ There are many types of providers. Each one has its own purpose.
 
 The most important ones are `Provider`, `NotifierProvider`, and `ReduxProvider` because they are the most flexible.
 
-| Provider                 | Usage                                | Notifier API   | Can `watch` |
-|--------------------------|--------------------------------------|----------------|-------------|
-| `Provider`               | Constants or stateless services      | -              | No          |
-| `FutureProvider`         | Immutable async values               | -              | No          |
-| `FutureFamilyProvider`   | Immutable collection of async values | -              | No          |
-| `StateProvider`          | Simple states                        | `setState`     | No          |
-| `StreamProvider`         | Streams                              | -              | No          |
-| `ChangeNotifierProvider` | Performance critical services        | Custom methods | No          |
-| `NotifierProvider`       | Regular services                     | Custom methods | No          |
-| `AsyncNotifierProvider`  | Services that need futures           | Custom methods | No          |
-| `ReduxProvider`          | Action based services                | Custom actions | No          |
-| `ViewProvider`           | View models                          | -              | Yes         |
-| `ViewFamilyProvider`     | View models with parameters          | -              | Yes         |
+| Provider                 | Usage                                | Notifier API   | Can `watch`\* |
+|--------------------------|--------------------------------------|----------------|---------------|
+| `Provider`               | Constants or stateless services      | -              | No            |
+| `FutureProvider`         | Immutable async values               | -              | Yes           |
+| `FutureFamilyProvider`   | Immutable collection of async values | -              | No            |
+| `StreamProvider`         | Streams                              | -              | No            |
+| `StateProvider`          | Simple states                        | `setState`     | No            |
+| `ChangeNotifierProvider` | Performance critical services        | Custom methods | No            |
+| `NotifierProvider`       | Regular services                     | Custom methods | No            |
+| `AsyncNotifierProvider`  | Services that need futures           | Custom methods | No            |
+| `ReduxProvider`          | Action based services                | Custom actions | No            |
+| `ViewProvider`           | View models                          | -              | Yes           |
+| `ViewFamilyProvider`     | View models with parameters          | -              | Yes           |
+
+\* `watch` means that you can use `ref.watch` inside the provider build lambda.
 
 ### ➤ Provider
 

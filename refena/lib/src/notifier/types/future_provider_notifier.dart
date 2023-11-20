@@ -1,27 +1,49 @@
-import 'package:meta/meta.dart';
-import 'package:refena/src/async_value.dart';
-import 'package:refena/src/notifier/types/async_notifier.dart';
+part of '../base_notifier.dart';
 
 /// The corresponding notifier of a [FutureProvider].
-final class FutureProviderNotifier<T> extends AsyncNotifier<T> {
-  final Future<T> _future;
-  final String Function(AsyncValue<T> state)? _describeState;
-
+final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
+    with RebuildableNotifier
+    implements Rebuildable {
   FutureProviderNotifier(
-    this._future, {
+    this._builder, {
     String Function(AsyncValue<T> state)? describeState,
     super.debugLabel,
   }) : _describeState = describeState;
 
+  final Future<T> Function(WatchableRef ref) _builder;
+  final String Function(AsyncValue<T> state)? _describeState;
+
   @override
   Future<T> init() {
-    return _future;
+    _rebuildController.stream.listen((event) {
+      // rebuild notifier state
+      _setFutureAndListenRebuild(event);
+    });
+    return _callAndTrackNotifiers(_builder);
   }
 
-  @internal
-  @override
-  set future(Future<T> value) {
-    throw UnsupportedError('Cannot set future on FutureProviderNotifier');
+  /// The rebuild version of [BaseAsyncNotifier._setFutureAndListen].
+  @nonVirtual
+  void _setFutureAndListenRebuild(List<AbstractChangeEvent> causes) async {
+    _future = _callAndTrackNotifiers(_builder);
+    _futureCount++;
+    final currentCount = _futureCount;
+    _setStateAsRebuild(this, AsyncValue<T>.loading(_prev), causes);
+    try {
+      final value = await _future;
+      if (currentCount != _futureCount) {
+        // The future has been changed in the meantime.
+        return;
+      }
+      state = AsyncValue.data(value);
+      _prev = value; // drop the previous state
+    } catch (error, stackTrace) {
+      if (currentCount != _futureCount) {
+        // The future has been changed in the meantime.
+        return;
+      }
+      state = AsyncValue<T>.error(error, stackTrace, _prev);
+    }
   }
 
   @override

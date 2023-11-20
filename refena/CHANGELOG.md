@@ -1,3 +1,7 @@
+## 1.4.0
+
+- feat: `FutureProvider` is now rebuildable (`ref.watch` is allowed)
+
 ## 1.3.0
 
 - feat: add `Ref.accessor`

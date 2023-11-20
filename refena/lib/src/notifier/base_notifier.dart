@@ -22,6 +22,8 @@ import 'package:refena/src/reference.dart';
 import 'package:refena/src/util/batched_stream_controller.dart';
 import 'package:refena/src/util/stacktrace.dart';
 
+part 'types/future_provider_notifier.dart';
+
 part 'types/redux_notifier.dart';
 
 part 'types/view_family_provider_notifier.dart';
@@ -293,7 +295,7 @@ extension InternalBaseNotifierExt<T> on BaseNotifier<T> {
     _listeners.dispose();
     _onChangedSubscription?.cancel();
 
-    // Remove from dependency graph
+// Remove from dependency graph
     for (final dependency in dependencies) {
       dependency.dependents.remove(this);
     }
@@ -490,6 +492,94 @@ class AsyncNotifierTester<N extends BaseAsyncNotifier<T>, T> {
 
   /// Gets the current state.
   AsyncValue<T> get state => notifier.state;
+}
+
+mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
+  late final WatchableRefImpl _watchableRef;
+  final _rebuildController = BatchedStreamController<AbstractChangeEvent>();
+
+  /// Calls [builder] and tracks all accessed notifiers.
+  /// Returns the result of [builder].
+  @nonVirtual
+  R _callAndTrackNotifiers<R>(R Function(WatchableRef) builder) {
+    final oldDependencies = {...dependencies};
+    dependencies.clear();
+
+    final R nextState = _watchableRef.trackNotifier(
+      onAccess: (notifier) {
+        final added = dependencies.add(notifier);
+        if (!added) {
+          printAlreadyWatchedWarning(
+            rebuildable: this,
+            notifier: notifier,
+          );
+        }
+        notifier.dependents.add(this);
+      },
+      run: () => builder(_watchableRef),
+    );
+
+    final removedDependencies = oldDependencies.difference(dependencies);
+    for (final removedDependency in removedDependencies) {
+      // remove from dependency graph
+      removedDependency.dependents.remove(this);
+
+      // remove listener to avoid future rebuilds
+      removedDependency._listeners.removeListener(this);
+    }
+
+    return nextState;
+  }
+
+  @internal
+  @override
+  @nonVirtual
+  void internalSetup(
+    ProxyRef ref,
+    BaseProvider<BaseNotifier<T>, T>? provider,
+  ) {
+    _watchableRef = WatchableRefImpl(
+      container: ref.container,
+      rebuildable: this,
+    );
+
+    super.internalSetup(ref, provider);
+  }
+
+  @override
+  @nonVirtual
+  void dispose() {
+    _rebuildController.dispose();
+  }
+
+  @override
+  @nonVirtual
+  void rebuild(ChangeEvent? changeEvent, RebuildEvent? rebuildEvent) {
+    assert(
+      changeEvent == null || rebuildEvent == null,
+      'Cannot have both changeEvent and rebuildEvent',
+    );
+
+    if (changeEvent != null) {
+      _rebuildController.schedule(changeEvent);
+    } else if (rebuildEvent != null) {
+      _rebuildController.schedule(rebuildEvent);
+    } else {
+      _rebuildController.schedule(null);
+    }
+  }
+
+  @override
+  @nonVirtual
+  void onDisposeWidget() {}
+
+  @override
+  @nonVirtual
+  void notifyListenerTarget(BaseNotifier notifier) {}
+
+  @override
+  @nonVirtual
+  bool get isWidget => false;
 }
 
 @internal

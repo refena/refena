@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:meta/meta.dart';
 import 'package:refena/src/accessor.dart';
 import 'package:refena/src/action/dispatcher.dart';
+import 'package:refena/src/async_value.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/listener.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
-import 'package:refena/src/notifier/types/async_notifier.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
@@ -55,8 +55,8 @@ abstract interface class Ref {
   );
 
   /// Get the [Future] of an [AsyncNotifierProvider].
-  Future<T> future<N extends AsyncNotifier<T>, T>(
-    AsyncNotifierProvider<N, T> provider,
+  Future<T> future<N extends BaseAsyncNotifier<T>, T>(
+    BaseProvider<N, AsyncValue<T>> provider,
   );
 
   /// Disposes a [provider].
@@ -186,8 +186,8 @@ class WatchableRefImpl implements WatchableRef {
   }
 
   @override
-  Future<T> future<N extends AsyncNotifier<T>, T>(
-    AsyncNotifierProvider<N, T> provider,
+  Future<T> future<N extends BaseAsyncNotifier<T>, T>(
+    BaseProvider<N, AsyncValue<T>> provider,
   ) {
     if (_onAccessNotifier == null) {
       return _ref.future<N, T>(provider);
