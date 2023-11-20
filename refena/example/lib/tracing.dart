@@ -84,6 +84,12 @@ class MyPage extends StatelessWidget {
                 ),
                 FilledButton(
                   onPressed: () {
+                    context.dispatch(MyGlobalAction());
+                  },
+                  child: Text('Global Action'),
+                ),
+                FilledButton(
+                  onPressed: () {
                     context.ref
                         .redux(counterProvider)
                         .dispatch(NestedAddAction());
@@ -217,6 +223,13 @@ class FailedDioAction extends AsyncReduxAction<CounterService, CounterState> {
     // throw 'Test Error';
     await Dio().get('https://restful-booker.herokuapp.com/abc');
     return state;
+  }
+}
+
+class MyGlobalAction extends GlobalAction {
+  @override
+  void reduce() {
+    ref.message('From global action!');
   }
 }
 

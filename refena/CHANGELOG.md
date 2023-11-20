@@ -2,6 +2,7 @@
 
 - feat: add `Ref.accessor`
 - feat: add `context.dispatch` and `context.dispatchAsync` shorthands to dispatch global actions
+- feat(tracing): show GlobalAction icon
 
 ## 1.2.0
 

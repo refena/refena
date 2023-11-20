@@ -44,6 +44,7 @@ class InputEvent {
   // ActionDispatchedEvent
   final int? actionId;
   final String? actionLabel;
+  final bool isGlobal;
 
   // ActionFinishedEvent
   final String? actionResult;
@@ -67,6 +68,7 @@ class InputEvent {
     required this.parentAction,
     required this.actionId,
     required this.actionLabel,
+    required this.isGlobal,
     required this.actionResult,
     required this.actionLifecycle,
     required this.actionError,
@@ -87,6 +89,7 @@ class InputEvent {
     this.parentAction,
     this.actionId,
     this.actionLabel,
+    this.isGlobal = false,
     this.actionResult,
     this.actionLifecycle,
     this.actionError,
@@ -132,6 +135,7 @@ class InputEvent {
       parentAction: ext['parentAction'] as int?,
       actionId: ext['actionId'] as int?,
       actionLabel: ext['actionLabel'] as String?,
+      isGlobal: ext['isGlobal'] as bool? ?? false,
       actionResult: ext['actionResult'] as String?,
       actionLifecycle: ext['actionLifecycle'] == null
           ? null
@@ -285,6 +289,10 @@ class InputEvent {
         ChangeEvent() => event.action?.debugLabel,
         ActionDispatchedEvent() => event.action.debugLabel,
         _ => null,
+      },
+      isGlobal: switch (event) {
+        ActionDispatchedEvent() => event.notifier is GlobalRedux,
+        _ => false,
       },
       actionResult: switch (event) {
         ActionFinishedEvent() =>
