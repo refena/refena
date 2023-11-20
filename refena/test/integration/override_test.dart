@@ -364,10 +364,8 @@ void main() {
       final ref = RefenaContainer(
         overrides: [
           provider.overrideWithReducer(
-            notifier: (ref) => _ReduxNotifier(),
             reducer: {
-              _IncAction: (state) => state + 21,
-              _DecAction: null,
+              _IncAction: (state) => state - 23,
             },
           ),
         ],
@@ -377,16 +375,68 @@ void main() {
 
       // Should use the overridden reducer
       ref.redux(provider).dispatch(_IncAction());
-      expect(ref.read(provider), 144);
-
-      // Should not change the state
-      ref.redux(provider).dispatch(_DecAction());
-      expect(ref.read(provider), 144);
+      expect(ref.read(provider), 100);
 
       // Should not be overridden
       // ignore: invalid_use_of_protected_member
       ref.anyNotifier(provider).dispatch(_HalfAction());
-      expect(ref.read(provider), 72);
+      expect(ref.read(provider), 50);
+    });
+
+    test('Should override with reducer with result', () {
+      final provider =
+          ReduxProvider<_ReduxNotifier, int>((ref) => _ReduxNotifier());
+      final ref = RefenaContainer(
+        overrides: [
+          provider.overrideWithReducer(
+            reducer: {
+              _IncAndDoubleAction: (state) {
+                final result = state - 23;
+                return (result, (result * 3).toString());
+              },
+            },
+          ),
+        ],
+      );
+
+      expect(ref.read(provider), 123);
+
+      // Should use the overridden reducer (with result)
+      final (nextState, result) =
+          ref.redux(provider).dispatchWithResult(_IncAndDoubleAction());
+      expect(nextState, 100);
+      expect(result, '300');
+
+      // Should not be overridden
+      // ignore: invalid_use_of_protected_member
+      ref.anyNotifier(provider).dispatch(_HalfAction());
+      expect(ref.read(provider), 50);
+    });
+
+    test('Should override with null reducer', () {
+      final provider =
+          ReduxProvider<_ReduxNotifier, int>((ref) => _ReduxNotifier());
+      final ref = RefenaContainer(
+        overrides: [
+          provider.overrideWithReducer(
+            initialState: 100,
+            reducer: {
+              _DecAction: null,
+            },
+          ),
+        ],
+      );
+
+      expect(ref.read(provider), 100);
+
+      // Should not change the state
+      ref.redux(provider).dispatch(_DecAction());
+      expect(ref.read(provider), 100);
+
+      // Should not be overridden
+      // ignore: invalid_use_of_protected_member
+      ref.anyNotifier(provider).dispatch(_HalfAction());
+      expect(ref.read(provider), 50);
     });
 
     test('Should override with initial state', () {
@@ -508,6 +558,14 @@ class _IncAction extends ReduxAction<_ReduxNotifier, int> {
   @override
   int reduce() {
     return state + 1;
+  }
+}
+
+class _IncAndDoubleAction
+    extends ReduxActionWithResult<_ReduxNotifier, int, String> {
+  @override
+  (int, String) reduce() {
+    return (state + 1, (state * 2).toString());
   }
 }
 
