@@ -132,6 +132,17 @@ class _EntryTileState extends State<_EntryTile>
                                   ),
                               },
                             ),
+                          if (e.isGlobal)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Tooltip(
+                                message: 'GlobalAction',
+                                child: Icon(
+                                  Icons.language,
+                                  size: 16,
+                                ),
+                              ),
+                            ),
                           if (e.debugOrigin != null && widget.depth == 0)
                             Padding(
                               padding: const EdgeInsets.only(left: 8),
@@ -203,6 +214,7 @@ class _EntryTileState extends State<_EntryTile>
                             child: _EntryDetail(
                               errorParser: widget.errorParser,
                               isWidget: widget.entry.isWidget,
+                              isGlobalAction: e.isGlobal,
                               superseded: widget.entry.superseded,
                               error: widget.entry.error,
                               attributes: switch (e.type) {
@@ -293,6 +305,7 @@ class _EntryBadge extends StatelessWidget {
 class _EntryDetail extends StatelessWidget {
   final ErrorParser? errorParser;
   final bool isWidget;
+  final bool isGlobalAction;
   final bool superseded;
   final _ErrorEntry? error;
   final Map<String, String> attributes;
@@ -300,6 +313,7 @@ class _EntryDetail extends StatelessWidget {
   const _EntryDetail({
     required this.errorParser,
     required this.isWidget,
+    required this.isGlobalAction,
     required this.superseded,
     required this.error,
     required this.attributes,
@@ -351,6 +365,11 @@ class _EntryDetail extends StatelessWidget {
                 color: Colors.orange,
               ),
             ),
+          ),
+        if (isGlobalAction)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 10),
+            child: Text('This is a global action.'),
           ),
         Row(
           children: [
