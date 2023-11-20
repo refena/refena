@@ -2,7 +2,6 @@ part of '../base_notifier.dart';
 
 /// The corresponding notifier of a [ViewFamilyProvider].
 final class ViewFamilyProviderNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
-    with _ViewNotifierSetStateMixin<Map<P, T>>
     implements Rebuildable, FamilyNotifier<Map<P, T>, P> {
   late final WatchableRef _watchableRef;
   final ViewFamilyBuilder<T, P> _builder;
@@ -23,7 +22,7 @@ final class ViewFamilyProviderNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
   void postInit() {
     _rebuildController.stream.listen((event) {
       // rebuild notifier state
-      _setStateCustom(
+      _setStateAsRebuild(
         this,
         {
           for (final entry in _providers.entries)
@@ -49,7 +48,7 @@ final class ViewFamilyProviderNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
     _providers[param] = provider;
     _initDependencies(provider);
 
-    _setStateCustom(
+    _setStateAsRebuild(
       this,
       {
         ...state,

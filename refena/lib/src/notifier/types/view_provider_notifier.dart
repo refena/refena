@@ -1,7 +1,6 @@
 part of '../base_notifier.dart';
 
 final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
-    with _ViewNotifierSetStateMixin<T>
     implements Rebuildable {
   ViewProviderNotifier(
     this._builder, {
@@ -18,7 +17,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   T init() {
     _rebuildController.stream.listen((event) {
       // rebuild notifier state
-      _setStateCustom(
+      _setStateAsRebuild(
         this,
         _build(),
         event,

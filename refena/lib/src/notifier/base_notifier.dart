@@ -128,6 +128,40 @@ abstract class BaseNotifier<T> implements LabeledReference {
     }
   }
 
+  /// Similar to [_setState],
+  /// but a [RebuildEvent] event is dispatched to the observer instead.
+  @nonVirtual
+  void _setStateAsRebuild(
+    Rebuildable rebuildable,
+    T value,
+    List<AbstractChangeEvent> causes,
+  ) {
+    if (!_initialized) {
+      _state = value;
+      return;
+    }
+
+    final oldState = _state;
+    _state = value;
+
+    if (_initialized && updateShouldNotify(oldState, _state)) {
+      final observer = _observer;
+      if (observer != null) {
+        final event = RebuildEvent<T>(
+          rebuildable: rebuildable,
+          causes: causes,
+          prev: oldState,
+          next: value,
+          rebuild: [], // will be modified by notifyAll
+        );
+        _listeners.notifyAll(prev: oldState, next: _state, rebuildEvent: event);
+        observer.dispatchEvent(event);
+      } else {
+        _listeners.notifyAll(prev: oldState, next: _state);
+      }
+    }
+  }
+
   /// This is called on [Ref.dispose].
   /// You can override this method to dispose resources.
   @protected
@@ -456,40 +490,6 @@ class AsyncNotifierTester<N extends BaseAsyncNotifier<T>, T> {
 
   /// Gets the current state.
   AsyncValue<T> get state => notifier.state;
-}
-
-mixin _ViewNotifierSetStateMixin<T> on BaseSyncNotifier<T> {
-  /// See [BaseNotifier._setState] for reference.
-  void _setStateCustom(
-    Rebuildable rebuildable,
-    T value,
-    List<AbstractChangeEvent> causes,
-  ) {
-    if (!_initialized) {
-      _state = value;
-      return;
-    }
-
-    final oldState = _state;
-    _state = value;
-
-    if (_initialized && updateShouldNotify(oldState, _state)) {
-      final observer = _observer;
-      if (observer != null) {
-        final event = RebuildEvent<T>(
-          rebuildable: rebuildable,
-          causes: causes,
-          prev: oldState,
-          next: value,
-          rebuild: [], // will be modified by notifyAll
-        );
-        _listeners.notifyAll(prev: oldState, next: _state, rebuildEvent: event);
-        observer.dispatchEvent(event);
-      } else {
-        _listeners.notifyAll(prev: oldState, next: _state);
-      }
-    }
-  }
 }
 
 @internal
