@@ -10,7 +10,7 @@ import 'package:refena/src/reference.dart';
 ///
 /// Usage:
 /// ref.redux(myReduxProvider).dispatch(SubtractAction(2));
-class Dispatcher<N extends BaseReduxNotifier<T>, T> {
+class Dispatcher<N extends ReduxNotifier<T>, T> {
   Dispatcher({
     required this.notifier,
     required this.debugOrigin,

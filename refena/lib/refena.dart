@@ -17,6 +17,7 @@ export 'package:refena/src/notifier/base_notifier.dart'
         NotifyStrategy,
         ViewProviderNotifier,
         ViewFamilyProviderNotifier,
+        ReduxNotifier,
         ReduxNotifierOverrideExt,
         GlobalReduxNotifierOverrideExt,
         MockReducer,
@@ -33,7 +34,6 @@ export 'package:refena/src/notifier/types/future_provider_notifier.dart';
 export 'package:refena/src/notifier/types/immutable_notifier.dart';
 export 'package:refena/src/notifier/types/notifier.dart';
 export 'package:refena/src/notifier/types/pure_notifier.dart';
-export 'package:refena/src/notifier/types/redux_notifier.dart';
 export 'package:refena/src/notifier/types/state_notifier.dart';
 export 'package:refena/src/notifier/types/stream_provider_notifier.dart';
 export 'package:refena/src/observer/error_parser.dart' show ErrorParser;

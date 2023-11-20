@@ -18,7 +18,7 @@ import 'package:refena/src/notifier/base_notifier.dart';
 ///     return 42;
 ///   }
 /// }
-abstract class RefreshAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
+abstract class RefreshAction<N extends ReduxNotifier<AsyncValue<T>>, T>
     extends AsyncReduxAction<N, AsyncValue<T>> {
   /// Implement the refresh logic here.
   Future<T> refresh();
@@ -41,7 +41,7 @@ abstract class RefreshAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
 }
 
 /// Sets the state of a [ReduxNotifier] to [AsyncValue.loading].
-class RefreshSetLoadingAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
+class RefreshSetLoadingAction<N extends ReduxNotifier<AsyncValue<T>>, T>
     extends ReduxAction<N, AsyncValue<T>> {
   final T? previousData;
 
@@ -66,7 +66,7 @@ class RefreshSetLoadingAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
 }
 
 /// Sets the state of a [ReduxNotifier] to [AsyncValue.withError].
-class RefreshSetErrorAction<N extends BaseReduxNotifier<AsyncValue<T>>, T>
+class RefreshSetErrorAction<N extends ReduxNotifier<AsyncValue<T>>, T>
     extends ReduxAction<N, AsyncValue<T>> {
   final Object error;
   final StackTrace stackTrace;

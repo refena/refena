@@ -40,7 +40,7 @@ abstract interface class Ref {
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider);
 
   /// Get a proxy class to dispatch actions to a [ReduxNotifier].
-  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T>(
+  Dispatcher<N, T> redux<N extends ReduxNotifier<T>, T>(
     ReduxProvider<N, T> provider,
   );
 
@@ -160,7 +160,7 @@ class WatchableRefImpl implements WatchableRef {
   }
 
   @override
-  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T>(
+  Dispatcher<N, T> redux<N extends ReduxNotifier<T>, T>(
     ReduxProvider<N, T> provider,
   ) {
     final notifier = _ref.anyNotifier(provider);

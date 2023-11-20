@@ -59,7 +59,7 @@ extension ContextRefExt on BuildContext {
 
   /// Shorthand for `context.ref.redux()`.
   /// See [Ref.redux] for more information.
-  Dispatcher<N, T> redux<N extends BaseReduxNotifier<T>, T>(
+  Dispatcher<N, T> redux<N extends ReduxNotifier<T>, T>(
     ReduxProvider<N, T> provider,
   ) {
     return ref.redux(provider);

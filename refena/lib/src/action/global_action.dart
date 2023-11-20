@@ -15,7 +15,7 @@ final class GlobalRedux extends ReduxNotifier<void> {
   void init() {}
 }
 
-mixin GlobalActions<N extends BaseReduxNotifier<T>, T, R>
+mixin GlobalActions<N extends ReduxNotifier<T>, T, R>
     on BaseReduxAction<N, T, R> {
   /// Access the global dispatcher.
   late final global = GlobalActionDispatcher(_ref);

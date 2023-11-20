@@ -43,7 +43,7 @@ part of 'redux_action.dart';
 /// }
 ///
 /// {@category Redux}
-abstract class WatchAction<N extends BaseReduxNotifier<T>, T>
+abstract class WatchAction<N extends ReduxNotifier<T>, T>
     extends BaseReduxActionWithResult<N, T, WatchActionSubscription>
     implements Rebuildable {
   /// The dependencies of this [WatchAction].
@@ -193,7 +193,7 @@ class WatchActionSubscription {
 }
 
 /// A simple action that updates the state.
-final class WatchUpdateAction<N extends BaseReduxNotifier<T>, T>
+final class WatchUpdateAction<N extends ReduxNotifier<T>, T>
     extends ReduxAction<N, T> {
   final T newState;
 

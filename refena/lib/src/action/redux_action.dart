@@ -8,7 +8,6 @@ import 'package:refena/src/action/global_action_dispatcher.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
-import 'package:refena/src/notifier/types/redux_notifier.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
@@ -24,7 +23,7 @@ part 'watch_action.dart';
 
 /// The action that is dispatched by a [ReduxNotifier].
 /// You should use [ReduxAction] or [AsyncReduxAction] instead.
-abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
+abstract class BaseReduxAction<N extends ReduxNotifier<T>, T, R>
     with IdReference
     implements LabeledReference {
   BaseReduxAction();
@@ -135,10 +134,10 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
   /// }
   /// // ...
   /// external(notifier.serviceB).dispatch(SubtractAction(11));
-  Dispatcher<BaseReduxNotifier<T2>, T2> external<T2>(
-    BaseReduxNotifier<T2> notifier,
+  Dispatcher<ReduxNotifier<T2>, T2> external<T2>(
+    ReduxNotifier<T2> notifier,
   ) {
-    return Dispatcher<BaseReduxNotifier<T2>, T2>(
+    return Dispatcher<ReduxNotifier<T2>, T2>(
       notifier: notifier,
       debugOrigin: debugLabel,
       debugOriginRef: this,
@@ -189,7 +188,7 @@ abstract class BaseReduxAction<N extends BaseReduxNotifier<T>, T, R>
 }
 
 @internal
-extension InternalBaseReduxActionExt<N extends BaseReduxNotifier<T>, T, R>
+extension InternalBaseReduxActionExt<N extends ReduxNotifier<T>, T, R>
     on BaseReduxAction<N, T, R> {
   void internalSetup(Ref? ref, N notifier, RefenaObserver? observer) {
     _originalRef = ref;
@@ -199,7 +198,7 @@ extension InternalBaseReduxActionExt<N extends BaseReduxNotifier<T>, T, R>
 }
 
 @internal
-abstract class SynchronousReduxAction<N extends BaseReduxNotifier<T>, T, R>
+abstract class SynchronousReduxAction<N extends ReduxNotifier<T>, T, R>
     extends BaseReduxAction<N, T, R> {
   SynchronousReduxAction();
 
@@ -213,7 +212,7 @@ abstract class SynchronousReduxAction<N extends BaseReduxNotifier<T>, T, R>
 }
 
 @internal
-abstract class AsynchronousReduxAction<N extends BaseReduxNotifier<T>, T, R>
+abstract class AsynchronousReduxAction<N extends ReduxNotifier<T>, T, R>
     extends BaseReduxAction<N, T, R> {
   AsynchronousReduxAction();
 
@@ -230,7 +229,7 @@ abstract class AsynchronousReduxAction<N extends BaseReduxNotifier<T>, T, R>
 /// Trigger this with [dispatch].
 ///
 /// {@category Redux}
-abstract class ReduxAction<N extends BaseReduxNotifier<T>, T>
+abstract class ReduxAction<N extends ReduxNotifier<T>, T>
     extends SynchronousReduxAction<N, T, void> {
   ReduxAction();
 
@@ -262,7 +261,7 @@ abstract class ReduxAction<N extends BaseReduxNotifier<T>, T>
 /// Trigger this with [dispatchAsync].
 ///
 /// {@category Redux}
-abstract class AsyncReduxAction<N extends BaseReduxNotifier<T>, T>
+abstract class AsyncReduxAction<N extends ReduxNotifier<T>, T>
     extends AsynchronousReduxAction<N, T, void> {
   /// The method that returns the new state.
   Future<T> reduce();
@@ -291,7 +290,7 @@ abstract class AsyncReduxAction<N extends BaseReduxNotifier<T>, T>
 /// A helper class in the hierarchy to allow
 /// [ReduxActionWithResult] and [GlobalActionWithResult].
 @internal
-abstract class BaseReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
+abstract class BaseReduxActionWithResult<N extends ReduxNotifier<T>, T, R>
     extends SynchronousReduxAction<N, T, R> {}
 
 /// The action that is dispatched by a [ReduxNotifier].
@@ -302,7 +301,7 @@ abstract class BaseReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
 /// Trigger this with [dispatch], [dispatchWithResult] or [dispatchTakeResult].
 ///
 /// {@category Redux}
-abstract class ReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
+abstract class ReduxActionWithResult<N extends ReduxNotifier<T>, T, R>
     extends BaseReduxActionWithResult<N, T, R> {
   /// The method that returns the new state.
   (T, R) reduce();
@@ -323,8 +322,8 @@ abstract class ReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
 /// A helper class in the hierarchy to allow
 /// [AsyncReduxActionWithResult] and [AsyncGlobalActionWithResult].
 @internal
-abstract class BaseAsyncReduxActionWithResult<N extends BaseReduxNotifier<T>, T,
-    R> extends AsynchronousReduxAction<N, T, R> {}
+abstract class BaseAsyncReduxActionWithResult<N extends ReduxNotifier<T>, T, R>
+    extends AsynchronousReduxAction<N, T, R> {}
 
 /// The asynchronous action that is dispatched by a [ReduxNotifier].
 ///
@@ -335,7 +334,7 @@ abstract class BaseAsyncReduxActionWithResult<N extends BaseReduxNotifier<T>, T,
 /// [dispatchAsyncTakeResult].
 ///
 /// {@category Redux}
-abstract class AsyncReduxActionWithResult<N extends BaseReduxNotifier<T>, T, R>
+abstract class AsyncReduxActionWithResult<N extends ReduxNotifier<T>, T, R>
     extends BaseAsyncReduxActionWithResult<N, T, R> {
   /// The method that returns the new state.
   Future<(T, R)> reduce();
