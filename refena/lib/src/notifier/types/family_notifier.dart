@@ -44,6 +44,7 @@ final class FamilyNotifier<T, F, P extends BaseProvider<BaseNotifier<T>, T>>
             ),
         },
         event,
+        null,
       );
     });
   }
@@ -112,7 +113,9 @@ final class FamilyNotifier<T, F, P extends BaseProvider<BaseNotifier<T>, T>>
   }
 
   @override
-  void rebuildImmediately() => throw UnimplementedError();
+  void rebuildImmediately(LabeledReference debugOrigin) {
+    throw UnimplementedError();
+  }
 }
 
 @internal

@@ -111,6 +111,7 @@ class InputEvent {
         'parentAction': parentAction,
         'actionId': actionId,
         'actionLabel': actionLabel,
+        'isGlobal': isGlobal,
         'actionResult': actionResult,
         'actionLifecycle': actionLifecycle?.index,
         'actionError': actionError,
@@ -199,6 +200,7 @@ class InputEvent {
         MessageEvent() => event.message,
       },
       debugOrigin: switch (event) {
+        RebuildEvent() => event.debugOrigin?.debugLabel,
         ProviderDisposeEvent() => event.debugOrigin.debugLabel,
         ActionDispatchedEvent() => event.debugOrigin,
         MessageEvent() => event.origin.debugLabel,
@@ -218,8 +220,11 @@ class InputEvent {
             ? {}
             : {
                 'Notifier': event.rebuildable.debugLabel,
-                'Triggered by':
+                'Triggered by': switch (event.debugOrigin) {
+                  != null => 'Ref.rebuild in ${event.debugOrigin!.debugLabel}',
+                  _ =>
                     event.causes.map((e) => e.stateType.toString()).join(', '),
+                },
                 'Prev': formatValue((event.rebuildable as BaseNotifier)
                     .describeState(event.prev)),
                 'Next': formatValue((event.rebuildable as BaseNotifier)
@@ -268,6 +273,10 @@ class InputEvent {
         _ => null,
       },
       parentAction: switch (event) {
+        RebuildEvent() => switch (event.debugOrigin) {
+            BaseReduxAction a => a.id,
+            _ => null,
+          },
         ActionDispatchedEvent() => switch (event.debugOriginRef) {
             BaseReduxAction a => a.id,
             _ => null,

@@ -57,6 +57,7 @@ void main() {
             rebuild: [viewNotifier],
           ),
         ],
+        debugOrigin: null,
         prev: 123,
         next: 124,
         rebuild: [],

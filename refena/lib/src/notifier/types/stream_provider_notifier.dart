@@ -21,10 +21,18 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
 
   @override
   AsyncValue<T> init() {
-    _buildStream(rebuild: false, events: const []);
+    _buildStream(
+      rebuild: false,
+      events: const [],
+      debugOrigin: null,
+    );
     _rebuildController.stream.listen((event) {
       // rebuild stream
-      _buildStream(rebuild: true, events: event);
+      _buildStream(
+        rebuild: true,
+        events: event,
+        debugOrigin: null,
+      );
     });
     return AsyncValue<T>.loading();
   }
@@ -37,6 +45,7 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
   Stream<T> _buildStream({
     required bool rebuild,
     required List<AbstractChangeEvent> events,
+    required LabeledReference? debugOrigin,
   }) {
     _subscription?.cancel(); // ignore: unawaited_futures
     _dependencyListener?.cancel();
@@ -50,6 +59,7 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
         this,
         loadingState,
         events,
+        debugOrigin,
       );
     } else {
       _state = loadingState;
@@ -85,7 +95,11 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
   }
 
   @override
-  Stream<T> rebuildImmediately() {
-    return _buildStream(rebuild: true, events: const []);
+  Stream<T> rebuildImmediately(LabeledReference debugOrigin) {
+    return _buildStream(
+      rebuild: true,
+      events: const [],
+      debugOrigin: debugOrigin,
+    );
   }
 }

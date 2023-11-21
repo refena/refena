@@ -56,6 +56,7 @@ void main() {
         RebuildEvent(
           rebuildable: viewNotifier,
           causes: [],
+          debugOrigin: ref,
           prev: 1,
           next: 11,
           rebuild: [],
@@ -178,6 +179,7 @@ void main() {
         RebuildEvent(
           rebuildable: futureNotifier,
           causes: [],
+          debugOrigin: ref,
           prev: AsyncValue<int>.data(1),
           next: AsyncValue<int>.loading(1),
           rebuild: [],
@@ -323,6 +325,7 @@ void main() {
         RebuildEvent(
           rebuildable: streamNotifier,
           causes: [],
+          debugOrigin: ref,
           prev: AsyncValue<int>.data(1),
           next: AsyncValue<int>.loading(1),
           rebuild: [],

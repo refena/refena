@@ -21,6 +21,7 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
         this,
         _callAndSetDependencies(),
         event,
+        null,
       );
     });
     return _callAndSetDependencies();
@@ -35,12 +36,13 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   }
 
   @override
-  T rebuildImmediately() {
+  T rebuildImmediately(LabeledReference debugOrigin) {
     final T nextState = _callAndSetDependencies();
     _setStateAsRebuild(
       this,
       nextState,
-      [],
+      const [],
+      debugOrigin,
     );
     return nextState;
   }

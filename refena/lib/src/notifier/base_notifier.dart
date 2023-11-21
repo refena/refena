@@ -137,6 +137,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
     Rebuildable rebuildable,
     T value,
     List<AbstractChangeEvent> causes,
+    LabeledReference? debugOrigin,
   ) {
     if (!_initialized) {
       _state = value;
@@ -155,6 +156,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
           prev: oldState,
           next: value,
           rebuild: [], // will be modified by notifyAll
+          debugOrigin: debugOrigin,
         );
         _listeners.notifyAll(prev: oldState, next: _state, rebuildEvent: event);
         observer.dispatchEvent(event);
@@ -633,7 +635,7 @@ mixin RebuildableNotifier<T, R> on BaseNotifier<T> implements Rebuildable {
   }
 
   /// Rebuilds the notifier immediately.
-  R rebuildImmediately();
+  R rebuildImmediately(LabeledReference debugOrigin);
 
   @override
   @nonVirtual

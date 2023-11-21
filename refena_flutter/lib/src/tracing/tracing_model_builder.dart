@@ -29,22 +29,34 @@ List<_TracingEntry> _buildEntries(
         result.add(created);
         break;
       case InputEventType.rebuild:
+        // Ref.rebuild inside an action
+        final originActionId = e.parentAction;
+        if (originActionId != null) {
+          final existing = _findEventWithAction(result, originActionId);
+
+          if (existing != null) {
+            existing.children.add(_createRebuildEntry(e, false, maxId));
+            continue;
+          }
+
+          result.add(_createRebuildEntry(e, false, maxId));
+          continue;
+        }
+
+        // Ref.rebuild outside an action
+        final debugOrigin = e.debugOrigin;
+        if (debugOrigin != null) {
+          result.add(_createRebuildEntry(e, false, maxId));
+          continue;
+        }
+
+        // Rebuild due to a change of a parent
         final causes = e.parentEvents!;
         for (int i = 0; i < causes.length; i++) {
           final existing = _findEvent(result, causes[i]);
           if (existing != null) {
             final superseded = i != causes.length - 1;
-            final created = _TracingEntry(
-              e,
-              [],
-              superseded: superseded,
-            );
-
-            if (!superseded) {
-              _addWidgetEntries(maxId, created, e.rebuildWidgets!);
-            }
-
-            existing.children.add(created);
+            existing.children.add(_createRebuildEntry(e, superseded, maxId));
           }
         }
         break;
@@ -148,6 +160,24 @@ _TracingEntry? _findEvent(
   }
 
   return null;
+}
+
+_TracingEntry _createRebuildEntry(
+  InputEvent e,
+  bool superseded,
+  int maxId,
+) {
+  final created = _TracingEntry(
+    e,
+    [],
+    superseded: superseded,
+  );
+
+  if (!superseded) {
+    _addWidgetEntries(maxId, created, e.rebuildWidgets!);
+  }
+
+  return created;
 }
 
 final _idProvider = IdProvider();

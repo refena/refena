@@ -3,6 +3,7 @@ import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
 import 'package:refena/src/provider/base_provider.dart';
+import 'package:refena/src/ref.dart';
 import 'package:refena/src/reference.dart';
 import 'package:refena/src/util/time_provider.dart';
 
@@ -27,7 +28,7 @@ sealed class AbstractChangeEvent<T> extends RefenaEvent {
   final T next;
 
   /// A list of rebuildable objects that should be rebuilt in the next tick.
-  /// This is the case if one view provider is dependent on another one.
+  /// This is the case if a [Rebuildable] is watching the current provider.
   final List<Rebuildable> rebuild;
 
   AbstractChangeEvent({
@@ -100,9 +101,15 @@ class RebuildEvent<T> extends AbstractChangeEvent<T> {
   /// of a [ViewFamilyProviderNotifier].
   final List<AbstractChangeEvent> causes;
 
+  /// Non-null if the rebuild was triggered by [Ref.rebuild].
+  /// In this case, the [causes] list is empty.
+  /// There can only be one [debugOrigin] at most since there is no batching.
+  final LabeledReference? debugOrigin;
+
   RebuildEvent({
     required this.rebuildable,
     required this.causes,
+    required this.debugOrigin,
     required super.prev,
     required super.next,
     required super.rebuild,
@@ -115,6 +122,7 @@ class RebuildEvent<T> extends AbstractChangeEvent<T> {
             runtimeType == other.runtimeType &&
             rebuildable == other.rebuildable &&
             _iterableEquals(causes, other.causes) &&
+            debugOrigin == other.debugOrigin &&
             prev == other.prev &&
             next == other.next &&
             _iterableEquals(rebuild, other.rebuild);
@@ -124,6 +132,7 @@ class RebuildEvent<T> extends AbstractChangeEvent<T> {
   int get hashCode =>
       rebuildable.hashCode ^
       causes.hashCode ^
+      debugOrigin.hashCode ^
       prev.hashCode ^
       next.hashCode ^
       rebuild.hashCode;
@@ -133,7 +142,7 @@ class RebuildEvent<T> extends AbstractChangeEvent<T> {
 
   @override
   String toString() {
-    return 'RebuildEvent<$T>(notifier: $rebuildable, causes: $causes, prev: $prev, next: $next, rebuild: $rebuild)';
+    return 'RebuildEvent<$T>(notifier: $rebuildable, causes: $causes, debugOrigin: $debugOrigin, prev: $prev, next: $next, rebuild: $rebuild)';
   }
 }
 

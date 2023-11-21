@@ -340,8 +340,9 @@ class RefenaContainer implements Ref, LabeledReference {
 
   @override
   R rebuild<N extends RebuildableNotifier<T, R>, T, R>(
-    RebuildableProvider<N, T, R> provider,
-  ) {
+    RebuildableProvider<N, T, R> provider, [
+    LabeledReference? debugOrigin,
+  ]) {
     if (provider is FamilySelectedWatchable) {
       // Special case for family providers
       // Here, we rebuild the child provider referenced by the parameter.
@@ -353,11 +354,11 @@ class RefenaContainer implements Ref, LabeledReference {
       }
       final cProvider = notifier.getProviderMap()[param]!;
       final cNotifier = _getState(cProvider) as RebuildableNotifier<Object?, R>;
-      return cNotifier.rebuildImmediately();
+      return cNotifier.rebuildImmediately(debugOrigin ?? this);
     }
 
     final notifier = _getState(provider as BaseProvider<N, T>);
-    return notifier.rebuildImmediately();
+    return notifier.rebuildImmediately(debugOrigin ?? this);
   }
 
   @override

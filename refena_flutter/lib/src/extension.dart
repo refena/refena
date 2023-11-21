@@ -13,6 +13,9 @@ import 'package:refena/src/notifier/listener.dart';
 import 'package:refena/src/provider/base_provider.dart';
 
 // ignore: implementation_imports
+import 'package:refena/src/provider/provider_accessor.dart';
+
+// ignore: implementation_imports
 import 'package:refena/src/provider/watchable.dart';
 
 // ignore: implementation_imports
@@ -63,6 +66,30 @@ extension ContextRefExt on BuildContext {
     ReduxProvider<N, T> provider,
   ) {
     return ref.redux(provider);
+  }
+
+  /// Shorthand for `context.ref.stream()`.
+  /// See [Ref.stream] for more information.
+  Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
+    ProviderAccessor<BaseProvider<N, T>, N, T> provider,
+  ) {
+    return ref.stream(provider);
+  }
+
+  /// Shorthand for `context.ref.future()`.
+  /// See [Ref.future] for more information.
+  Future<T> future<N extends GetFutureNotifier<T>, T>(
+    ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>> provider,
+  ) {
+    return ref.future(provider);
+  }
+
+  /// Shorthand for `context.ref.rebuild()`.
+  /// See [Ref.rebuild] for more information.
+  R rebuild<N extends RebuildableNotifier<T, R>, T, R>(
+    RebuildableProvider<N, T, R> provider,
+  ) {
+    return ref.rebuild(provider);
   }
 
   /// Shorthand for `context.ref.dispose()`.

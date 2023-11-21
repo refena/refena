@@ -225,6 +225,7 @@ void main() {
             rebuild: [childNotifier],
           ),
         ],
+        debugOrigin: null,
         prev: AsyncValue.data(0),
         next: AsyncValue<int>.loading(0),
         rebuild: [],

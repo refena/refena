@@ -229,9 +229,10 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
 
   @override
   R rebuild<N extends RebuildableNotifier<T, R>, T, R>(
-    RebuildableProvider<N, T, R> provider,
-  ) {
-    return _container.rebuild(provider);
+    RebuildableProvider<N, T, R> provider, [
+    LabeledReference? debugOrigin,
+  ]) {
+    return _container.rebuild(provider, debugOrigin);
   }
 
   @override

@@ -19,7 +19,7 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
   Future<T> init() {
     _rebuildController.stream.listen((event) {
       // rebuild future
-      _setFutureAndListenRebuild(event);
+      _setFutureAndListenRebuild(event, null);
     });
     _dependencyListener = _callAndListenDependencies();
     return _dependencyListener!.result;
@@ -27,7 +27,10 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
 
   /// The rebuild version of [BaseAsyncNotifier._setFutureAndListen].
   @nonVirtual
-  void _setFutureAndListenRebuild(List<AbstractChangeEvent> causes) async {
+  void _setFutureAndListenRebuild(
+    List<AbstractChangeEvent> causes,
+    LabeledReference? debugOrigin,
+  ) async {
     _dependencyListener?.cancel();
 
     final nextDependencyListener = _callAndListenDependencies();
@@ -36,7 +39,7 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
     _future = nextDependencyListener.result;
     _futureCount++;
     final currentCount = _futureCount;
-    _setStateAsRebuild(this, AsyncValue<T>.loading(_prev), causes);
+    _setStateAsRebuild(this, AsyncValue<T>.loading(_prev), causes, debugOrigin);
     try {
       final value = await _future;
       if (currentCount != _futureCount) {
@@ -76,8 +79,8 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
   }
 
   @override
-  Future<T> rebuildImmediately() async {
-    _setFutureAndListenRebuild([]);
+  Future<T> rebuildImmediately(LabeledReference debugOrigin) async {
+    _setFutureAndListenRebuild(const [], debugOrigin);
     return _future;
   }
 }

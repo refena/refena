@@ -116,7 +116,7 @@ class ProxyRef implements Ref {
   R rebuild<N extends RebuildableNotifier<T, R>, T, R>(
     RebuildableProvider<N, T, R> provider,
   ) {
-    return _ref.rebuild(provider);
+    return _ref.rebuild(provider, _debugOriginRef);
   }
 
   @override

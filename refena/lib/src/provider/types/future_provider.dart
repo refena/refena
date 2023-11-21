@@ -3,7 +3,6 @@ import 'package:refena/src/async_value.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
-import 'package:refena/src/provider/provider_accessor.dart';
 import 'package:refena/src/provider/types/future_family_provider.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';

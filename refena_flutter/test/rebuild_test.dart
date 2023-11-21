@@ -223,6 +223,7 @@ void main() {
             rebuild: [notifier],
           ),
         ],
+        debugOrigin: null,
         prev: _Vm(
           value: '111 - 999',
           setA: (_) {},
@@ -253,6 +254,7 @@ void main() {
             rebuild: [notifier],
           ),
         ],
+        debugOrigin: null,
         prev: _Vm(
           value: '222 - 999',
           setA: (_) {},
