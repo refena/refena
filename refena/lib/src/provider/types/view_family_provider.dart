@@ -52,19 +52,11 @@ FamilyNotifier<T, P> _buildFamilyNotifier<T, P>(
   String Function(T state)? describeState,
 ) {
   return FamilyNotifier<T, P>(
-    (param) => _buildChildProvider(provider, builder, param),
+    (param) => ViewProvider<T>(
+      (ref) => builder(ref, param),
+      debugLabel: '${provider.debugLabel}($param)',
+    ),
     describeState: describeState,
     debugLabel: provider.debugLabel,
-  );
-}
-
-ViewProvider<T> _buildChildProvider<T, P>(
-  ViewFamilyProvider<T, P> provider,
-  ViewFamilyBuilder<T, P> builder,
-  P param,
-) {
-  return ViewProvider<T>(
-    (ref) => builder(ref, param),
-    debugLabel: '${provider.debugLabel}($param)',
   );
 }

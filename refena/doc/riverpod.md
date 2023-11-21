@@ -253,3 +253,27 @@ final provider = StateProvider<int>((ref) {
   print('state changed from $prev to $next');
 });
 ```
+
+## Ref.refresh
+
+Instead of `ref.refresh(provider)`, you should use `ref.rebuild(provider)` instead.
+
+| Riverpod                | Refena                  |
+|-------------------------|-------------------------|
+| `ref.refresh(provider)` | `ref.rebuild(provider)` |
+
+In contrast to Riverpod, `ref.dispose` and `ref.read` are not the same as `ref.rebuild`.
+
+`ref.rebuild` will trigger rebuilds but `ref.dispose` and `ref.read` will not.
+
+### ➤ Why the term "rebuild"?
+
+Because in Refena there is a strict separation between rebuildable and non-rebuildable providers.
+
+Rebuildable providers can use `ref.watch` in their provider lambda and will be rebuilt when their dependencies change.
+Those providers are `ViewProvider`, `FutureProvider`, and `StreamProvider`.
+
+Non-rebuildable providers cannot use `ref.watch` and are mostly associated with notifier-focused providers
+like `StateProvider`, `NotifierProvider`, and `ReduxProvider`.
+
+In context of `ref.rebuild`, it means that only rebuildable providers can be rebuilt.

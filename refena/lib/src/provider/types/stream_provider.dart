@@ -3,6 +3,7 @@ import 'package:refena/src/async_value.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
+import 'package:refena/src/provider/types/stream_family_provider.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
 
@@ -52,6 +53,19 @@ class StreamProvider<T>
         describeState: _describeState,
         debugLabel: customDebugLabel ?? runtimeType.toString(),
       ),
+    );
+  }
+
+  /// A shorthand for [StreamFamilyProvider].
+  static StreamFamilyProvider<T, P> family<T, P>(
+    StreamFamilyBuilder<T, P> stream, {
+    String Function(AsyncValue<T> state)? describeState,
+    String? debugLabel,
+  }) {
+    return StreamFamilyProvider(
+      stream,
+      describeState: describeState,
+      debugLabel: debugLabel ?? 'StreamFamilyProvider<$T, $P>',
     );
   }
 }

@@ -394,21 +394,21 @@ There are many types of providers. Each one has its own purpose.
 
 The most important ones are `Provider`, `NotifierProvider`, and `ReduxProvider` because they are the most flexible.
 
-| Provider                 | Usage                                | Notifier API   | Can `watch`\* |
-|--------------------------|--------------------------------------|----------------|---------------|
-| `Provider`               | Constants or stateless services      | -              | No            |
-| `FutureProvider`         | Immutable async values               | -              | Yes           |
-| `FutureFamilyProvider`   | Immutable collection of async values | -              | No            |
-| `StreamProvider`         | Streams                              | -              | No            |
-| `StateProvider`          | Simple states                        | `setState`     | No            |
-| `ChangeNotifierProvider` | Performance critical services        | Custom methods | No            |
-| `NotifierProvider`       | Regular services                     | Custom methods | No            |
-| `AsyncNotifierProvider`  | Services that need futures           | Custom methods | No            |
-| `ReduxProvider`          | Action based services                | Custom actions | No            |
-| `ViewProvider`           | View models                          | -              | Yes           |
-| `ViewFamilyProvider`     | View models with parameters          | -              | Yes           |
+| Provider                 | Usage                 | Notifier API   | Can `watch`\* | Has `family`\* |
+|--------------------------|-----------------------|----------------|---------------|----------------|
+| `Provider`               | Constants or services | -              | No            | No             |
+| `ViewProvider`           | View models           | -              | Yes           | Yes            |
+| `FutureProvider`         | Async values          | -              | Yes           | Yes            |
+| `StreamProvider`         | Streams               | -              | Yes           | Yes            |
+| `StateProvider`          | Simple states         | `setState`     | No            | No             |
+| `ChangeNotifierProvider` | More rebuild control  | Custom methods | No            | No             |
+| `NotifierProvider`       | Regular services      | Custom methods | No            | No             |
+| `AsyncNotifierProvider`  | Services with futures | Custom methods | No            | No             |
+| `ReduxProvider`          | Action based services | Custom actions | No            | No             |
 
 \* `watch` means that you can use `ref.watch` inside the provider build lambda.
+
+\* `family` means that you can use `<Provider>.family` to create a parameterized collection of a provider.
 
 ### ➤ Provider
 
@@ -434,13 +434,9 @@ This type of provider can replace your entire dependency injection solution.
 
 ### ➤ FutureProvider
 
-Use this provider for asynchronous values that never change.
+Use this provider for asynchronous values.
 
-Example use cases:
-- fetch static data from an API (that does not change)
-- fetch device information (that does not change)
-
-The advantage over `FutureBuilder` is that the value is cached and the future is only called once.
+The value is cached and only fetched once.
 
 ```dart
 import 'package:package_info_plus/package_info_plus.dart';

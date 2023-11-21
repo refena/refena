@@ -56,6 +56,7 @@ export 'package:refena/src/provider/types/notifier_provider.dart';
 export 'package:refena/src/provider/types/provider.dart';
 export 'package:refena/src/provider/types/redux_provider.dart';
 export 'package:refena/src/provider/types/state_provider.dart';
+export 'package:refena/src/provider/types/stream_family_provider.dart';
 export 'package:refena/src/provider/types/stream_provider.dart';
 export 'package:refena/src/provider/types/view_family_provider.dart';
 export 'package:refena/src/provider/types/view_provider.dart';
