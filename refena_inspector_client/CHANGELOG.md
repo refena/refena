@@ -1,3 +1,7 @@
+## 1.1.1
+
+- deps: bump refena to 1.4.0
+
 ## 1.1.0
 
 - feat: improve IP address detection of the inspector server
