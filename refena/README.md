@@ -1053,7 +1053,7 @@ int a = ref.read(myProvider);
 
 Read the value of a provider and rebuild the widget / provider when the value changes.
 
-This should be used within a `build` method of a widget or inside a body of a `ViewProvider`.
+This should be used within a `build` method of a widget or inside a provider build lambda.
 
 **Warning:** Watching outside the `build` method can lead to inconsistent rebuilds.
 
