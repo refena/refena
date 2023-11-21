@@ -81,11 +81,13 @@ class FutureProvider<T> extends BaseWatchableProvider<FutureProvider<T>,
     FutureFamilyBuilder<T, P> future, {
     String Function(AsyncValue<T> state)? describeState,
     String? debugLabel,
+    bool debugVisibleInGraph = true,
   }) {
     return FutureFamilyProvider(
       future,
       describeState: describeState,
       debugLabel: debugLabel ?? 'FutureFamilyProvider<$T, $P>',
+      debugVisibleInGraph: debugVisibleInGraph,
     );
   }
 }

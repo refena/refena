@@ -1,3 +1,7 @@
+## 1.5.0
+
+- feat: add `debugVisibleInGraph` parameter to family shorthand constructors
+
 ## 1.4.0
 
 - feat: make `FutureProvider` and `StreamProvider` rebuildable (`ref.watch` is allowed)

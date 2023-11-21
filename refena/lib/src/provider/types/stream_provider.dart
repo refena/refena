@@ -66,11 +66,13 @@ class StreamProvider<T> extends BaseWatchableProvider<StreamProvider<T>,
     StreamFamilyBuilder<T, P> stream, {
     String Function(AsyncValue<T> state)? describeState,
     String? debugLabel,
+    bool debugVisibleInGraph = true,
   }) {
     return StreamFamilyProvider(
       stream,
       describeState: describeState,
       debugLabel: debugLabel ?? 'StreamFamilyProvider<$T, $P>',
+      debugVisibleInGraph: debugVisibleInGraph,
     );
   }
 }

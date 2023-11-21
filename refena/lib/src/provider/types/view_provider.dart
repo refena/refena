@@ -60,11 +60,13 @@ class ViewProvider<T>
     ViewFamilyBuilder<T, P> builder, {
     String Function(T state)? describeState,
     String? debugLabel,
+    bool debugVisibleInGraph = true,
   }) {
     return ViewFamilyProvider(
       builder,
       describeState: describeState,
       debugLabel: debugLabel ?? 'ViewFamilyProvider<$T, $P>',
+      debugVisibleInGraph: debugVisibleInGraph,
     );
   }
 }
