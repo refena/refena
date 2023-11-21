@@ -98,10 +98,10 @@ class ProxyRef implements Ref {
   }
 
   @override
-  void rebuild<N extends RebuildableNotifier<T>, T>(
-    BaseProvider<N, T> provider,
+  R rebuild<N extends RebuildableNotifier<T, R>, T, R>(
+    RebuildableProvider<N, T, R> provider,
   ) {
-    _ref.rebuild(provider);
+    return _ref.rebuild(provider);
   }
 
   @override

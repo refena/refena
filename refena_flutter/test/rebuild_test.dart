@@ -283,7 +283,11 @@ void main() {
     expect(widget._rebuildCount, 1);
 
     // trigger rebuild
-    scope.rebuild(_viewProvider);
+    final result = scope.rebuild(_viewProvider);
+    expect(
+      result,
+      _Vm(value: '111 - 999', setA: (_) {}, setB: (_) {}),
+    );
     await tester.pump();
 
     expect(find.text('111 - 999'), findsOneWidget);

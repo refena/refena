@@ -7,14 +7,18 @@ typedef ChildFamilyBuilder<T, P> = BaseProvider<BaseNotifier<T>, T> Function(
 /// The family notifier manages a map of notifiers, one for each parameter.
 /// They are created lazily when the parameter is accessed for the first time.
 final class FamilyNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
-    with RebuildableNotifier {
+    with RebuildableNotifier<Map<P, T>, void> {
   FamilyNotifier(
-    this._builder, {
+    this._familyBuilder, {
     String Function(T state)? describeState,
     super.debugLabel,
   }) : _describeState = describeState;
 
-  final ChildFamilyBuilder<T, P> _builder;
+  final ChildFamilyBuilder<T, P> _familyBuilder;
+
+  @override
+  void Function(WatchableRef ref) get _builder => throw UnimplementedError();
+
   final Map<P, BaseProvider<BaseNotifier<T>, T>> _providers = {};
   final String Function(T state)? _describeState;
 
@@ -44,7 +48,7 @@ final class FamilyNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
 
   void initParam(P param) {
     // create new temporary provider
-    final provider = _builder(param);
+    final provider = _familyBuilder(param);
     _providers[param] = provider;
     _initDependencies(provider);
 
@@ -105,4 +109,7 @@ final class FamilyNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
       return _describeMapState(state, (value) => value.toString());
     }
   }
+
+  @override
+  void rebuildImmediately() => throw UnimplementedError();
 }

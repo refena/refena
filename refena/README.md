@@ -121,6 +121,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
   - [ref.accessor](#-refaccessor)
   - [ref.stream](#-refstream)
   - [ref.future](#-reffuture)
+  - [ref.rebuild](#-refrebuild)
   - [ref.notifier](#-refnotifier)
   - [ref.redux](#-refredux)
   - [ref.dispose](#-refdispose)
@@ -1134,6 +1135,20 @@ Get the `Future` of a `FutureProvider` or an `AsyncNotifierProvider`.
 
 ```dart
 Future<String> version = ref.future(versionProvider);
+```
+
+### ➤ ref.rebuild
+
+Reruns the build method of a provider and triggers a rebuild on all listeners.
+
+This is useful if you want to manually rebuild a provider.
+
+Only available for rebuildable providers: `ViewProvider`, `FutureProvider`, `StreamProvider`.
+
+Returns the result of the build method: `T`, `Future<T>`, `Stream<T>`.
+
+```dart
+final result = ref.rebuild(myProvider);
 ```
 
 ### ➤ ref.notifier

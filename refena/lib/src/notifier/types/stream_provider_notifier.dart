@@ -2,7 +2,7 @@ part of '../base_notifier.dart';
 
 /// The corresponding notifier of a [StreamProvider].
 final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
-    with RebuildableNotifier
+    with RebuildableNotifier<AsyncValue<T>, Stream<T>>
     implements GetFutureNotifier<T> {
   StreamProviderNotifier(
     this._builder, {
@@ -10,7 +10,9 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
     super.debugLabel,
   }) : _describeState = describeState;
 
+  @override
   final Stream<T> Function(WatchableRef ref) _builder;
+
   final String Function(AsyncValue<T> state)? _describeState;
   final StreamController<T> _streamController = StreamController<T>.broadcast();
   StreamSubscription<T>? _subscription;
@@ -19,10 +21,10 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
 
   @override
   AsyncValue<T> init() {
-    _buildStream();
+    _buildStream(rebuild: false, events: const []);
     _rebuildController.stream.listen((event) {
       // rebuild stream
-      _buildStream();
+      _buildStream(rebuild: true, events: event);
     });
     return AsyncValue<T>.loading();
   }
@@ -32,20 +34,38 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
   Future<T> get future => _streamController.stream.first;
 
   @nonVirtual
-  void _buildStream() {
+  Stream<T> _buildStream({
+    required bool rebuild,
+    required List<AbstractChangeEvent> events,
+  }) {
     _subscription?.cancel(); // ignore: unawaited_futures
     _dependencyListener?.cancel();
 
-    final nextDependencyListener = _callAndListenDependencies(_builder);
+    final nextDependencyListener = _callAndListenDependencies();
     _dependencyListener = nextDependencyListener;
-    state = AsyncValue<T>.loading(_prev);
-    _subscription = nextDependencyListener.result.listen((value) {
+
+    final loadingState = AsyncValue<T>.loading(_prev);
+    if (rebuild) {
+      _setStateAsRebuild(
+        this,
+        loadingState,
+        events,
+      );
+    } else {
+      _state = loadingState;
+    }
+
+    final stream = nextDependencyListener.result;
+    _subscription = stream.listen((value) {
+      _setState(AsyncValue<T>.data(value), null);
       state = AsyncValue<T>.data(value);
       _streamController.add(value);
       _prev = value;
     }, onError: (error, stackTrace) {
-      state = AsyncValue<T>.error(error, stackTrace);
+      _setState(AsyncValue<T>.error(error, stackTrace), null);
     });
+
+    return stream;
   }
 
   @override
@@ -62,5 +82,10 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
       return super.describeState(state);
     }
     return _describeState!(state);
+  }
+
+  @override
+  Stream<T> rebuildImmediately() {
+    return _buildStream(rebuild: true, events: const []);
   }
 }

@@ -63,16 +63,16 @@ abstract interface class Ref {
   );
 
   /// Rebuilds a rebuildable provider (e.g. [ViewProvider], [FutureProvider])
-  /// in the next microtask, triggering a rebuild of all listeners.
+  /// and returns the result of the builder function.
   ///
   /// Remember:
   /// Rebuildable providers allow you to watch other providers
   /// within the builder function.
   ///
-  /// This is **NOT** the same as calling [Ref.dispose] and then [Ref.read]
-  /// as the notifier is not disposed and listeners won't be notified.
-  void rebuild<N extends RebuildableNotifier<T>, T>(
-    BaseProvider<N, T> provider,
+  /// This is **NOT** the same as calling [Ref.dispose] and then [Ref.read].
+  /// In this case the notifier is disposed and listeners won't be notified.
+  R rebuild<N extends RebuildableNotifier<T, R>, T, R>(
+    RebuildableProvider<N, T, R> provider,
   );
 
   /// Disposes a [provider].
@@ -215,10 +215,10 @@ class WatchableRefImpl implements WatchableRef {
   }
 
   @override
-  void rebuild<N extends RebuildableNotifier<T>, T>(
-    BaseProvider<N, T> provider,
+  R rebuild<N extends RebuildableNotifier<T, R>, T, R>(
+    RebuildableProvider<N, T, R> provider,
   ) {
-    _ref.rebuild(provider);
+    return _ref.rebuild(provider);
   }
 
   @override

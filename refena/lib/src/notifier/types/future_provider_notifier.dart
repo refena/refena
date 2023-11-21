@@ -2,14 +2,16 @@ part of '../base_notifier.dart';
 
 /// The corresponding notifier of a [FutureProvider].
 final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
-    with RebuildableNotifier {
+    with RebuildableNotifier<AsyncValue<T>, Future<T>> {
   FutureProviderNotifier(
     this._builder, {
     String Function(AsyncValue<T> state)? describeState,
     super.debugLabel,
   }) : _describeState = describeState;
 
+  @override
   final Future<T> Function(WatchableRef ref) _builder;
+
   final String Function(AsyncValue<T> state)? _describeState;
   RefDependencyListener<Future<T>>? _dependencyListener;
 
@@ -19,7 +21,7 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
       // rebuild future
       _setFutureAndListenRebuild(event);
     });
-    _dependencyListener = _callAndListenDependencies(_builder);
+    _dependencyListener = _callAndListenDependencies();
     return _dependencyListener!.result;
   }
 
@@ -28,7 +30,7 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
   void _setFutureAndListenRebuild(List<AbstractChangeEvent> causes) async {
     _dependencyListener?.cancel();
 
-    final nextDependencyListener = _callAndListenDependencies(_builder);
+    final nextDependencyListener = _callAndListenDependencies();
     _dependencyListener = nextDependencyListener;
 
     _future = nextDependencyListener.result;
@@ -55,6 +57,7 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
 
       // must not be in finally because of the count check
       _dependencyListener?.cancel();
+      rethrow;
     }
   }
 
@@ -70,5 +73,11 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
       return super.describeState(state);
     }
     return _describeState!(state);
+  }
+
+  @override
+  Future<T> rebuildImmediately() async {
+    _setFutureAndListenRebuild([]);
+    return _future;
   }
 }

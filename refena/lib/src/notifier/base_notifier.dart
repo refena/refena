@@ -335,7 +335,10 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
 @internal
 abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>>
     implements GetFutureNotifier<T> {
+  @nonVirtual
   late Future<T> _future;
+
+  @nonVirtual
   int _futureCount = 0;
 
   BaseAsyncNotifier({super.debugLabel});
@@ -504,14 +507,23 @@ abstract interface class GetFutureNotifier<T>
 }
 
 /// A notifier that can be rebuilt.
-mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
+/// In other words: The provider build lambda can be called again without
+/// the notifier being disposed.
+///
+/// [T] is the state type.
+/// [R] is the return type of [_builder].
+mixin RebuildableNotifier<T, R> on BaseNotifier<T> implements Rebuildable {
   late final WatchableRefImpl _watchableRef;
   final _rebuildController = BatchedStreamController<AbstractChangeEvent>();
 
-  /// Calls [builder] and tracks all accessed notifiers.
-  /// Returns the result of [builder].
+  /// Will be called on rebuild.
+  /// Subclasses should override this method.
+  R Function(WatchableRef ref) get _builder;
+
+  /// Calls [_builder] and tracks all accessed notifiers.
+  /// Returns the result of [_builder].
   @nonVirtual
-  R _callAndSetDependencies<R>(R Function(WatchableRef) builder) {
+  R _callAndSetDependencies() {
     final oldDependencies = {...dependencies};
     dependencies.clear();
 
@@ -526,7 +538,7 @@ mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
         }
         notifier.dependents.add(this);
       },
-      run: () => builder(_watchableRef),
+      run: () => _builder(_watchableRef),
     );
 
     final removedDependencies = oldDependencies.difference(dependencies);
@@ -548,8 +560,7 @@ mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
   /// This is used by futures and streams because the dependencies
   /// may not known in advance.
   @nonVirtual
-  RefDependencyListener<R> _callAndListenDependencies<R>(
-      R Function(WatchableRef) builder) {
+  RefDependencyListener<R> _callAndListenDependencies() {
     // Clear old dependencies
     for (final dependency in dependencies) {
       // remove from dependency graph
@@ -566,7 +577,7 @@ mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
     );
     tempRef.startNotifierTracking(onAccess: _addNotifierDependency);
 
-    return RefDependencyListener(builder(tempRef), () {
+    return RefDependencyListener(_builder(tempRef), () {
       tempRef.stopNotifierTracking();
     });
   }
@@ -620,6 +631,9 @@ mixin RebuildableNotifier<T> on BaseNotifier<T> implements Rebuildable {
       _rebuildController.schedule(null);
     }
   }
+
+  /// Rebuilds the notifier immediately.
+  R rebuildImmediately();
 
   @override
   @nonVirtual

@@ -100,3 +100,15 @@ mixin ProviderSelectMixin<N extends BaseNotifier<T>, T>
 /// This restriction is used to discourage direct access to the notifier.
 /// You may get around this in your tests with RefenaContainer.anyNotifier().
 abstract interface class NotifyableProvider<N extends BaseNotifier<T>, T> {}
+
+/// A flag to indicate that a provider can be rebuilt.
+///
+/// [T] is the state type of the notifier.
+/// [R] is the return type of the provider build method.
+/// [N] is the type of the notifier itself.
+///
+/// [T] and [R] are not always the same.
+/// For example, [FutureProvider] has a state of type [AsyncValue<T>]
+/// but a return type of [Future<T>].
+abstract interface class RebuildableProvider<
+    N extends RebuildableNotifier<T, R>, T, R> {}

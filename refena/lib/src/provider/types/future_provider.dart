@@ -20,7 +20,11 @@ import 'package:refena/src/ref.dart';
 /// - fetch device information (that does not change)
 class FutureProvider<T>
     extends BaseWatchableProvider<FutureProviderNotifier<T>, AsyncValue<T>>
-    with ProviderSelectMixin<FutureProviderNotifier<T>, AsyncValue<T>> {
+    with
+        ProviderSelectMixin<FutureProviderNotifier<T>, AsyncValue<T>>
+    implements
+        RebuildableProvider<FutureProviderNotifier<T>, AsyncValue<T>,
+            Future<T>> {
   FutureProvider(
     this._builder, {
     super.onChanged,

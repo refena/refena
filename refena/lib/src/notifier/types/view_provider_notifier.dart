@@ -1,14 +1,16 @@
 part of '../base_notifier.dart';
 
 final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
-    with RebuildableNotifier {
+    with RebuildableNotifier<T, T> {
   ViewProviderNotifier(
     this._builder, {
     String Function(T state)? describeState,
     super.debugLabel,
   }) : _describeState = describeState;
 
-  final T Function(WatchableRef) _builder;
+  @override
+  final T Function(WatchableRef ref) _builder;
+
   final String Function(T state)? _describeState;
 
   @override
@@ -17,11 +19,11 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
       // rebuild notifier state
       _setStateAsRebuild(
         this,
-        _callAndSetDependencies(_builder),
+        _callAndSetDependencies(),
         event,
       );
     });
-    return _callAndSetDependencies(_builder);
+    return _callAndSetDependencies();
   }
 
   @override
@@ -30,5 +32,16 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
       return super.describeState(state);
     }
     return _describeState!(state);
+  }
+
+  @override
+  T rebuildImmediately() {
+    final T nextState = _callAndSetDependencies();
+    _setStateAsRebuild(
+      this,
+      nextState,
+      [],
+    );
+    return nextState;
   }
 }
