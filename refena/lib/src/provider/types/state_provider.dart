@@ -17,8 +17,9 @@ import 'package:refena/src/ref.dart';
 /// final myProvider = StateProvider((ref) => 10); // define
 /// ref.watch(myProvider); // read
 /// ref.notifier(myProvider).setState((old) => old + 1); // write
-class StateProvider<T> extends BaseWatchableProvider<StateNotifier<T>, T>
-    with ProviderSelectMixin<StateNotifier<T>, T>
+class StateProvider<T>
+    extends BaseWatchableProvider<StateProvider<T>, StateNotifier<T>, T>
+    with ProviderSelectMixin<StateProvider<T>, StateNotifier<T>, T>
     implements NotifyableProvider<StateNotifier<T>, T> {
   final T Function(Ref ref) _builder;
   final String Function(T state)? _describeState;

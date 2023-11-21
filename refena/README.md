@@ -1131,7 +1131,7 @@ final subscription = ref.stream(myProvider).listen((value) {
 
 ### ➤ ref.future
 
-Get the `Future` of a `FutureProvider` or an `AsyncNotifierProvider`.
+Get the `Future` of a `FutureProvider`, a `StreamProvider`, or an `AsyncNotifierProvider`.
 
 ```dart
 Future<String> version = ref.future(versionProvider);
@@ -1148,7 +1148,7 @@ Only available for rebuildable providers: `ViewProvider`, `FutureProvider`, `Str
 Returns the result of the build method: `T`, `Future<T>`, `Stream<T>`.
 
 ```dart
-final result = ref.rebuild(myProvider);
+Future<T> result = ref.rebuild(myFutureProvider);
 ```
 
 ### ➤ ref.notifier

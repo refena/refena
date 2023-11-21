@@ -9,8 +9,8 @@ import 'package:refena/src/ref.dart';
 ///
 /// {@category Redux}
 class ReduxProvider<N extends ReduxNotifier<T>, T>
-    extends BaseWatchableProvider<N, T>
-    with ProviderSelectMixin<N, T>
+    extends BaseWatchableProvider<ReduxProvider<N, T>, N, T>
+    with ProviderSelectMixin<ReduxProvider<N, T>, N, T>
     implements NotifyableProvider<N, T> {
   @internal
   final N Function(Ref ref) builder;

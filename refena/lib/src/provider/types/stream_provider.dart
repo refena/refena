@@ -13,10 +13,11 @@ import 'package:refena/src/ref.dart';
 /// See [BaseNotifier.describeState].
 ///
 /// Set [debugLabel] to customize the debug label of the provider.
-class StreamProvider<T>
-    extends BaseWatchableProvider<StreamProviderNotifier<T>, AsyncValue<T>>
+class StreamProvider<T> extends BaseWatchableProvider<StreamProvider<T>,
+        StreamProviderNotifier<T>, AsyncValue<T>>
     with
-        ProviderSelectMixin<StreamProviderNotifier<T>, AsyncValue<T>>
+        ProviderSelectMixin<StreamProvider<T>, StreamProviderNotifier<T>,
+            AsyncValue<T>>
     implements
         RebuildableProvider<StreamProviderNotifier<T>, AsyncValue<T>,
             Stream<T>> {

@@ -15,7 +15,8 @@ typedef StreamFamilyBuilder<T, P> = Stream<T> Function(
 /// A [StreamFamilyProvider] is a special version of [StreamProvider] that
 /// allows you to watch a collection of [Stream]s.
 class StreamFamilyProvider<T, P> extends BaseProvider<
-    FamilyNotifier<AsyncValue<T>, P>, Map<P, AsyncValue<T>>> {
+    FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>,
+    Map<P, AsyncValue<T>>> {
   StreamFamilyProvider(
     this._builder, {
     super.onChanged,
@@ -31,15 +32,15 @@ class StreamFamilyProvider<T, P> extends BaseProvider<
 
   @internal
   @override
-  FamilyNotifier<AsyncValue<T>, P> createState(Ref ref) {
+  FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>> createState(Ref ref) {
     return _buildFamilyNotifier(this, _builder, _describeState);
   }
 
   /// Overrides the stream builder.
   ///
   /// {@category Initialization}
-  ProviderOverride<FamilyNotifier<AsyncValue<T>, P>, Map<P, AsyncValue<T>>>
-      overrideWithStreamBuilder(
+  ProviderOverride<FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>,
+      Map<P, AsyncValue<T>>> overrideWithStreamBuilder(
     StreamFamilyBuilder<T, P> builder,
   ) {
     return ProviderOverride(
@@ -49,19 +50,27 @@ class StreamFamilyProvider<T, P> extends BaseProvider<
   }
 
   /// Provide accessor for one parameter.
-  FamilySelectedWatchable<AsyncValue<T>, P, AsyncValue<T>> call(
+  FamilySelectedWatchable<
+      StreamFamilyProvider<T, P>,
+      StreamProvider<T>,
+      FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>,
+      StreamProviderNotifier<T>,
+      AsyncValue<T>,
+      P,
+      AsyncValue<T>,
+      Stream<T>> call(
     P param,
   ) {
     return FamilySelectedWatchable(this, param, (map) => map[param]!);
   }
 }
 
-FamilyNotifier<AsyncValue<T>, P> _buildFamilyNotifier<T, P>(
+FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>> _buildFamilyNotifier<T, P>(
   StreamFamilyProvider<T, P> provider,
   StreamFamilyBuilder<T, P> builder,
   String Function(AsyncValue<T> state)? describeState,
 ) {
-  return FamilyNotifier<AsyncValue<T>, P>(
+  return FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>(
     (param) => StreamProvider<T>(
       (ref) => builder(ref, param),
       debugLabel: '${provider.debugLabel}($param)',

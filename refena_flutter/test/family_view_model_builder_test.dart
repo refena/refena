@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
 void main() {

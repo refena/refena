@@ -14,8 +14,9 @@ import 'package:refena/src/ref.dart';
 /// See [BaseNotifier.describeState].
 ///
 /// Set [debugLabel] to customize the debug label of the provider.
-class ViewProvider<T> extends BaseWatchableProvider<ViewProviderNotifier<T>, T>
-    with ProviderSelectMixin<ViewProviderNotifier<T>, T>
+class ViewProvider<T>
+    extends BaseWatchableProvider<ViewProvider<T>, ViewProviderNotifier<T>, T>
+    with ProviderSelectMixin<ViewProvider<T>, ViewProviderNotifier<T>, T>
     implements RebuildableProvider<ViewProviderNotifier<T>, T, T> {
   final T Function(WatchableRef ref) _builder;
   final String Function(T state)? _describeState;

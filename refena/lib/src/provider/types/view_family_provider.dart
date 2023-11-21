@@ -10,7 +10,7 @@ typedef ViewFamilyBuilder<T, P> = T Function(WatchableRef ref, P param);
 /// Similar to [ViewProvider] but with a parameter.
 /// It is essentially a syntax sugar for ViewProvider<Map<P, T>>.
 class ViewFamilyProvider<T, P>
-    extends BaseProvider<FamilyNotifier<T, P>, Map<P, T>> {
+    extends BaseProvider<FamilyNotifier<T, P, ViewProvider<T>>, Map<P, T>> {
   final ViewFamilyBuilder<T, P> _builder;
   final String Function(T state)? _describeState;
 
@@ -24,14 +24,15 @@ class ViewFamilyProvider<T, P>
         super(debugLabel: debugLabel ?? 'ViewFamilyProvider<$T, $P>');
 
   @override
-  FamilyNotifier<T, P> createState(Ref ref) {
+  FamilyNotifier<T, P, ViewProvider<T>> createState(Ref ref) {
     return _buildFamilyNotifier(this, _builder, _describeState);
   }
 
   /// Overrides with a predefined value.
   ///
   /// {@category Initialization}
-  ProviderOverride<FamilyNotifier<T, P>, Map<P, T>> overrideWithBuilder(
+  ProviderOverride<FamilyNotifier<T, P, ViewProvider<T>>, Map<P, T>>
+      overrideWithBuilder(
     ViewFamilyBuilder<T, P> builder,
   ) {
     return ProviderOverride(
@@ -41,17 +42,25 @@ class ViewFamilyProvider<T, P>
   }
 
   /// Provide accessor for one parameter.
-  FamilySelectedWatchable<T, P, T> call(P param) {
+  FamilySelectedWatchable<
+      ViewFamilyProvider<T, P>,
+      ViewProvider<T>,
+      FamilyNotifier<T, P, ViewProvider<T>>,
+      ViewProviderNotifier<T>,
+      T,
+      P,
+      T,
+      T> call(P param) {
     return FamilySelectedWatchable(this, param, (map) => map[param]!);
   }
 }
 
-FamilyNotifier<T, P> _buildFamilyNotifier<T, P>(
+FamilyNotifier<T, P, ViewProvider<T>> _buildFamilyNotifier<T, P>(
   ViewFamilyProvider<T, P> provider,
   ViewFamilyBuilder<T, P> builder,
   String Function(T state)? describeState,
 ) {
-  return FamilyNotifier<T, P>(
+  return FamilyNotifier<T, P, ViewProvider<T>>(
     (param) => ViewProvider<T>(
       (ref) => builder(ref, param),
       debugLabel: '${provider.debugLabel}($param)',

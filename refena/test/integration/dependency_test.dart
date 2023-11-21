@@ -1,4 +1,5 @@
 import 'package:refena/refena.dart';
+import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:test/test.dart';
 
 import '../util/skip_microtasks.dart';

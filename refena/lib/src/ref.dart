@@ -12,6 +12,7 @@ import 'package:refena/src/notifier/rebuildable.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
+import 'package:refena/src/provider/provider_accessor.dart';
 import 'package:refena/src/provider/types/async_notifier_provider.dart';
 import 'package:refena/src/provider/types/future_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
@@ -53,13 +54,13 @@ abstract interface class Ref {
   ///
   /// You need to dispose the subscription manually.
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider,
+    ProviderAccessor<BaseProvider<N, T>, N, T> provider,
   );
 
   /// Get the [Future] of an [AsyncNotifierProvider], [FutureProvider] or
   /// [StreamProvider].
   Future<T> future<N extends GetFutureNotifier<T>, T>(
-    BaseProvider<N, AsyncValue<T>> provider,
+    ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>> provider,
   );
 
   /// Rebuilds a rebuildable provider (e.g. [ViewProvider], [FutureProvider])
@@ -84,7 +85,7 @@ abstract interface class Ref {
   /// Disposes the [param] of a family [provider].
   /// While the ordinary [dispose] method disposes the whole provider,
   /// this method only disposes the [param].
-  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P>, P>(
+  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P, dynamic>, P>(
     BaseProvider<N, dynamic> provider,
     P param,
   );
@@ -190,28 +191,42 @@ class WatchableRefImpl implements WatchableRef {
 
   @override
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider,
+    ProviderAccessor<BaseProvider<N, T>, N, T> provider,
   ) {
     if (_onAccessNotifier == null) {
       return _ref.stream<N, T>(provider);
     }
 
-    final notifier = _ref.anyNotifier<N, T>(provider);
+    final notifier = _ref.anyNotifier(provider.provider);
     _onAccessNotifier!(notifier);
-    return notifier.getStream();
+    if (notifier is N) {
+      return notifier.getStream();
+    }
+
+    // The given provider was a family provider.
+    // Access the child provider and return its future.
+    final actualProvider = provider.getActualProvider(notifier);
+    return _ref.anyNotifier(actualProvider).getStream();
   }
 
   @override
   Future<T> future<N extends GetFutureNotifier<T>, T>(
-    BaseProvider<N, AsyncValue<T>> provider,
+    ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>> provider,
   ) {
     if (_onAccessNotifier == null) {
       return _ref.future<N, T>(provider);
     }
 
-    final notifier = _ref.anyNotifier(provider);
+    final notifier = _ref.anyNotifier(provider.provider);
     _onAccessNotifier!(notifier);
-    return notifier.future; // ignore: invalid_use_of_protected_member
+    if (notifier is N) {
+      return notifier.future;
+    }
+
+    // The given provider was a family provider.
+    // Access the child provider and return its future.
+    final actualProvider = provider.getActualProvider(notifier);
+    return _ref.anyNotifier(actualProvider).future;
   }
 
   @override
@@ -227,7 +242,7 @@ class WatchableRefImpl implements WatchableRef {
   }
 
   @override
-  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P>, P>(
+  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P, dynamic>, P>(
     BaseProvider<N, dynamic> provider,
     P param,
   ) {

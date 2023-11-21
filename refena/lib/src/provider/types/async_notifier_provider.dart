@@ -11,8 +11,8 @@ import 'package:refena/src/ref.dart';
 /// Changes to the state are propagated to all consumers that
 /// called [watch] on the provider.
 class AsyncNotifierProvider<N extends AsyncNotifier<T>, T>
-    extends BaseWatchableProvider<N, AsyncValue<T>>
-    with ProviderSelectMixin<N, AsyncValue<T>>
+    extends BaseWatchableProvider<AsyncNotifierProvider<N, T>, N, AsyncValue<T>>
+    with ProviderSelectMixin<AsyncNotifierProvider<N, T>, N, AsyncValue<T>>
     implements NotifyableProvider<N, AsyncValue<T>> {
   AsyncNotifierProvider(
     this._builder, {

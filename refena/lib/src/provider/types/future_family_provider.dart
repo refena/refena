@@ -15,7 +15,8 @@ typedef FutureFamilyBuilder<T, P> = Future<T> Function(
 /// A [FutureFamilyProvider] is a special version of [FutureProvider] that
 /// allows you to watch a collection of [Future]s.
 class FutureFamilyProvider<T, P> extends BaseProvider<
-    FamilyNotifier<AsyncValue<T>, P>, Map<P, AsyncValue<T>>> {
+    FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>>,
+    Map<P, AsyncValue<T>>> {
   FutureFamilyProvider(
     this._builder, {
     super.onChanged,
@@ -31,15 +32,15 @@ class FutureFamilyProvider<T, P> extends BaseProvider<
 
   @internal
   @override
-  FamilyNotifier<AsyncValue<T>, P> createState(Ref ref) {
+  FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>> createState(Ref ref) {
     return _buildFamilyNotifier(this, _builder, _describeState);
   }
 
   /// Overrides the future builder.
   ///
   /// {@category Initialization}
-  ProviderOverride<FamilyNotifier<AsyncValue<T>, P>, Map<P, AsyncValue<T>>>
-      overrideWithFutureBuilder(
+  ProviderOverride<FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>>,
+      Map<P, AsyncValue<T>>> overrideWithFutureBuilder(
     FutureFamilyBuilder<T, P> builder,
   ) {
     return ProviderOverride(
@@ -49,19 +50,27 @@ class FutureFamilyProvider<T, P> extends BaseProvider<
   }
 
   /// Provide accessor for one parameter.
-  FamilySelectedWatchable<AsyncValue<T>, P, AsyncValue<T>> call(
+  FamilySelectedWatchable<
+      FutureFamilyProvider<T, P>,
+      FutureProvider<T>,
+      FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>>,
+      FutureProviderNotifier<T>,
+      AsyncValue<T>,
+      P,
+      AsyncValue<T>,
+      Future<T>> call(
     P param,
   ) {
     return FamilySelectedWatchable(this, param, (map) => map[param]!);
   }
 }
 
-FamilyNotifier<AsyncValue<T>, P> _buildFamilyNotifier<T, P>(
+FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>> _buildFamilyNotifier<T, P>(
   FutureFamilyProvider<T, P> provider,
   FutureFamilyBuilder<T, P> builder,
   String Function(AsyncValue<T> state)? describeState,
 ) {
-  return FamilyNotifier<AsyncValue<T>, P>(
+  return FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>>(
     (param) => FutureProvider<T>(
       (ref) => builder(ref, param),
       debugLabel: '${provider.debugLabel}($param)',

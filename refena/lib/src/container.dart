@@ -11,6 +11,7 @@ import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
+import 'package:refena/src/provider/provider_accessor.dart';
 import 'package:refena/src/provider/types/notifier_provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
 import 'package:refena/src/provider/watchable.dart';
@@ -309,23 +310,52 @@ class RefenaContainer implements Ref, LabeledReference {
 
   @override
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider,
+    ProviderAccessor<BaseProvider<N, T>, N, T> provider,
   ) {
-    return _getState(provider).getStream();
+    final notifier = _getState(provider.provider);
+    if (notifier is N) {
+      return notifier.getStream();
+    }
+
+    // The given provider was a family provider.
+    // Access the child provider and return its future.
+    final actualProvider = provider.getActualProvider(notifier);
+    return _getState(actualProvider).getStream();
   }
 
   @override
   Future<T> future<N extends GetFutureNotifier<T>, T>(
-    BaseProvider<N, AsyncValue<T>> provider,
+    ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>> provider,
   ) {
-    // ignore: invalid_use_of_protected_member
-    return _getState(provider).future;
+    final notifier = _getState(provider.provider);
+    if (notifier is N) {
+      return notifier.future;
+    }
+
+    // The given provider was a family provider.
+    // Access the child provider and return its future.
+    final actualProvider = provider.getActualProvider(notifier);
+    return _getState(actualProvider).future;
   }
 
   @override
   R rebuild<N extends RebuildableNotifier<T, R>, T, R>(
     RebuildableProvider<N, T, R> provider,
   ) {
+    if (provider is FamilySelectedWatchable) {
+      // Special case for family providers
+      // Here, we rebuild the child provider referenced by the parameter.
+      final familyWatchable = provider as FamilySelectedWatchable;
+      final notifier = _getState(familyWatchable.provider);
+      final param = familyWatchable.param;
+      if (!notifier.isParamInitialized(param)) {
+        notifier.initParam(param);
+      }
+      final cProvider = notifier.getProviderMap()[param]!;
+      final cNotifier = _getState(cProvider) as RebuildableNotifier<Object?, R>;
+      return cNotifier.rebuildImmediately();
+    }
+
     final notifier = _getState(provider as BaseProvider<N, T>);
     return notifier.rebuildImmediately();
   }
@@ -338,7 +368,7 @@ class RefenaContainer implements Ref, LabeledReference {
   }
 
   @override
-  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P>, P>(
+  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P, dynamic>, P>(
     BaseProvider<N, dynamic> provider,
     P param,
   ) {

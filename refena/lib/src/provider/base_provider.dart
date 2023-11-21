@@ -1,6 +1,7 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
+import 'package:refena/src/provider/provider_accessor.dart';
 import 'package:refena/src/provider/provider_changed_callback.dart';
 import 'package:refena/src/provider/types/change_notifier_provider.dart';
 import 'package:refena/src/provider/types/future_family_provider.dart';
@@ -13,6 +14,7 @@ import 'package:refena/src/reference.dart';
 /// A "provider" is stateless.
 ///
 /// You may add a [debugLabel] for better logging.
+@internal
 abstract class BaseProvider<N extends BaseNotifier<T>, T>
     implements LabeledReference {
   /// A custom label used by debug tools.
@@ -67,8 +69,9 @@ extension InternalBaseProviderExt<T> on BaseProvider<BaseNotifier<T>, T> {
 /// A provider with default behaviour for [WatchableRef.watch].
 /// Inherited by all providers except for
 /// [ChangeNotifierProvider] and [FutureFamilyProvider].
-abstract class BaseWatchableProvider<N extends BaseNotifier<T>, T>
-    extends BaseProvider<N, T> implements Watchable<N, T, T> {
+abstract class BaseWatchableProvider<P extends BaseProvider<N, T>,
+        N extends BaseNotifier<T>, T> extends BaseProvider<N, T>
+    implements Watchable<N, T, T>, ProviderAccessor<P, N, T> {
   BaseWatchableProvider({
     required super.onChanged,
     required super.debugVisibleInGraph,
@@ -78,14 +81,17 @@ abstract class BaseWatchableProvider<N extends BaseNotifier<T>, T>
   @override
   BaseProvider<N, T> get provider => this;
 
+  @override
+  P getActualProvider(BaseNotifier<Object?> notifier) => this as P;
+
   /// The default behavior to return the whole state when
   /// using `ref.watch(provider)`.
   @override
   T getSelectedState(N notifier, T state) => state;
 }
 
-mixin ProviderSelectMixin<N extends BaseNotifier<T>, T>
-    on BaseWatchableProvider<N, T> {
+mixin ProviderSelectMixin<P extends BaseProvider<N, T>,
+    N extends BaseNotifier<T>, T> on BaseWatchableProvider<P, N, T> {
   /// Used for ref.watch(provider.select(...)).
   /// Select a part of the state.
   SelectedWatchable<N, T, R> select<R>(R Function(T state) selector) {

@@ -5,6 +5,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 // ignore: implementation_imports
+import 'package:refena/src/notifier/base_notifier.dart';
+
+// ignore: implementation_imports
+import 'package:refena/src/provider/base_provider.dart';
+
+// ignore: implementation_imports
 import 'package:refena/src/provider/watchable.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
@@ -12,10 +18,18 @@ import 'package:refena_flutter/refena_flutter.dart';
 ///
 /// When this widget is disposed, only the parameter will be disposed instead
 /// of the whole family (which is what [ViewModelBuilder] does).
-class FamilyViewModelBuilder<T, P, R> extends StatefulWidget {
+class FamilyViewModelBuilder<
+    P extends BaseProvider<N, Map<F, T>>,
+    P2 extends BaseProvider<N2, T>,
+    N extends FamilyNotifier<T, F, P2>,
+    N2 extends BaseNotifier<T>,
+    T,
+    F,
+    R,
+    B> extends StatefulWidget {
   /// The provider to use.
   /// The [builder] will be called whenever this provider changes.
-  final FamilySelectedWatchable<T, P, R> provider;
+  final FamilySelectedWatchable<P, P2, N, N2, T, F, R, B> provider;
 
   /// This function is called **BEFORE** the widget is built for the first time.
   /// It should not return a [Future].
@@ -66,12 +80,20 @@ class FamilyViewModelBuilder<T, P, R> extends StatefulWidget {
             'ViewModelBuilder<$T>';
 
   @override
-  State<FamilyViewModelBuilder<T, P, R>> createState() =>
-      _FamilyViewModelBuilderState<T, P, R>();
+  State<FamilyViewModelBuilder<P, P2, N, N2, T, F, R, B>> createState() =>
+      _FamilyViewModelBuilderState<P, P2, N, N2, T, F, R, B>();
 }
 
-class _FamilyViewModelBuilderState<T, P, R>
-    extends State<FamilyViewModelBuilder<T, P, R>> with Refena {
+class _FamilyViewModelBuilderState<
+        P extends BaseProvider<N, Map<F, T>>,
+        P2 extends BaseProvider<N2, T>,
+        N extends FamilyNotifier<T, F, P2>,
+        N2 extends BaseNotifier<T>,
+        T,
+        F,
+        R,
+        B> extends State<FamilyViewModelBuilder<P, P2, N, N2, T, F, R, B>>
+    with Refena {
   bool _initialized = false;
   (Object, StackTrace)? _error; // use record for null-safety
 

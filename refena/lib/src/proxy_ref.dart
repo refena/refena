@@ -8,6 +8,7 @@ import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
+import 'package:refena/src/provider/provider_accessor.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
 import 'package:refena/src/provider/watchable.dart';
 import 'package:refena/src/ref.dart';
@@ -73,28 +74,42 @@ class ProxyRef implements Ref {
 
   @override
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    BaseProvider<N, T> provider,
+    ProviderAccessor<BaseProvider<N, T>, N, T> provider,
   ) {
     if (_onAccessNotifier == null) {
       return _ref.stream<N, T>(provider);
     }
 
-    final notifier = _ref.anyNotifier<N, T>(provider);
+    final notifier = _ref.anyNotifier(provider.provider);
     _onAccessNotifier!(notifier);
-    return notifier.getStream();
+    if (notifier is N) {
+      return notifier.getStream();
+    }
+
+    // The given provider was a family provider.
+    // Access the child provider and return its future.
+    final actualProvider = provider.getActualProvider(notifier);
+    return _ref.anyNotifier(actualProvider).getStream();
   }
 
   @override
   Future<T> future<N extends GetFutureNotifier<T>, T>(
-    BaseProvider<N, AsyncValue<T>> provider,
+    ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>> provider,
   ) {
     if (_onAccessNotifier == null) {
       return _ref.future<N, T>(provider);
     }
 
-    final notifier = _ref.anyNotifier(provider);
+    final notifier = _ref.anyNotifier(provider.provider);
     _onAccessNotifier!(notifier);
-    return notifier.future; // ignore: invalid_use_of_protected_member
+    if (notifier is N) {
+      return notifier.future;
+    }
+
+    // The given provider was a family provider.
+    // Access the child provider and return its future.
+    final actualProvider = provider.getActualProvider(notifier);
+    return _ref.anyNotifier(actualProvider).future;
   }
 
   @override
@@ -110,7 +125,7 @@ class ProxyRef implements Ref {
   }
 
   @override
-  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P>, P>(
+  void disposeFamilyParam<N extends FamilyNotifier<dynamic, P, dynamic>, P>(
     BaseProvider<N, dynamic> provider,
     P param,
   ) {

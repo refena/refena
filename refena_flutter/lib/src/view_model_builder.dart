@@ -8,6 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 
 // ignore: implementation_imports
+import 'package:refena/src/provider/base_provider.dart';
+
+// ignore: implementation_imports
 import 'package:refena/src/provider/watchable.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
@@ -74,9 +77,17 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
 
   /// Returns the family version of this widget.
   /// See [FamilyViewModelBuilder] for more information.
-  static FamilyViewModelBuilder<T, P, R> family<T, P, R>({
+  static FamilyViewModelBuilder<P, P2, N, N2, T, F, R, B> family<
+      P extends BaseProvider<N, Map<F, T>>,
+      P2 extends BaseProvider<N2, T>,
+      N extends FamilyNotifier<T, F, P2>,
+      N2 extends BaseNotifier<T>,
+      T,
+      F,
+      R,
+      B>({
     Key? key,
-    required FamilySelectedWatchable<T, P, R> provider,
+    required FamilySelectedWatchable<P, P2, N, N2, T, F, R, B> provider,
     void Function(BuildContext context, Ref ref)? initBuild,
     FutureOr<void> Function(BuildContext context, Ref ref)? init,
     void Function(Ref ref)? dispose,
@@ -91,7 +102,7 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
     Widget? debugParent,
     required Widget Function(BuildContext context, R vm) builder,
   }) {
-    return FamilyViewModelBuilder<T, P, R>(
+    return FamilyViewModelBuilder<P, P2, N, N2, T, F, R, B>(
       key: key,
       provider: provider,
       initBuild: initBuild,

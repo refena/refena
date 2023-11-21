@@ -14,8 +14,9 @@ import 'package:refena/src/ref.dart';
 /// See [BaseNotifier.describeState].
 ///
 /// Set [debugLabel] to customize the debug label of the provider.
-class Provider<T> extends BaseWatchableProvider<ImmutableNotifier<T>, T>
-    with ProviderSelectMixin<ImmutableNotifier<T>, T> {
+class Provider<T>
+    extends BaseWatchableProvider<Provider<T>, ImmutableNotifier<T>, T>
+    with ProviderSelectMixin<Provider<T>, ImmutableNotifier<T>, T> {
   final T Function(Ref ref) _builder;
   final String Function(T state)? _describeState;
 

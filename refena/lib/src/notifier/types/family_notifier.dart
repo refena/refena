@@ -1,29 +1,35 @@
 part of '../base_notifier.dart';
 
-typedef ChildFamilyBuilder<T, P> = BaseProvider<BaseNotifier<T>, T> Function(
-  P param,
+typedef ChildFamilyBuilder<T, F, P extends BaseProvider<BaseNotifier<T>, T>> = P
+    Function(
+  F param,
 );
 
 /// The family notifier manages a map of notifiers, one for each parameter.
 /// They are created lazily when the parameter is accessed for the first time.
-final class FamilyNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
-    with RebuildableNotifier<Map<P, T>, void> {
+///
+/// [T] is the type of **one** element of the family.
+/// [F] is the type of the family parameter.
+/// [P] is the type of the child provider.
+final class FamilyNotifier<T, F, P extends BaseProvider<BaseNotifier<T>, T>>
+    extends BaseSyncNotifier<Map<F, T>>
+    with RebuildableNotifier<Map<F, T>, void> {
   FamilyNotifier(
     this._familyBuilder, {
     String Function(T state)? describeState,
     super.debugLabel,
   }) : _describeState = describeState;
 
-  final ChildFamilyBuilder<T, P> _familyBuilder;
+  final ChildFamilyBuilder<T, F, P> _familyBuilder;
 
   @override
   void Function(WatchableRef ref) get _builder => throw UnimplementedError();
 
-  final Map<P, BaseProvider<BaseNotifier<T>, T>> _providers = {};
+  final Map<F, P> _providers = {};
   final String Function(T state)? _describeState;
 
   @override
-  Map<P, T> init() => {};
+  Map<F, T> init() => {};
 
   @override
   void postInit() {
@@ -42,11 +48,11 @@ final class FamilyNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
     });
   }
 
-  bool isParamInitialized(P param) {
+  bool isParamInitialized(F param) {
     return state.containsKey(param);
   }
 
-  void initParam(P param) {
+  void initParam(F param) {
     // create new temporary provider
     final provider = _familyBuilder(param);
     _providers[param] = provider;
@@ -60,7 +66,7 @@ final class FamilyNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
     };
   }
 
-  void disposeParam(P param, LabeledReference? debugOrigin) {
+  void disposeParam(F param, LabeledReference? debugOrigin) {
     final provider = _providers.remove(param);
     if (provider == null) {
       return;
@@ -96,13 +102,8 @@ final class FamilyNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
     tempNotifier.dependents.clear();
   }
 
-  @visibleForTesting
-  List<BaseProvider<BaseNotifier<T>, T>> getTempProviders() {
-    return _providers.values.toList();
-  }
-
   @override
-  String describeState(Map<P, T> state) {
+  String describeState(Map<F, T> state) {
     if (_describeState != null) {
       return _describeMapState(state, _describeState!);
     } else {
@@ -112,4 +113,16 @@ final class FamilyNotifier<T, P> extends BaseSyncNotifier<Map<P, T>>
 
   @override
   void rebuildImmediately() => throw UnimplementedError();
+}
+
+@internal
+extension FamilyNotifierExt<T, F, P extends BaseProvider<BaseNotifier<T>, T>>
+    on FamilyNotifier<T, F, P> {
+  List<BaseProvider<BaseNotifier<T>, T>> getTempProviders() {
+    return _providers.values.toList();
+  }
+
+  Map<F, P> getProviderMap() {
+    return _providers;
+  }
 }
