@@ -5,7 +5,6 @@ import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/async_value.dart';
 import 'package:refena/src/container.dart';
-import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/listener.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/notifier/rebuildable.dart';
@@ -14,21 +13,20 @@ import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
-import 'package:refena/src/provider/types/view_family_provider.dart';
-import 'package:refena/src/provider/types/view_provider.dart';
+import 'package:refena/src/provider/watchable.dart';
 import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
 import 'package:refena/src/reference.dart';
 import 'package:refena/src/util/batched_stream_controller.dart';
 import 'package:refena/src/util/stacktrace.dart';
 
+part 'types/family_notifier.dart';
+
 part 'types/future_provider_notifier.dart';
 
 part 'types/redux_notifier.dart';
 
 part 'types/stream_provider_notifier.dart';
-
-part 'types/view_family_provider_notifier.dart';
 
 part 'types/view_provider_notifier.dart';
 
@@ -420,7 +418,7 @@ abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>>
   }
 }
 
-String _describeViewMapState<T, P>(
+String _describeMapState<T, P>(
   Map<P, T> state,
   String Function(T state) describe,
 ) {

@@ -1,6 +1,5 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
-import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/provider/base_provider.dart';
 
 /// A wrapper class to make [ref.watch] work with both
@@ -40,9 +39,9 @@ class SelectedWatchable<N extends BaseNotifier<T>, T, R>
 /// A concrete implementation of [Watchable] that is used
 /// when a param on a family is called.
 final class FamilySelectedWatchable<T, P, R>
-    implements BaseWatchable<FamilyNotifier<T, P>, T, R> {
-  final BaseProvider<FamilyNotifier<T, P>, T> _provider;
-  final R Function(T) _selector;
+    implements BaseWatchable<FamilyNotifier<T, P>, Map<P, T>, R> {
+  final BaseProvider<FamilyNotifier<T, P>, Map<P, T>> _provider;
+  final R Function(Map<P, T>) _selector;
 
   /// The family parameter.
   final P param;
@@ -50,10 +49,10 @@ final class FamilySelectedWatchable<T, P, R>
   FamilySelectedWatchable(this._provider, this.param, this._selector);
 
   @override
-  BaseProvider<FamilyNotifier<T, P>, T> get provider => _provider;
+  BaseProvider<FamilyNotifier<T, P>, Map<P, T>> get provider => _provider;
 
   @override
-  R getSelectedState(FamilyNotifier<T, P> notifier, T state) {
+  R getSelectedState(FamilyNotifier<T, P> notifier, Map<P, T> state) {
     return _selector(state);
   }
 

@@ -26,7 +26,7 @@ class _StateGraphInputBuilder extends GraphInputBuilder {
     ref.container.cleanupListeners();
     final notifiers = ref.container
         .getActiveNotifiers()
-        .where((n) => n.provider?.debugVisibleInGraph ?? false)
+        .where((n) => n.provider!.debugVisibleInGraph)
         .toList();
 
     final inputNodes = <InputNode>[];
@@ -34,15 +34,7 @@ class _StateGraphInputBuilder extends GraphInputBuilder {
     final widgetMap = <ElementRebuildable, InputNode>{};
     for (final notifier in notifiers) {
       final node = InputNode(
-        type: switch (notifier) {
-          ViewProviderNotifier() => InputNodeType.view,
-          ViewFamilyProviderNotifier() => InputNodeType.view,
-          ReduxNotifier() => InputNodeType.redux,
-          ImmutableNotifier() => InputNodeType.immutable,
-          FutureProviderNotifier() => InputNodeType.future,
-          FutureFamilyProviderNotifier() => InputNodeType.future,
-          _ => InputNodeType.notifier,
-        },
+        type: notifier.provider!.toInputNodeType(),
         label: notifier.debugLabel,
       );
       nodeMap[notifier] = node;

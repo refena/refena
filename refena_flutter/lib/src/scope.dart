@@ -11,9 +11,6 @@ import 'package:refena/refena.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 
 // ignore: implementation_imports
-import 'package:refena/src/notifier/family_notifier.dart';
-
-// ignore: implementation_imports
 import 'package:refena/src/provider/base_provider.dart';
 
 // ignore: implementation_imports

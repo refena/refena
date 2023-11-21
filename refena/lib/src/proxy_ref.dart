@@ -4,7 +4,6 @@ import 'package:refena/src/action/dispatcher.dart';
 import 'package:refena/src/async_value.dart';
 import 'package:refena/src/container.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
-import 'package:refena/src/notifier/family_notifier.dart';
 import 'package:refena/src/notifier/notifier_event.dart';
 import 'package:refena/src/observer/event.dart';
 import 'package:refena/src/observer/observer.dart';

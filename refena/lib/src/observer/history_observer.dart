@@ -208,4 +208,13 @@ class RefenaHistoryObserver extends RefenaObserver {
   void clear() {
     history.clear();
   }
+
+  /// Prints the history to the console.
+  /// Uses implementation of [RefenaDebugObserver].
+  void printHistory() {
+    final tempObserver = RefenaDebugObserver();
+    for (final event in history) {
+      tempObserver.handleEvent(event);
+    }
+  }
 }

@@ -34,15 +34,7 @@ class GraphBuilder {
     for (final notifier in notifiers) {
       final node = GraphNodeDto(
         id: _idProvider.getNextId(),
-        type: switch (notifier) {
-          ViewProviderNotifier() => InputNodeType.view,
-          ViewFamilyProviderNotifier() => InputNodeType.view,
-          ReduxNotifier() => InputNodeType.redux,
-          ImmutableNotifier() => InputNodeType.immutable,
-          FutureProviderNotifier() => InputNodeType.future,
-          FutureFamilyProviderNotifier() => InputNodeType.future,
-          _ => InputNodeType.notifier,
-        },
+        type: notifier.provider!.toInputNodeType(),
         debugLabel: notifier.debugLabel,
         parents: [],
         children: [],

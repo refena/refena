@@ -11,7 +11,7 @@ import 'package:refena/src/ref.dart';
 /// A [FutureProvider] is a custom implementation of a [AsyncNotifierProvider]
 /// that allows you to watch a [Future].
 ///
-/// The advantage over using a [FutureBuilder] is that the
+/// The advantage over using a [FutureBuilder] (by Flutter) is that the
 /// value is cached and only the first call to the [Future] is executed.
 ///
 /// Usage:
@@ -77,7 +77,7 @@ class FutureProvider<T>
 
   /// A shorthand for [FutureFamilyProvider].
   static FutureFamilyProvider<T, P> family<T, P>(
-    FutureBuilder<T, P> future, {
+    FutureFamilyBuilder<T, P> future, {
     String Function(AsyncValue<T> state)? describeState,
     String? debugLabel,
   }) {

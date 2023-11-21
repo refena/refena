@@ -1,8 +1,7 @@
 part of '../base_notifier.dart';
 
 final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
-    with RebuildableNotifier
-    implements Rebuildable {
+    with RebuildableNotifier {
   ViewProviderNotifier(
     this._builder, {
     String Function(T state)? describeState,
