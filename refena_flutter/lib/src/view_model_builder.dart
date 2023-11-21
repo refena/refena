@@ -77,17 +77,10 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
 
   /// Returns the family version of this widget.
   /// See [FamilyViewModelBuilder] for more information.
-  static FamilyViewModelBuilder<P, P2, N, N2, T, F, R, B> family<
-      P extends BaseProvider<N, Map<F, T>>,
-      P2 extends BaseProvider<N2, T>,
-      N extends FamilyNotifier<T, F, P2>,
-      N2 extends BaseNotifier<T>,
-      T,
-      F,
-      R,
-      B>({
+  static FamilyViewModelBuilder<P, N, T, F, R, B> family<
+      P extends BaseProvider<N, T>, N extends BaseNotifier<T>, T, F, R, B>({
     Key? key,
-    required FamilySelectedWatchable<P, P2, N, N2, T, F, R, B> provider,
+    required FamilySelectedWatchable<P, N, T, F, R, B> provider,
     void Function(BuildContext context, Ref ref)? initBuild,
     FutureOr<void> Function(BuildContext context, Ref ref)? init,
     void Function(Ref ref)? dispose,
@@ -102,7 +95,7 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
     Widget? debugParent,
     required Widget Function(BuildContext context, R vm) builder,
   }) {
-    return FamilyViewModelBuilder<P, P2, N, N2, T, F, R, B>(
+    return FamilyViewModelBuilder<P, N, T, F, R, B>(
       key: key,
       provider: provider,
       initBuild: initBuild,

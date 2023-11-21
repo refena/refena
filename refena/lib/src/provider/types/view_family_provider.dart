@@ -42,15 +42,8 @@ class ViewFamilyProvider<T, P>
   }
 
   /// Provide accessor for one parameter.
-  FamilySelectedWatchable<
-      ViewFamilyProvider<T, P>,
-      ViewProvider<T>,
-      FamilyNotifier<T, P, ViewProvider<T>>,
-      ViewProviderNotifier<T>,
-      T,
-      P,
-      T,
-      T> call(P param) {
+  FamilySelectedWatchable<ViewProvider<T>, ViewProviderNotifier<T>, T, P, T, T>
+      call(P param) {
     return FamilySelectedWatchable(this, param, (map) => map[param]!);
   }
 }

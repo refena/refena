@@ -50,15 +50,8 @@ class FutureFamilyProvider<T, P> extends BaseProvider<
   }
 
   /// Provide accessor for one parameter.
-  FamilySelectedWatchable<
-      FutureFamilyProvider<T, P>,
-      FutureProvider<T>,
-      FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>>,
-      FutureProviderNotifier<T>,
-      AsyncValue<T>,
-      P,
-      AsyncValue<T>,
-      Future<T>> call(
+  FamilySelectedWatchable<FutureProvider<T>, FutureProviderNotifier<T>,
+      AsyncValue<T>, P, AsyncValue<T>, Future<T>> call(
     P param,
   ) {
     return FamilySelectedWatchable(this, param, (map) => map[param]!);

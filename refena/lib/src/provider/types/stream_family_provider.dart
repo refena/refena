@@ -50,15 +50,8 @@ class StreamFamilyProvider<T, P> extends BaseProvider<
   }
 
   /// Provide accessor for one parameter.
-  FamilySelectedWatchable<
-      StreamFamilyProvider<T, P>,
-      StreamProvider<T>,
-      FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>,
-      StreamProviderNotifier<T>,
-      AsyncValue<T>,
-      P,
-      AsyncValue<T>,
-      Stream<T>> call(
+  FamilySelectedWatchable<StreamProvider<T>, StreamProviderNotifier<T>,
+      AsyncValue<T>, P, AsyncValue<T>, Stream<T>> call(
     P param,
   ) {
     return FamilySelectedWatchable(this, param, (map) => map[param]!);

@@ -2,6 +2,7 @@ import 'package:meta/meta.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/provider_accessor.dart';
+import 'package:refena/src/ref.dart';
 
 /// A wrapper class to make [ref.watch] work with both
 /// [BaseProvider] and [BaseProvider.select].
@@ -44,24 +45,27 @@ class SelectedWatchable<N extends BaseNotifier<T>, T, R>
 /// A concrete implementation of [Watchable] that is used
 /// when a param on a family is called.
 ///
+/// [P] is the type of the **child** provider.
+/// [N] is the type of the **child** notifier.
+/// [T] is the type of the **child** notifier state.
 /// [F] is the type of the family parameter.
-/// [B] is the builder return type.
 /// [R] is the type of the selected state.
-/// [T] is the type of **one** element of the family.
-final class FamilySelectedWatchable<
-        P extends BaseProvider<N, Map<F, T>>,
-        P2 extends BaseProvider<N2, T>,
-        N extends FamilyNotifier<T, F, P2>,
-        N2 extends BaseNotifier<T>,
-        T,
-        F,
-        R,
-        B>
+/// [B] is the builder return type.
+///
+/// [B] is used to add the [RebuildableProvider] interface.
+/// It is assumed that all family providers are also rebuildable.
+///
+/// The complexity of this class is due to the fact that we need to
+/// support [BaseWatchable], [RebuildableProvider] and [ProviderAccessor]
+/// at the same time. So the user can use [WatchableRef.watch], [Ref.rebuild],
+/// [Ref.future], and [Ref.stream] on the same object (via the [call] operator).
+final class FamilySelectedWatchable<P extends BaseProvider<N, T>,
+        N extends BaseNotifier<T>, T, F, R, B>
     implements
-        BaseWatchable<FamilyNotifier<T, F, P2>, Map<F, T>, R>,
+        BaseWatchable<FamilyNotifier<T, F, P>, Map<F, T>, R>,
         RebuildableProvider<RebuildableNotifier<Map<F, T>, B>, Map<F, T>, B>,
-        ProviderAccessor<P2, N2, T> {
-  final P _provider;
+        ProviderAccessor<P, N, T> {
+  final BaseProvider<FamilyNotifier<T, F, P>, Map<F, T>> _provider;
   final R Function(Map<F, T>) _selector;
 
   /// The family parameter.
@@ -70,26 +74,28 @@ final class FamilySelectedWatchable<
   FamilySelectedWatchable(this._provider, this.param, this._selector);
 
   @override
-  P get provider => _provider;
+  BaseProvider<FamilyNotifier<T, F, P>, Map<F, T>> get provider => _provider;
 
   @override
-  R getSelectedState(FamilyNotifier<T, F, P2> notifier, Map<F, T> state) {
+  R getSelectedState(FamilyNotifier<T, F, P> notifier, Map<F, T> state) {
     return _selector(state);
   }
 
   /// A select statement on a family select.
   /// ref.read(provider(param).select(...))
-  FamilySelectedWatchable<P, P2, N, N2, T, F, R2, B> select<R2>(
+  ///
+  /// [R2] is the new type of the selected state.
+  FamilySelectedWatchable<P, N, T, F, R2, B> select<R2>(
     R2 Function(R state) selector,
   ) {
-    return FamilySelectedWatchable<P, P2, N, N2, T, F, R2, B>(_provider, param,
+    return FamilySelectedWatchable<P, N, T, F, R2, B>(_provider, param,
         (state) {
       return selector(_selector(state));
     });
   }
 
   @override
-  P2 getActualProvider(BaseNotifier<Object?> notifier) {
-    return (notifier as FamilyNotifier<T, F, P2>).getProviderMap()[param]!;
+  P getActualProvider(BaseNotifier<Object?> notifier) {
+    return (notifier as FamilyNotifier<T, F, P>).getProviderMap()[param]!;
   }
 }

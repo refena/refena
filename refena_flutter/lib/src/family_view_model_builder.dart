@@ -18,18 +18,11 @@ import 'package:refena_flutter/refena_flutter.dart';
 ///
 /// When this widget is disposed, only the parameter will be disposed instead
 /// of the whole family (which is what [ViewModelBuilder] does).
-class FamilyViewModelBuilder<
-    P extends BaseProvider<N, Map<F, T>>,
-    P2 extends BaseProvider<N2, T>,
-    N extends FamilyNotifier<T, F, P2>,
-    N2 extends BaseNotifier<T>,
-    T,
-    F,
-    R,
-    B> extends StatefulWidget {
+class FamilyViewModelBuilder<P extends BaseProvider<N, T>,
+    N extends BaseNotifier<T>, T, F, R, B> extends StatefulWidget {
   /// The provider to use.
   /// The [builder] will be called whenever this provider changes.
-  final FamilySelectedWatchable<P, P2, N, N2, T, F, R, B> provider;
+  final FamilySelectedWatchable<P, N, T, F, R, B> provider;
 
   /// This function is called **BEFORE** the widget is built for the first time.
   /// It should not return a [Future].
@@ -80,20 +73,17 @@ class FamilyViewModelBuilder<
             'ViewModelBuilder<$T>';
 
   @override
-  State<FamilyViewModelBuilder<P, P2, N, N2, T, F, R, B>> createState() =>
-      _FamilyViewModelBuilderState<P, P2, N, N2, T, F, R, B>();
+  State<FamilyViewModelBuilder<P, N, T, F, R, B>> createState() =>
+      _FamilyViewModelBuilderState<P, N, T, F, R, B>();
 }
 
 class _FamilyViewModelBuilderState<
-        P extends BaseProvider<N, Map<F, T>>,
-        P2 extends BaseProvider<N2, T>,
-        N extends FamilyNotifier<T, F, P2>,
-        N2 extends BaseNotifier<T>,
-        T,
-        F,
-        R,
-        B> extends State<FamilyViewModelBuilder<P, P2, N, N2, T, F, R, B>>
-    with Refena {
+    P2 extends BaseProvider<N2, T>,
+    N2 extends BaseNotifier<T>,
+    T,
+    F,
+    R,
+    B> extends State<FamilyViewModelBuilder<P2, N2, T, F, R, B>> with Refena {
   bool _initialized = false;
   (Object, StackTrace)? _error; // use record for null-safety
 
