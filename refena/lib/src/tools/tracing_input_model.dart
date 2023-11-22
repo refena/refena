@@ -222,8 +222,14 @@ class InputEvent {
                 'Notifier': event.rebuildable.debugLabel,
                 'Triggered by': switch (event.debugOrigin) {
                   != null => 'Ref.rebuild in ${event.debugOrigin!.debugLabel}',
-                  _ =>
-                    event.causes.map((e) => e.stateType.toString()).join(', '),
+                  _ => event.causes.map((e) {
+                      return switch (e) {
+                        RebuildEvent() =>
+                          (e.rebuildable as BaseNotifier).customDebugLabel ??
+                              event.stateType.toString(),
+                        ChangeEvent() => e.notifier.debugLabel,
+                      };
+                    }).join(', '),
                 },
                 'Prev': formatValue((event.rebuildable as BaseNotifier)
                     .describeState(event.prev)),
