@@ -103,12 +103,27 @@ void main() {
       expect(ref.read(viewProvider(1)), 2);
       expect(rebuildCount, 2);
 
-      // Family provider will notice the change and rebuild
-      // in the next microtask
+      // Family provider notices this change in the next micro task
       await skipAllMicrotasks();
       expect(observer.history.whereType<RebuildEvent>().toList().length, 2);
       expect(ref.read(viewProvider(1)), 12);
       expect(rebuildCount, 2);
+
+      // initialize more parameters
+      expect(ref.read(viewProvider(2)), 13);
+      expect(ref.read(viewProvider(3)), 14);
+      expect(rebuildCount, 4);
+
+      // Trigger rebuild (all children)
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 2);
+      ref.notifier(parentProvider).setState((old) => 20);
+      ref.rebuild(viewProvider);
+      expect(rebuildCount, 7);
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 5);
+
+      // Family provider notices this change in the next micro task
+      await skipAllMicrotasks();
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 6);
     });
   });
 
@@ -222,7 +237,7 @@ void main() {
       expect(rebuildCount, 1);
       expect(ref.read(futureProvider(1)), AsyncValue<int>.loading());
 
-      // Family provider notices this change in the next microtask
+      // Family provider notices this change in the next micro task
       await skipAllMicrotasks();
       expect(ref.read(futureProvider(1)), AsyncValue<int>.data(2));
 
@@ -240,17 +255,41 @@ void main() {
       expect(observer.history.whereType<RebuildEvent>().toList().length, 2);
       expect(ref.read(futureProvider(1)), AsyncValue<int>.data(2));
 
-      // Family provider notices this change in the next microtask
+      // Family provider notices this change in the next micro task
       await skipAllMicrotasks();
       expect(ref.read(futureProvider(1)), AsyncValue<int>.loading(2));
 
       expect(await result, 12);
       expect(ref.read(futureProvider(1)), AsyncValue<int>.loading(2));
 
-      // Family provider notices this change in the next microtask
+      // Family provider notices this change in the next micro task
       await skipAllMicrotasks();
       expect(ref.read(futureProvider(1)), AsyncValue<int>.data(12));
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 4);
       expect(rebuildCount, 2);
+
+      // initialize more parameters
+      expect(ref.read(futureProvider(2)), AsyncValue<int>.loading());
+      expect(ref.read(futureProvider(3)), AsyncValue<int>.loading());
+      expect(rebuildCount, 4);
+
+      // wait until all futures are completed
+      await Future.delayed(Duration(milliseconds: 20));
+      expect(ref.read(futureProvider(1)), AsyncValue<int>.data(12));
+      expect(ref.read(futureProvider(2)), AsyncValue<int>.data(13));
+      expect(ref.read(futureProvider(3)), AsyncValue<int>.data(14));
+      expect(rebuildCount, 4);
+
+      // Trigger rebuild (all children)
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 6);
+      ref.notifier(parentProvider).setState((old) => 20);
+      ref.rebuild(futureProvider);
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 9);
+      expect(rebuildCount, 7);
+
+      // Family provider notices this change in the next micro task
+      await skipAllMicrotasks();
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 10);
     });
   });
 
@@ -357,7 +396,7 @@ void main() {
         stream() async* {
           // We don't use watch to avoid automatic rebuilds
           rebuildCount++;
-          await Future.delayed(Duration(milliseconds: 10));
+          await Future.delayed(Duration(milliseconds: 10 + param));
           yield ref.read(parentProvider) + 1 + param;
         }
 
@@ -372,7 +411,7 @@ void main() {
       expect(rebuildCount, 1);
       expect(ref.read(streamProvider(1)), AsyncValue<int>.loading());
 
-      // Family provider notices this change in the next microtask
+      // Family provider notices this change in the next micro task
       await skipAllMicrotasks();
       expect(ref.read(streamProvider(1)), AsyncValue<int>.data(2));
 
@@ -390,17 +429,49 @@ void main() {
       expect(observer.history.whereType<RebuildEvent>().toList().length, 2);
       expect(ref.read(streamProvider(1)), AsyncValue<int>.data(2));
 
-      // Family provider notices this change in the next microtask
+      // Family provider notices this change in the next micro task
       await skipAllMicrotasks();
       expect(ref.read(streamProvider(1)), AsyncValue<int>.loading(2));
 
       expect(await result.first, 12);
       expect(ref.read(streamProvider(1)), AsyncValue<int>.loading(2));
 
-      // Family provider notices this change in the next microtask
+      // Family provider notices this change in the next micro task
       await skipAllMicrotasks();
       expect(ref.read(streamProvider(1)), AsyncValue<int>.data(12));
       expect(rebuildCount, 2);
+
+      // initialize more parameters
+      expect(ref.read(streamProvider(2)), AsyncValue<int>.loading());
+      expect(ref.read(streamProvider(3)), AsyncValue<int>.loading());
+
+      // wait until all futures are completed
+      await Future.delayed(Duration(milliseconds: 20));
+      expect(ref.read(streamProvider(1)), AsyncValue<int>.data(12));
+      expect(ref.read(streamProvider(2)), AsyncValue<int>.data(13));
+      expect(ref.read(streamProvider(3)), AsyncValue<int>.data(14));
+      expect(rebuildCount, 4);
+
+      // Trigger rebuild (all children)
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 6);
+      ref.notifier(parentProvider).setState((old) => 20);
+      ref.rebuild(streamProvider);
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 9);
+
+      // Family provider notices this change in the next micro task
+      await skipAllMicrotasks();
+      expect(rebuildCount, 7);
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 10);
+
+      // wait until all futures are completed
+      await Future.delayed(Duration(milliseconds: 20));
+      expect(ref.read(streamProvider(1)), AsyncValue<int>.data(22));
+      expect(ref.read(streamProvider(2)), AsyncValue<int>.data(23));
+      expect(ref.read(streamProvider(3)), AsyncValue<int>.data(24));
+      expect(rebuildCount, 7);
+
+      // 3 rebuilds for 3 change events
+      expect(observer.history.whereType<RebuildEvent>().toList().length, 13);
     });
   });
 }

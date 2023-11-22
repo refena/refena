@@ -1,6 +1,7 @@
 ## 1.5.0
 
 - feat: add `debugVisibleInGraph` parameter to family shorthand constructors
+- feat: allow to pass the whole family to `ref.rebuild`
 
 ## 1.4.0
 

@@ -15,8 +15,11 @@ typedef FutureFamilyBuilder<T, P> = Future<T> Function(
 /// A [FutureFamilyProvider] is a special version of [FutureProvider] that
 /// allows you to watch a collection of [Future]s.
 class FutureFamilyProvider<T, P> extends BaseProvider<
-    FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>>,
-    Map<P, AsyncValue<T>>> {
+        FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>>,
+        Map<P, AsyncValue<T>>>
+    implements
+        RebuildableProvider<FamilyNotifier<AsyncValue<T>, P, FutureProvider<T>>,
+            Map<P, AsyncValue<T>>, void> {
   FutureFamilyProvider(
     this._builder, {
     super.onChanged,

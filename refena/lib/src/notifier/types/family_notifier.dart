@@ -114,7 +114,9 @@ final class FamilyNotifier<T, F, P extends BaseProvider<BaseNotifier<T>, T>>
 
   @override
   void rebuildImmediately(LabeledReference debugOrigin) {
-    throw UnimplementedError();
+    for (final provider in _providers.values) {
+      _container!.rebuild(provider as RebuildableProvider, debugOrigin);
+    }
   }
 }
 

@@ -15,8 +15,11 @@ typedef StreamFamilyBuilder<T, P> = Stream<T> Function(
 /// A [StreamFamilyProvider] is a special version of [StreamProvider] that
 /// allows you to watch a collection of [Stream]s.
 class StreamFamilyProvider<T, P> extends BaseProvider<
-    FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>,
-    Map<P, AsyncValue<T>>> {
+        FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>,
+        Map<P, AsyncValue<T>>>
+    implements
+        RebuildableProvider<FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>,
+            Map<P, AsyncValue<T>>, void> {
   StreamFamilyProvider(
     this._builder, {
     super.onChanged,
