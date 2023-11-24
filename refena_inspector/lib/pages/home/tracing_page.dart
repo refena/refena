@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 // ignore: implementation_imports
 import 'package:refena/src/tools/tracing_input_model.dart';
 import 'package:refena_flutter/refena_flutter.dart';
-import 'package:refena_inspector/service/event_service.dart';
+import 'package:refena_inspector/service/tracing_service.dart';
 
 class TracingPage extends StatelessWidget {
   const TracingPage({super.key});
@@ -26,21 +26,26 @@ class _InspectorTracingInputBuilder extends TracingInputBuilder {
   final Ref _ref;
 
   _InspectorTracingInputBuilder(this._ref)
-      : _stream = _ref.stream(eventsProvider);
+      : _stream = _ref.stream(eventTracingProvider);
 
   @override
-  Stream? get refreshStream => _stream;
+  Stream<void>? get refreshStream => _stream;
 
   @override
-  bool hasTracingProvider(Ref ref) => ref.read(eventsProvider).hasTracing;
+  bool get hasFinishedEvents {
+    return _ref.read(eventTracingProvider).hasFinishedEvents;
+  }
+
+  @override
+  bool hasTracingProvider(Ref ref) => ref.read(eventTracingProvider).hasTracing;
 
   @override
   void clearEvents(Ref ref) {
-    ref.redux(eventsProvider).dispatch(ClearEventsAction());
+    ref.redux(eventTracingProvider).dispatch(ClearEventsAction());
   }
 
   @override
   List<InputEvent> build(Ref ref) {
-    return _ref.read(eventsProvider).events;
+    return _ref.read(eventTracingProvider).events;
   }
 }

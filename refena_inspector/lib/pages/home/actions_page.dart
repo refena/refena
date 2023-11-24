@@ -77,21 +77,25 @@ class ActionsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.ref.watch(actionsPageVmProvider);
-    return Scaffold(
-      appBar: AppBar(
-        title: Align(
-          alignment: Alignment.centerLeft, // also force on macOS
-          child: const Text('Quick Actions'),
-        ),
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20.0),
-        children: [
-          if (vm.actions.isEmpty) const _ConfigureActionsTutorial(),
-          ..._buildActions(vm, context, vm.actions, 0),
-        ],
-      ),
+    return ViewModelBuilder(
+      provider: actionsPageVmProvider,
+      builder: (context, vm) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Align(
+              alignment: Alignment.centerLeft, // also force on macOS
+              child: const Text('Quick Actions'),
+            ),
+          ),
+          body: ListView(
+            padding: const EdgeInsets.all(20.0),
+            children: [
+              if (vm.actions.isEmpty) const _ConfigureActionsTutorial(),
+              ..._buildActions(vm, context, vm.actions, 0),
+            ],
+          ),
+        );
+      },
     );
   }
 }

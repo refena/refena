@@ -7,7 +7,15 @@ abstract class TracingInputBuilder {
   const TracingInputBuilder();
 
   /// If not null, then [build] will be called on every new stream event.
-  Stream? get refreshStream;
+  Stream<void>? get refreshStream;
+
+  /// If true, then a loading indicator is shown for unfinished actions.
+  /// If false, then it will be considered true as soon as the first
+  /// [ActionFinishedEvent] is received.
+  ///
+  /// This flag is only for performance reasons and is used
+  /// by the inspector.
+  bool get hasFinishedEvents;
 
   /// If false, then an error will be shown
   /// if the tracing provider is not available.
@@ -26,7 +34,10 @@ class _StateTracingInputBuilder extends TracingInputBuilder {
   const _StateTracingInputBuilder();
 
   @override
-  Stream? get refreshStream => null;
+  Stream<void>? get refreshStream => null;
+
+  @override
+  bool get hasFinishedEvents => false;
 
   @override
   bool hasTracingProvider(Ref ref) => ref.notifier(tracingProvider).initialized;

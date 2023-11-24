@@ -11,6 +11,7 @@ class _EntryTile extends StatefulWidget {
   final _TracingEntry entry;
   final int depth;
   final bool showTime;
+  final bool showActionLoading;
 
   const _EntryTile({
     required super.key,
@@ -19,6 +20,7 @@ class _EntryTile extends StatefulWidget {
     required this.entry,
     required this.depth,
     required this.showTime,
+    required this.showActionLoading,
   });
 
   @override
@@ -151,6 +153,22 @@ class _EntryTileState extends State<_EntryTile>
                                 color: _headerColor[e.type.internalType]!,
                               ),
                             ),
+                          if (widget.showActionLoading &&
+                              e.type == InputEventType.actionDispatched &&
+                              widget.entry.millis == null &&
+                              e.isAsync)
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: SizedBox(
+                                width: 10,
+                                height: 10,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
+                            ),
                           ...switch (e.type) {
                             InputEventType.actionDispatched => [
                                 if (widget.entry.result != null)
@@ -212,6 +230,7 @@ class _EntryTileState extends State<_EntryTile>
                               color: _backgroundColor[e.type.internalType],
                             ),
                             child: _EntryDetail(
+                              title: e.label,
                               errorParser: widget.errorParser,
                               isWidget: widget.entry.isWidget,
                               isGlobalAction: e.isGlobal,
@@ -243,6 +262,7 @@ class _EntryTileState extends State<_EntryTile>
               entry: e,
               depth: widget.depth + 1,
               showTime: widget.showTime,
+              showActionLoading: widget.showActionLoading,
             )),
       ],
     );
@@ -303,6 +323,7 @@ class _EntryBadge extends StatelessWidget {
 }
 
 class _EntryDetail extends StatelessWidget {
+  final String title;
   final ErrorParser? errorParser;
   final bool isWidget;
   final bool isGlobalAction;
@@ -311,6 +332,7 @@ class _EntryDetail extends StatelessWidget {
   final Map<String, String> attributes;
 
   const _EntryDetail({
+    required this.title,
     required this.errorParser,
     required this.isWidget,
     required this.isGlobalAction,
@@ -381,6 +403,7 @@ class _EntryDetail extends StatelessWidget {
                 Navigator.of(context).push(
                   MaterialPageRoute(
                     builder: (_) => _TracingEventDetailsPage(
+                      title: title,
                       attributes: attributes,
                       error: error,
                     ),

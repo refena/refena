@@ -3,21 +3,19 @@ import 'package:refena_flutter/refena_flutter.dart';
 
 enum HomeTab {
   tracing,
+  redux,
   graph,
   actions,
   settings;
 
   String get label {
-    switch (this) {
-      case HomeTab.tracing:
-        return 'Tracing';
-      case HomeTab.graph:
-        return 'Graph';
-      case HomeTab.actions:
-        return 'Actions';
-      case HomeTab.settings:
-        return 'Settings';
-    }
+    return switch (this) {
+      HomeTab.tracing => 'Tracing',
+      HomeTab.redux => 'Redux',
+      HomeTab.graph => 'Graph',
+      HomeTab.actions => 'Actions',
+      HomeTab.settings => 'Settings',
+    };
   }
 }
 

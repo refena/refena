@@ -97,6 +97,9 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
   bool _show = false;
   bool _notInitializedError = false;
 
+  /// This is true, if at least one [ActionFinishedEvent] is received.
+  bool _showActionLoading = false;
+
   late String _query = widget.query ?? '';
   late bool _showTime = widget.showTime;
 
@@ -164,6 +167,13 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
       }
 
       Iterable<InputEvent> events = widget.inputBuilder.build(ref);
+      if (!_showActionLoading) {
+        _showActionLoading = widget.inputBuilder.hasFinishedEvents;
+        if (!_showActionLoading) {
+          _showActionLoading =
+              events.any((e) => e.type == InputEventType.actionFinished);
+        }
+      }
 
       if (widget.exclude != null) {
         events = events.where((e) => !widget.exclude!(e.event!));
@@ -320,6 +330,7 @@ class _RefenaTracingPageState extends State<RefenaTracingPage> with Refena {
                               entry: _filteredEntries[i],
                               depth: 0,
                               showTime: _showTime,
+                              showActionLoading: _showActionLoading,
                             );
                           },
                           childCount: _filteredEntries.length,

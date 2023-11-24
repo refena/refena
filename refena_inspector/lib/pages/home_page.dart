@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector/pages/home/actions_page.dart';
 import 'package:refena_inspector/pages/home/graph_page.dart';
+import 'package:refena_inspector/pages/home/redux_page.dart';
 import 'package:refena_inspector/pages/home/settings_page.dart';
 import 'package:refena_inspector/pages/home/tracing_page.dart';
 import 'package:refena_inspector/pages/home_page_controller.dart';
@@ -51,6 +52,7 @@ class HomePage extends StatelessWidget {
               return NavigationRailDestination(
                 icon: switch (tab) {
                   HomeTab.tracing => Icon(Icons.list),
+                  HomeTab.redux => Icon(Icons.table_chart),
                   HomeTab.graph => Icon(Icons.share),
                   HomeTab.actions => Icon(Icons.bolt),
                   HomeTab.settings => Icon(Icons.settings),
@@ -65,6 +67,7 @@ class HomePage extends StatelessWidget {
               physics: const NeverScrollableScrollPhysics(),
               children: const [
                 TracingPage(),
+                ReduxPage(),
                 GraphPage(),
                 ActionsPage(),
                 SettingsPage(),

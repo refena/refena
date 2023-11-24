@@ -44,6 +44,7 @@ class InputEvent {
   // ActionDispatchedEvent
   final int? actionId;
   final String? actionLabel;
+  final bool isAsync;
   final bool isGlobal;
 
   // ActionFinishedEvent
@@ -68,6 +69,7 @@ class InputEvent {
     required this.parentAction,
     required this.actionId,
     required this.actionLabel,
+    required this.isAsync,
     required this.isGlobal,
     required this.actionResult,
     required this.actionLifecycle,
@@ -89,6 +91,7 @@ class InputEvent {
     this.parentAction,
     this.actionId,
     this.actionLabel,
+    this.isAsync = false,
     this.isGlobal = false,
     this.actionResult,
     this.actionLifecycle,
@@ -111,6 +114,7 @@ class InputEvent {
         'parentAction': parentAction,
         'actionId': actionId,
         'actionLabel': actionLabel,
+        'isAsync': isAsync,
         'isGlobal': isGlobal,
         'actionResult': actionResult,
         'actionLifecycle': actionLifecycle?.index,
@@ -136,6 +140,7 @@ class InputEvent {
       parentAction: ext['parentAction'] as int?,
       actionId: ext['actionId'] as int?,
       actionLabel: ext['actionLabel'] as String?,
+      isAsync: ext['isAsync'] as bool? ?? false,
       isGlobal: ext['isGlobal'] as bool? ?? false,
       actionResult: ext['actionResult'] as String?,
       actionLifecycle: ext['actionLifecycle'] == null
@@ -304,6 +309,10 @@ class InputEvent {
         ChangeEvent() => event.action?.debugLabel,
         ActionDispatchedEvent() => event.action.debugLabel,
         _ => null,
+      },
+      isAsync: switch (event) {
+        ActionDispatchedEvent() => event.action is AsynchronousReduxAction,
+        _ => false,
       },
       isGlobal: switch (event) {
         ActionDispatchedEvent() => event.notifier is GlobalRedux,
