@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector/service/tracing_service.dart';
 
-enum OrderBy {
+enum _OrderBy {
   label,
   total,
   error,
@@ -22,7 +22,7 @@ class ReduxPage extends StatefulWidget {
 
 class _ReduxPageState extends State<ReduxPage> with Refena {
   late Timer _timer;
-  OrderBy _orderBy = OrderBy.latest;
+  _OrderBy _orderBy = _OrderBy.latest;
 
   @override
   void initState() {
@@ -42,7 +42,7 @@ class _ReduxPageState extends State<ReduxPage> with Refena {
     super.dispose();
   }
 
-  void _setOrderBy(OrderBy orderBy) {
+  void _setOrderBy(_OrderBy orderBy) {
     setState(() {
       _orderBy = orderBy;
     });
@@ -58,16 +58,16 @@ class _ReduxPageState extends State<ReduxPage> with Refena {
     final entries = tracingState.historicalActions.entries.toList();
     entries.sort((a, b) {
       switch (_orderBy) {
-        case OrderBy.label:
+        case _OrderBy.label:
           return a.key.compareTo(b.key);
-        case OrderBy.total:
+        case _OrderBy.total:
           return (b.value.successCount + b.value.errorCount)
               .compareTo(a.value.successCount + a.value.errorCount);
-        case OrderBy.error:
+        case _OrderBy.error:
           return b.value.errorCount.compareTo(a.value.errorCount);
-        case OrderBy.avgTime:
+        case _OrderBy.avgTime:
           return b.value.avgTime.compareTo(a.value.avgTime);
-        case OrderBy.latest:
+        case _OrderBy.latest:
           return b.value.latestTime.compareTo(a.value.latestTime);
       }
     });
@@ -102,8 +102,57 @@ class _ReduxPageState extends State<ReduxPage> with Refena {
             ),
           ),
           const SizedBox(height: 20),
-          Text('Statistics', style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Statistics',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+              ),
+              Visibility(
+                visible: tracingState.historicalActions.isNotEmpty,
+                maintainSize: true,
+                maintainAnimation: true,
+                maintainState: true,
+                child: TextButton.icon(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  ),
+                  onPressed: () async {
+                    final result = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Reset Statistics'),
+                        content: const Text(
+                          'Are you sure you want to reset the statistics?',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('Cancel'),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.of(context).pop(true),
+                            child: const Text('Reset'),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (result == true) {
+                      ref
+                          .redux(eventTracingProvider)
+                          .dispatch(ClearHistoricalActionsAction());
+                    }
+                  },
+                  icon: const Icon(Icons.clear, size: 18),
+                  label: const Text('Clear'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 5),
           Table(
             columnWidths: const {
               0: FlexColumnWidth(1),
@@ -118,32 +167,32 @@ class _ReduxPageState extends State<ReduxPage> with Refena {
                   _Header(
                     title: 'Action',
                     alignment: MainAxisAlignment.start,
-                    orderBy: _orderBy == OrderBy.label,
-                    onTap: () => _setOrderBy(OrderBy.label),
+                    orderBy: _orderBy == _OrderBy.label,
+                    onTap: () => _setOrderBy(_OrderBy.label),
                   ),
                   _Header(
                     title: 'Total',
                     alignment: MainAxisAlignment.end,
-                    orderBy: _orderBy == OrderBy.total,
-                    onTap: () => _setOrderBy(OrderBy.total),
+                    orderBy: _orderBy == _OrderBy.total,
+                    onTap: () => _setOrderBy(_OrderBy.total),
                   ),
                   _Header(
                     title: 'Error',
                     alignment: MainAxisAlignment.end,
-                    orderBy: _orderBy == OrderBy.error,
-                    onTap: () => _setOrderBy(OrderBy.error),
+                    orderBy: _orderBy == _OrderBy.error,
+                    onTap: () => _setOrderBy(_OrderBy.error),
                   ),
                   _Header(
                     title: 'Avg Time',
                     alignment: MainAxisAlignment.end,
-                    orderBy: _orderBy == OrderBy.avgTime,
-                    onTap: () => _setOrderBy(OrderBy.avgTime),
+                    orderBy: _orderBy == _OrderBy.avgTime,
+                    onTap: () => _setOrderBy(_OrderBy.avgTime),
                   ),
                   _Header(
                     title: 'Latest',
                     alignment: MainAxisAlignment.end,
-                    orderBy: _orderBy == OrderBy.latest,
-                    onTap: () => _setOrderBy(OrderBy.latest),
+                    orderBy: _orderBy == _OrderBy.latest,
+                    onTap: () => _setOrderBy(_OrderBy.latest),
                   ),
                 ],
               ),
@@ -153,24 +202,38 @@ class _ReduxPageState extends State<ReduxPage> with Refena {
                 return TableRow(
                   children: [
                     Text(action),
-                    Text('${actionInfo.successCount + actionInfo.errorCount}',
-                        textAlign: TextAlign.end),
-                    Text('${actionInfo.errorCount}',
-                        style: TextStyle(
-                            color:
-                                actionInfo.errorCount != 0 ? Colors.red : null),
-                        textAlign: TextAlign.end),
+                    Text(
+                      '${actionInfo.successCount + actionInfo.errorCount}',
+                      textAlign: TextAlign.end,
+                    ),
+                    Text(
+                      '${actionInfo.errorCount}',
+                      style: TextStyle(
+                        color: actionInfo.errorCount != 0 ? Colors.red : null,
+                      ),
+                      textAlign: TextAlign.end,
+                    ),
                     Text('${actionInfo.avgTime} ms', textAlign: TextAlign.end),
                     Text(
-                        DateFormat.Hm().format(
-                            DateTime.fromMillisecondsSinceEpoch(
-                                actionInfo.latestTime)),
-                        textAlign: TextAlign.end),
+                      DateFormat.Hm().format(
+                        DateTime.fromMillisecondsSinceEpoch(
+                          actionInfo.latestTime,
+                        ),
+                      ),
+                      textAlign: TextAlign.end,
+                    ),
                   ],
                 );
               }).toList(),
             ],
           ),
+          if (tracingState.historicalActions.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 50),
+              child: const Center(
+                child: Text('No actions have been dispatched yet.'),
+              ),
+            ),
         ],
       ),
     );

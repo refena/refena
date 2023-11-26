@@ -104,13 +104,17 @@ class InitEventsAction extends ReduxAction<TracingService, TracingState> {
   @override
   TracingState reduce() {
     final initialEvents = events.map((e) => InputEvent.fromJson(e)).toList();
+    final runningActions = <int, InputEvent>{};
+    final historicalActions = <String, ActionInfo>{};
     _addActionsToMap(
       events: initialEvents,
-      runningActions: {},
-      historicalActions: {},
+      runningActions: runningActions,
+      historicalActions: historicalActions,
     );
     return state.copyWith(
       events: initialEvents,
+      runningActions: runningActions,
+      historicalActions: historicalActions,
       hasTracing: true,
       hasFinishedEvents:
           initialEvents.any((e) => e.type == InputEventType.actionFinished),
@@ -147,8 +151,6 @@ class AddEventsAction extends ReduxAction<TracingService, TracingState> {
       newList.removeRange(0, newList.length - 200);
     }
 
-    print('delay: ${state.clientDelay} ms');
-
     return state.copyWith(
       events: newList,
       hasFinishedEvents: state.hasFinishedEvents ||
@@ -159,6 +161,11 @@ class AddEventsAction extends ReduxAction<TracingService, TracingState> {
               newList.last.millisSinceEpoch,
     );
   }
+
+  @override
+  void after() {
+    emitMessage('Client delay: ${state.clientDelay}ms');
+  }
 }
 
 /// Clears the list of events.
@@ -167,6 +174,16 @@ class ClearEventsAction extends ReduxAction<TracingService, TracingState> {
   TracingState reduce() {
     return state.copyWith(
       events: [],
+    );
+  }
+}
+
+class ClearHistoricalActionsAction
+    extends ReduxAction<TracingService, TracingState> {
+  @override
+  TracingState reduce() {
+    return state.copyWith(
+      historicalActions: {},
     );
   }
 }
