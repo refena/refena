@@ -460,7 +460,8 @@ class CustomWatchAction extends WatchAction<Counter, CounterState> {
 
   @override
   CounterState reduce() {
-    // called when a watched provider changes
+    // called during the dispatch of this action
+    // and also whenever a watched provider changes
     final counter = ref.watch(_counterProvider);
 
     return state.copyWith(

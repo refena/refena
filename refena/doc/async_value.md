@@ -87,7 +87,7 @@ class Home extends StatelessWidget {
 
 ## Joining multiple AsyncValues into one
 
-Joining multiple `AsyncValue`s into one is similar to `map`, but it allows you to join multiple `AsyncValue`s into one.
+Joining multiple `AsyncValue`s into one is similar to `map`, but it allows you to watch multiple `AsyncValue`s at once.
 
 Here, we use the new Records feature of Dart.
 
