@@ -98,7 +98,7 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
   - [Similarities](#-similarities)
   - [Downsides](#-downsides)
   - [Migration](#-migration)
-- [Refena vs async_redux](#refena-vs-asyncredux)
+- [Refena vs async_redux](#refena-vs-async_redux)
 - [Getting Started](#getting-started)
 - [Access the state](#access-the-state)
 - [Container and Scope](#container-and-scope)
@@ -171,10 +171,10 @@ To access `ref`, you can either add `with Refena` (only in `StatefulWidget`) or 
 You can use `Ref` as a parameter type to implement util functions that need access to `ref`.
 These functions can be called by providers and also by widgets.
 
-**ref.watch**:\
-Only the `ViewProvider` can `watch` other providers.
-Every other provider only have `ref.read` or `ref.notifier` to access other providers.
-This ensures that the notifier itself is not accidentally rebuilt.
+**No Scheduler**:\
+If a provider changes, listeners will be notified in the next micro task.
+That's all.
+There is no scheduler that is running in the background.
 
 **Use ref anywhere, anytime**:\
 Don't worry that the `ref` within providers or notifiers becomes invalid.
@@ -223,16 +223,22 @@ Checkout [Refena for Riverpod developers](https://pub.dev/documentation/refena/l
 ## Refena vs async_redux
 
 Compared to [async_redux](https://pub.dev/packages/async_redux),
-Refena encourages you to split the state into multiple providers.
+Refena encourages you to split the state into multiple providers, 
+making it easier to scale your app.
 
-This makes it easier to implement isolated features,
-so not only you have separation of concerns between UI and business logic,
-but also between different features: You can only dispatch actions of the same provider.
+### ➤ Key differences
 
-Refena also favors dependency injection, so you can test each provider in isolation.
+**More scalable**:\
+Since actions are bound to a `ReduxProvider`, you can split your app into multiple providers.
+This makes it easier to scale your app.
+You can also view the [dependency graph](#-dependency-graph) without any additional logic in your providers.
 
-Another benefit is
-that you can view the [dependency graph](#-dependency-graph) without any additional logic in your providers.
+**No StoreConnector**:\
+You don't need to use a `StoreConnector` to access the state.
+If you wish, you can use a `ViewModelBuilder` instead, but it's not required.
+
+**More type-safety**:\
+Refena is more type-safe than async_redux since it differentiates between synchronous and asynchronous actions.
 
 ## Getting started
 
