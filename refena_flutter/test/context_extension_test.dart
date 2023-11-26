@@ -41,6 +41,9 @@ class MockBuildContext implements Element {
   bool get debugDoingBuild => true;
 
   @override
+  bool get mounted => true;
+
+  @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.debug}) => '';
 
   @override

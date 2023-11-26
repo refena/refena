@@ -14,6 +14,10 @@ import 'package:refena_flutter/src/util/batched_set_controller.dart';
 import 'package:refena_flutter/src/view_model_builder.dart';
 import 'package:refena_flutter/src/widget_rebuildable.dart';
 
+@internal
+@visibleForTesting
+bool printWarning = true;
+
 /// A [Rebuildable] that rebuilds an [Element].
 @internal
 class ElementRebuildable implements Rebuildable {
@@ -37,7 +41,8 @@ class ElementRebuildable implements Rebuildable {
   }
 
   /// Whether this [Rebuildable] is disposed and should be removed.
-  /// Either this [Element] is garbage collected or the widget is disposed.
+  /// This is the case when
+  /// either this [element] is garbage collected or the widget is disposed.
   @override
   bool get disposed => (element.target?.mounted ?? false) == false;
 
@@ -72,7 +77,7 @@ class ElementRebuildable implements Rebuildable {
 
   @override
   String toString() {
-    return 'ElementRebuildable<${element.target?.widget.runtimeType}>($debugLabel)';
+    return 'ElementRebuildable<${disposed ? 'disposed' : element.target?.widget.runtimeType}>($debugLabel)';
   }
 }
 
@@ -106,7 +111,9 @@ class UnwatchManager {
   void addNotifier(BaseNotifier notifier) {
     _controller.schedule(notifier);
 
-    if (kDebugMode && _rebuildable.element.target?.debugDoingBuild == false) {
+    if (kDebugMode &&
+        printWarning &&
+        _rebuildable.element.target?.debugDoingBuild == false) {
       print('''
 $_red[Refena] In ${_rebuildable.debugLabel}, ${notifier.debugLabel} is watched outside the build method! This will lead to inconsistent rebuilds of the widget. Use context.read or ref.read instead.$_reset''');
       print('''

@@ -20,10 +20,11 @@ import 'package:refena/src/provider/types/stream_provider.dart';
 import 'package:refena/src/provider/types/view_provider.dart';
 import 'package:refena/src/provider/watchable.dart';
 
-/// The base ref to read and notify providers.
-/// These methods can be called anywhere.
-/// Even within dispose methods.
-/// The primary difficulty is to get the [Ref] in the first place.
+/// A [Ref] is used to access the state of providers.
+/// It lives as long as the [RefenaContainer] lives since it is
+/// just a proxy to access the state.
+///
+/// To access low-level methods, you can use [Ref.container].
 ///
 /// {@category Introduction}
 abstract interface class Ref {
@@ -79,12 +80,14 @@ abstract interface class Ref {
   /// Disposes a [provider].
   /// Be aware that streams (ref.stream) are closed also.
   /// You may call this method in the dispose method of a stateful widget.
+  /// Calling this method multiple times has no effect.
   /// Note: The [provider] will be initialized again on next access.
   void dispose<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider);
 
   /// Disposes the [param] of a family [provider].
   /// While the ordinary [dispose] method disposes the whole provider,
   /// this method only disposes the [param].
+  /// Calling this method multiple times has no effect.
   void disposeFamilyParam<N extends FamilyNotifier<dynamic, P, dynamic>, P>(
     BaseProvider<N, dynamic> provider,
     P param,
@@ -104,7 +107,14 @@ abstract interface class Ref {
   String get debugOwnerLabel;
 }
 
-/// The ref available in a [State] with the mixin or in a [ViewProvider].
+/// This type of [Ref] available in the build method of rebuildable providers.
+/// In Flutter, it is available as [BuildContext.ref]
+/// or with the [Refena] mixin.
+///
+/// Similarly to the original [Ref],
+/// a [WatchableRef] lives as long as the [RefenaContainer] lives.
+/// If the [Rebuildable] (e.g. Widget) is disposed,
+/// then [WatchableRef.watch] has no effect except returning the current state.
 abstract interface class WatchableRef implements Ref {
   /// Get the current value of a provider and listen to changes.
   /// The listener will be disposed automatically when the widget is disposed.
@@ -265,42 +275,46 @@ class WatchableRefImpl implements WatchableRef {
     bool Function(T prev, T next)? rebuildWhen,
   }) {
     final notifier = _ref.anyNotifier(watchable.provider);
-    // We need to add a listener to the notifier
-    // to rebuild the widget when the state changes.
-    if (watchable is SelectedWatchable<N, T, R> ||
-        watchable is FamilySelectedWatchable) {
-      if (watchable is FamilySelectedWatchable) {
-        // initialize parameter
-        final familyNotifier = notifier as FamilyNotifier;
-        final param = (watchable as FamilySelectedWatchable).param;
-        if (!familyNotifier.isParamInitialized(param)) {
-          familyNotifier.initParam(param);
+
+    if (!rebuildable.disposed) {
+      // We need to add a listener to the notifier
+      // to rebuild the widget when the state changes.
+      if (watchable is SelectedWatchable<N, T, R> ||
+          watchable is FamilySelectedWatchable) {
+        if (watchable is FamilySelectedWatchable) {
+          // initialize parameter
+          final familyNotifier = notifier as FamilyNotifier;
+          final param = (watchable as FamilySelectedWatchable).param;
+          if (!familyNotifier.isParamInitialized(param)) {
+            familyNotifier.initParam(param);
+          }
         }
+        notifier.addListener(
+          rebuildable,
+          ListenerConfig<T>(
+            callback: listener,
+            rebuildWhen: (prev, next) {
+              if (rebuildWhen?.call(prev, next) == false) {
+                return false;
+              }
+              return watchable.getSelectedState(notifier, prev) !=
+                  watchable.getSelectedState(notifier, next);
+            },
+          ),
+        );
+      } else {
+        notifier.addListener(
+          rebuildable,
+          ListenerConfig<T>(
+            callback: listener,
+            rebuildWhen: rebuildWhen,
+          ),
+        );
       }
-      notifier.addListener(
-        rebuildable,
-        ListenerConfig<T>(
-          callback: listener,
-          rebuildWhen: (prev, next) {
-            if (rebuildWhen?.call(prev, next) == false) {
-              return false;
-            }
-            return watchable.getSelectedState(notifier, prev) !=
-                watchable.getSelectedState(notifier, next);
-          },
-        ),
-      );
-    } else {
-      notifier.addListener(
-        rebuildable,
-        ListenerConfig<T>(
-          callback: listener,
-          rebuildWhen: rebuildWhen,
-        ),
-      );
+
+      rebuildable.notifyListenerTarget(notifier);
     }
 
-    rebuildable.notifyListenerTarget(notifier);
     _onAccessNotifier?.call(notifier);
 
     return watchable.getSelectedState(notifier, notifier.state);

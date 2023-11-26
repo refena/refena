@@ -13,6 +13,7 @@ import 'package:refena/src/provider/base_provider.dart';
 import 'package:refena/src/provider/override.dart';
 import 'package:refena/src/provider/provider_accessor.dart';
 import 'package:refena/src/provider/types/notifier_provider.dart';
+import 'package:refena/src/provider/types/provider.dart';
 import 'package:refena/src/provider/types/redux_provider.dart';
 import 'package:refena/src/provider/watchable.dart';
 import 'package:refena/src/proxy_ref.dart';
@@ -45,14 +46,24 @@ enum PlatformHint {
 }
 
 /// The [RefenaContainer] holds the state of all providers.
-/// Every provider state is initialized lazily and only once.
-///
-/// The [RefenaContainer] is used as [ref]
-/// - within provider builders and
-/// - within notifiers.
+/// Every provider is initialized lazily.
 ///
 /// You can override a provider by passing [overrides] to the constructor.
-/// In this case, the state of the provider is initialized right away.
+/// In this case, the state of a provider is initialized right away.
+///
+/// A provider is stateless. The state is held by a notifier.
+/// This is also the case for [Provider] which is immutable.
+/// You can access any underlying notifier via [RefenaContainer.anyNotifier].
+/// [Ref.notifier] is a more restricted version because some notifiers
+/// are not meant to be accessed directly.
+///
+/// A [Ref] is a trimmed down version of a [RefenaContainer]
+/// but you can always access the [RefenaContainer] via [Ref.container].
+/// This is used to discourage low-level APIs.
+/// Another reason is that a [Ref] may have a custom label
+/// which is used to identify the origin of an event.
+/// Having a [RefenaContainer] means that you hold the original reference
+/// without any custom label or proxy instances.
 ///
 /// {@category Introduction}
 /// {@category Initialization}
@@ -118,6 +129,7 @@ class RefenaContainer implements Ref, LabeledReference {
   final _state = <BaseProvider, BaseNotifier>{};
 
   /// The provided observer (e.g. for logging)
+  /// It might be a [RefenaMultiObserver] if you passed multiple observers.
   final RefenaObserver? observer;
 
   /// The default notify strategy
