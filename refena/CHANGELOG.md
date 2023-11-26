@@ -2,7 +2,7 @@
 
 - feat: add `debugVisibleInGraph` parameter to family shorthand constructors
 - feat: allow passing the whole family to `ref.rebuild`
-- feat(inspector): add redux tab
+- feat(inspector): add redux page
 
 ## 1.4.0
 

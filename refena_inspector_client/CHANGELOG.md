@@ -1,3 +1,7 @@
+## 1.2.0
+
+- feat: add Redux page
+
 ## 1.1.1
 
 - deps: bump refena to 1.4.0
