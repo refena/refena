@@ -1,4 +1,5 @@
 import 'package:refena/refena.dart';
+import 'package:refena/src/notifier/base_notifier.dart';
 import 'package:test/test.dart';
 
 import '../util/skip_microtasks.dart';
@@ -297,6 +298,59 @@ void main() {
       expect(
         (observer.history[9] as ProviderDisposeEvent).debugOrigin,
         observer.history[8],
+      );
+    });
+
+    test('Should dispose whole family', () async {
+      final ref = RefenaContainer(observers: [observer]);
+      final viewProvider = ViewFamilyProvider<String, int>((ref, param) {
+        return '$param';
+      });
+
+      expect(ref.read(viewProvider(10)), '10');
+      expect(ref.read(viewProvider(20)), '20');
+
+      final familyNotifier = ref.anyNotifier(viewProvider);
+      final tempProvider10 = familyNotifier.getTempProviders().first;
+      final tempProvider20 = familyNotifier.getTempProviders().last;
+
+      expect(ref.getActiveProviders(), hasLength(3));
+      expect(ref.getActiveProviders(), {
+        viewProvider,
+        tempProvider10,
+        tempProvider20,
+      });
+
+      ref.dispose(viewProvider);
+
+      expect(ref.getActiveProviders(), isEmpty);
+      expect(
+        observer.history,
+        [
+          isA<ProviderInitEvent>()
+              .having((e) => e.provider, 'provider', viewProvider),
+          isA<ProviderInitEvent>()
+              .having((e) => e.provider, 'provider', tempProvider10),
+          isA<ProviderInitEvent>()
+              .having((e) => e.provider, 'provider', tempProvider20),
+          isA<ProviderDisposeEvent>()
+              .having((e) => e.provider, 'provider', viewProvider)
+              .having((e) => e.debugOrigin, 'debugOrigin', ref),
+          isA<ProviderDisposeEvent>()
+              .having((e) => e.provider, 'provider', tempProvider10)
+              .having(
+                (e) => e.debugOrigin,
+                'debugOrigin',
+                ProviderDisposeEvent(debugOrigin: ref, provider: viewProvider),
+              ),
+          isA<ProviderDisposeEvent>()
+              .having((e) => e.provider, 'provider', tempProvider20)
+              .having(
+                (e) => e.debugOrigin,
+                'debugOrigin',
+                ProviderDisposeEvent(debugOrigin: ref, provider: viewProvider),
+              ),
+        ],
       );
     });
   });

@@ -59,6 +59,12 @@ class HomePage extends StatelessWidget {
           ),
           FilledButton(
             onPressed: () {
+              context.dispose(familyProvider);
+            },
+            child: Text('Dispose Family'),
+          ),
+          FilledButton(
+            onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => const RefenaTracingPage(),

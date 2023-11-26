@@ -297,7 +297,7 @@ extension InternalBaseNotifierExt<T> on BaseNotifier<T> {
     _listeners.dispose();
     _onChangedSubscription?.cancel();
 
-// Remove from dependency graph
+    // Remove from dependency graph
     for (final dependency in dependencies) {
       dependency.dependents.remove(this);
     }

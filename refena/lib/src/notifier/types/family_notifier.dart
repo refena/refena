@@ -81,10 +81,13 @@ final class FamilyNotifier<T, F, P extends BaseProvider<BaseNotifier<T>, T>>
   @override
   void dispose() {
     super.dispose();
-    for (final provider in _providers.values) {
-      _clearDependencies(provider);
-      _container!.internalDispose(provider, this);
-    }
+    // This will cause the temporary providers to be disposed
+    // after this notifier is disposed.
+    // The reason we do this is because we want to show the correct
+    // event chain in the tracing.
+    dependents.addAll(_providers.values.map((provider) {
+      return _container!.anyNotifier<BaseNotifier<T>, T>(provider);
+    }));
     _providers.clear();
     state.clear();
   }

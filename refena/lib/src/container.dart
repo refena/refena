@@ -499,6 +499,8 @@ extension InternalRefenaContainerExt on RefenaContainer {
           }
         }
       }
+      current.dependencies.clear();
+      current.dependents.clear();
     } while (queue.isNotEmpty);
   }
 }
