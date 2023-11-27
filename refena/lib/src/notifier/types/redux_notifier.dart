@@ -314,6 +314,18 @@ abstract class ReduxNotifier<T> extends BaseNotifier<T> {
       }
 
       try {
+        // Warning:
+        // In normal cases, the assignment after the return statement
+        // is executed synchronously.
+        //
+        // If the future is a completed future
+        // (e.g. async function without microtask),
+        // there is a microtask between the return statement and the await
+        // resulting in a possible race condition if there is another
+        // regular future action finishing in the same microtask.
+        //
+        // Completed Future: Return -> Microtask -> Result notified
+        // Regular Future: Return -> Result notified
         final newState = await action.internalWrapReduce();
         _setState(newState.$1, action);
         _observer?.dispatchEvent(ActionFinishedEvent(
