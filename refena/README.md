@@ -45,15 +45,16 @@ class MyPage extends StatelessWidget {
 Or in Redux style:
 
 ```dart
-final counterProvider = ReduxProvider<Counter, int>((ref) => Counter());
+final counterProvider = ReduxProvider<ReduxCounter, int>((ref) => Counter());
 
-class Counter extends ReduxNotifier<int> {
+class ReduxCounter extends ReduxNotifier<int> {
   @override
   int init() => 10;
 }
 
-class AddAction extends ReduxAction<Counter, int> {
+class AddAction extends ReduxAction<ReduxCounter, int> {
   final int amount;
+
   AddAction(this.amount);
   
   @override
@@ -80,10 +81,10 @@ class MyPage extends StatelessWidget {
 Offering high traceability with [RefenaDebugObserver](#observer) and [RefenaTracingObserver](#-event-tracing):
 
 ```text
-[Refena] Action dispatched: [ReduxCounter.SubtractAction] by [MyPage]
-[Refena] Change by [ReduxCounter] triggered by [SubtractAction]
-           - Prev: 8
-           - Next: 5
+[Refena] Action dispatched: [ReduxCounter.AddAction] by [MyPage]
+[Refena] Change by [ReduxCounter] triggered by [AddAction]
+           - Prev: 5
+           - Next: 8
            - Rebuild (1): [MyPage]
 ```
 
@@ -229,9 +230,10 @@ making it easier to scale your app.
 ### ➤ Key differences
 
 **More scalable**:\
-Since actions are bound to a `ReduxProvider`, you can split your app into multiple providers.
+Since actions are bound to a `ReduxProvider`,
+you can split your app into multiple providers with each provider having its own set of actions.
 This makes it easier to scale your app.
-You can also view the [dependency graph](#-dependency-graph) without any additional logic in your providers.
+You can also view the [dependency graph](#-dependency-graph) without any setup.
 
 **No StoreConnector**:\
 You don't need to use a `StoreConnector` to access the state.
