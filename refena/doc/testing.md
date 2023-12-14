@@ -57,7 +57,7 @@ void main() {
   testWidgets('Showcase test', (tester) async {
     final observer = RefenaHistoryObserver.all();
     final scope = RefenaScope(
-      observer: observer,
+      observers: [observer],
       overrides: [
         counterProvider.overrideWithNotifier(
           (ref) => MockCounter(),
@@ -91,18 +91,16 @@ void main() {
         cause: ProviderInitCause.override,
         value: 0,
       ),
-      ListenerAddedEvent(
-        notifier: counterNotifier,
-        rebuildable: WidgetRebuildable<MyPage>(),
-      ),
       ChangeEvent(
         notifier: counterNotifier,
+        action: null,
         prev: 0,
         next: 2,
         rebuild: [WidgetRebuildable<MyPage>()],
       ),
       ChangeEvent(
         notifier: counterNotifier,
+        action: null,
         prev: 2,
         next: 4,
         rebuild: [WidgetRebuildable<MyPage>()],

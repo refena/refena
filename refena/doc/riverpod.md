@@ -25,6 +25,7 @@ Family providers:
 |-------------------------|---------------------------------------------------------|
 | `Provider.family`       | `ViewProvider.family` (only reactive version available) |
 | `FutureProvider.family` | `FutureProvider.family` (no change)                     |
+| `StreamProvider.family` | `StreamProvider.family` (no change)                     |
 | Other                   | Not supported                                           |
 
 New providers:
