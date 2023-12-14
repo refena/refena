@@ -399,9 +399,7 @@ More about initialization [here](https://pub.dev/documentation/refena/latest/top
 
 ## Providers
 
-There are many types of providers. Each one has its own purpose.
-
-The most important ones are `Provider`, `NotifierProvider`, and `ReduxProvider` because they are the most flexible.
+There are many types of providers. Choose the right one for your use case.
 
 | Provider                 | Usage                 | Notifier API   | Can `watch`\* | Has `family`\* |
 |--------------------------|-----------------------|----------------|---------------|----------------|
@@ -421,7 +419,7 @@ The most important ones are `Provider`, `NotifierProvider`, and `ReduxProvider` 
 
 ### ➤ Provider
 
-The `Provider` is the most basic provider. It is simple but very powerful.
+The `Provider` is the most basic provider.
 
 Use this provider for immutable values (constants or stateless services).
 
@@ -672,12 +670,14 @@ build(BuildContext context) {
 
 The `ReduxProvider` is the strictest option. The `state` is solely altered by actions.
 
-You need to provide other notifiers via constructor making the `ReduxNotifier` self-contained and testable.
+You need to provide other notifiers via constructor
+([dependency injection](https://pub.dev/documentation/refena/latest/topics/Dependency%20Injection-topic.html))
+making the `ReduxNotifier` self-contained and testable.
 
-This has two main benefits:
+Redux has two main benefits:
 
-- **Logging:** With `RefenaDebugObserver`, you can see every action in the console.
-- **Testing:** You can easily test the state transitions.
+- **Tracing:** With `RefenaDebugObserver` or `RefenaTracingObserver`, you can see every state transition.
+- **Testing:** You can test the state transitions.
 
 ```dart
 final counterProvider = ReduxProvider<Counter, int>((ref) {
@@ -696,6 +696,7 @@ class Counter extends ReduxNotifier<int> {
 
 class AddAction extends ReduxAction<Counter, int> {
   final int amount;
+
   AddAction(this.amount);
   
   @override
@@ -704,6 +705,7 @@ class AddAction extends ReduxAction<Counter, int> {
 
 class SubtractAction extends ReduxAction<Counter, int> {
   final int amount;
+
   SubtractAction(this.amount);
   
   @override
@@ -712,6 +714,9 @@ class SubtractAction extends ReduxAction<Counter, int> {
   // This is called after the state transition
   @override
   void after() {
+    // dispatch actions in the same notifier
+    dispatch(AddAction(amount - 1));
+
     // dispatch actions of other notifiers
     external(notifier.serviceA).dispatch(SomeAction());
 
@@ -719,9 +724,6 @@ class SubtractAction extends ReduxAction<Counter, int> {
     if (notifier.serviceB.state == 3) {
       // ...
     }
-
-    // dispatch actions in the same notifier
-    dispatch(AddAction(amount - 1));
   }
 }
 ```
@@ -1022,7 +1024,8 @@ class Counter extends Notifier<int> {
 
 A `PureNotifier` has no access to `ref` making this notifier self-contained.
 
-This is often used in combination with dependency injection, where you provide the dependencies via constructor.
+This is often used in combination with [dependency injection](https://pub.dev/documentation/refena/latest/topics/Dependency%20Injection-topic.html),
+where you provide the dependencies via constructor.
 
 ```dart
 final counterProvider = NotifierProvider<PureCounter, int>((ref) {
