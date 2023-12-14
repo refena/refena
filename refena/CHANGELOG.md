@@ -1,3 +1,7 @@
+## 1.5.1
+
+- docs: update documentation
+
 ## 1.5.0
 
 - feat: add `debugVisibleInGraph` parameter to family shorthand constructors
