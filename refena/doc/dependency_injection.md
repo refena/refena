@@ -5,12 +5,15 @@
 Dependency injection is a common pattern in software development to decouple components while
 making them easier to test. Another benefit is that it allows Refena to build a dependency graph.
 
-Dependency injection plays a big role if you use `Provider`, `ViewProvider`, `NotifierProvider`, or `ReduxProvider`.
+In Refena, we distinguish between rebuildable and non-rebuildable providers.
 
-## ViewProvider
+## Rebuildable providers
 
-A `ViewProvider` rebuilds itself whenever the value of a provider changes.
-Always use `ref.watch` to read other providers.
+**Types:**
+`ViewProvider`, `FutureProvider`, `StreamProvider`
+
+Inside the provider lambda of a rebuildable provider,
+always use `ref.watch` to access other providers.
 
 ```dart
 final userDataRepository = ViewProvider<UserDataRepository>((ref) {
@@ -19,17 +22,20 @@ final userDataRepository = ViewProvider<UserDataRepository>((ref) {
 });
 ```
 
-## Provider, NotifierProvider, and ReduxProvider
+## Non-rebuildable providers
 
-Since `Provider`, `NotifierProvider`, and `ReduxProvider` never rebuild themselves,
+**Types:**
+`Provider`, `StateProvider`, `NotifierProvider`, `ReduxProvider`
+
+Since they never rebuild themselves,
 you can't use `ref.watch` inside them.
 
 There are two ways to read other providers:
 
 ### ➤ Non-rebuildable providers
 
-If you read non-rebuildable providers (e.g. `Provider`, `NotifierProvider`, or `ReduxProvider`),
-you can just use `ref.read` since the value of the provider never changes.
+If you want to read non-rebuildable providers,
+you can just use `ref.read` since the value of these providers never changes.
 
 ```dart
 final settingsProvider = NotifierProvider<SettingsService, SettingsState>((ref) {
