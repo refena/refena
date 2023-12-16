@@ -5,13 +5,11 @@ import 'package:refena/src/proxy_ref.dart';
 import 'package:refena/src/ref.dart';
 
 /// A notifier holds a state and notifies its listeners when the state changes.
-/// The listeners are added automatically when calling [ref.watch].
+/// Listeners are added automatically when calling [WatchableRef.watch].
 ///
-/// Be aware that notifiers are never disposed.
-/// If you hold a lot of data in the state,
-/// you should consider implement a "reset" logic.
+/// Be aware that all notifiers are never disposed except on [Ref.dispose].
 ///
-/// This [Notifier] has access to [ref] for fast development.
+/// This [Notifier] has access to [Ref] for fast development.
 abstract class Notifier<T> extends BaseSyncNotifier<T> {
   late Ref _ref;
 

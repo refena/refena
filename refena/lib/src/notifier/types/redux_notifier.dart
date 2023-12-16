@@ -1,16 +1,16 @@
 part of '../base_notifier.dart';
 
-/// A notifier where the state can be updated by dispatching actions
-/// by calling [dispatch].
+/// A notifier where the state is updated by dispatching actions.
 ///
 /// You do not have access to [Ref] in this notifier, so you need to pass
 /// the required dependencies via constructor.
 ///
-/// From outside, you can should dispatch actions with
+/// From outside, you should dispatch actions with
 /// `ref.redux(provider).dispatch(action)`.
 ///
-/// Dispatching from the notifier itself is also possible but
-/// you will lose the implicit [debugOrigin] stored in a [Ref].
+/// Dispatching inside the notifier is discouraged because you
+/// will lose the origin.
+/// In edge cases, you can use `this.redux.dispatch(action)`.
 ///
 /// {@category Redux}
 abstract class ReduxNotifier<T> extends BaseNotifier<T> {

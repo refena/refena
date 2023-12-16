@@ -1,14 +1,15 @@
 import 'package:meta/meta.dart';
 import 'package:refena/src/notifier/types/notifier.dart';
+import 'package:refena/src/ref.dart';
 
 /// A notifier that can trigger [notifyListeners] to trigger rebuilds.
-/// It has access to [ref] for fast development.
+/// It has access to [Ref] for fast development.
 abstract class ChangeNotifier extends Notifier<void> {
   ChangeNotifier({super.debugLabel});
 
-  /// Overriding [init] is optional.
-  /// Here you have access to [ref].
+  /// Override [postInit] to run code after the notifier is initialized.
   @override
+  @internal
   void init() {}
 
   /// Call this method whenever the state changes.
