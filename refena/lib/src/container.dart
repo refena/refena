@@ -115,7 +115,7 @@ class RefenaContainer implements Ref, LabeledReference {
 
     // Initialize all specified providers right away
     for (final provider in _initialProviders) {
-      _getState(provider, ProviderInitCause.initial);
+      _getState(provider, null, ProviderInitCause.initial);
     }
   }
 
@@ -219,6 +219,7 @@ class RefenaContainer implements Ref, LabeledReference {
   /// it will be initialized.
   N _getState<N extends BaseNotifier<T>, T>(
     BaseProvider<N, T> provider, [
+    void Function(BaseProvider, BaseNotifier)? onInitNotifier,
     ProviderInitCause cause = ProviderInitCause.access,
   ]) {
     N? notifier = _state[provider] as N?;
@@ -246,6 +247,15 @@ class RefenaContainer implements Ref, LabeledReference {
           provider.createState(
             _withProviderLabel(provider),
           );
+
+      if (onInitNotifier != null) {
+        onInitNotifier(provider, notifier);
+      } else if (notifier.requireBuildContext) {
+        throw StateError(
+          '${notifier.debugLabel} requires a BuildContext. Use ViewModelBuilder to initialize this provider.',
+        );
+      }
+
       notifier.internalSetup(_withNotifierLabel(notifier), provider);
       _state[provider] = notifier;
 
@@ -272,8 +282,11 @@ class RefenaContainer implements Ref, LabeledReference {
 
   /// Returns the actual value of a [Provider].
   @override
-  R read<N extends BaseNotifier<T>, T, R>(BaseWatchable<N, T, R> watchable) {
-    final notifier = _getState(watchable.provider);
+  R read<N extends BaseNotifier<T>, T, R>(
+    BaseWatchable<N, T, R> watchable, [
+    void Function(BaseProvider, BaseNotifier)? onInitNotifier,
+  ]) {
+    final notifier = _getState(watchable.provider, onInitNotifier);
     if (watchable is FamilySelectedWatchable) {
       // initialize parameter
       final familyNotifier = notifier as FamilyNotifier;
@@ -305,8 +318,11 @@ class RefenaContainer implements Ref, LabeledReference {
   /// Returns the notifier of a [NotifierProvider].
   /// This method can be used to avoid the constraint of [NotifyableProvider].
   /// Useful for testing.
-  N anyNotifier<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _getState(provider);
+  N anyNotifier<N extends BaseNotifier<T>, T>(
+    BaseProvider<N, T> provider, [
+    void Function(BaseProvider, BaseNotifier)? onInitNotifier,
+  ]) {
+    return _getState(provider, onInitNotifier);
   }
 
   @override
@@ -322,9 +338,10 @@ class RefenaContainer implements Ref, LabeledReference {
 
   @override
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    ProviderAccessor<BaseProvider<N, T>, N, T> provider,
-  ) {
-    final notifier = _getState(provider.provider);
+    ProviderAccessor<BaseProvider<N, T>, N, T> provider, [
+    void Function(BaseProvider, BaseNotifier)? onInitNotifier,
+  ]) {
+    final notifier = _getState(provider.provider, onInitNotifier);
     if (notifier is N) {
       return notifier.getStream();
     }
@@ -337,9 +354,11 @@ class RefenaContainer implements Ref, LabeledReference {
 
   @override
   Future<T> future<N extends GetFutureNotifier<T>, T>(
-    ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>> provider,
-  ) {
-    final notifier = _getState(provider.provider);
+    ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>>
+        provider, [
+    void Function(BaseProvider, BaseNotifier)? onInitNotifier,
+  ]) {
+    final notifier = _getState(provider.provider, onInitNotifier);
     if (notifier is N) {
       return notifier.future;
     }

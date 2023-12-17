@@ -172,8 +172,11 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
 
   /// Returns the actual value of a [Provider].
   @override
-  R read<N extends BaseNotifier<T>, T, R>(BaseWatchable<N, T, R> watchable) {
-    return _container.read(watchable);
+  R read<N extends BaseNotifier<T>, T, R>(
+    BaseWatchable<N, T, R> watchable, [
+    void Function(BaseProvider, BaseNotifier)? onInitNotifier,
+  ]) {
+    return _container.read(watchable, onInitNotifier);
   }
 
   /// Similar to [Ref.read], but instead of returning the state right away,
@@ -198,8 +201,11 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
   /// This method is used internally without
   /// any [NotifyableProvider] constraints.
   @override
-  N anyNotifier<N extends BaseNotifier<T>, T>(BaseProvider<N, T> provider) {
-    return _container.anyNotifier(provider);
+  N anyNotifier<N extends BaseNotifier<T>, T>(
+    BaseProvider<N, T> provider, [
+    void Function(BaseProvider, BaseNotifier)? onInitNotifier,
+  ]) {
+    return _container.anyNotifier(provider, onInitNotifier);
   }
 
   @override
@@ -215,16 +221,19 @@ class RefenaScope extends StatefulWidget implements RefenaContainer {
 
   @override
   Stream<NotifierEvent<T>> stream<N extends BaseNotifier<T>, T>(
-    ProviderAccessor<BaseProvider<N, T>, N, T> provider,
-  ) {
-    return _container.stream(provider);
+    ProviderAccessor<BaseProvider<N, T>, N, T> provider, [
+    void Function(BaseProvider, BaseNotifier)? onInitNotifier,
+  ]) {
+    return _container.stream(provider, onInitNotifier);
   }
 
   @override
   Future<T> future<N extends GetFutureNotifier<T>, T>(
-    ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>> provider,
-  ) {
-    return _container.future(provider);
+    ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>>
+        provider, [
+    void Function(BaseProvider, BaseNotifier)? onInitNotifier,
+  ]) {
+    return _container.future(provider, onInitNotifier);
   }
 
   @override

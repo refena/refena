@@ -156,22 +156,25 @@ class WatchableRefImpl implements WatchableRef {
   /// It will be rebuilt when a watched provider changes.
   final Rebuildable rebuildable;
 
+  /// Used by ViewModelBuilder to initialize the BuildContext.
+  void Function(BaseProvider, BaseNotifier)? onInitNotifier;
+
   @override
   R read<N extends BaseNotifier<T>, T, R>(BaseWatchable<N, T, R> watchable) {
     if (_onAccessNotifier == null) {
-      return _ref.read<N, T, R>(watchable);
+      return _ref.read<N, T, R>(watchable, onInitNotifier);
     }
 
-    final notifier = _ref.anyNotifier<N, T>(watchable.provider);
+    final notifier = _ref.anyNotifier<N, T>(watchable.provider, onInitNotifier);
     _onAccessNotifier!(notifier);
-    return _ref.read<N, T, R>(watchable);
+    return _ref.read<N, T, R>(watchable, onInitNotifier);
   }
 
   @override
   StateAccessor<R> accessor<R>(
     BaseWatchable<BaseNotifier, dynamic, R> provider,
   ) {
-    final notifier = _ref.anyNotifier(provider.provider);
+    final notifier = _ref.anyNotifier(provider.provider, onInitNotifier);
     _onAccessNotifier?.call(notifier);
     return StateAccessor<R>(
       ref: this,
@@ -181,7 +184,8 @@ class WatchableRefImpl implements WatchableRef {
 
   @override
   N notifier<N extends BaseNotifier<T>, T>(NotifyableProvider<N, T> provider) {
-    final notifier = _ref.notifier<N, T>(provider);
+    final notifier =
+        _ref.anyNotifier<N, T>(provider as BaseProvider<N, T>, onInitNotifier);
     _onAccessNotifier?.call(notifier);
     return notifier;
   }
@@ -190,7 +194,7 @@ class WatchableRefImpl implements WatchableRef {
   Dispatcher<N, T> redux<N extends ReduxNotifier<T>, T>(
     ReduxProvider<N, T> provider,
   ) {
-    final notifier = _ref.anyNotifier(provider);
+    final notifier = _ref.anyNotifier(provider, onInitNotifier);
     _onAccessNotifier?.call(notifier);
     return Dispatcher(
       notifier: notifier,
@@ -204,10 +208,10 @@ class WatchableRefImpl implements WatchableRef {
     ProviderAccessor<BaseProvider<N, T>, N, T> provider,
   ) {
     if (_onAccessNotifier == null) {
-      return _ref.stream<N, T>(provider);
+      return _ref.stream<N, T>(provider, onInitNotifier);
     }
 
-    final notifier = _ref.anyNotifier(provider.provider);
+    final notifier = _ref.anyNotifier(provider.provider, onInitNotifier);
     _onAccessNotifier!(notifier);
     if (notifier is N) {
       return notifier.getStream();
@@ -224,10 +228,10 @@ class WatchableRefImpl implements WatchableRef {
     ProviderAccessor<BaseProvider<N, AsyncValue<T>>, N, AsyncValue<T>> provider,
   ) {
     if (_onAccessNotifier == null) {
-      return _ref.future<N, T>(provider);
+      return _ref.future<N, T>(provider, onInitNotifier);
     }
 
-    final notifier = _ref.anyNotifier(provider.provider);
+    final notifier = _ref.anyNotifier(provider.provider, onInitNotifier);
     _onAccessNotifier!(notifier);
     if (notifier is N) {
       return notifier.future;
@@ -274,7 +278,7 @@ class WatchableRefImpl implements WatchableRef {
     ListenerCallback<T>? listener,
     bool Function(T prev, T next)? rebuildWhen,
   }) {
-    final notifier = _ref.anyNotifier(watchable.provider);
+    final notifier = _ref.anyNotifier(watchable.provider, onInitNotifier);
 
     if (!rebuildable.disposed) {
       // We need to add a listener to the notifier

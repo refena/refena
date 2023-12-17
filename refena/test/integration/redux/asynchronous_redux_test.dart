@@ -248,7 +248,8 @@ void main() {
   test('Should compile with id field', () async {
     final ref = RefenaContainer();
 
-    final provider = ReduxProvider<_AsyncCounter, int>((ref) => _AsyncCounter());
+    final provider =
+        ReduxProvider<_AsyncCounter, int>((ref) => _AsyncCounter());
 
     expect(ref.read(provider), 123);
 

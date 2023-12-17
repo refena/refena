@@ -12,10 +12,19 @@ import 'package:refena/src/provider/base_provider.dart';
 
 // ignore: implementation_imports
 import 'package:refena/src/provider/watchable.dart';
+
+// ignore: implementation_imports
+import 'package:refena/src/ref.dart';
 import 'package:refena_flutter/refena_flutter.dart';
+import 'package:refena_flutter/src/view_build_context.dart';
 
 /// A widget that uses exactly one provider to build the widget tree.
 /// On widget dispose, the provider will be disposed as well.
+///
+/// Since the lifetime of a provider is bound to the widget tree,
+/// you can access the [BuildContext] of the widget by adding
+/// the [ViewBuildContext] mixin to the notifier.
+/// This allows you to write controllers using [Notifier]s or [ReduxNotifier]s.
 ///
 /// Family providers should use [FamilyViewModelBuilder] instead.
 ///
@@ -159,9 +168,19 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
 
   @override
   Widget build(BuildContext context) {
-    if (widget.initBuild != null) {
-      initialBuild((ref) => widget.initBuild!(context, ref));
-    }
+    initialBuild((ref) {
+      // Ensure that the BuildContext is available in the notifier when using ViewBuildContext.
+      (ref as WatchableRefImpl).onInitNotifier = (provider, notifier) {
+        if (provider == widget.provider.provider &&
+            notifier is ViewBuildContext) {
+          notifier.setContext(context);
+        }
+      };
+
+      if (widget.initBuild != null) {
+        widget.initBuild!(context, ref);
+      }
+    });
 
     final error = _error;
     if (error != null && widget.error != null) {

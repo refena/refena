@@ -116,6 +116,9 @@ With a feature-rich [Refena Inspector](https://pub.dev/packages/refena_inspector
   - [ViewProvider](#-viewprovider)
   - [ViewFamilyProvider](#-viewfamilyprovider)
 - [Notifiers](#notifiers)
+  - [Lifecycle](#-lifecycle)
+  - [Notifier vs PureNotifier](#-notifier-vs-purenotifier)
+  - [Access BuildContext inside a notifier](#-access-buildcontext-inside-a-notifier)
 - [Using ref](#using-ref)
   - [ref.read](#-refread)
   - [ref.watch](#-refwatch)
@@ -1044,6 +1047,59 @@ class PureCounter extends PureNotifier<int> {
   void increment() {
     counter++;
     _persistenceService.persist();
+  }
+}
+```
+
+### ➤ Access BuildContext inside a notifier
+
+To access `BuildContext` inside a notifier, you need to bind the lifetime of the notifier to the widget.
+
+This is done by adding the `ViewBuildContext` mixin to the notifier.
+
+```dart
+final counterProvider = NotifierProvider<Counter, int>((ref) => Counter());
+
+class Counter extends Notifier<int> with ViewBuildContext {
+  @override
+  int init() => 10;
+
+  void increment() {
+    state++;
+    ScaffoldMessenger.of(context).showSnackBar( // <-- access BuildContext
+      SnackBar(
+        content: Text('Counter: $state'),
+      ),
+    );
+  }
+}
+```
+
+This provider needs to be initialized with `ViewModelBuilder`.
+Not doing so will throw an error.
+
+```dart
+class MyPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ViewModelBuilder(
+      provider: counterProvider, // <-- Binds the lifetime of the provider to the widget
+      builder: (context, vm) {
+        return Scaffold(
+          body: Center(
+            child: Column(
+              children: [
+                Text('The value is $vm'),
+                ElevatedButton(
+                  onPressed: () => context.notifier(counterProvider).increment(),
+                  child: const Text('Increment'),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 ```

@@ -248,6 +248,11 @@ abstract class BaseNotifier<T> implements LabeledReference {
     return _listeners.getStream();
   }
 
+  /// If this is true, initializing must be done by ViewModelBuilder of the refena_flutter package.
+  /// This flag is needed to throw an exception if the user forgets to use ViewModelBuilder.
+  @internal
+  bool get requireBuildContext => false;
+
   /// Starts listening to the stream
   /// and calls [InternalBaseProviderExt.onChanged] whenever the state changes.
   @nonVirtual
