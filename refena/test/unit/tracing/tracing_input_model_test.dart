@@ -26,10 +26,10 @@ void main() {
           action: childAction,
         ),
       ];
-      expect(parentAction.id, 0);
-      expect(childAction.id, 1);
-      expect(events[0].id, 2);
-      expect(events[1].id, 3);
+      expect(parentAction.refenaId, 0);
+      expect(childAction.refenaId, 1);
+      expect(events[0].refenaId, 2);
+      expect(events[1].refenaId, 3);
 
       final inputEvents = events
           .map((e) => InputEvent.fromEvent(

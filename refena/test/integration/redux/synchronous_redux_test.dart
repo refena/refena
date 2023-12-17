@@ -61,6 +61,16 @@ void main() {
       ),
     ]);
   });
+
+  test('Should compile with id field', () {
+    final ref = RefenaContainer();
+
+    expect(ref.read(counterProvider), 123);
+
+    ref.redux(counterProvider).dispatch(_IdAction(true));
+
+    expect(ref.read(counterProvider), 124);
+  });
 }
 
 final counterProvider = ReduxProvider<_Counter, int>((ref) => _Counter());
@@ -106,4 +116,16 @@ class _SubtractAction extends ReduxAction<_Counter, int> {
 
   @override
   int get hashCode => amount.hashCode;
+}
+
+/// Make sure that the [id] field is not already used by the [ReduxAction] class.
+class _IdAction extends ReduxAction<_Counter, int> {
+  final bool id;
+
+  _IdAction(this.id);
+
+  @override
+  int reduce() {
+    return state + (id ? 1 : 0);
+  }
 }

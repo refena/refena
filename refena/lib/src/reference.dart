@@ -1,16 +1,16 @@
 import 'package:refena/src/util/id_provider.dart';
 
-final _idProvider = IdProvider();
-
-/// An arbitrary object that has an [id].
+/// An arbitrary object that has a [refenaId].
 /// We cannot rely on identical() because this information cannot be
 /// serialized.
 abstract mixin class IdReference {
+  static final _idProvider = IdProvider();
+
   /// The id.
-  final int id = _idProvider.getNextId();
+  final int refenaId = _idProvider.getNextId();
 
   /// Returns true, if the other reference has the same id.
-  bool compareIdentity(IdReference other) => id == other.id;
+  bool compareIdentity(IdReference other) => refenaId == other.refenaId;
 
   /// Resets the id to 0.
   static void reset() => _idProvider.reset();

@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
+import '../../util/skip_microtasks.dart';
+
 void main() {
   late RefenaHistoryObserver observer;
 
@@ -242,6 +244,18 @@ void main() {
       ),
     ]);
   });
+
+  test('Should compile with id field', () async {
+    final ref = RefenaContainer();
+
+    final provider = ReduxProvider<_AsyncCounter, int>((ref) => _AsyncCounter());
+
+    expect(ref.read(provider), 123);
+
+    await ref.redux(provider).dispatchAsync(_IdAction(true));
+
+    expect(ref.read(provider), 124);
+  });
 }
 
 class _AsyncCounter extends ReduxNotifier<int> {
@@ -357,4 +371,17 @@ class _ErrorInAfterAction extends AsyncReduxAction<_AsyncCounter, int> {
 
   @override
   int get hashCode => 0;
+}
+
+/// Make sure that the [id] field is not already used by the [ReduxAction] class.
+class _IdAction extends AsyncReduxAction<_AsyncCounter, int> {
+  final bool id;
+
+  _IdAction(this.id);
+
+  @override
+  Future<int> reduce() async {
+    await skipAllMicrotasks();
+    return state + (id ? 1 : 0);
+  }
 }

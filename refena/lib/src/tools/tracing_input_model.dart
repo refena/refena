@@ -166,7 +166,7 @@ class InputEvent {
       actionStackTrace = event.stackTrace.toString();
     }
     return InputEvent(
-      id: event.id,
+      id: event.refenaId,
       type: switch (event) {
         ChangeEvent() => InputEventType.change,
         RebuildEvent() => InputEventType.rebuild,
@@ -276,33 +276,33 @@ class InputEvent {
         _ => null,
       },
       parentEvents: switch (event) {
-        RebuildEvent() => event.causes.map((e) => e.id).toList(),
+        RebuildEvent() => event.causes.map((e) => e.refenaId).toList(),
         ProviderDisposeEvent() => switch (event.debugOrigin) {
-            ProviderDisposeEvent e => [e.id],
+            ProviderDisposeEvent e => [e.refenaId],
             _ => null,
           },
         _ => null,
       },
       parentAction: switch (event) {
         RebuildEvent() => switch (event.debugOrigin) {
-            BaseReduxAction a => a.id,
+            BaseReduxAction a => a.refenaId,
             _ => null,
           },
         ActionDispatchedEvent() => switch (event.debugOriginRef) {
-            BaseReduxAction a => a.id,
+            BaseReduxAction a => a.refenaId,
             _ => null,
           },
         MessageEvent() => switch (event.origin) {
-            BaseReduxAction a => a.id,
+            BaseReduxAction a => a.refenaId,
             _ => null,
           },
         _ => null,
       },
       actionId: switch (event) {
-        ChangeEvent() => event.action?.id,
-        ActionDispatchedEvent() => event.action.id,
-        ActionFinishedEvent() => event.action.id,
-        ActionErrorEvent() => event.action.id,
+        ChangeEvent() => event.action?.refenaId,
+        ActionDispatchedEvent() => event.action.refenaId,
+        ActionFinishedEvent() => event.action.refenaId,
+        ActionErrorEvent() => event.action.refenaId,
         _ => null,
       },
       actionLabel: switch (event) {
