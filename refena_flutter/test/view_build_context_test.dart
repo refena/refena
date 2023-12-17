@@ -92,7 +92,7 @@ void main() {
     expect(scope.getActiveProviders(), isEmpty);
 
     // The BuildContext should be disposed as well
-    expect(notifier.getBuildContext()?.mounted, false);
+    expect(notifier.getBuildContext(), isNull);
     expect(
       () => notifier.context, // ignore: invalid_use_of_protected_member
       throwsA(isA<StateError>().having(

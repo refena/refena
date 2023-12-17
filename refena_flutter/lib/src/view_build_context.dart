@@ -35,7 +35,13 @@ mixin ViewBuildContext<T> on BaseNotifier<T> {
 
   /// A nullable version of [context] that does not throw.
   @protected
-  BuildContext? get contextOrNull => _context?.target;
+  BuildContext? get contextOrNull {
+    final context = _context?.target;
+    if (context == null || !context.mounted) {
+      return null;
+    }
+    return context;
+  }
 
   @internal
   @override
