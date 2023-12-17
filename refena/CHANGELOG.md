@@ -1,3 +1,8 @@
+## 1.6.0
+
+- feat: add `ViewBuildContext` mixin to access `BuildContext` inside a notifier
+- feat: change `id` to `refenaId` inside notifiers and redux actions to avoid collisions with business logic
+
 ## 1.5.1
 
 - docs: update documentation
