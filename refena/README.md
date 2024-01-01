@@ -1,4 +1,4 @@
-![logo](https://raw.githubusercontent.com/refena/refena/main/resources/main-logo-512.webp)
+<img src="https://raw.githubusercontent.com/refena/refena/main/resources/main-logo-2048.webp" height="100" alt="Logo" />
 
 [![pub package](https://img.shields.io/pub/v/refena.svg)](https://pub.dev/packages/refena)
 ![ci](https://github.com/refena/refena/actions/workflows/ci.yml/badge.svg)
