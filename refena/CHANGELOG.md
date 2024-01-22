@@ -1,3 +1,7 @@
+## 1.6.1
+
+- docs: update redux documentation and readme
+
 ## 1.6.0
 
 - feat: add `ViewBuildContext` mixin to access `BuildContext` inside a notifier
