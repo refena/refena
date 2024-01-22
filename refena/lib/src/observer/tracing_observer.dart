@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:refena/src/notifier/types/change_notifier.dart';
 import 'package:refena/src/observer/event.dart';
+import 'package:refena/src/observer/history_observer.dart';
 import 'package:refena/src/observer/observer.dart';
 import 'package:refena/src/provider/types/change_notifier_provider.dart';
 
@@ -9,6 +10,7 @@ import 'package:refena/src/provider/types/change_notifier_provider.dart';
 /// This should be used in combination with [RefenaTracingPage].
 class RefenaTracingObserver extends RefenaObserver {
   /// The maximum number of events to store.
+  /// When the limit is reached, the oldest event will be removed.
   final int limit;
 
   /// If the given function returns `true`, then the event

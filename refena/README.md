@@ -669,6 +669,8 @@ build(BuildContext context) {
 
 ### ➤ ReduxProvider
 
+![redux-diagram](https://raw.githubusercontent.com/refena/refena/main/resources/redux-diagram.webp)
+
 [Redux full documentation](https://pub.dev/documentation/refena/latest/topics/Redux-topic.html).
 
 The `ReduxProvider` is the strictest option. The `state` is solely altered by actions.
@@ -974,7 +976,8 @@ class MyNotifier extends Notifier<int> {
 }
 ```
 
-To do initial work, you can override `postInit`:
+To do initial work, you can override `postInit`.
+At this point, the state is already set, and you can access or modify it via `state`.
 
 ```dart
 class MyNotifier extends Notifier<int> {
@@ -983,7 +986,8 @@ class MyNotifier extends Notifier<int> {
 
   @override
   void postInit() {
-    // do some work
+    print('The initial value is $state');
+    state++;
   }
 }
 ```
@@ -1505,9 +1509,11 @@ void someFunction() {
 
 ## Observer
 
-The `RefenaScope` accepts `observers`.
+With observers, you access the events emitted by providers.
 
-You can implement one yourself or just use the included `RefenaDebugObserver`.
+To add one, specify `observers` in the `RefenaScope` / `RefenaContainer` constructor.
+
+You can implement one yourself or just use one of the built-in observers.
 
 ```dart
 void main() {
@@ -1515,7 +1521,7 @@ void main() {
     RefenaScope(
       observers: [
         if (kDebugMode) ...[
-          RefenaDebugObserver(),
+          RefenaDebugObserver(), // <-- built-in observer
         ],
       ],
       child: const MyApp(),
@@ -1564,6 +1570,16 @@ class MyObserver extends RefenaObserver {
 }
 ```
 
+### ➤ Built-in Observers
+
+| Observer                  | Description                                                      | Package                   |
+|---------------------------|------------------------------------------------------------------|---------------------------|
+| `RefenaDebugObserver`     | Prints all events to the console. Useful for debugging.          | `refena`                  |
+| `RefenaHistoryObserver`   | Stores events in a list. Useful for testing.                     | `refena`                  |
+| `RefenaTracingObserver`   | Stores **recent** events in a list to be read by a tracing view. | `refena`                  |
+| `RefenaInspectorObserver` | Sends the state of the app to an inspector server.               | `refena_inspector_client` |
+| `RefenaSentryObserver`    | Populates the Sentry breadcrumbs.                                | `refena_sentry`           |
+
 ## Tools
 
 ### ➤ Event Tracing
@@ -1576,7 +1592,9 @@ First, you need to add the `RefenaTracingObserver` to the `RefenaScope`.
 void main() {
   runApp(
     RefenaScope(
-      observers: [RefenaTracingObserver()],
+      observers: [
+        RefenaTracingObserver(), // <-- add this observer
+      ],
       child: const MyApp(),
     ),
   );
@@ -1590,17 +1608,15 @@ class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const RefenaTracingPage(),
-              ),
-            );
-          },
-          child: const Text('Show tracing'),
-        ),
+      body: ElevatedButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const RefenaTracingPage(), // <-- open the page
+            ),
+          );
+        },
+        child: const Text('Show tracing'),
       ),
     );
   }
@@ -1628,17 +1644,15 @@ class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => const RefenaGraphPage(),
-              ),
-            );
-          },
-          child: const Text('Show graph'),
-        ),
+      body: ElevatedButton(
+        onPressed: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => const RefenaGraphPage(), // <-- open the page
+            ),
+          );
+        },
+        child: const Text('Show graph'),
       ),
     );
   }
@@ -2019,7 +2033,7 @@ To learn more about each topic, checkout the [topics](https://pub.dev/documentat
 
 MIT License
 
-Copyright (c) 2023 Tien Do Nam
+Copyright (c) 2023-2024 Tien Do Nam
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

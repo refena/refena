@@ -1,11 +1,16 @@
 # Redux
 
-Refena has a wide variety of providers.
-`ReduxProvider` is a provider that allows you to implement Redux architecture in your app.
+<img src="https://raw.githubusercontent.com/refena/refena/main/resources/redux-diagram.webp" style="width: 100%" alt="Redux Diagram" />
 
-Its state is altered by dispatching actions. Actions are simple classes that contain all the information needed to alter the state.
+The state machine pattern is a powerful tool in software development to achieve a high degree of traceability.
 
-Actions are dispatched by calling `ref.redux(notifier).dispatch(action)`.
+One popular implementation of this pattern is Redux:
+Originally implemented in the JavaScript ecosystem, Refena brings the core concepts of Redux to Dart and Flutter.
+
+- `NotifierProvider`: can alter the state directly and multiple times
+- `ReduxProvider`: can alter the state only by dispatching actions, each action can update the state only once
+
+You can dispatch actions with `ref.redux(provider).dispatch(action)`.
 
 The anatomy of an action is inspired by [async_redux](https://pub.dev/packages/async_redux).
 
@@ -35,15 +40,14 @@ The widget:
 class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final ref = context.ref;
-    final count = ref.watch(counterProvider);
+    final count = context.watch(counterProvider);
     return Scaffold(
       body: Center(
         child: Text('$count'),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          ref.redux(counterProvider).dispatch(IncrementAction());
+          context.redux(counterProvider).dispatch(IncrementAction());
         },
         child: Icon(Icons.add),
       ),
@@ -63,6 +67,8 @@ class MyPage extends StatelessWidget {
 - [Action Lifecycle](#action-lifecycle)
 - [Dispatching actions from actions](#dispatching-actions-from-actions)
 - [Global Actions](#global-actions)
+  - [Dispatch GlobalActions](#-dispatch-globalactions)
+  - [GlobalAction Types](#-globalaction-types)
 - [Watch Actions](#watch-actions)
 - [Refresh Actions](#refresh-actions)
 - [Error Handling](#error-handling)
@@ -94,7 +100,7 @@ final newStateA = ref.redux(counterProvider).dispatch(IncrementAction());
 // also inferred as int
 final newStateB = await ref.redux(counterProvider).dispatchAsync(MyAsyncIncrementAction());
 
-// compile-time error
+// compile-time error (cannot dispatch async action with dispatch())
 final newStateC = ref.redux(counterProvider).dispatch(MyAsyncIncrementAction());
 ```
 
@@ -126,7 +132,7 @@ int newState = ref.redux(counterProvider).dispatch(IncrementAction());
 
 ### ➤ AsyncReduxAction
 
-This action is used when you want to perform asynchronous operations.
+This type of action is used when you want to perform asynchronous operations.
 
 ```dart
 class IncrementAction extends AsyncReduxAction<Counter, int> {
@@ -146,7 +152,7 @@ int newState = await ref.redux(counterProvider).dispatchAsync(IncrementAction())
 
 Sometimes, you want to have some kind of "feedback" from the action, but you don't want to save it in the state.
 
-There are multiple plausible scenarios for this:
+Possible reasons are:
 
 - The feedback is not relevant to the state.
 - The feedback is too big to be saved in the state (e.g., binary data)
@@ -173,7 +179,7 @@ class IncrementAction extends ReduxActionWithResult<Counter, int, IncrementResul
 // get new state and result
 final (newState, result) = ref.redux(counterProvider).dispatchWithResult(IncrementAction());
 
-// dispatch but only get the result
+// dispatch but only take the result
 final result = ref.redux(counterProvider).dispatchTakeResult(IncrementAction());
 ```
 
@@ -308,6 +314,8 @@ Only actions of the same notifier are allowed to be dispatched.
 
 To dispatch external actions, you first need to specify them via dependency injection.
 
+Let's inject the service from `externalServiceProvider` into the `Counter` in the following example:
+
 ```dart
 final counterProvider = ReduxProvider<Counter, int>((ref) {
   MyService externalService = ref.notifier(externalServiceProvider);
@@ -315,7 +323,7 @@ final counterProvider = ReduxProvider<Counter, int>((ref) {
 });
 
 class Counter extends ReduxNotifier<int> {
-  final MyService externalService;
+  final MyService externalService; // <-- variable is available for all actions
     
   Counter(this.externalService);
   
@@ -324,7 +332,8 @@ class Counter extends ReduxNotifier<int> {
 }
 ```
 
-Then you can dispatch them with `external(notifier).dispatch(action)`.
+Inside an action, you can access the notifier with `notifer`.
+Then you can dispatch the external action with `external(notifier.<external service>).dispatch(action)`.
 
 ```dart
 class IncrementAction extends ReduxAction<Counter, int> {
@@ -367,13 +376,15 @@ class ResetAppAction extends GlobalAction {
 }
 ```
 
+### ➤ Dispatch GlobalActions
+
 When you have access to `Ref`, you can dispatch a global action with `ref.dispatch(action)`.
 
 ```dart
 ref.dispatch(ResetAppAction());
 ```
 
-Inside an ordinary action, you need to add the `GlobalActions` mixin first.
+To dispatch from an ordinary action, you need to add the `GlobalActions` mixin first.
 
 Then you can dispatch global actions with `global.dispatch(action)`.
 
@@ -386,6 +397,8 @@ class IncrementAction extends ReduxAction<Counter, int> with GlobalActions {
   }
 }
 ```
+
+### ➤ GlobalAction Types
 
 Similar to regular actions, there are also asynchronous global actions or global actions with a result.
 
