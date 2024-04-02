@@ -77,9 +77,7 @@ abstract class BaseNavigationPushAction<R>
 
   @override
   @nonVirtual
-  Future<R?> reduce() async {
-    return navigate();
-  }
+  Future<R?> reduce() => navigate();
 }
 
 /// The default push action.
@@ -153,9 +151,7 @@ class NavigationPopAction extends BaseNavigationPopAction {
   NavigationPopAction._([this._result]);
 
   @override
-  void reduce() {
-    ref.read(navigationProvider).pop(_result);
-  }
+  void reduce() => ref.read(navigationProvider).pop(_result);
 
   @override
   String get debugLabel => 'NavigationPopAction($_result)';
