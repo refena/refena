@@ -1,3 +1,7 @@
+## 1.0.1
+
+- deps: loosen `refena` constraint to `>=1.0.0 <3.0.0`
+
 ## 1.0.0
 
 - Stable release
