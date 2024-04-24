@@ -129,7 +129,7 @@ abstract interface class WatchableRef implements Ref {
   /// Do NOT execute this method multiple times as only the last one
   /// will be used for the rebuild condition.
   /// Instead, you should use *Records* to combine multiple values:
-  /// final (a, b) = ref.watch(provider.select((state) => state.a, state.b));
+  /// final (a, b) = ref.watch(provider.select((state) => (state.a, state.b)));
   ///
   /// Only call this method during build or inside a [ViewProvider].
   R watch<N extends BaseNotifier<T>, T, R>(
