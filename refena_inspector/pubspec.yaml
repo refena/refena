@@ -1,6 +1,6 @@
 name: refena_inspector
 description: The inspector developer utility app for the Refena state management library.
-version: 2.0.0-dev.0
+version: 2.0.0-dev.1
 repository: https://github.com/refena/refena/tree/main/refena_inspector
 issue_tracker: https://github.com/refena/refena/issues
 topics:
@@ -19,8 +19,8 @@ dependencies:
   intl: '>=0.17.0 <1.0.0'
   logging: ^1.1.0
   path: ^1.8.0
-  refena: ^1.5.0
-  refena_flutter: ^1.5.0
+  refena: '>=2.0.0-dev.0 <2.0.0'
+  refena_flutter: '>=2.0.0-dev.0 <2.0.0'
 
   # Use a tight version to ensure that all features are available
   refena_inspector_client: '>=2.0.0-dev.0 <2.0.0'
