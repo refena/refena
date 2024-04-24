@@ -166,8 +166,8 @@ class _InitCallbackPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       provider: _notifierProvider,
-      init: (context, ref) => onInit(ref),
-      initBuild: (context, ref) => onInitBuild(ref),
+      init: (context) => onInit(context.ref),
+      onFirstLoadingFrame: (context) => onInitBuild(context.ref),
       builder: (context, vm) {
         return Scaffold(
           body: Center(

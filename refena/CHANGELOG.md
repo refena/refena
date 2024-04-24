@@ -1,3 +1,9 @@
+## 2.0.0
+
+- **BREAKING**: `ViewModelBuilder`: change parameters of `init` and `initBuild` from `(context, ref)` to `(context)`
+- **BREAKING**: `ViewModelBuilder`: change `placeholder`, `error` to `loadingBuilder`, `errorBuilder`
+- **BREAKING**: `ViewModelBuilder`: split `initBuild` into `onFirstFrame` and `onFirstLoadingFrame`
+
 ## 1.6.1
 
 - docs: update redux documentation and readme

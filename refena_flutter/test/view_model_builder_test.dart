@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:refena_flutter/refena_flutter.dart';
@@ -41,10 +43,10 @@ void main() {
     expect(find.text('2'), findsOneWidget);
   });
 
-  testWidgets('Should run initBuild once before build', (tester) async {
+  testWidgets('Should run onFirstFrame once before build', (tester) async {
     final ref = RefenaScope(
       child: MaterialApp(
-        home: _InitBuildWidget(),
+        home: _OnFirstFrameWidget(),
       ),
     );
 
@@ -58,6 +60,37 @@ void main() {
 
     expect(ref.read(_counter), 1);
     expect(find.text('1 - 0'), findsOneWidget);
+  });
+
+  testWidgets('Should run onFirstLoadingFrame, then onFirstFrame once',
+      (tester) async {
+    final completer = Completer<void>();
+
+    final ref = RefenaScope(
+      child: MaterialApp(
+        home: _OnFirstLoadingFrameWidget(completer.future),
+      ),
+    );
+
+    await tester.pumpWidget(ref);
+
+    expect(ref.read(_counter), 0);
+    expect(find.text('Loading: 0'), findsOneWidget);
+
+    ref.notifier(_counter).setState((old) => old + 1);
+    expect(ref.read(_counter), 1);
+    await tester.pump();
+    expect(find.text('Loading: 0'), findsOneWidget);
+
+    completer.complete();
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('1 - 0 - 1'), findsOneWidget);
+
+    ref.notifier(_counter).setState((old) => old + 1);
+    expect(ref.read(_counter), 2);
+    await tester.pump();
+    expect(find.text('2 - 0 - 1'), findsOneWidget);
   });
 
   testWidgets('Should dispose watched provider', (tester) async {
@@ -234,17 +267,37 @@ class _SelectWidget extends StatelessWidget {
   }
 }
 
-class _InitBuildWidget extends StatelessWidget {
+class _OnFirstFrameWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     late int initCounter;
     return ViewModelBuilder(
       provider: _counter,
-      initBuild: (context, ref) {
-        initCounter = ref.read(_counter);
-      },
+      onFirstFrame: (context, vm) => initCounter = context.read(_counter),
       builder: (context, vm) {
         return Text('$vm - $initCounter');
+      },
+    );
+  }
+}
+
+class _OnFirstLoadingFrameWidget extends StatelessWidget {
+  final Future<void> future;
+
+  const _OnFirstLoadingFrameWidget(this.future);
+
+  @override
+  Widget build(BuildContext context) {
+    late int loadingCounter;
+    late int initCounter;
+    return ViewModelBuilder(
+      provider: _counter,
+      init: (context) => future,
+      onFirstLoadingFrame: (context) => loadingCounter = context.read(_counter),
+      onFirstFrame: (context, vm) => initCounter = context.read(_counter),
+      loadingBuilder: (context) => Text('Loading: $loadingCounter'),
+      builder: (context, vm) {
+        return Text('$vm - $loadingCounter - $initCounter');
       },
     );
   }
@@ -277,9 +330,7 @@ class _SyncInitNoPlaceholderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       provider: _counter,
-      init: (context, ref) {
-        ref.notifier(_counter).setState((old) => old + 1);
-      },
+      init: (context) => context.notifier(_counter).setState((old) => old + 1),
       builder: (context, vm) {
         return Text('$vm');
       },
@@ -292,10 +343,8 @@ class _SyncInitWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       provider: _counter,
-      init: (context, ref) {
-        ref.notifier(_counter).setState((old) => old + 1);
-      },
-      placeholder: (context) => Text('Loading...'),
+      init: (context) => context.notifier(_counter).setState((old) => old + 1),
+      loadingBuilder: (context) => Text('Loading...'),
       builder: (context, vm) {
         return Text('$vm');
       },
@@ -308,9 +357,9 @@ class _AsyncInitNoPlaceholderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       provider: _counter,
-      init: (context, ref) async {
+      init: (context) async {
         await Future.delayed(Duration(milliseconds: 100));
-        ref.notifier(_counter).setState((old) => old + 1);
+        context.notifier(_counter).setState((old) => old + 1);
       },
       builder: (context, vm) {
         return Text('$vm');
@@ -324,11 +373,11 @@ class _AsyncInitWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       provider: _counter,
-      init: (context, ref) async {
+      init: (context) async {
         await Future.delayed(Duration(milliseconds: 100));
-        ref.notifier(_counter).setState((old) => old + 1);
+        context.notifier(_counter).setState((old) => old + 1);
       },
-      placeholder: (context) => Text('Loading...'),
+      loadingBuilder: (context) => Text('Loading...'),
       builder: (context, vm) {
         return Text('$vm');
       },
@@ -341,12 +390,12 @@ class _AsyncErrorInitWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       provider: _counter,
-      init: (context, ref) async {
+      init: (context) async {
         await Future.delayed(Duration(milliseconds: 100));
         throw 'My Error';
       },
-      placeholder: (context) => Text('Loading...'),
-      error: (context, error, stackTrace) => Text('Error: $error'),
+      loadingBuilder: (context) => Text('Loading...'),
+      errorBuilder: (context, error, stackTrace) => Text('Error: $error'),
       builder: (context, vm) {
         return Text('$vm');
       },

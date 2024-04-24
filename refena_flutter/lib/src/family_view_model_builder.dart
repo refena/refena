@@ -26,12 +26,16 @@ class FamilyViewModelBuilder<P extends BaseProvider<N, T>,
 
   /// This function is called **BEFORE** the widget is built for the first time.
   /// It should not return a [Future].
-  final void Function(BuildContext context, Ref ref)? initBuild;
+  final void Function(BuildContext context)? onFirstLoadingFrame;
+
+  /// This function is called **BEFORE** the widget is built for the first time.
+  /// The view model is available at this point.
+  final void Function(BuildContext context, R vm)? onFirstFrame;
 
   /// This function is called **AFTER** the widget is built for the first time.
   /// It can return a [Future].
-  /// In this case, the widget will show the [placeholder] if provided.
-  final FutureOr<void> Function(BuildContext context, Ref ref)? init;
+  /// In this case, the widget will show the [loadingBuilder] if provided.
+  final FutureOr<void> Function(BuildContext context)? init;
 
   /// This function is called when the widget is removed from the tree.
   final void Function(Ref ref)? dispose;
@@ -40,14 +44,14 @@ class FamilyViewModelBuilder<P extends BaseProvider<N, T>,
   final bool disposeProvider;
 
   /// The widget to show while the provider is initializing.
-  final Widget Function(BuildContext context)? placeholder;
+  final Widget Function(BuildContext context)? loadingBuilder;
 
   /// The widget to show if the initialization fails.
   final Widget Function(
     BuildContext context,
     Object error,
     StackTrace stackTrace,
-  )? error;
+  )? errorBuilder;
 
   /// A debug label for better logging.
   final String debugLabel;
@@ -58,12 +62,13 @@ class FamilyViewModelBuilder<P extends BaseProvider<N, T>,
   FamilyViewModelBuilder({
     super.key,
     required this.provider,
-    this.initBuild,
+    this.onFirstLoadingFrame,
+    this.onFirstFrame,
     this.init,
     this.dispose,
     bool? disposeProvider,
-    this.placeholder,
-    this.error,
+    this.loadingBuilder,
+    this.errorBuilder,
     String? debugLabel,
     Widget? debugParent,
     required this.builder,
@@ -85,6 +90,7 @@ class _FamilyViewModelBuilderState<
     R,
     B> extends State<FamilyViewModelBuilder<P2, N2, T, F, R, B>> with Refena {
   bool _initialized = false;
+  bool _firstFrameCalled = false;
   (Object, StackTrace)? _error; // use record for null-safety
 
   @override
@@ -98,7 +104,7 @@ class _FamilyViewModelBuilderState<
 
     ensureRef((ref) async {
       try {
-        final result = widget.init!(context, ref);
+        final result = widget.init!(context);
         if (result is Future) {
           await result;
         }
@@ -130,21 +136,25 @@ class _FamilyViewModelBuilderState<
 
   @override
   Widget build(BuildContext context) {
-    if (widget.initBuild != null) {
-      initialBuild((ref) => widget.initBuild!(context, ref));
+    if (widget.init != null && widget.onFirstLoadingFrame != null) {
+      initialBuild((ref) => widget.onFirstLoadingFrame!(context));
     }
 
     final error = _error;
-    if (error != null && widget.error != null) {
-      return widget.error!(context, error.$1, error.$2);
+    if (error != null && widget.errorBuilder != null) {
+      return widget.errorBuilder!(context, error.$1, error.$2);
     }
-    if (!_initialized && widget.placeholder != null) {
-      return widget.placeholder!(context);
+    if (!_initialized && widget.loadingBuilder != null) {
+      return widget.loadingBuilder!(context);
     }
 
-    return widget.builder(
-      context,
-      ref.watch(widget.provider),
-    );
+    final vm = ref.watch(widget.provider);
+
+    if (!_firstFrameCalled && widget.onFirstFrame != null) {
+      widget.onFirstFrame!(context, vm);
+      _firstFrameCalled = true;
+    }
+
+    return widget.builder(context, vm);
   }
 }

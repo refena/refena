@@ -872,8 +872,8 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       provider: settingsVmProvider,
-      init: (context, ref) => ref.notifier(authProvider).init(),
-      dispose: (context, ref) => ref.notifier(authProvider).dispose(),
+      init: (context) => context.notifier(authProvider).init(),
+      dispose: (ref) => ref.notifier(authProvider).dispose(),
       placeholder: (context) => Text('Loading...'), // while init is running
       error: (context, error, stackTrace) => Text('Error: $error'), // when init fails
       builder: (context, vm) {

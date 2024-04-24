@@ -35,13 +35,19 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
   final Watchable<BaseNotifier<T>, T, R> provider;
 
   /// This function is called **BEFORE** the widget is built for the first time.
+  /// The view model is not available yet.
+  /// Only called if [init] is provided.
   /// It should not return a [Future].
-  final void Function(BuildContext context, Ref ref)? initBuild;
+  final void Function(BuildContext context)? onFirstLoadingFrame;
+
+  /// This function is called **BEFORE** the widget is built for the first time.
+  /// The view model is available at this point.
+  final void Function(BuildContext context, R vm)? onFirstFrame;
 
   /// This function is called **AFTER** the widget is built for the first time.
   /// It can return a [Future].
-  /// In this case, the widget will show the [placeholder] if provided.
-  final FutureOr<void> Function(BuildContext context, Ref ref)? init;
+  /// In this case, the widget will show the [loadingBuilder] if provided.
+  final FutureOr<void> Function(BuildContext context)? init;
 
   /// This function is called when the widget is removed from the tree.
   final void Function(Ref ref)? dispose;
@@ -50,14 +56,14 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
   final bool disposeProvider;
 
   /// The widget to show while the provider is initializing.
-  final Widget Function(BuildContext context)? placeholder;
+  final Widget Function(BuildContext context)? loadingBuilder;
 
   /// The widget to show if the initialization fails.
   final Widget Function(
     BuildContext context,
     Object error,
     StackTrace stackTrace,
-  )? error;
+  )? errorBuilder;
 
   /// A debug label for better logging.
   final String debugLabel;
@@ -68,12 +74,13 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
   ViewModelBuilder({
     super.key,
     required this.provider,
-    this.initBuild,
+    this.onFirstLoadingFrame,
+    this.onFirstFrame,
     this.init,
     this.dispose,
     this.disposeProvider = true,
-    this.placeholder,
-    this.error,
+    this.loadingBuilder,
+    this.errorBuilder,
     String? debugLabel,
     Widget? debugParent,
     required this.builder,
@@ -90,16 +97,17 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
       P extends BaseProvider<N, T>, N extends BaseNotifier<T>, T, F, R, B>({
     Key? key,
     required FamilySelectedWatchable<P, N, T, F, R, B> provider,
-    void Function(BuildContext context, Ref ref)? initBuild,
-    FutureOr<void> Function(BuildContext context, Ref ref)? init,
+    void Function(BuildContext context)? onFirstLoadingFrame,
+    void Function(BuildContext context, R vm)? onFirstFrame,
+    FutureOr<void> Function(BuildContext context)? init,
     void Function(Ref ref)? dispose,
     bool? disposeProvider,
-    Widget Function(BuildContext context)? placeholder,
+    Widget Function(BuildContext context)? loadingBuilder,
     Widget Function(
       BuildContext context,
       Object error,
       StackTrace stackTrace,
-    )? error,
+    )? errorBuilder,
     String? debugLabel,
     Widget? debugParent,
     required Widget Function(BuildContext context, R vm) builder,
@@ -107,12 +115,13 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
     return FamilyViewModelBuilder<P, N, T, F, R, B>(
       key: key,
       provider: provider,
-      initBuild: initBuild,
+      onFirstLoadingFrame: onFirstLoadingFrame,
+      onFirstFrame: onFirstFrame,
       init: init,
       dispose: dispose,
       disposeProvider: disposeProvider,
-      placeholder: placeholder,
-      error: error,
+      loadingBuilder: loadingBuilder,
+      errorBuilder: errorBuilder,
       debugLabel: debugLabel,
       debugParent: debugParent,
       builder: builder,
@@ -123,6 +132,7 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
 class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
     with Refena {
   bool _initialized = false;
+  bool _firstFrameCalled = false;
   (Object, StackTrace)? _error; // use record for null-safety
 
   @override
@@ -136,7 +146,7 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
 
     ensureRef((ref) async {
       try {
-        final result = widget.init!(context, ref);
+        final result = widget.init!(context);
         if (result is Future) {
           await result;
         }
@@ -177,22 +187,26 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
         }
       };
 
-      if (widget.initBuild != null) {
-        widget.initBuild!(context, ref);
+      if (widget.init != null && widget.onFirstLoadingFrame != null) {
+        widget.onFirstLoadingFrame!(context);
       }
     });
 
     final error = _error;
-    if (error != null && widget.error != null) {
-      return widget.error!(context, error.$1, error.$2);
+    if (error != null && widget.errorBuilder != null) {
+      return widget.errorBuilder!(context, error.$1, error.$2);
     }
-    if (!_initialized && widget.placeholder != null) {
-      return widget.placeholder!(context);
+    if (!_initialized && widget.loadingBuilder != null) {
+      return widget.loadingBuilder!(context);
     }
 
-    return widget.builder(
-      context,
-      ref.watch(widget.provider),
-    );
+    final vm = ref.watch(widget.provider);
+
+    if (!_firstFrameCalled && widget.onFirstFrame != null) {
+      widget.onFirstFrame!(context, vm);
+      _firstFrameCalled = true;
+    }
+
+    return widget.builder(context, vm);
   }
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:refena/src/notifier/base_notifier.dart';
@@ -53,10 +55,10 @@ void main() {
     expect(find.text('15'), findsOneWidget);
   });
 
-  testWidgets('Should run initBuild once before build', (tester) async {
+  testWidgets('Should run onFirstFrame once before build', (tester) async {
     final ref = RefenaScope(
       child: MaterialApp(
-        home: _InitBuildWidget(),
+        home: _OnFirstFrameWidget(),
       ),
     );
 
@@ -72,6 +74,42 @@ void main() {
     expect(ref.read(_counter), 2);
     expect(ref.read(_vm(10)), 20);
     expect(find.text('20 - 1'), findsOneWidget);
+  });
+
+  testWidgets('Should run onFirstLoadingFrame, then onFirstFrame once',
+      (tester) async {
+    final completer = Completer<void>();
+
+    final ref = RefenaScope(
+      child: MaterialApp(
+        home: _OnFirstLoadingFrameWidget(completer.future),
+      ),
+    );
+
+    await tester.pumpWidget(ref);
+
+    expect(ref.read(_counter), 1);
+    expect(ref.read(_vm(10)), 10);
+    expect(find.text('Loading: 1'), findsOneWidget);
+
+    ref.notifier(_counter).setState((old) => old + 1);
+    expect(ref.read(_counter), 2);
+    await tester.pump();
+    expect(ref.read(_vm(10)), 20);
+    await tester.pump();
+    expect(find.text('Loading: 1'), findsOneWidget);
+
+    completer.complete();
+    await tester.pump();
+    await tester.pump();
+    expect(find.text('20 - 1 - 2'), findsOneWidget);
+
+    ref.notifier(_counter).setState((old) => old + 1);
+    expect(ref.read(_counter), 3);
+    await tester.pump();
+    expect(ref.read(_vm(10)), 30);
+    await tester.pump();
+    expect(find.text('30 - 1 - 2'), findsOneWidget);
   });
 
   testWidgets('Should dispose watched provider', (tester) async {
@@ -150,17 +188,37 @@ class _SelectWidget extends StatelessWidget {
   }
 }
 
-class _InitBuildWidget extends StatelessWidget {
+class _OnFirstFrameWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     late int initCounter;
     return ViewModelBuilder.family(
       provider: _vm(10),
-      initBuild: (context, ref) {
-        initCounter = ref.read(_counter);
-      },
+      onFirstFrame: (context, vm) => initCounter = context.read(_counter),
       builder: (context, vm) {
         return Text('$vm - $initCounter');
+      },
+    );
+  }
+}
+
+class _OnFirstLoadingFrameWidget extends StatelessWidget {
+  final Future<void> future;
+
+  const _OnFirstLoadingFrameWidget(this.future);
+
+  @override
+  Widget build(BuildContext context) {
+    late int loadingCounter;
+    late int initCounter;
+    return ViewModelBuilder.family(
+      provider: _vm(10),
+      init: (context) => future,
+      onFirstLoadingFrame: (context) => loadingCounter = context.read(_counter),
+      onFirstFrame: (context, vm) => initCounter = context.read(_counter),
+      loadingBuilder: (context) => Text('Loading: $loadingCounter'),
+      builder: (context, vm) {
+        return Text('$vm - $loadingCounter - $initCounter');
       },
     );
   }
