@@ -368,8 +368,8 @@ class ResetAppAction extends GlobalAction {
     ref.redux(persistenceProvider).dispatch(ClearPersistenceAction());
     
     // dispatch other global actions
-    ref.dispatch(AnotherGlobalAction());
-    
+    dispatch(AnotherGlobalAction());
+
     // read other providers
     final theme = ref.read(themeProvider);
   }
@@ -378,10 +378,10 @@ class ResetAppAction extends GlobalAction {
 
 ### ➤ Dispatch GlobalActions
 
-When you have access to `Ref`, you can dispatch a global action with `ref.dispatch(action)`.
+When you have access to `Ref`, you can dispatch a global action with `ref.global.dispatch(action)`.
 
 ```dart
-ref.dispatch(ResetAppAction());
+ref.global.dispatch(ResetAppAction());
 ```
 
 To dispatch from an ordinary action, you need to add the `GlobalActions` mixin first.
@@ -619,7 +619,7 @@ class MyObserver extends RefenaObserver {
       
       if (error is ConnectionException) {
         // show snackbar
-        ref.dispatch(ShowSnackBarAction(message: 'No internet connection'));
+        ref.global.dispatch(ShowSnackBarAction(message: 'No internet connection'));
       }
     }
   }

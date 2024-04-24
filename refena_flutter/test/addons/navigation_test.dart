@@ -147,7 +147,7 @@ class _ReduxPage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text(_pushText),
           onPressed: () {
-            context.ref.dispatchAsync(NavigateAction.push(_SecondPage()));
+            context.global.dispatchAsync(NavigateAction.push(_SecondPage()));
           },
         ),
       ),
@@ -179,7 +179,7 @@ class _ExtendedReduxPage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text(_pushText),
           onPressed: () {
-            context.ref.dispatchAsync(_ExtendedNavigationAction());
+            context.global.dispatchAsync(_ExtendedNavigationAction());
           },
         ),
       ),

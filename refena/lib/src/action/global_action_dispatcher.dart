@@ -2,23 +2,15 @@ import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/ref.dart';
 
 extension GlobalActionExtension on Ref {
-  /// Dispatches a global action.
-  /// Returns the result of the action.
-  R dispatch<R>(GlobalActionWithResult<R> action) {
-    return _dispatch(this, action);
-  }
-
-  /// Dispatches an async global action.
-  /// Returns the result of the action.
-  Future<R> dispatchAsync<R>(AsyncGlobalActionWithResult<R> action) {
-    return _dispatchAsync(this, action);
-  }
+  /// Access the [GlobalActionDispatcher] using this [Ref].
+  /// Use this to dispatch global actions.
+  GlobalActionDispatcher get global => GlobalActionDispatcher(this);
 }
 
 class GlobalActionDispatcher {
   final Ref _ref;
 
-  GlobalActionDispatcher(this._ref);
+  const GlobalActionDispatcher(this._ref);
 
   /// Dispatches a global action (sync or async).
   /// Returns the result of the action.

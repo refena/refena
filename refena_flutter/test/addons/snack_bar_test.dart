@@ -113,7 +113,7 @@ class _ReduxPage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text('Show Snackbar'),
           onPressed: () {
-            context.ref.dispatch(ShowSnackBarAction(message: 'Hello Redux!'));
+            context.global.dispatch(ShowSnackBarAction(message: 'Hello Redux!'));
           },
         ),
       ),
@@ -129,7 +129,7 @@ class _CustomReduxPage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text('Show Snackbar'),
           onPressed: () {
-            context.ref.redux(_myReduxProvider).dispatch(_MyReduxAction());
+            context.redux(_myReduxProvider).dispatch(_MyReduxAction());
           },
         ),
       ),
@@ -145,7 +145,7 @@ class _ExtendedActionPage extends StatelessWidget {
         child: ElevatedButton(
           child: const Text('Show Snackbar'),
           onPressed: () {
-            context.ref.dispatch(_ExtendedSnackbarAction());
+            context.global.dispatch(_ExtendedSnackbarAction());
           },
         ),
       ),

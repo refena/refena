@@ -18,7 +18,7 @@ void main() {
 
       expect(ref.read(_stateProvider), 0);
 
-      ref.dispatch(_MyGlobalAction());
+      ref.global.dispatch(_MyGlobalAction());
 
       expect(ref.read(_stateProvider), 1);
 
@@ -42,7 +42,7 @@ void main() {
 
       expect(ref.read(_stateProvider), 0);
 
-      ref.dispatch(_MyNestedGlobalAction());
+      ref.global.dispatch(_MyNestedGlobalAction());
 
       expect(ref.read(_stateProvider), 1);
 
@@ -78,7 +78,7 @@ void main() {
 
       expect(ref.read(_stateProvider), 0);
 
-      await ref.dispatchAsync(_MyAsyncGlobalAction());
+      await ref.global.dispatchAsync(_MyAsyncGlobalAction());
 
       expect(ref.read(_stateProvider), 1);
 
@@ -104,7 +104,7 @@ void main() {
 
       expect(ref.read(_stateProvider), 0);
 
-      final result = ref.dispatch(_MyGlobalActionWithResult());
+      final result = ref.global.dispatch(_MyGlobalActionWithResult());
 
       expect(ref.read(_stateProvider), 1);
       expect(result, 1);
@@ -131,7 +131,8 @@ void main() {
 
       expect(ref.read(_stateProvider), 0);
 
-      final result = await ref.dispatchAsync(_MyAsyncGlobalActionWithResult());
+      final result =
+          await ref.global.dispatchAsync(_MyAsyncGlobalActionWithResult());
 
       expect(ref.read(_stateProvider), 1);
       expect(result, 1);
@@ -215,7 +216,7 @@ class _MyNestedGlobalAction extends GlobalAction {
 
   @override
   void after() {
-    ref.dispatch(_MyGlobalAction());
+    ref.global.dispatch(_MyGlobalAction());
   }
 
   @override

@@ -105,7 +105,7 @@ class WebSocketController {
     final params = payload['params'] as Map<String, dynamic>;
     final action = _getAction(actionId);
     try {
-      ref.dispatch(
+      ref.global.dispatch(
         InspectorGlobalAction(
           name: actionId,
           params: params,

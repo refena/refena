@@ -478,13 +478,13 @@ void main() {
       );
 
       // Should use the overridden reducer
-      ref.dispatch(_GlobalAction1());
+      ref.global.dispatch(_GlobalAction1());
 
       // Should do nothing
-      ref.dispatch(_GlobalAction2());
+      ref.global.dispatch(_GlobalAction2());
 
       // Should not be overridden
-      ref.dispatch(_GlobalAction3());
+      ref.global.dispatch(_GlobalAction3());
 
       expect(observer.dispatchedActions.length, 3);
       expect(observer.dispatchedActions, [

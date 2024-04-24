@@ -7,7 +7,7 @@ void main() {
   test('Should trigger onChanged', () async {
     final provider = ReduxProvider<_ReduxCounter, int>(
       (ref) => _ReduxCounter(),
-      onChanged: (prev, next, ref) => ref.dispatch(_MessageAction(
+      onChanged: (prev, next, ref) => ref.global.dispatch(_MessageAction(
         'Change from $prev to $next',
       )),
     );

@@ -1563,7 +1563,7 @@ class MyObserver extends RefenaObserver {
 
       if (error is ConnectionException) {
         // show snackbar
-        ref.dispatch(ShowSnackBarAction(message: 'No internet connection'));
+        ref.global.dispatch(ShowSnackBarAction(message: 'No internet connection'));
       }
     }
   }
@@ -1911,7 +1911,7 @@ class MyNotifier extends Notifier<int> {
 Optionally, you can also dispatch a `ShowSnackBarAction`:
 
 ```dart
-ref.dispatch(ShowSnackBarAction(message: 'Hello World from Action!'));
+ref.global.dispatch(ShowSnackBarAction(message: 'Hello World from Action!'));
 ```
 
 ### ➤ Navigation
@@ -1947,10 +1947,10 @@ class MyNotifier extends Notifier<int> {
 Optionally, you can also dispatch a `NavigateAction`:
 
 ```dart
-ref.dispatchAsync(NavigateAction.push(SecondPage()));
+ref.global.dispatchAsync(NavigateAction.push(SecondPage()));
 
 // or wait for the result
-final result = await ref.dispatchAsync<DateTime?>(
+final result = await ref.global.dispatchAsync<DateTime?>(
   NavigateAction.push(DatePickerPage()),
 );
 ```
@@ -1962,7 +1962,7 @@ The add-on actions are all implemented as `GlobalAction`.
 So you can dispatch them from anywhere.
 
 ```dart
-ref.dispatch(ShowSnackBarAction(message: 'Hello World from Action!'));
+ref.global.dispatch(ShowSnackBarAction(message: 'Hello World from Action!'));
 ```
 
 Please read the full documentation about global actions [here](https://pub.dev/documentation/refena/latest/topics/Redux-topic.html#global-actions).

@@ -98,15 +98,7 @@ extension ContextRefExt on BuildContext {
     ref.dispose(provider);
   }
 
-  /// Shorthand for `context.ref.dispatch()`.
-  /// See [GlobalActionExtension.dispatch] for more information.
-  R dispatch<R>(GlobalActionWithResult<R> action) {
-    return ref.dispatch(action);
-  }
-
-  /// Shorthand for `context.ref.dispatchAsync()`.
-  /// See [GlobalActionExtension.dispatchAsync] for more information.
-  Future<R> dispatchAsync<R>(AsyncGlobalActionWithResult<R> action) {
-    return ref.dispatchAsync(action);
-  }
+  /// Shorthand for `context.ref.global`.
+  /// See [GlobalActionExtension.global] for more information.
+  GlobalActionDispatcher get global => ref.global;
 }
