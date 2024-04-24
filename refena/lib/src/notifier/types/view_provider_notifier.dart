@@ -5,7 +5,6 @@ final class ViewProviderNotifier<T> extends BaseSyncNotifier<T>
   ViewProviderNotifier(
     this._builder, {
     String Function(T state)? describeState,
-    super.debugLabel,
   }) : _describeState = describeState;
 
   @override

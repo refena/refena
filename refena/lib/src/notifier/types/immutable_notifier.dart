@@ -10,7 +10,6 @@ final class ImmutableNotifier<T> extends BaseSyncNotifier<T> {
   ImmutableNotifier(
     this._value, {
     String Function(T state)? describeState,
-    super.debugLabel,
   }) : _describeState = describeState;
 
   @override

@@ -66,12 +66,13 @@ FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>> _buildFamilyNotifier<T, P>(
   StreamFamilyBuilder<T, P> builder,
   String Function(AsyncValue<T> state)? describeState,
 ) {
-  return FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>(
+  final notifier = FamilyNotifier<AsyncValue<T>, P, StreamProvider<T>>(
     (param) => StreamProvider<T>(
       (ref) => builder(ref, param),
       debugLabel: '${provider.debugLabel}($param)',
     ),
     describeState: describeState,
-    debugLabel: provider.debugLabel,
   );
+  notifier.setCustomDebugLabel(provider.debugLabel);
+  return notifier;
 }

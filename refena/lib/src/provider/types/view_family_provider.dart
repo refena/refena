@@ -56,12 +56,13 @@ FamilyNotifier<T, P, ViewProvider<T>> _buildFamilyNotifier<T, P>(
   ViewFamilyBuilder<T, P> builder,
   String Function(T state)? describeState,
 ) {
-  return FamilyNotifier<T, P, ViewProvider<T>>(
+  final notifier = FamilyNotifier<T, P, ViewProvider<T>>(
     (param) => ViewProvider<T>(
       (ref) => builder(ref, param),
       debugLabel: '${provider.debugLabel}($param)',
     ),
     describeState: describeState,
-    debugLabel: provider.debugLabel,
   );
+  notifier.setCustomDebugLabel(provider.debugLabel);
+  return notifier;
 }

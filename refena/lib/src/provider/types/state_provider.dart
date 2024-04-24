@@ -77,8 +77,8 @@ StateNotifier<T> _build<T>({
   final notifier = StateNotifier<T>(
     initialState,
     describeState: describeState,
-    debugLabel: debugLabel,
   );
+  notifier.setCustomDebugLabel(debugLabel);
 
   notifier.dependencies.addAll(dependencies);
   for (final dependency in dependencies) {

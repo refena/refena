@@ -91,8 +91,8 @@ class Provider<T>
     final notifier = ImmutableNotifier<T>(
       initialState,
       describeState: _describeState,
-      debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
+    notifier.setCustomDebugLabel(customDebugLabel ?? runtimeType.toString());
 
     notifier.dependencies.addAll(dependencies);
     for (final dependency in dependencies) {
@@ -116,8 +116,8 @@ class Provider<T>
     final notifier = ImmutableNotifier<T>(
       initialState,
       describeState: _describeState,
-      debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
+    notifier.setCustomDebugLabel(customDebugLabel ?? runtimeType.toString());
 
     notifier.dependencies.addAll(dependencies);
     for (final dependency in dependencies) {

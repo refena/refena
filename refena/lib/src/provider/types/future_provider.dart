@@ -57,11 +57,15 @@ class FutureProvider<T> extends BaseWatchableProvider<FutureProvider<T>,
   ) {
     return ProviderOverride<FutureProviderNotifier<T>, AsyncValue<T>>(
       provider: this,
-      createState: (ref) => FutureProviderNotifier<T>(
-        builder,
-        describeState: _describeState,
-        debugLabel: customDebugLabel ?? runtimeType.toString(),
-      ),
+      createState: (ref) {
+        final notifier = FutureProviderNotifier<T>(
+          builder,
+          describeState: _describeState,
+        );
+        notifier
+            .setCustomDebugLabel(customDebugLabel ?? runtimeType.toString());
+        return notifier;
+      },
     );
   }
 
@@ -69,11 +73,12 @@ class FutureProvider<T> extends BaseWatchableProvider<FutureProvider<T>,
     required ProxyRef ref,
     required Future<T> Function(WatchableRef ref) builder,
   }) {
-    return FutureProviderNotifier<T>(
+    final notifier = FutureProviderNotifier<T>(
       builder,
       describeState: _describeState,
-      debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
+    notifier.setCustomDebugLabel(customDebugLabel ?? runtimeType.toString());
+    return notifier;
   }
 
   /// A shorthand for [FutureFamilyProvider].

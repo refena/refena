@@ -8,7 +8,7 @@ import 'package:refena/src/ref.dart';
 /// An [AsyncNotifier] is a notifier that holds the state of an [AsyncSnapshot].
 /// It is used for business logic that depends on asynchronous operations.
 abstract class AsyncNotifier<T> extends BaseAsyncNotifier<T> {
-  AsyncNotifier({super.debugLabel});
+  AsyncNotifier();
 
   late Ref _ref;
 

@@ -5,7 +5,7 @@ import 'package:refena/src/ref.dart';
 /// A notifier that can trigger [notifyListeners] to trigger rebuilds.
 /// It has access to [Ref] for fast development.
 abstract class ChangeNotifier extends Notifier<void> {
-  ChangeNotifier({super.debugLabel});
+  ChangeNotifier();
 
   /// Override [postInit] to run code after the notifier is initialized.
   @override

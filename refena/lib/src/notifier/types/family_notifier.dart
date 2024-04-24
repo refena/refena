@@ -17,7 +17,6 @@ final class FamilyNotifier<T, F, P extends BaseProvider<BaseNotifier<T>, T>>
   FamilyNotifier(
     this._familyBuilder, {
     String Function(T state)? describeState,
-    super.debugLabel,
   }) : _describeState = describeState;
 
   final ChildFamilyBuilder<T, F, P> _familyBuilder;

@@ -7,7 +7,6 @@ final class StreamProviderNotifier<T> extends BaseSyncNotifier<AsyncValue<T>>
   StreamProviderNotifier(
     this._builder, {
     String Function(AsyncValue<T> state)? describeState,
-    super.debugLabel,
   }) : _describeState = describeState;
 
   @override

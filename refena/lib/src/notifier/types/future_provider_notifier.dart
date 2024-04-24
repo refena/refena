@@ -6,7 +6,6 @@ final class FutureProviderNotifier<T> extends BaseAsyncNotifier<T>
   FutureProviderNotifier(
     this._builder, {
     String Function(AsyncValue<T> state)? describeState,
-    super.debugLabel,
   }) : _describeState = describeState;
 
   @override

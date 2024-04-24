@@ -83,9 +83,10 @@ StreamProviderNotifier<T> _build<T>({
   required String Function(AsyncValue<T> state)? describeState,
   required String debugLabel,
 }) {
-  return StreamProviderNotifier(
+  final notifier = StreamProviderNotifier(
     builder,
     describeState: describeState,
-    debugLabel: debugLabel,
   );
+  notifier.setCustomDebugLabel(debugLabel);
+  return notifier;
 }

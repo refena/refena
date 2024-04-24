@@ -1,5 +1,6 @@
 ## 2.0.0
 
+- **BREAKING**: Remove `debugLabel` from notifier constructors, override `customDebugLabel` instead
 - **BREAKING**: `ViewModelBuilder`: change parameters of `init` and `initBuild` from `(context, ref)` to `(context)`
 - **BREAKING**: `ViewModelBuilder`: change `placeholder`, `error` to `loadingBuilder`, `errorBuilder`
 - **BREAKING**: `ViewModelBuilder`: split `initBuild` into `onFirstFrame` and `onFirstLoadingFrame`

@@ -8,7 +8,6 @@ final class StateNotifier<T> extends PureNotifier<T> {
   StateNotifier(
     T initial, {
     String Function(T state)? describeState,
-    super.debugLabel,
   }) : _describeState = describeState {
     state = initial;
   }

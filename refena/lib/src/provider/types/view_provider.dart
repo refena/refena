@@ -32,11 +32,12 @@ class ViewProvider<T>
 
   @override
   ViewProviderNotifier<T> createState(Ref ref) {
-    return ViewProviderNotifier<T>(
+    final notifier = ViewProviderNotifier<T>(
       _builder,
       describeState: _describeState,
-      debugLabel: customDebugLabel ?? runtimeType.toString(),
     );
+    notifier.setCustomDebugLabel(customDebugLabel ?? runtimeType.toString());
+    return notifier;
   }
 
   /// Overrides with a predefined value.
@@ -47,11 +48,15 @@ class ViewProvider<T>
   ) {
     return ProviderOverride(
       provider: this,
-      createState: (_) => ViewProviderNotifier(
-        builder,
-        describeState: _describeState,
-        debugLabel: customDebugLabel ?? runtimeType.toString(),
-      ),
+      createState: (_) {
+        final notifier = ViewProviderNotifier(
+          builder,
+          describeState: _describeState,
+        );
+        notifier
+            .setCustomDebugLabel(customDebugLabel ?? runtimeType.toString());
+        return notifier;
+      },
     );
   }
 

@@ -14,7 +14,7 @@ part of '../base_notifier.dart';
 ///
 /// {@category Redux}
 abstract class ReduxNotifier<T> extends BaseNotifier<T> {
-  ReduxNotifier({super.debugLabel});
+  ReduxNotifier();
 
   /// A map of overrides for the reducers.
   Map<Type, MockReducer<T>?>? _overrides;

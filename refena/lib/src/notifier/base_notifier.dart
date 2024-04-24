@@ -46,10 +46,11 @@ enum NotifyStrategy {
 
 @internal
 abstract class BaseNotifier<T> implements LabeledReference {
+  BaseNotifier();
+
   bool _initialized = false;
   RefenaContainer? _container;
   RefenaObserver? _observer;
-  String? _customDebugLabel;
   BaseProvider<BaseNotifier<T>, T>? _provider;
   NotifyStrategy? _notifyStrategy;
   StreamSubscription<NotifierEvent<T>>? _onChangedSubscription;
@@ -78,8 +79,6 @@ abstract class BaseNotifier<T> implements LabeledReference {
 
   /// Whether this notifier is disposed.
   bool get disposed => _disposed;
-
-  BaseNotifier({String? debugLabel}) : _customDebugLabel = debugLabel;
 
   /// The provider that created this notifier.
   /// This is only available after the initialization.
@@ -193,6 +192,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
 
   /// Override this to provide a custom debug label.
   String? get customDebugLabel => _customDebugLabel;
+  String? _customDebugLabel;
 
   /// Override this to provide a custom post initialization.
   /// The initial state is already set at this point.
@@ -313,11 +313,18 @@ extension InternalBaseNotifierExt<T> on BaseNotifier<T> {
 
     return dependents;
   }
+
+  /// Sets the custom debug label.
+  /// This is usually set by the library if
+  /// the notifier is not exposed to the user (e.g. [FutureProvider]).
+  void setCustomDebugLabel(String label) {
+    _customDebugLabel = label;
+  }
 }
 
 @internal
 abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
-  BaseSyncNotifier({super.debugLabel});
+  BaseSyncNotifier();
 
   /// Initializes the state of the notifier.
   /// This method is called only once and
@@ -342,13 +349,13 @@ abstract class BaseSyncNotifier<T> extends BaseNotifier<T> {
 @internal
 abstract class BaseAsyncNotifier<T> extends BaseNotifier<AsyncValue<T>>
     implements GetFutureNotifier<T> {
+  BaseAsyncNotifier();
+
   @nonVirtual
   late Future<T> _future;
 
   @nonVirtual
   int _futureCount = 0;
-
-  BaseAsyncNotifier({super.debugLabel});
 
   @override
   @protected

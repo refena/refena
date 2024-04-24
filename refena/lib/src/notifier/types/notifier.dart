@@ -11,12 +11,12 @@ import 'package:refena/src/ref.dart';
 ///
 /// This [Notifier] has access to [Ref] for fast development.
 abstract class Notifier<T> extends BaseSyncNotifier<T> {
+  Notifier();
+
   late Ref _ref;
 
   @protected
   Ref get ref => _ref;
-
-  Notifier({super.debugLabel});
 
   @internal
   @override
