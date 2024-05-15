@@ -91,6 +91,7 @@ class _Counter extends Notifier<int> {
 
   @override
   void postInit() {
+    super.postInit();
     state += 200;
   }
 }
@@ -110,5 +111,6 @@ class _DisposableCounter extends Notifier<int> {
   @override
   void dispose() {
     onDispose();
+    super.dispose();
   }
 }

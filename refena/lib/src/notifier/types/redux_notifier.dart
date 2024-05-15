@@ -382,6 +382,7 @@ abstract class ReduxNotifier<T> extends BaseNotifier<T> {
 
   @override
   void postInit() {
+    super.postInit();
     switch (initialAction) {
       case SynchronousReduxAction<ReduxNotifier<T>, T, dynamic> action:
         dispatch(action);

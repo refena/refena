@@ -32,6 +32,7 @@ final class FamilyNotifier<T, F, P extends BaseProvider<BaseNotifier<T>, T>>
 
   @override
   void postInit() {
+    super.postInit();
     _rebuildController.stream.listen((event) {
       // rebuild notifier state
       _setStateAsRebuild(

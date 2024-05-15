@@ -48,12 +48,25 @@ enum NotifyStrategy {
 abstract class BaseNotifier<T> implements LabeledReference {
   BaseNotifier();
 
+  @nonVirtual
   bool _initialized = false;
+
+  @nonVirtual
   RefenaContainer? _container;
+
+  @nonVirtual
   RefenaObserver? _observer;
+
+  @nonVirtual
   BaseProvider<BaseNotifier<T>, T>? _provider;
+
+  @nonVirtual
   NotifyStrategy? _notifyStrategy;
+
+  @nonVirtual
   StreamSubscription<NotifierEvent<T>>? _onChangedSubscription;
+
+  @nonVirtual
   bool _disposed = false;
 
   /// The current state of the notifier.
@@ -66,10 +79,12 @@ abstract class BaseNotifier<T> implements LabeledReference {
   final NotifierListeners<T> _listeners = NotifierListeners<T>();
 
   /// A collection of notifiers that this notifier depends on.
+  @nonVirtual
   final Set<BaseNotifier> dependencies = {};
 
   /// A collection of notifiers that depend on this notifier.
   /// They will be disposed when this notifier is disposed.
+  @nonVirtual
   final Set<BaseNotifier> dependents = {};
 
   /// Whether disposing this notifier should also dispose the dependents.
@@ -168,6 +183,7 @@ abstract class BaseNotifier<T> implements LabeledReference {
   /// This is called on [Ref.dispose].
   /// You can override this method to dispose resources.
   @protected
+  @mustCallSuper
   void dispose() {}
 
   /// Override this if you want to a different kind of equality.
@@ -192,10 +208,13 @@ abstract class BaseNotifier<T> implements LabeledReference {
 
   /// Override this to provide a custom debug label.
   String? get customDebugLabel => _customDebugLabel;
+
+  @nonVirtual
   String? _customDebugLabel;
 
   /// Override this to provide a custom post initialization.
   /// The initial state is already set at this point.
+  @mustCallSuper
   void postInit() {}
 
   /// Handles the actual initialization of the notifier.
@@ -626,6 +645,7 @@ mixin RebuildableNotifier<T, R> on BaseNotifier<T> implements Rebuildable {
   @mustCallSuper
   void dispose() {
     _rebuildController.dispose();
+    super.dispose();
   }
 
   /// Schedules a rebuild in the next microtask.
