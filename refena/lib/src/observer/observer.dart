@@ -152,9 +152,9 @@ class RefenaDebugObserver extends RefenaObserver {
         final label = _getProviderDebugLabel(null, event.notifier);
         final actionStr = event.action == null
             ? ''
-            : ' triggered by [${event.action!.debugLabel}]';
+            : ' triggered by {${event.action!.debugLabel}}';
         final notifier = event.notifier;
-        _line('Change by [$label]$actionStr', intentWhenLogger: true);
+        _line('Change by {$label}$actionStr', intentWhenLogger: true);
         _line(
           ' - Prev: ${notifier.describeState(event.prev).toSingleLine()}',
           followUp: true,
@@ -165,7 +165,7 @@ class RefenaDebugObserver extends RefenaObserver {
         );
         final rebuildable = event.rebuild;
         _line(
-          ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '<none>' : rebuildable.map((r) => '[${r.debugLabel}]').join(', ')}',
+          ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '{none}' : rebuildable.map((r) => '{${r.debugLabel}}').join(', ')}',
           followUp: true,
         );
         onLine?.call(_b);
@@ -176,8 +176,8 @@ class RefenaDebugObserver extends RefenaObserver {
         final label = _getProviderDebugLabel(null, notifier);
         final causes = event.causes.isEmpty
             ? ''
-            : ' triggered by [${event.causes.map((c) => c.debugLabel).join(', ')}]';
-        _line('Rebuild by [$label]$causes', intentWhenLogger: true);
+            : ' triggered by ${event.causes.map((c) => c.debugLabel).join(', ')}';
+        _line('Rebuild by {$label}$causes', intentWhenLogger: true);
         _line(
           ' - Prev: ${notifier.describeState(event.prev).toSingleLine()}',
           followUp: true,
@@ -188,14 +188,14 @@ class RefenaDebugObserver extends RefenaObserver {
         );
         final rebuildable = event.rebuild;
         _line(
-          ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '<none>' : rebuildable.map((r) => '[${r.debugLabel}]').join(', ')}',
+          ' - Rebuild (${rebuildable.length}): ${rebuildable.isEmpty ? '{none}' : rebuildable.map((r) => '{${r.debugLabel}}').join(', ')}',
           followUp: true,
         );
         onLine?.call(_b);
       case ProviderInitEvent event:
         onLine?.call(_t);
         final label = _getProviderDebugLabel(event.provider, event.notifier);
-        _line('Provider initialized: [$label]', intentWhenLogger: true);
+        _line('Provider initialized: {$label}', intentWhenLogger: true);
         _line(' - Reason: ${event.cause.description}', followUp: true);
         _line(
           ' - Value: ${event.notifier.describeState(event.value).toSingleLine()}',
@@ -206,7 +206,7 @@ class RefenaDebugObserver extends RefenaObserver {
       case ProviderDisposeEvent event:
         onLine?.call(_t);
         final label = _getProviderDebugLabel(event.provider, null);
-        _line('Provider disposed: [$label]');
+        _line('Provider disposed: {$label}');
         onLine?.call(_b);
         break;
       case ActionDispatchedEvent event:
@@ -225,18 +225,18 @@ class RefenaDebugObserver extends RefenaObserver {
           externalStr = event.notifier is GlobalRedux ? ' (global)' : '';
         }
         _line(
-            'Action dispatched: [$originStr] -> [${event.notifier.hideGlobalLabel}${event.action.debugLabel}]$externalStr');
+            'Action dispatched: {Origin: $originStr} -> {Action: ${event.notifier.hideGlobalLabel}${event.action.debugLabel}}$externalStr');
         break;
       case ActionFinishedEvent event:
         final resultString = event.result == null
             ? ''
-            : ' with result: [${event.result.toString().toSingleLine()}]';
+            : ' with result: {${event.result.toString().toSingleLine()}}';
         _line(
-            'Action finished:   [${event.action.notifier.hideGlobalLabel}${event.action.debugLabel}]$resultString');
+            'Action finished:   {${event.action.notifier.hideGlobalLabel}${event.action.debugLabel}}$resultString');
         break;
       case ActionErrorEvent event:
         _line(
-          'Action error:      [${event.action.notifier.debugLabel}.${event.action.debugLabel}.${event.lifecycle.name}] has thrown the following error:',
+          'Action error:      {${event.action.notifier.debugLabel}.${event.action.debugLabel}.${event.lifecycle.name}} has thrown the following error:',
           error: event.error,
           stackTrace: event.stackTrace,
         );

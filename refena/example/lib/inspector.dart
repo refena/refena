@@ -16,9 +16,9 @@ void main() {
                   ),
                 },
                 action: (ref, params) {
-                  ref.dispatch(ShowSnackBarAction(message: params['message']));
-                }
-            ),
+                  ref.global
+                      .dispatch(ShowSnackBarAction(message: params['message']));
+                }),
           },
         ),
         RefenaTracingObserver(),

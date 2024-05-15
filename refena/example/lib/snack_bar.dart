@@ -36,13 +36,13 @@ class MyPage extends StatelessWidget {
         children: [
           ElevatedButton(
             onPressed: () {
-              context.ref.read(snackBarProvider).showMessage('Hello World');
+              context.read(snackBarProvider).showMessage('Hello World');
             },
             child: Text('Show SnackBar'),
           ),
           ElevatedButton(
             onPressed: () {
-              context.ref.dispatch(
+              context.global.dispatch(
                 ShowSnackBarAction(message: 'Hello World from Action!'),
               );
             },

@@ -52,7 +52,7 @@ class MyCounterPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder(
       provider: _notifierProvider,
-      init: (context, ref) => ref.notifier(_notifierProvider).increment(),
+      init: (context) => context.notifier(_notifierProvider).increment(),
       builder: (context, vm) {
         return Scaffold(
           appBar: AppBar(

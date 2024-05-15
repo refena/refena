@@ -53,7 +53,7 @@ class MyPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                ref.dispatchAsync(
+                ref.global.dispatchAsync(
                   NavigateAction.push(SecondPage()),
                 );
               },
@@ -61,7 +61,7 @@ class MyPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () async {
-                final result = await ref.dispatchAsync<String?>(
+                final result = await ref.global.dispatchAsync<String?>(
                   NavigateAction.push(SecondPage()),
                 );
 
@@ -79,13 +79,13 @@ class MyPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                ref.dispatchAsync(NavigateAction.pushNamed('/second'));
+                ref.global.dispatchAsync(NavigateAction.pushNamed('/second'));
               },
               child: Text('Push Named Action'),
             ),
             ElevatedButton(
               onPressed: () {
-                ref.dispatchAsync(
+                ref.global.dispatchAsync(
                   NavigateAction.push(RefenaTracingPage()),
                 );
               },
@@ -111,13 +111,13 @@ class SecondPage extends StatelessWidget {
         children: [
           ElevatedButton(
             onPressed: () {
-              context.ref.dispatch(NavigateAction.pop());
+              context.global.dispatch(NavigateAction.pop());
             },
             child: Text('Pop'),
           ),
           ElevatedButton(
             onPressed: () {
-              context.ref.dispatch(NavigateAction.pop('My Result'));
+              context.global.dispatch(NavigateAction.pop('My Result'));
             },
             child: Text('Pop with result'),
           ),

@@ -9,13 +9,13 @@ final persistenceProvider = Provider<int>((ref) {
 
 final counterProviderA = NotifierProvider<Counter, int>((ref) {
   ref.read(persistenceProvider);
-  return Counter(debugLabel: 'Counter A');
-});
+  return Counter();
+}, debugLabel: 'Counter A');
 
 final counterProviderB = NotifierProvider<Counter, int>((ref) {
   ref.read(persistenceProvider);
-  return Counter(debugLabel: 'Counter B');
-});
+  return Counter();
+}, debugLabel: 'Counter B');
 
 class Vm {
   final int a;
@@ -51,8 +51,6 @@ final viewProvider = ViewProvider((ref) {
 }, debugLabel: 'CounterVm');
 
 class Counter extends Notifier<int> {
-  Counter({super.debugLabel});
-
   @override
   int init() => 10;
 

@@ -2,7 +2,7 @@ import 'package:example/main.dart';
 import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 
-final counterProvider = ReduxProvider<ReduxCounter, int>((ref) {
+final _counterProvider = ReduxProvider<ReduxCounter, int>((ref) {
   return ReduxCounter(ref.notifier(counterProviderA));
 });
 
@@ -62,20 +62,20 @@ class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ref = context.ref;
-    final state = ref.watch(counterProvider);
+    final state = ref.watch(_counterProvider);
     return Scaffold(
       body: Column(
         children: [
           Text(state.toString()),
           ElevatedButton(
             onPressed: () {
-              ref.redux(counterProvider).dispatch(AddAction(2));
+              ref.redux(_counterProvider).dispatch(AddAction(2));
             },
             child: const Text('Increment'),
           ),
           ElevatedButton(
             onPressed: () {
-              ref.redux(counterProvider).dispatch(SubtractAction(3));
+              ref.redux(_counterProvider).dispatch(SubtractAction(3));
             },
             child: const Text('Decrement'),
           ),

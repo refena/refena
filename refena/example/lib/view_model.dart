@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:refena_flutter/refena_flutter.dart';
 import 'package:refena_inspector_client/refena_inspector_client.dart';
 
-final counterProviderA =
-    NotifierProvider<Counter, int>((ref) => Counter(debugLabel: 'Counter A'));
+final counterProviderA = NotifierProvider<Counter, int>(
+  (ref) => Counter(),
+  debugLabel: 'Counter A',
+);
 
 final counterProviderB = NotifierProvider<Counter, int>((ref) => Counter());
 
@@ -42,8 +44,6 @@ final viewProvider = ViewProvider((ref) {
 }, debugLabel: 'CounterViewProvider');
 
 class Counter extends Notifier<int> {
-  Counter({super.debugLabel});
-
   @override
   int init() => 10;
 

@@ -84,7 +84,7 @@ class MyPage extends StatelessWidget {
                 ),
                 FilledButton(
                   onPressed: () {
-                    context.dispatch(MyGlobalAction());
+                    context.global.dispatch(MyGlobalAction());
                   },
                   child: Text('Global Action'),
                 ),

@@ -57,7 +57,7 @@ class HomePage extends StatelessWidget {
                   child: Text('Rebuild'),
                 ),
                 FilledButton(
-                  onPressed: () => context.dispatch(RebuildAction()),
+                  onPressed: () => context.global.dispatch(RebuildAction()),
                   child: Text('RebuildAction'),
                 ),
                 FilledButton(
@@ -65,7 +65,7 @@ class HomePage extends StatelessWidget {
                   child: Text('Rebuild Parent'),
                 ),
                 FilledButton(
-                  onPressed: () => context.dispatch(RebuildParentAction()),
+                  onPressed: () => context.global.dispatch(RebuildParentAction()),
                   child: Text('RebuildParentAction'),
                 ),
               ],
