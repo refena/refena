@@ -3,7 +3,7 @@
 - **BREAKING**: To dispatch global actions using `BuildContext` or `Ref`, use `context.global.dispatch` or `ref.global.dispatch` instead of `context.dispatch` or `ref.dispatch`
 - **BREAKING**: Remove `debugLabel` from notifier constructors, override `customDebugLabel` instead
 - **BREAKING**: `ViewModelBuilder`: change parameters of `init` and `initBuild` from `(context, ref)` to `(context)`
-- **BREAKING**: `ViewModelBuilder`: change `placeholder`, `error` to `loadingBuilder`, `errorBuilder`
+- **BREAKING**: `ViewModelBuilder`: change `placeholder` to `loadingBuilder`, `error` to `errorBuilder`
 - **BREAKING**: `ViewModelBuilder`: split `initBuild` into `onFirstFrame` and `onFirstLoadingFrame`
 
 ## 1.6.1
