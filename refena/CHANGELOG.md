@@ -1,3 +1,7 @@
+## 2.1.0
+
+- feat: `MessageEvent` and `ActionDispatchedEvent` now also refer to `ChangeEvent` or `RebuildEvent` as origin
+
 ## 2.0.0
 
 - **BREAKING**: To dispatch global actions using `BuildContext` or `Ref`, use `context.global.dispatch` or `ref.global.dispatch` instead of `context.dispatch` or `ref.dispatch`

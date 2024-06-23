@@ -277,8 +277,18 @@ class InputEvent {
       },
       parentEvents: switch (event) {
         RebuildEvent() => event.causes.map((e) => e.refenaId).toList(),
+        ActionDispatchedEvent() => switch (event.debugOriginRef) {
+          ChangeEvent e => [e.refenaId],
+          RebuildEvent e => [e.refenaId],
+          _ => null,
+        },
         ProviderDisposeEvent() => switch (event.debugOrigin) {
             ProviderDisposeEvent e => [e.refenaId],
+            _ => null,
+          },
+        MessageEvent() => switch (event.origin) {
+            ChangeEvent e => [e.refenaId],
+            RebuildEvent e => [e.refenaId],
             _ => null,
           },
         _ => null,

@@ -6,6 +6,13 @@ import 'package:refena/src/observer/event.dart';
 
 typedef ListenerCallback<T> = void Function(T prev, T next);
 
+typedef OnChangedListenerCallback<T> = void Function(
+  T prev,
+  T next,
+  ChangeEvent? changeEvent,
+  RebuildEvent? rebuildEvent,
+);
+
 /// Each [State] is associated with exactly one [ListenerConfig] object.
 class ListenerConfig<T> {
   /// The callback to call when the state changes.

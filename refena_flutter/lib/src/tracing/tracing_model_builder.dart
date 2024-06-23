@@ -9,6 +9,8 @@ List<_TracingEntry> _buildEntries(
   final maxId = events.lastOrNull?.id ?? 0;
   final result = <_TracingEntry>[];
   for (final e in events) {
+
+    mainSwitch:
     switch (e.type) {
       case InputEventType.change:
         if (e.actionId != null) {
@@ -70,6 +72,21 @@ List<_TracingEntry> _buildEntries(
             continue;
           }
         }
+
+        // Rebuild due to a change of a parent
+        final causes = e.parentEvents;
+        if (causes != null) {
+          for (final cause in causes) {
+            final existing = _findEvent(result, cause);
+            if (existing != null) {
+              existing.children.add(_TracingEntry(e, []));
+
+              // We expect only one parent
+              break mainSwitch;
+            }
+          }
+        }
+
         result.add(_TracingEntry(e, []));
         break;
       case InputEventType.actionFinished:
@@ -120,6 +137,21 @@ List<_TracingEntry> _buildEntries(
             continue;
           }
         }
+
+        // Rebuild due to a change of a parent
+        final causes = e.parentEvents;
+        if (causes != null) {
+          for (final cause in causes) {
+            final existing = _findEvent(result, cause);
+            if (existing != null) {
+              existing.children.add(_TracingEntry(e, []));
+
+              // We expect only one parent
+              break mainSwitch;
+            }
+          }
+        }
+
         result.add(_TracingEntry(e, []));
         break;
     }

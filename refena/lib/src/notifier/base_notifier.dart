@@ -63,8 +63,10 @@ abstract class BaseNotifier<T> implements LabeledReference {
   @nonVirtual
   NotifyStrategy? _notifyStrategy;
 
+  /// A special listener that is unique to the notifier.
+  /// Provided by the `onChanged` callback in the provider constructor.
   @nonVirtual
-  StreamSubscription<NotifierEvent<T>>? _onChangedSubscription;
+  OnChangedListenerCallback<T>? _onChangedListener;
 
   @nonVirtual
   bool _disposed = false;
@@ -134,12 +136,16 @@ abstract class BaseNotifier<T> implements LabeledReference {
           action: action,
           prev: oldState,
           next: value,
-          rebuild: [], // will be modified by notifyAll
+          // will be modified by notifyAll
+          rebuild: [],
         );
-        _listeners.notifyAll(prev: oldState, next: _state, changeEvent: event);
+        _listeners.notifyAll(prev: oldState, next: value, changeEvent: event);
         observer.dispatchEvent(event);
+
+        // trigger onChanged **after** the ChangeEvent
+        _onChangedListener?.call(oldState, value, event, null);
       } else {
-        _listeners.notifyAll(prev: oldState, next: _state);
+        _listeners.notifyAll(prev: oldState, next: value);
       }
     }
   }
@@ -169,11 +175,14 @@ abstract class BaseNotifier<T> implements LabeledReference {
           causes: causes,
           prev: oldState,
           next: value,
-          rebuild: [], // will be modified by notifyAll
+          // will be modified by notifyAll
+          rebuild: [],
           debugOrigin: debugOrigin,
         );
         _listeners.notifyAll(prev: oldState, next: _state, rebuildEvent: event);
         observer.dispatchEvent(event);
+        // trigger onChanged **after** the RebuildEvent
+        _onChangedListener?.call(oldState, value, null, event);
       } else {
         _listeners.notifyAll(prev: oldState, next: _state);
       }
@@ -281,14 +290,18 @@ abstract class BaseNotifier<T> implements LabeledReference {
   ) {
     final onChanged = provider?.onChanged;
     if (onChanged != null) {
-      final onChangedRef = ProxyRef(
-        container,
-        '${provider!.customDebugLabel ?? provider.runtimeType}.onChanged',
-        provider,
-      );
-      _onChangedSubscription = _listeners.getStream().listen((event) {
-        onChanged(event.prev, event.next, onChangedRef);
-      });
+      _onChangedListener = (prev, next, changeEvent, rebuildEvent) {
+        final onChangedRef = ProxyRef(
+          container,
+          changeEvent?.debugLabel ??
+              rebuildEvent?.debugLabel ??
+              customDebugLabel ??
+              provider?.debugLabel ??
+              runtimeType.toString(),
+          changeEvent ?? rebuildEvent ?? provider ?? this,
+        );
+        onChanged(prev, next, onChangedRef);
+      };
     }
   }
 
@@ -319,7 +332,7 @@ extension InternalBaseNotifierExt<T> on BaseNotifier<T> {
 
     _disposed = true;
     _listeners.dispose();
-    _onChangedSubscription?.cancel();
+    _onChangedListener = null;
 
     // Remove from dependency graph
     for (final dependency in dependencies) {
