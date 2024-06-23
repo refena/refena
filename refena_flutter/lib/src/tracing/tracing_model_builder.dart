@@ -9,7 +9,6 @@ List<_TracingEntry> _buildEntries(
   final maxId = events.lastOrNull?.id ?? 0;
   final result = <_TracingEntry>[];
   for (final e in events) {
-
     mainSwitch:
     switch (e.type) {
       case InputEventType.change:
