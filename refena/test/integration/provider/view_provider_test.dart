@@ -389,6 +389,7 @@ void main() {
     });
     final observer = RefenaHistoryObserver.only(
       message: true,
+      rebuild: true,
     );
     final ref = RefenaContainer(
       observers: [observer],
@@ -400,8 +401,12 @@ void main() {
     await skipAllMicrotasks();
 
     expect(ref.read(provider), 2);
-    expect(observer.history, hasLength(1));
-    expect((observer.history.first as MessageEvent).origin, provider);
+    expect(observer.history, hasLength(2));
+    expect(observer.history, [
+      isA<RebuildEvent>(),
+      isA<MessageEvent>()
+          .having((e) => e.origin, 'origin', observer.history.first),
+    ]);
     expect(observer.messages, [
       'Change from 0 to 2',
     ]);

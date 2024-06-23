@@ -153,13 +153,15 @@ void main() {
       ref.read(provider),
       AsyncValue.data(123),
     );
-    expect(observer.messages, isEmpty);
 
-    await skipAllMicrotasks();
-
-    expect(observer.messages, [
+    expect(
+      (observer.history.last as MessageEvent).message,
       'Change from AsyncLoading<int> to AsyncData<int>(123)',
-    ]);
+    );
+    expect(
+      (observer.history.last as MessageEvent).origin,
+      isA<ChangeEvent<AsyncValue<int>>>(),
+    );
   });
 }
 

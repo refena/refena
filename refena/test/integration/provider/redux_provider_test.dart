@@ -1,8 +1,6 @@
 import 'package:refena/refena.dart';
 import 'package:test/test.dart';
 
-import '../../util/skip_microtasks.dart';
-
 void main() {
   test('Should trigger onChanged', () async {
     final provider = ReduxProvider<_ReduxCounter, int>(
@@ -13,6 +11,7 @@ void main() {
     );
     final observer = RefenaHistoryObserver.only(
       actionDispatched: true,
+      change: true,
     );
     final ref = RefenaContainer(
       observers: [observer],
@@ -25,20 +24,15 @@ void main() {
     expect(ref.read(provider), 1);
     expect(observer.dispatchedActions, [
       _AddAction(),
-    ]);
-    await skipAllMicrotasks();
-
-    expect(observer.dispatchedActions, [
-      _AddAction(),
       _MessageAction('Change from 0 to 1'),
     ]);
 
     final messageActionEvent = observer.history.last as ActionDispatchedEvent;
     expect(
       messageActionEvent.debugOrigin,
-      'ReduxProvider<_ReduxCounter, int>.onChanged',
+      'ChangeEvent(_ReduxCounter)',
     );
-    expect(messageActionEvent.debugOriginRef, provider);
+    expect(messageActionEvent.debugOriginRef, isA<ChangeEvent<int>>());
   });
 }
 
