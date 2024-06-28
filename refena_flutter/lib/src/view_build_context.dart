@@ -5,7 +5,7 @@ import 'package:meta/meta.dart';
 
 // ignore: implementation_imports
 import 'package:refena/src/notifier/base_notifier.dart';
-import 'package:refena_flutter/src/view_model_builder.dart';
+import 'package:refena_flutter/src/widgets/view_model_builder.dart';
 
 /// Provides a [BuildContext] inside a [BaseNotifier].
 /// It binds the lifetime of the [BaseNotifier] to a [BuildContext].

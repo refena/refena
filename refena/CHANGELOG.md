@@ -1,3 +1,7 @@
+## 2.1.1
+
+- fix: disable false positive warning when using `watch` in a `LayoutBuilder`
+
 ## 2.1.0
 
 - feat: `MessageEvent` and `ActionDispatchedEvent` now also refer to `ChangeEvent` or `RebuildEvent` as origin

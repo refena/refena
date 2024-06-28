@@ -4,19 +4,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:refena/refena.dart';
-
 // ignore: implementation_imports
 import 'package:refena/src/notifier/base_notifier.dart';
-
-import 'package:refena_flutter/src/consumer.dart';
-import 'package:refena_flutter/src/family_view_model_builder.dart';
+import 'package:refena_flutter/src/test/widget_rebuildable.dart';
 import 'package:refena_flutter/src/util/batched_set_controller.dart';
-import 'package:refena_flutter/src/view_model_builder.dart';
-import 'package:refena_flutter/src/widget_rebuildable.dart';
+import 'package:refena_flutter/src/widgets/consumer.dart';
+import 'package:refena_flutter/src/widgets/family_view_model_builder.dart';
+import 'package:refena_flutter/src/widgets/view_model_builder.dart';
 
 @internal
 @visibleForTesting
 bool printWarning = true;
+
+@internal
+@visibleForTesting
+int warningCount = 0;
 
 /// A [Rebuildable] that rebuilds an [Element].
 @internal
@@ -112,12 +114,16 @@ class UnwatchManager {
     _controller.schedule(notifier);
 
     if (kDebugMode &&
-        printWarning &&
-        _rebuildable.element.target?.debugDoingBuild == false) {
-      print('''
+        _rebuildable.element.target?.debugDoingBuild == false &&
+        _rebuildable.element.target?.widget is! ConstrainedLayoutBuilder) {
+      warningCount++;
+
+      if (printWarning) {
+        print('''
 $_red[Refena] In ${_rebuildable.debugLabel}, ${notifier.debugLabel} is watched outside the build method! This will lead to inconsistent rebuilds of the widget. Use context.read or ref.read instead.$_reset''');
-      print('''
+        print('''
 $_red[Refena] A non-breaking stacktrace will be printed for easier debugging:$_reset\n${StackTrace.current}''');
+      }
       return;
     }
 
