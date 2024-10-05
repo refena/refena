@@ -33,7 +33,7 @@ class MyPage extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          Text('Counter: ${counter}'),
+          Text('Counter: $counter'),
           ElevatedButton(
             onPressed: () {
               context.ref.redux(_counterProvider).dispatch(CustomWatchAction());
