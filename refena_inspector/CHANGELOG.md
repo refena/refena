@@ -1,3 +1,7 @@
+## 2.0.2
+
+- deps: loosen constraint of `shelf_web_socket` to `>=1.0.4 <3.0.0`
+
 ## 2.0.1
 
 - deps: loosen constraint of `web_socket_channel` to `>= 2.4.0 <4.0.0`
