@@ -1,3 +1,7 @@
+## 2.0.3
+
+- fix: start inspector client on Windows not working
+
 ## 2.0.2
 
 - deps: loosen constraint of `shelf_web_socket` to `>=1.0.4 <3.0.0`
