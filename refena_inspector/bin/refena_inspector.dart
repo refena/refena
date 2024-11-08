@@ -193,7 +193,7 @@ void main() async {
           '/h',
           '/i',
           '/y',
-          '$_compilePath\\build\\$device\\runner\\Release',
+          '$_compilePath\\build\\$device\\x64\\runner\\Release',
           _appPath,
         ],
         workingDirectory: _inspectorPath,
