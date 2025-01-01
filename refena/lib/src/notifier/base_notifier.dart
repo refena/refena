@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:meta/meta.dart';
 import 'package:refena/src/action/dispatcher.dart';
+import 'package:refena/src/action/global_action_dispatcher.dart';
 import 'package:refena/src/action/redux_action.dart';
 import 'package:refena/src/async_value.dart';
 import 'package:refena/src/container.dart';

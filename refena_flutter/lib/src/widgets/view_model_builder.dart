@@ -32,7 +32,8 @@ import 'package:refena_flutter/src/view_build_context.dart';
 class ViewModelBuilder<T, R> extends StatefulWidget {
   /// The provider to use.
   /// The [builder] will be called whenever this provider changes.
-  final Watchable<BaseNotifier<T>, T, R> provider;
+  final Watchable<BaseNotifier<T>, T, R> Function(BuildContext context)
+      provider;
 
   /// This function is called **BEFORE** the widget is built for the first time.
   /// The view model is not available yet.
@@ -132,6 +133,10 @@ class ViewModelBuilder<T, R> extends StatefulWidget {
 class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
     with Refena {
   bool _initialized = false;
+
+  /// The built provider.
+  Watchable<BaseNotifier<T>, T, R>? _provider;
+
   bool _firstFrameCalled = false;
   (Object, StackTrace)? _error; // use record for null-safety
 
@@ -171,7 +176,10 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
       widget.dispose!(ref);
     }
     if (widget.disposeProvider) {
-      ref.dispose(widget.provider.provider);
+      final provider = _provider;
+      if (provider != null) {
+        ref.dispose(provider.provider);
+      }
     }
     super.dispose();
   }
@@ -179,10 +187,11 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
   @override
   Widget build(BuildContext context) {
     initialBuild((ref) {
+      _provider = widget.provider(context);
+
       // Ensure that the BuildContext is available in the notifier when using ViewBuildContext.
       (ref as WatchableRefImpl).onInitNotifier = (provider, notifier) {
-        if (provider == widget.provider.provider &&
-            notifier is ViewBuildContext) {
+        if (provider == _provider!.provider && notifier is ViewBuildContext) {
           notifier.setContext(context);
         }
       };
@@ -200,7 +209,7 @@ class _ViewModelBuilderState<T, R> extends State<ViewModelBuilder<T, R>>
       return widget.loadingBuilder!(context);
     }
 
-    final vm = ref.watch(widget.provider);
+    final vm = ref.watch(_provider!);
 
     if (!_firstFrameCalled && widget.onFirstFrame != null) {
       widget.onFirstFrame!(context, vm);

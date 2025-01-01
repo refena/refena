@@ -33,6 +33,10 @@ abstract class ReduxNotifier<T> extends BaseNotifier<T> {
     debugOriginRef: this,
   );
 
+  /// Access the [GlobalActionDispatcher] of this notifier
+  /// to dispatch global actions.
+  late final GlobalActionDispatcher global;
+
   /// Creates a [Dispatcher] for an external notifier.
   Dispatcher<ReduxNotifier<T2>, T2> external<T2>(
     ReduxNotifier<T2> notifier,
@@ -422,6 +426,7 @@ abstract class ReduxNotifier<T> extends BaseNotifier<T> {
     super.internalSetup(ref, provider);
     _state = _overrideInitialState ?? init();
     _initialized = true;
+    global = GlobalActionDispatcher(ProxyRef(ref.container, debugLabel, this));
 
     _setupOnChanged(ref.container, provider);
   }

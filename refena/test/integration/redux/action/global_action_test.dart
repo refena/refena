@@ -68,6 +68,32 @@ void main() {
         ),
       );
     });
+
+    test('Should dispatch within notifier', () {
+      final ref = RefenaContainer(
+        observers: [observer],
+      );
+
+      expect(ref.read(_stateProvider), 0);
+
+      final provider = ReduxProvider<_Notifier, int>((_) => _Notifier());
+
+      ref.notifier(provider).dispatchGlobalAction();
+
+      expect(ref.read(_stateProvider), 1);
+
+      // Check events
+      expect(observer.history.length, 1);
+      expect(
+        observer.history.first,
+        ActionDispatchedEvent(
+          debugOrigin: '_Notifier',
+          debugOriginRef: ref.notifier(provider) as ReduxNotifier<int>,
+          notifier: ref.notifier(globalReduxProvider),
+          action: _MyGlobalAction(),
+        ),
+      );
+    });
   });
 
   group(AsyncGlobalAction, () {
@@ -224,4 +250,13 @@ class _MyNestedGlobalAction extends GlobalAction {
 
   @override
   int get hashCode => 0;
+}
+
+class _Notifier extends ReduxNotifier<int> {
+  @override
+  int init() => 0;
+
+  void dispatchGlobalAction() {
+    global.dispatch(_MyGlobalAction());
+  }
 }

@@ -1,3 +1,8 @@
+## 3.0.0
+
+- feat: add `global` to `ReduxNotifier` to dispatch global actions within the notifier
+- **BREAKING**: update `ViewModelBuilder` constructor to accept `provider` as a builder
+
 ## 2.1.1
 
 - fix: disable false positive warning when using `watch` in a `LayoutBuilder`

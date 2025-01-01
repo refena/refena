@@ -841,7 +841,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: settingsVmProvider,
+      provider: (context) => settingsVmProvider,
       builder: (context, vm) {
         return Scaffold(
           body: Center(
@@ -864,6 +864,20 @@ class SettingsPage extends StatelessWidget {
 }
 ```
 
+You can also create a temporary controller. This avoids exposing the provider globally.
+The temporary provider will be disposed when the widget is disposed.
+
+```dart
+ViewModelBuilder(
+  provider: (context) => ReduxProvider<MyController, MyControllerState>((ref) {
+    return MyController();
+  }),
+  builder: (context, vm) {
+    return Container();
+  },
+);
+```
+
 You can also add lifecycle hooks to the view model:
 
 ```dart
@@ -871,7 +885,7 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: settingsVmProvider,
+      provider: (context) => settingsVmProvider,
       init: (context) => context.notifier(authProvider).init(),
       dispose: (ref) => ref.notifier(authProvider).dispose(),
       placeholder: (context) => Text('Loading...'), // while init is running
@@ -1087,7 +1101,7 @@ class MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: counterProvider, // <-- Binds the lifetime of the provider to the widget
+      provider: (context) => counterProvider, // <-- Binds the lifetime of the provider to the widget
       builder: (context, vm) {
         return Scaffold(
           body: Center(

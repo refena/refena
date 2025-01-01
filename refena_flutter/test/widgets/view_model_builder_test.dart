@@ -118,6 +118,7 @@ void main() {
     expect(disposeCalled, false);
 
     // dispose
+    expect(ref.getActiveProviders(), [_switcher, _counter]);
     observer.start(clearHistory: true);
     ref.notifier(_switcher).setState((_) => false);
     await tester.pump();
@@ -125,9 +126,55 @@ void main() {
 
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsNothing);
+    expect(ref.getActiveProviders(), [_switcher]);
     expect(ref.read(_counter), 0);
     expect(observer.history.length, 1);
     expect((observer.history.first as ProviderDisposeEvent).provider, _counter);
+    expect(disposeCalled, true);
+  });
+
+  testWidgets('Should dispose watched temporary provider', (tester) async {
+    final observer = RefenaHistoryObserver.only(
+      providerDispose: true,
+    );
+    bool disposeCalled = false;
+    final ref = RefenaScope(
+      observers: [observer],
+      child: MaterialApp(
+        home: _SwitchingTempProviderWidget(() => disposeCalled = true),
+      ),
+    );
+
+    await tester.pumpWidget(ref);
+
+    expect(find.text('0'), findsOneWidget);
+    expect(ref.read(_counter), 0);
+
+    ref.notifier(_counter).setState((old) => old + 1);
+    await tester.pump();
+
+    expect(find.text('1'), findsOneWidget);
+    expect(ref.read(_counter), 1);
+    expect(disposeCalled, false);
+
+    // dispose
+    expect(
+      ref.getActiveProviders(),
+      [_switcher, _counter, isA<ViewProvider>()],
+    );
+    observer.start(clearHistory: true);
+    ref.notifier(_switcher).setState((_) => false);
+    await tester.pump();
+    observer.stop();
+
+    expect(find.text('0'), findsNothing);
+    expect(find.text('1'), findsNothing);
+    expect(ref.getActiveProviders(), [_switcher, _counter]);
+    expect(observer.history.length, 1);
+    expect(
+      (observer.history.first as ProviderDisposeEvent).provider,
+      isA<ViewProvider>(),
+    );
     expect(disposeCalled, true);
   });
 
@@ -247,7 +294,7 @@ class _SimpleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: _counter,
+      provider: (context) => _counter,
       builder: (context, vm) {
         return Text('$vm');
       },
@@ -259,7 +306,7 @@ class _SelectWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: _counter.select((state) => state * 2),
+      provider: (context) => _counter.select((state) => state * 2),
       builder: (context, vm) {
         return Text('$vm');
       },
@@ -272,7 +319,7 @@ class _OnFirstFrameWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     late int initCounter;
     return ViewModelBuilder(
-      provider: _counter,
+      provider: (context) => _counter,
       onFirstFrame: (context, vm) => initCounter = context.read(_counter),
       builder: (context, vm) {
         return Text('$vm - $initCounter');
@@ -291,7 +338,7 @@ class _OnFirstLoadingFrameWidget extends StatelessWidget {
     late int loadingCounter;
     late int initCounter;
     return ViewModelBuilder(
-      provider: _counter,
+      provider: (context) => _counter,
       init: (context) => future,
       onFirstLoadingFrame: (context) => loadingCounter = context.read(_counter),
       onFirstFrame: (context, vm) => initCounter = context.read(_counter),
@@ -310,10 +357,35 @@ class _SwitchingWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final b = context.ref.watch(_switcher);
+    final b = context.watch(_switcher);
     if (b) {
       return ViewModelBuilder(
-        provider: _counter,
+        provider: (context) => _counter,
+        dispose: (ref) => onDispose(),
+        builder: (context, vm) {
+          return Text('$vm');
+        },
+      );
+    } else {
+      return Container();
+    }
+  }
+}
+
+/// Similar to [_SwitchingWidget], but creates a temporary provider
+class _SwitchingTempProviderWidget extends StatelessWidget {
+  final void Function() onDispose;
+
+  _SwitchingTempProviderWidget(this.onDispose);
+
+  @override
+  Widget build(BuildContext context) {
+    final b = context.watch(_switcher);
+    if (b) {
+      return ViewModelBuilder(
+        provider: (context) => ViewProvider((ref) {
+          return ref.watch(_counter);
+        }),
         dispose: (ref) => onDispose(),
         builder: (context, vm) {
           return Text('$vm');
@@ -329,7 +401,7 @@ class _SyncInitNoPlaceholderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: _counter,
+      provider: (context) => _counter,
       init: (context) => context.notifier(_counter).setState((old) => old + 1),
       builder: (context, vm) {
         return Text('$vm');
@@ -342,7 +414,7 @@ class _SyncInitWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: _counter,
+      provider: (context) => _counter,
       init: (context) => context.notifier(_counter).setState((old) => old + 1),
       loadingBuilder: (context) => Text('Loading...'),
       builder: (context, vm) {
@@ -356,7 +428,7 @@ class _AsyncInitNoPlaceholderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: _counter,
+      provider: (context) => _counter,
       init: (context) async {
         await Future.delayed(Duration(milliseconds: 100));
         context.notifier(_counter).setState((old) => old + 1);
@@ -372,7 +444,7 @@ class _AsyncInitWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: _counter,
+      provider: (context) => _counter,
       init: (context) async {
         await Future.delayed(Duration(milliseconds: 100));
         context.notifier(_counter).setState((old) => old + 1);
@@ -389,7 +461,7 @@ class _AsyncErrorInitWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: _counter,
+      provider: (context) => _counter,
       init: (context) async {
         await Future.delayed(Duration(milliseconds: 100));
         throw 'My Error';

@@ -124,7 +124,7 @@ class _MyPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: _notifierProvider,
+      provider: (context) => _notifierProvider,
       builder: (context, vm) {
         return Scaffold(
           body: Center(
@@ -165,7 +165,7 @@ class _InitCallbackPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: _notifierProvider,
+      provider: (context) => _notifierProvider,
       init: (context) => onInit(context.ref),
       onFirstLoadingFrame: (context) => onInitBuild(context.ref),
       builder: (context, vm) {
