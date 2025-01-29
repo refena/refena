@@ -129,11 +129,13 @@ abstract class BaseReduxAction<N extends ReduxNotifier<T>, T, R>
   /// won't access N inside the dispatcher anyway.
   ///
   /// Usage:
+  /// ```dart
   /// class MyNotifier extends ReduxNotifier<int> {
   ///   final ServiceB serviceB;
   /// }
   /// // ...
   /// external(notifier.serviceB).dispatch(SubtractAction(11));
+  /// ```
   Dispatcher<ReduxNotifier<T2>, T2> external<T2>(
     ReduxNotifier<T2> notifier,
   ) {
@@ -271,12 +273,14 @@ abstract class AsyncReduxAction<N extends ReduxNotifier<T>, T>
   /// [before] -> [wrapReduce] -> [after]
   ///
   /// Usage:
+  /// ```dart
   /// Future<int> wrapReduce() async {
   ///   someLogicBeforeReduce();
   ///   final result = await reduce();
   ///   someLogicAfterReduce();
   ///   return result;
   /// }
+  /// ```
   Future<T> wrapReduce() => reduce();
 
   @override

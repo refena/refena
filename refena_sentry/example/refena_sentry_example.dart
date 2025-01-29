@@ -14,7 +14,7 @@ void main() async {
         ],
       );
 
-      container.dispatch(ErrorAction());
+      container.global.dispatch(ErrorAction());
     },
   );
 }

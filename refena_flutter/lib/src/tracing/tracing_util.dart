@@ -12,10 +12,16 @@ final Map<_EventType, Color> _baseColors = {
 };
 
 final Map<_EventType, Color> _headerColor = _baseColors.map((key, value) {
+  // We cannot use withOpacity
+  // because it is not available in older Flutter versions
+  // ignore: deprecated_member_use
   return MapEntry(key, value.withOpacity(0.3));
 });
 
 final Map<_EventType, Color> _backgroundColor = _baseColors.map((key, value) {
+  // We cannot use withOpacity
+  // because it is not available in older Flutter versions
+  // ignore: deprecated_member_use
   return MapEntry(key, value.withOpacity(0.1));
 });
 

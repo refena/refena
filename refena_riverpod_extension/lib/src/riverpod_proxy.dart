@@ -25,7 +25,7 @@ class RiverpodProxy {
 
 class RiverpodRebuildableProxy extends RiverpodProxy {
   final Rebuildable rebuildable;
-  final Set<riverpod.AlwaysAliveProviderListenable> _listening = {};
+  final Set<riverpod.ProviderListenable> _listening = {};
 
   RiverpodRebuildableProxy({
     required this.rebuildable,
@@ -35,7 +35,7 @@ class RiverpodRebuildableProxy extends RiverpodProxy {
 
   /// Reads the value of a Riverpod provider and
   /// rebuilds the [rebuildable] when the value changes.
-  T watch<T>(riverpod.AlwaysAliveProviderListenable<T> provider) {
+  T watch<T>(riverpod.ProviderListenable<T> provider) {
     if (_listening.contains(provider)) {
       return riverpodRef.read<T>(provider);
     }

@@ -22,6 +22,7 @@ part of 'redux_action.dart';
 /// Similarly to [GlobalAction], this action also has access to the [Ref] so
 /// be careful to not produce any unwanted side effects.
 ///
+/// ```dart
 /// Example:
 /// class MyNotifier extends ReduxNotifier<MyState> {
 ///   @override
@@ -41,6 +42,7 @@ part of 'redux_action.dart';
 ///     );
 ///   }
 /// }
+/// ```
 ///
 /// {@category Redux}
 abstract class WatchAction<N extends ReduxNotifier<T>, T>

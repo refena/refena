@@ -11,6 +11,7 @@ import 'package:refena/src/notifier/base_notifier.dart';
 /// - setting the state to [AsyncValue.withData] with the result of [refresh]
 ///
 /// Example:
+/// ```dart
 /// class MyRefreshAction extends RefreshAction<MyNotifier, int> {
 ///   @override
 ///   Future<int> refresh() async {
@@ -18,6 +19,7 @@ import 'package:refena/src/notifier/base_notifier.dart';
 ///     return 42;
 ///   }
 /// }
+/// ```
 abstract class RefreshAction<N extends ReduxNotifier<AsyncValue<T>>, T>
     extends AsyncReduxAction<N, AsyncValue<T>> {
   /// Implement the refresh logic here.

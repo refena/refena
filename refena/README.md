@@ -2047,7 +2047,7 @@ To learn more about each topic, checkout the [topics](https://pub.dev/documentat
 
 MIT License
 
-Copyright (c) 2023-2024 Tien Do Nam
+Copyright (c) 2023-2025 Tien Do Nam
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

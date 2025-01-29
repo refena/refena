@@ -8,7 +8,7 @@ import 'package:refena/src/ref.dart';
 typedef ViewFamilyBuilder<T, P> = T Function(WatchableRef ref, P param);
 
 /// Similar to [ViewProvider] but with a parameter.
-/// It is essentially a syntax sugar for ViewProvider<Map<P, T>>.
+/// It is essentially a syntax sugar for `ViewProvider<Map<P, T>>`.
 class ViewFamilyProvider<T, P>
     extends BaseProvider<FamilyNotifier<T, P, ViewProvider<T>>, Map<P, T>>
     implements
