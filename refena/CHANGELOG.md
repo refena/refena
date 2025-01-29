@@ -1,3 +1,7 @@
+## 3.0.1
+
+- style: format issues
+
 ## 3.0.0
 
 - feat: add `global` to `ReduxNotifier` to dispatch global actions within the notifier
