@@ -1,3 +1,7 @@
+## 2.0.4
+
+- deps: loosen constraint of `refena` to `>=2.0.0 <4.0.0`
+
 ## 2.0.3
 
 - fix: start inspector client on Windows not working
