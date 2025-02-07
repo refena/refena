@@ -1,3 +1,7 @@
+## 2.1.0
+
+- deps: bump refena to 3.0.0
+
 ## 2.0.2
 
 - deps: loosen constraint of `refena` to `>=2.0.0 <4.0.0`

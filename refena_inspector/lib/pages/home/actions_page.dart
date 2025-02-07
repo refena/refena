@@ -78,7 +78,7 @@ class ActionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder(
-      provider: actionsPageVmProvider,
+      provider: (ref) => actionsPageVmProvider,
       builder: (context, vm) {
         return Scaffold(
           appBar: AppBar(
