@@ -71,6 +71,15 @@ void main() {
       expect(ref.anyNotifier(stateProvider).provider, stateProvider);
       expect(observer.history, [isA<ProviderInitEvent>()]);
     });
+
+    test('Should also be able to read from notifier.provider', () {
+      final ref = RefenaContainer();
+
+      final reduxProvider =
+          ReduxProvider<_ReduxNotifier, int>((ref) => _ReduxNotifier());
+      final reduxNotifier = ref.notifier(reduxProvider);
+      expect(ref.read(reduxNotifier.provider!), 20);
+    });
   });
 
   group('dispose', () {
@@ -495,6 +504,11 @@ class _DisposableNotifier extends Notifier<int> {
     onDispose?.call();
     super.dispose();
   }
+}
+
+class _ReduxNotifier extends ReduxNotifier<int> {
+  @override
+  int init() => 20;
 }
 
 class _DisposableObserver extends RefenaObserver {

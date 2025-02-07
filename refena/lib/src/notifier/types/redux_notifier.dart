@@ -16,6 +16,11 @@ part of '../base_notifier.dart';
 abstract class ReduxNotifier<T> extends BaseNotifier<T> {
   ReduxNotifier();
 
+  @override
+  @nonVirtual
+  ReduxProvider<ReduxNotifier<T>, T>? get provider =>
+      _provider as ReduxProvider<ReduxNotifier<T>, T>?;
+
   /// A map of overrides for the reducers.
   Map<Type, MockReducer<T>?>? _overrides;
 

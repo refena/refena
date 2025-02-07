@@ -1,3 +1,7 @@
+## 3.1.0
+
+- feat: allow use of `ref.watch(reduxNotifier.provider!)` (access provider via notifier)
+
 ## 3.0.1
 
 - style: format issues

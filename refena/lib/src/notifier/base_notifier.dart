@@ -100,7 +100,6 @@ abstract class BaseNotifier<T> implements LabeledReference {
 
   /// The provider that created this notifier.
   /// This is only available after the initialization.
-  @nonVirtual
   BaseProvider<BaseNotifier<T>, T>? get provider => _provider;
 
   /// Gets the current state.
