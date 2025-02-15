@@ -1,6 +1,6 @@
 name: refena_sentry
 description: Adds Sentry integration to the Refena state management library.
-version: 0.1.3
+version: 0.1.4
 repository: https://github.com/refena/refena/tree/main/refena_sentry
 issue_tracker: https://github.com/refena/refena/issues
 topics:
@@ -13,7 +13,7 @@ environment:
   sdk: ^3.0.0
 
 dependencies:
-   refena: '>=1.2.0 <3.0.0'
+   refena: '>=1.2.0 <4.0.0'
    sentry: '>=7.0.0 <9.0.0'
 
 dev_dependencies:
