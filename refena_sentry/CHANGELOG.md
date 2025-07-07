@@ -1,3 +1,7 @@
+## 0.1.5
+
+- deps: loosen `sentry` constraint to `>=7.0.0 <10.0.0`
+
 ## 0.1.4
 
 - deps: loosen `refena` constraint to `>=1.2.0 <4.0.0`
